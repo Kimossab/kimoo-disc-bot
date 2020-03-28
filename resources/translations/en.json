@@ -1,0 +1,35 @@
+{
+  "general": {
+    "help": "Help",
+    "error": "Error",
+    "success": "Success",
+    "usage": "Usage",
+    "parameters": "Parameters",
+    "owner": "Owner",
+    "admin": "Administrator",
+    "mod": "Moderator"
+  },
+  "errors": {
+    "internal_error": "Internal error, please contact <@108208089987051520>",
+    "weeb": {
+      "noanime": "No anime found for query <query> in <source>"
+    }
+  },
+  "help": {
+    "getanime": {
+      "command": "<trigger>getanime [(optional) source] [name]",
+      "description": "Command to get more info about an anime.",
+      "parameters": "**[(optional) source]** source of the info (MAL/Kitsu)\n**[name]** anime name or search query"
+    },
+    "searchmal": {
+      "command": "<trigger>searchmal [(optional) type] [name]",
+      "description": "Command to get a MAL link. Only first result is shown.",
+      "parameters": "**[(optional) type]** type of info (anime/manga/person/character)\n**[name]** name or search query"
+    },
+    "help": {
+      "command": "<trigger>help",
+      "description": "Shows this.",
+      "parameters": null
+    }
+  }
+}

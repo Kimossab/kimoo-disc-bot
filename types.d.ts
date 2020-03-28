@@ -1,0 +1,443 @@
+declare module "*.json" {
+  const value: any;
+  export default value;
+}
+
+declare module "unirest";
+
+declare interface custom_commands {
+  id: number;
+  server_id: string;
+  cmd_trigger: string;
+  text: string;
+  file_id: string;
+  path?: string; //image path
+}
+
+declare interface message_translate {
+  key: string;
+  replaces?: object;
+}
+
+declare namespace database {
+  interface server_settings {
+    id: string;
+    cmd_trigger: string;
+    admin_role: string;
+    bot_lang: string;
+  }
+}
+
+declare namespace discord {
+  namespace gateway {
+    interface payload {
+      op: number;
+      d: any | null;
+      s?: number;
+      t?: string;
+    }
+
+    interface session_start_limit {
+      total: number;
+      remaining: number;
+      reset_after: number;
+    }
+
+    interface bot {
+      url: string;
+      shards: number;
+      session_start_limit: session_start_limit;
+    }
+  }
+
+  interface role {
+    id: string;
+    name: string;
+    color: number;
+    hoist: boolean;
+    position: number;
+    permissions: number;
+    managed: boolean;
+    mentionable: boolean;
+  }
+
+  interface user {
+    id: string;
+    username: string;
+    discriminator: string;
+    avatar: string | null;
+    bot?: boolean;
+    mfa_enabled?: boolean;
+    locale?: string;
+    verified?: boolean;
+    email?: string;
+    flags?: number;
+    premium_type?: number;
+  }
+
+  interface emoji {
+    id: string | null;
+    name: string;
+    roles?: string[];
+    user?: discord.user;
+    require_colons?: boolean;
+    managed?: boolean;
+    animated?: boolean;
+  }
+
+  interface voice_state {
+    guild_id?: string;
+    channel_id: string | null;
+    user_id: string;
+    member?: discord.member;
+    session_id: string;
+    deaf: boolean;
+    mute: boolean;
+    self_deaf: boolean;
+    self_mute: boolean;
+    suppress: boolean;
+  }
+
+  interface member {
+    user: discord.user;
+    nick?: string;
+    roles: string[];
+    joined_at: string;
+    premium_since: string | null;
+    deaf: boolean;
+    mute: boolean;
+  }
+
+  interface overwrite {
+    id: string;
+    type: string;
+    allow: number;
+    deny: number;
+  }
+
+  interface channel {
+    id: string;
+    type: number;
+    guild_id?: string;
+    position?: number;
+    permission_overwrites?: discord.overwrite[];
+    name?: string;
+    topic?: string | null;
+    nsfw?: boolean;
+    last_message_id?: string | null;
+    bitrate?: number;
+    user_limit?: number;
+    rate_limit_per_user?: number;
+    recipients?: discord.user[];
+    icon?: string | null;
+    owner_id?: string;
+    application_id?: string;
+    parent_id?: string | null;
+    last_pin_timestamp?: string;
+  }
+
+  interface timestamps {
+    start?: number;
+    end?: number;
+  }
+
+  interface party {
+    id?: string;
+    size?: number[];
+  }
+
+  interface assets {
+    large_image?: string;
+    large_text?: string;
+    small_image?: string;
+    small_text?: string;
+  }
+
+  interface secrets {
+    join?: string;
+    spectate?: string;
+    match?: string;
+  }
+
+  interface activity {
+    name: string;
+    type: number;
+    url?: string | null;
+    timestamps?: discord.timestamps;
+    application_id?: string;
+    details?: string | null;
+    state?: string | null;
+    party?: discord.party;
+    assets?: discord.assets;
+    secrets?: discord.secrets;
+    instance?: boolean;
+    flags?: number;
+  }
+
+  interface client_status {
+    desktop?: string;
+    mobile?: string;
+    web?: string;
+  }
+
+  interface presence {
+    user: discord.user;
+    roles: string[];
+    game: discord.activity | null;
+    guild_id: string;
+    status: string;
+    activities: discord.activity[];
+    client_status: discord.client_status;
+  }
+
+  interface guild {
+    id: string;
+    name: string;
+    icon: string | null;
+    splash: string | null;
+    owner?: boolean;
+    owner_id: string;
+    permissions?: number;
+    region: string;
+    afk_channel_id: string | null;
+    afk_timeout: number;
+    embed_enabled?: boolean;
+    embed_channel_id?: string;
+    verification_level: number;
+    default_message_notifications: number;
+    explicit_content_filter: number;
+    roles: discord.role[];
+    emojis: discord.emoji[];
+    features: string[];
+    mfa_level: number;
+    application_id: string | null;
+    widget_enabled?: boolean;
+    widget_channel_id?: string;
+    system_channel_id: string | null;
+    joined_at?: string;
+    large?: boolean;
+    unavailable?: boolean;
+    member_count?: number;
+    voice_states?: discord.voice_state[];
+    members?: discord.member[];
+    channels?: discord.channel[];
+    presences?: discord.presence[];
+    max_presences?: number | null;
+    max_members?: number;
+    vanity_url_code: string | null;
+    description: string | null;
+    banner: string | null;
+    premium_tier: number;
+    premium_subscription_count?: number;
+    preferred_locale: string;
+
+    //bot server settings
+    cmd_trigger: string;
+    admin_role: string | null;
+    mod_role: string | null;
+    mute_role: string | null;
+    log_channel: string | null;
+    mod_channel: string | null;
+    bot_lang: string;
+    customCmds: custom_commands[];
+  }
+
+  interface attachment {
+    id: string;
+    filename: string;
+    size: number;
+    url: string;
+    proxy_url: string;
+    height: number | null;
+    width: number | null;
+  }
+
+  interface embed_footer {
+    text: string;
+    icon_url?: string;
+    proxy_icon_url?: string;
+  }
+
+  interface embed_image {
+    url?: string;
+    proxy_url?: string;
+    height?: number;
+    width?: number;
+  }
+
+  interface embed_thumbnail {
+    url?: string;
+    proxy_url?: string;
+    height?: number;
+    width?: number;
+  }
+
+  interface embed_video {
+    url?: string;
+    height?: number;
+    width?: number;
+  }
+
+  interface embed_provider {
+    name?: string;
+    url?: string;
+  }
+
+  interface embed_author {
+    name?: string;
+    url?: string;
+    icon_url?: string;
+    proxy_icon_url?: string;
+  }
+
+  interface embed_field {
+    name: string;
+    value: string;
+    inline?: boolean;
+  }
+
+  interface embed {
+    title?: string;
+    type?: string;
+    description?: string;
+    url?: string;
+    timestamp?: string;
+    color?: number;
+    footer?: discord.embed_footer;
+    image?: discord.embed_image;
+    thumbnail?: discord.embed_thumbnail;
+    video?: discord.embed_video;
+    provider?: discord.embed_provider;
+    author?: discord.embed_author;
+    fields?: discord.embed_field[];
+  }
+
+  interface reaction {
+    count: number;
+    me: boolean;
+    emoji: discord.emoji;
+  }
+
+  interface message_activity {
+    type: number;
+    party_id?: string;
+  }
+
+  interface message_application {
+    id: string;
+    cover_image?: string;
+    description: string;
+    icon: string | null;
+    name: string;
+  }
+
+  interface message_reference {
+    message_id?: string;
+    channel_id: string;
+    guild_id?: string;
+  }
+
+  interface message {
+    id: string;
+    channel_id: string;
+    guild_id?: string;
+    author: discord.user | any;
+    member?: discord.member;
+    content: string;
+    timestamp: string;
+    edited_timestamp: string | null;
+    tts: boolean;
+    mention_everyone: boolean;
+    mentions: any[];
+    mention_roles: role[] | string[];
+    attachments: discord.attachment[];
+    embeds: discord.embed[];
+    reactions?: discord.reaction[];
+    nonce?: string | null;
+    pinned: boolean;
+    webhook_id?: string;
+    type: number;
+    activity?: discord.message_activity;
+    application?: discord.message_application;
+    message_reference?: discord.message_reference;
+    flags?: number;
+  }
+}
+
+declare namespace kitsu {
+  interface anime {
+    id: string;
+    type: string;
+    links: { self: string };
+    attributes: anime_attributes;
+    relationships: object;
+  }
+
+  interface anime_attributes {
+    createdAt: string;
+    updatedAt: string;
+    slug: string;
+    synopsis: string;
+    coverImageTopOffset: number;
+    titles: object;
+    canonicalTitle: string;
+    abbreviatedTitles: string[];
+    averageRating: string;
+    ratingFrequencies: object;
+    userCount: number;
+    favoritesCount: number;
+    startDate: string;
+    endDate: string;
+    nextRelease: string | null;
+    popularityRank: number;
+    ratingRank: number;
+    ageRating: string;
+    ageRatingGuide: string;
+    subtype: string;
+    status: string;
+    tba: string | null;
+    posterImage: object;
+    episodeCount: number;
+    episodeLength: number;
+    totalLength: number;
+    youtubeVideoId: string;
+    showType: string;
+    nsfw: boolean;
+  }
+
+  interface search_response {
+    data: anime[];
+    meta: { count: number };
+    links: {
+      first: string;
+      next: string;
+      last: string;
+    };
+  }
+}
+
+declare namespace MAL {
+  interface search_response {
+    categories: search_categories[];
+  }
+  interface search_categories {
+    type: string;
+    items: anime[];
+  }
+  interface anime {
+    id: number;
+    type: string;
+    name: string;
+    url: string;
+    image_url: string;
+    payload: anime_payload;
+    es_score: number;
+  }
+  interface anime_payload {
+    media_type: string;
+    start_year: number;
+    aired: string;
+    score: string;
+    status: string;
+  }
+}

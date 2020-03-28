@@ -1,0 +1,29 @@
+{
+  "name": "kimoobot",
+  "version": "1.0.0",
+  "description": "Kimossab's Discord Bot",
+  "scripts": {
+    "start": "node ./build/index.js",
+    "build": "./build.sh",
+    "dev": "ts-node-dev --respawn --transpileOnly ./index.ts",
+    "prod": "./build.sh && node ./build/index.js"
+  },
+  "main": "index.js",
+  "author": "kimossab@outlook.pt",
+  "license": "MIT",
+  "dependencies": {
+    "@types/dotenv": "^6.1.1",
+    "@types/sqlite3": "^3.1.5",
+    "@types/ws": "^6.0.3",
+    "dotenv": "^6.0.0",
+    "sqlite3": "^4.1.0",
+    "ts-node-dev": "^1.0.0-pre.42",
+    "typescript": "^3.5.3",
+    "unirest": "^0.6.0",
+    "ws": "^6.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "12.x"
+  }
+}
