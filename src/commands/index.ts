@@ -17,32 +17,36 @@ class Commands {
       const guildIndex = this.socket.guildList.findIndex(
         g => messageData.guild_id === g.id
       );
-      const trigger = process.env.DEFAULT_CMD_TRIGGER!;
-      const regex = new RegExp("\\" + trigger + "([^\\s]*)\\s?(.*)", "g");
-      const regExec = regex.exec(messageData.content);
+      if (messageData.content.length === 1) {
+        WeebCommands.checkChoice(this.socket.guildList[guildIndex], messageData);
+      } else {
+        const trigger = process.env.DEFAULT_CMD_TRIGGER!;
+        const regex = new RegExp("\\" + trigger + "([^\\s]*)\\s?(.*)", "g");
+        const regExec = regex.exec(messageData.content);
 
-      if (regExec) {
-        const splited = regExec.slice(1, 3);
+        if (regExec) {
+          const splited = regExec.slice(1, 3);
 
-        try {
-          switch (splited[0]) {
-            case 'help': {
-              this.help(guildIndex, trigger, messageData);
-              break;
+          try {
+            switch (splited[0]) {
+              case 'help': {
+                this.help(guildIndex, trigger, messageData);
+                break;
+              }
+              case 'searchmal':
+              case 'mal': {
+                WeebCommands.searchMal(this.socket.guildList[guildIndex], trigger, messageData, splited);
+                break;
+              }
+              case 'getanime':
+              case 'anime': {
+                WeebCommands.getAnime(this.socket.guildList[guildIndex], trigger, messageData, splited);
+                break;
+              }
             }
-            case 'searchmal':
-            case 'mal': {
-              WeebCommands.searchMal(this.socket.guildList[guildIndex], trigger, messageData, splited);
-              break;
-            }
-            case 'getanime':
-            case 'anime': {
-              WeebCommands.getAnime(this.socket.guildList[guildIndex], trigger, messageData, splited);
-              break;
-            }
+          } catch (e) {
+            console.log(e);
           }
-        } catch (e) {
-          console.log(e);
         }
       }
     }

@@ -217,7 +217,7 @@ class DiscordSocket {
         this.messageReceived(data.d);
         break;
       case "MESSAGE_UPDATE":
-        console.log("MESSAGE_UPDATE", JSON.stringify(data));
+        // console.log("MESSAGE_UPDATE", JSON.stringify(data));
         break;
       case "MESSAGE_DELETE":
         console.log("MESSAGE_DELETE", JSON.stringify(data));

@@ -3,3 +3,4 @@ node_modules/
 logs/
 custom_files/
 .env
+.vscode

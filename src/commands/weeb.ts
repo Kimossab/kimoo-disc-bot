@@ -2,12 +2,15 @@ import DiscordRest from "../discord/rest";
 import unirest from "unirest";
 
 const malTypes: { [key: string]: string } = {
+  all: "all",
   manga: "manga",
   anime: "anime",
   person: "person",
   char: "character",
   character: "character"
 };
+
+let lastMalResult: { [key: string]: MAL.item[] } = {};
 
 class WeebCommands {
 
@@ -76,7 +79,7 @@ class WeebCommands {
         return DiscordRest.sendInfo(messageData.channel_id, guild, "searchmal", trigger);
       }
 
-      let type = "anime";
+      let type = "all";
       let query = null;
 
       let firstPart = data[1].substring(0, data[1].indexOf(" ")).toLowerCase();
@@ -89,9 +92,51 @@ class WeebCommands {
 
       const queryResult = await WeebCommands.malRequest(malTypes[type], query);
 
+      lastMalResult[messageData.channel_id] = [];
+      for (const cat of queryResult.categories) {
+        for (const item of cat.items) {
+          lastMalResult[messageData.channel_id].push(item);
+        }
+      }
+
+      lastMalResult[messageData.channel_id].sort((a, b) => {
+        return a.es_score > b.es_score ? -1 : 1;
+      });
+
+      let fields: discord.embed_field[] = [];
+      for (const index in lastMalResult[messageData.channel_id]) {
+        if (lastMalResult[messageData.channel_id].hasOwnProperty(index)) {
+          const item = lastMalResult[messageData.channel_id][index];
+
+          let name = item.name;
+
+          if ((item.payload as MAL.char_payload).related_works && (item.payload as MAL.char_payload).related_works.length > 0) {
+            name += ` - ${(item.payload as MAL.char_payload).related_works[0]}`;
+          }
+
+          fields.push({
+            name: `${index}: ${item.type}`,
+            value: name,
+            inline: false
+          });
+        }
+      }
+
+      const embed: discord.embed = {
+        title: "MAL Result",
+        description: "Pick one",
+        color: 3035554,
+        provider: {
+          name: "My Anime List",
+          url: "https://myanimelist.net/"
+        },
+        fields: fields
+      }
+
       return DiscordRest.sendMessage(
         messageData.channel_id,
-        queryResult.categories[0].items[0].url
+        "",
+        embed
       );
     } catch (e) {
       console.log("searchMal", e);
@@ -130,6 +175,59 @@ class WeebCommands {
           resolve(r.body);
         });
     });
+  }
+
+  public static checkChoice(
+    guild: discord.guild,
+    messageData: discord.message
+  ) {
+    const num: number = Number(messageData.content);
+    if (num !== NaN && num >= 0 && lastMalResult[messageData.channel_id] && lastMalResult[messageData.channel_id].length > 0 && num < lastMalResult[messageData.channel_id].length - 1) {
+      const item = lastMalResult[messageData.channel_id][num];
+
+      const embed: discord.embed = {
+        title: item.name,
+        description: item.url,
+        color: 3035554,
+        image: {
+          url: item.image_url
+        },
+        provider: {
+          name: "My Anime List",
+          url: "https://myanimelist.net/"
+        },
+        fields: []
+      }
+
+      if (item.payload && (item.payload as MAL.anime_payload).media_type) {
+        const payload: MAL.anime_payload = (item.payload as MAL.anime_payload);
+        embed.fields?.push({
+          name: payload.media_type,
+          value: `${payload.aired} - ${status} - ${item.es_score}`
+        });
+      } else if (item.payload && (item.payload as MAL.char_payload).related_works) {
+        const payload: MAL.char_payload = (item.payload as MAL.char_payload);
+        embed.fields?.push({
+          name: "Favorites",
+          value: payload.favorites.toString(),
+          inline: false
+        });
+
+        for (const work of payload.related_works) {
+          embed.fields?.push({
+            name: "Related Work",
+            value: work,
+            inline: false
+          });
+        }
+      }
+
+      return DiscordRest.sendMessage(
+        messageData.channel_id,
+        "",
+        embed
+      );
+    }
   }
 }
 

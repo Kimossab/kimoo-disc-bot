@@ -422,15 +422,16 @@ declare namespace MAL {
   }
   interface search_categories {
     type: string;
-    items: anime[];
+    items: item[];
   }
-  interface anime {
+  interface item {
     id: number;
     type: string;
     name: string;
     url: string;
     image_url: string;
-    payload: anime_payload;
+    thumbnail_url: string;
+    payload: anime_payload | char_payload;
     es_score: number;
   }
   interface anime_payload {
@@ -439,5 +440,9 @@ declare namespace MAL {
     aired: string;
     score: string;
     status: string;
+  }
+  interface char_payload {
+    related_works: string[];
+    favorites: number
   }
 }
