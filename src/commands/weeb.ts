@@ -202,8 +202,8 @@ class WeebCommands {
       if (item.payload && (item.payload as MAL.anime_payload).media_type) {
         const payload: MAL.anime_payload = (item.payload as MAL.anime_payload);
         embed.fields?.push({
-          name: payload.media_type,
-          value: `${payload.aired} - ${status} - ${item.es_score}`
+          name: `Type: ${payload.media_type}`,
+          value: payload.aired
         });
       } else if (item.payload && (item.payload as MAL.char_payload).related_works) {
         const payload: MAL.char_payload = (item.payload as MAL.char_payload);
