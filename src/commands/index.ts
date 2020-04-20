@@ -43,6 +43,9 @@ class Commands {
                 WeebCommands.getAnime(this.socket.guildList[guildIndex], trigger, messageData, splited);
                 break;
               }
+              case 'wiki': {
+                WeebCommands.searchWiki(this.socket.guildList[guildIndex], trigger, messageData, splited);
+              }
             }
           } catch (e) {
             console.log(e);

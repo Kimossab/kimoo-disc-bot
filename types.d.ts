@@ -446,3 +446,60 @@ declare namespace MAL {
     favorites: number
   }
 }
+
+declare namespace fandom {
+  interface url_map {
+    [index: string]: string
+  }
+
+  interface search_item {
+    quality: number,
+    url: string,
+    ns: number,
+    id: number,
+    title: string,
+    snippet: string
+  }
+
+  interface search_response {
+    batches: number,
+    items: search_item[],
+    total: number,
+    currentBatch: number,
+    next: number
+  }
+
+  interface dimensions {
+    width: number,
+    height: number
+  }
+
+  interface page_revision {
+    id: number,
+    user: string,
+    user_id: number,
+    timestamp: number
+  }
+
+  interface page_item {
+    original_dimensions: dimensions,
+    url: string,
+    ns: number,
+    abstract: string,
+    thumbnail: string,
+    revision: page_revision,
+    id: number,
+    title: string,
+    type: string,
+    comments: number
+  }
+
+  interface page_item_list {
+    [index: string]: page_item
+  }
+
+  interface page {
+    items: page_item_list,
+    basepath: string
+  }
+}
