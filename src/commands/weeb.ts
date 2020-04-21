@@ -15,12 +15,7 @@ let lastMalResult: { [key: string]: MAL.item[] } = {};
 
 class WeebCommands {
 
-  public static async getAnime(
-    guild: discord.guild,
-    trigger: string,
-    messageData: discord.message,
-    data: string[]
-  ) {
+  public static async getAnime(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
     try {
       // valid parameters
       if (data[1] === "") {
@@ -44,7 +39,7 @@ class WeebCommands {
         const count = queryResult.meta.count;
         if (count === 0) {
           return DiscordRest.sendError(messageData.channel_id, guild, {
-            key: "noanime",
+            key: "errors.weeb.noanime",
             replaces: { query: query, source: source }
           });
         }
@@ -68,12 +63,7 @@ class WeebCommands {
     }
   }
 
-  public static async searchMal(
-    guild: discord.guild,
-    trigger: string,
-    messageData: discord.message,
-    data: string[]
-  ) {
+  public static async searchMal(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
     try {
       // valid parameters
       if (data[1] === "") {
@@ -144,10 +134,7 @@ class WeebCommands {
     }
   }
 
-  private static async malRequest(
-    type: string,
-    query: string
-  ): Promise<MAL.search_response> {
+  private static async malRequest(type: string, query: string): Promise<MAL.search_response> {
     return new Promise((resolve, reject) => {
       unirest
         .get(
@@ -199,10 +186,7 @@ class WeebCommands {
     });
   }
 
-  public static checkChoice(
-    guild: discord.guild,
-    messageData: discord.message
-  ) {
+  public static checkChoice(_guild: discord.guild, messageData: discord.message) {
     const num: number = Number(messageData.content);
     if (num !== NaN && num >= 0 && lastMalResult[messageData.channel_id] && lastMalResult[messageData.channel_id].length > 0 && num < lastMalResult[messageData.channel_id].length - 1) {
       const item = lastMalResult[messageData.channel_id][num];
@@ -252,55 +236,51 @@ class WeebCommands {
     }
   }
 
-  public static async searchWiki(
-    guild: discord.guild,
-    trigger: string,
-    messageData: discord.message,
-    data: string[]
-  ) {
+  public static async searchWiki(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
     // valid parameters
     if (data[1] === "") {
-      return DiscordRest.sendInfo(messageData.channel_id, guild, "getanime", trigger);
+      return DiscordRest.sendInfo(messageData.channel_id, guild, "wiki", trigger);
     }
 
     const firstPart = data[1].substring(0, data[1].indexOf(" ")).toLowerCase();
     const query = data[1].substring(data[1].indexOf(" ") + 1);
+    const wiki = FANDOM_LINKS[firstPart] ? FANDOM_LINKS[firstPart] : firstPart;
 
-    const wikia = FANDOM_LINKS[firstPart] ? FANDOM_LINKS[firstPart] : firstPart;
-    const queryResult = await WeebCommands.fandomSearch(wikia, query);
+    try {
+      const queryResult = await WeebCommands.fandomSearch(wiki, query);
 
+      if (queryResult.items && queryResult.items.length > 0) {
+        const id = queryResult.items[0].id;
 
-    if (queryResult.items.length > 0) {
-      const id = queryResult.items[0].id;
+        const page = await WeebCommands.fandomGetPage(wiki, id);
 
-      const page = await WeebCommands.fandomGetPage(wikia, id);
-      console.log(page, page.items, id);
+        const embed: discord.embed = {
+          title: page.items[id].title,
+          description: page.items[id].abstract,
+          color: 6465461,
+          image: {
+            url: page.items[id].thumbnail
+          },
+          fields: [{
+            name: 'URL',
+            value: page.basepath + page.items[id].url
+          }]
+        }
 
-      const embed: discord.embed = {
-        title: page.items[id].title,
-        description: page.items[id].abstract,
-        color: 6465461,
-        image: {
-          url: page.items[id].thumbnail
-        },
-        fields: [{
-          name: 'URL',
-          value: page.basepath + page.items[id].url
-        }]
+        return DiscordRest.sendMessage(messageData.channel_id, "", embed);
+      } else {
+        return DiscordRest.sendError(messageData.channel_id, guild, {
+          key: "errors.weeb.wiki_fail",
+          replaces: { query: query, wiki: wiki }
+        });
       }
-
-      return DiscordRest.sendMessage(
-        messageData.channel_id,
-        "",
-        embed
-      );
-    } else {
-      return DiscordRest.sendMessage(
-        messageData.channel_id,
-        'Nothing found'
-      );
+    } catch (e) {
+      console.error(e);
+      return DiscordRest.sendError(messageData.channel_id, guild, {
+        key: "errors.weeb.wiki_fail",
+        replaces: { query: query, wiki: wiki }
+      });
     }
-
   }
 }
 

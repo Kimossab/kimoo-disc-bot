@@ -76,11 +76,7 @@ class DiscordRest {
     DiscordRest.sendMessage(channel, "", embed);
   }
 
-  public static sendError(
-    channel: string,
-    guild: discord.guild,
-    message: message_translate
-  ) {
+  public static sendError(channel: string, guild: discord.guild, message: message_translate) {
     // const guild = store.guildList.find(g => g.id === server);
     const embed = {
       title: Helper.translation(guild, "general.error"),

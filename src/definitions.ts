@@ -15,14 +15,33 @@ export enum GATEWAY_OPCODES {
 };
 
 export const FANDOM_LINKS: fandom.url_map = {
+  // Sword Art Online
   "sao": "swordartonline",
+  // Accel World
   "aw": "accelworld",
-  "magic_highschool": "mahouka-koukou-no-rettousei",
+  // The Irregular At Magic High School
+  "magichighschool": "mahouka-koukou-no-rettousei",
   "magichs": "mahouka-koukou-no-rettousei",
   "mahouka": "mahouka-koukou-no-rettousei",
   "irregular": "mahouka-koukou-no-rettousei",
+  // Re:Zero
   "rezero": "rezero",
+  // Overlord
   "overlord": "overlordmaruyama",
+  // Quintessential Quintuplets
   "quintuplets": "5hanayome",
-  "5toubun": "5hanayome"
+  "5toubun": "5hanayome",
+  "quints": "5hanayome",
+  // Konosuba
+  "konosuba": "konosuba",
+  // A Certain Magical Index
+  // A Certain Scientific Railgun
+  "index": "toarumajutsunoindex",
+  "railgun": "toarumajutsunoindex",
+  "cientificrailgun": "toarumajutsunoindex",
+  "magicalindex": "toarumajutsunoindex",
+  //Steins;Gate
+  "steins-gate": "steins-gate",
+  "steinsgate": "steins-gate",
+  "sg": "steins-gate",
 }

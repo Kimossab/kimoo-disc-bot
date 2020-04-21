@@ -12,7 +12,8 @@
   "errors": {
     "internal_error": "Erro interno, por favor contacte <@108208089987051520>",
     "weeb": {
-      "noanime": "Não foi encontrada anime para a query <query> em <source>"
+      "noanime": "Não foi encontrada anime para a query <query> em <source>",
+      "wiki_fail": "Não foi nada encontrado para `<query>` em `<wiki>.fandom.com`. Por favor verifique a pesquisa"
     }
   },
   "help": {
@@ -25,6 +26,11 @@
       "command": "<trigger>searchmal [(optional) tipo] [nome]",
       "description": "Comando para obter link do MAL. Apenas o primeiro resultado é mostrado.",
       "parameters": "**[(opcional) tipo]** tipo (anime/manga/person/character)\n**[nome]** nome a procurar"
+    },
+    "wiki": {
+      "command": "<trigger>wiki [wiki slug] [query]",
+      "description": "Obtem o primeiro artigo encontrado com a query usada na wiki com a slug inserida.",
+      "parameters": "**[wiki slug]** slug da página da wiki (por exemplo: swordartonline para <https://swordartonline.fandom.com>)\n**[query]** procura"
     },
     "help": {
       "command": "<trigger>help",
