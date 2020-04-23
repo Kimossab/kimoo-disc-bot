@@ -19,43 +19,55 @@ class DiscordRest {
     });
   }
 
-  public static sendMessage(
-    channel: string,
-    content: string | null,
-    embed: discord.embed | null = null,
-    tts: boolean = false
-  ) {
-    const req = unirest
-      .post(`https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}/channels/${channel}/messages`)
-      .headers({
-        "Content-Type": "multipart/form-data",
-        authorization: `Bot ${process.env.TOKEN}`
+  public static sendMessage(channel: string, content: string | null, embed: discord.embed | null = null, tts: boolean = false): Promise<discord.message> {
+    return new Promise((resolve, reject) => {
+      const req = unirest
+        .post(`https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}/channels/${channel}/messages`)
+        .headers({
+          "Content-Type": "multipart/form-data",
+          authorization: `Bot ${process.env.TOKEN}`
+        });
+
+      const message = {
+        content: content,
+        embed: embed,
+        tts: tts
+      };
+
+      req.field("payload_json", JSON.stringify(message));
+
+      // if (file) {
+      //   req.attach("file", `${root}custom_files/${file}`);
+      // }
+
+      req.end((r: any) => {
+        resolve(r.body);
+      });
+    });
+  }
+
+  public static editMessage(message: string, channel: string, content: string | null, embed: discord.embed) {
+    return new Promise((resolve, reject) => {
+      const req = unirest
+        .patch(`https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}/channels/${channel}/messages/${message}`)
+        .headers({
+          "Content-Type": "application/json",
+          authorization: `Bot ${process.env.TOKEN}`
+        });
+
+      req.send({
+        content,
+        embed
       });
 
-    const message = {
-      content: content,
-      embed: embed,
-      tts: tts
-    };
-
-    req.field("payload_json", JSON.stringify(message));
-
-    // if (file) {
-    //   req.attach("file", `${root}custom_files/${file}`);
-    // }
-
-    req.end((r: any) => {
-      // console.log(r);
+      req.end((r: any) => {
+        resolve(r.body);
+      });
     });
   }
 
 
-  public static sendInfo(
-    channel: string,
-    server: discord.guild,
-    command: string,
-    trigger: string
-  ) {
+  public static sendInfo(channel: string, server: discord.guild, command: string, trigger: string) {
     const embed = {
       title: Helper.translation(server, "general.help.usage"),
       color: 8995572,
@@ -85,6 +97,20 @@ class DiscordRest {
     };
 
     DiscordRest.sendMessage(channel, null, embed);
+  }
+
+  public static addReaction(channel: string, message: string, reaction: string) {
+    return new Promise((resolve, reject) => {
+      const req = unirest
+        .put(`https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(reaction)}/@me`)
+        .headers({
+          authorization: `Bot ${process.env.TOKEN}`
+        });
+
+      req.end((r: any) => {
+        resolve(r.body);
+      });
+    });
   }
 }
 

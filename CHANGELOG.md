@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Find a _better_ way to not get rate limited (timeouts?)
+
+## [1.0.3] - 2020-04-23
+
+### Added
+
+- Wiki search page search through reactions
+
 ## [1.0.2] - 2020-04-21
 
 ### Added

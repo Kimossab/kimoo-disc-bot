@@ -3,6 +3,7 @@ import Helper from "../helper";
 import { GATEWAY_OPCODES } from "../definitions";
 import DB from "../database";
 import Commands from "../commands";
+import WeebCommands from "../commands/weeb";
 
 class DiscordSocket {
   private url: string;
@@ -16,7 +17,7 @@ class DiscordSocket {
   private lastS: number | null | undefined = null;
   private sessionId: string | null = null;
 
-  private botUser: string | null = null;
+  private botUser: any = null;
   public guildList: any[] = [];
 
   constructor(_url: string, ) {
@@ -226,10 +227,14 @@ class DiscordSocket {
         console.log("MESSAGE_DELETE_BULK", JSON.stringify(data));
         break;
       case "MESSAGE_REACTION_ADD":
-        console.log("MESSAGE_REACTION_ADD", JSON.stringify(data));
+        if (this.botUser.id !== data.d.user_id) {
+          WeebCommands.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+        }
         break;
       case "MESSAGE_REACTION_REMOVE":
-        console.log("MESSAGE_REACTION_REMOVE", JSON.stringify(data));
+        if (this.botUser.id !== data.d.user_id) {
+          WeebCommands.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+        }
         break;
       case "MESSAGE_REACTION_REMOVE_ALL":
         console.log("MESSAGE_REACTION_REMOVE_ALL", JSON.stringify(data));

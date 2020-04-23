@@ -44,4 +44,9 @@ export const FANDOM_LINKS: fandom.url_map = {
   "steins-gate": "steins-gate",
   "steinsgate": "steins-gate",
   "sg": "steins-gate",
+  // Fate series (Type Moon)
+  "fateseries": "typemoon",
+  "fate": "typemoon",
+  // Fate Grand Order
+  "fgo": "fategrandorder"
 }

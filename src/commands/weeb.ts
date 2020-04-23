@@ -13,6 +13,8 @@ const malTypes: { [key: string]: string } = {
 
 let lastMalResult: { [key: string]: MAL.item[] } = {};
 
+let wikiMessageList: { message: string, fandom: string, articles: fandom.search_response, currentPage: number }[] = [];
+
 class WeebCommands {
 
   public static async getAnime(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
@@ -138,7 +140,7 @@ class WeebCommands {
     return new Promise((resolve, reject) => {
       unirest
         .get(
-          `https://myanimelist.net/search/prefix.json?type=${type}&keyword=${escape(
+          `https://myanimelist.net/search/prefix.json?type=${type}&keyword=${encodeURIComponent(
             query
           )}&v=1`
         )
@@ -154,7 +156,7 @@ class WeebCommands {
   private static async kitsuRequest(query: string): Promise<kitsu.search_response> {
     return new Promise((resolve, reject) => {
       unirest
-        .get(`https://kitsu.io/api/edge/anime?filter[text]=${escape(query)}`)
+        .get(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(query)}`)
         .headers({
           Accept: "application/vnd.api+json",
           "Content-Type": "application/vnd.api+json"
@@ -167,9 +169,8 @@ class WeebCommands {
 
   private static async fandomSearch(fandom: string, query: string): Promise<fandom.search_response> {
     return new Promise((resolve, reject) => {
-      console.log(`https://${fandom}.fandom.com/api/v1/Search/List?query=${escape(query)}&limit=1&minArticleQuality=10&batch=1&namespaces=0%2C14`)
       unirest
-        .get(`https://${fandom}.fandom.com/api/v1/Search/List?query=${escape(query)}&limit=1&minArticleQuality=10&batch=1&namespaces=0%2C14`)
+        .get(`https://${fandom}.fandom.com/api/v1/Search/List?query=${encodeURIComponent(query)}&limit=20&minArticleQuality=10&batch=1&namespaces=0%2C14`)
         .then((r: any) => {
           resolve(r.body);
         });
@@ -179,7 +180,7 @@ class WeebCommands {
   private static async fandomGetPage(fandom: string, id: number): Promise<fandom.page> {
     return new Promise((resolve, reject) => {
       unirest
-        .get(`https://${fandom}.fandom.com/api/v1/Articles/Details?ids=${escape(id.toString())}&abstract=255&width=200&height=200`)
+        .get(`https://${fandom}.fandom.com/api/v1/Articles/Details?ids=${encodeURIComponent(id.toString())}&abstract=255&width=200&height=200`)
         .then((r: any) => {
           resolve(r.body);
         });
@@ -264,10 +265,26 @@ class WeebCommands {
           fields: [{
             name: 'URL',
             value: page.basepath + page.items[id].url
-          }]
+          }],
+          footer: {
+            text: `Page 1/${queryResult.items.length}`
+          }
         }
 
-        return DiscordRest.sendMessage(messageData.channel_id, "", embed);
+        let message = await DiscordRest.sendMessage(messageData.channel_id, "", embed);
+
+        DiscordRest.addReaction(messageData.channel_id, message.id, "⬅"); //arrow left
+        setTimeout(() => {
+          DiscordRest.addReaction(messageData.channel_id, message.id, "➡"); //arrow right
+        }, 500);
+
+        wikiMessageList.push({
+          message: message.id,
+          fandom: wiki,
+          articles: queryResult,
+          currentPage: 0
+        });
+
       } else {
         return DiscordRest.sendError(messageData.channel_id, guild, {
           key: "errors.weeb.wiki_fail",
@@ -281,6 +298,44 @@ class WeebCommands {
         replaces: { query: query, wiki: wiki }
       });
     }
+  }
+
+  public static async handleReaction(message: string, channel: string, emoji: string) {
+    const wikiIndex = wikiMessageList.findIndex(w => w.message === message);
+
+    if (wikiIndex >= 0) {
+      wikiMessageList[wikiIndex].currentPage += (emoji === "⬅" ? -1 : 1);
+
+      if (wikiMessageList[wikiIndex].currentPage < 0) {
+        wikiMessageList[wikiIndex].currentPage = wikiMessageList[wikiIndex].articles.items.length - 1;
+      } else if (wikiMessageList[wikiIndex].currentPage >= wikiMessageList[wikiIndex].articles.items.length) {
+        wikiMessageList[wikiIndex].currentPage = 0;
+      }
+
+
+      const id = wikiMessageList[wikiIndex].articles.items[wikiMessageList[wikiIndex].currentPage].id;
+
+      const page = await WeebCommands.fandomGetPage(wikiMessageList[wikiIndex].fandom, id);
+
+      const embed: discord.embed = {
+        title: page.items[id].title,
+        description: page.items[id].abstract,
+        color: 6465461,
+        image: {
+          url: page.items[id].thumbnail
+        },
+        fields: [{
+          name: 'URL',
+          value: page.basepath + page.items[id].url
+        }],
+        footer: {
+          text: `Page ${wikiMessageList[wikiIndex].currentPage + 1}/${wikiMessageList[wikiIndex].articles.items.length}`
+        }
+      };
+
+      DiscordRest.editMessage(message, channel, "", embed);
+    }
+
   }
 }
 
