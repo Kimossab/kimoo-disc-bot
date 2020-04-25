@@ -5,6 +5,12 @@ declare module "*.json" {
 
 declare module "unirest";
 
+declare interface string_object {
+  [index: string]: string
+}
+
+declare type any_function = (...args: any[]) => any;
+
 declare interface custom_commands {
   id: number;
   server_id: string;
@@ -16,7 +22,7 @@ declare interface custom_commands {
 
 declare interface message_translate {
   key: string;
-  replaces?: object;
+  replaces?: string_object;
 }
 
 declare namespace database {
@@ -414,6 +420,11 @@ declare namespace kitsu {
       last: string;
     };
   }
+
+  interface cache {
+    query: string;
+    response: search_response;
+  }
 }
 
 declare namespace MAL {
@@ -437,13 +448,24 @@ declare namespace MAL {
   interface anime_payload {
     media_type: string;
     start_year: number;
-    aired: string;
+    aired?: string;
+    published?: string;
     score: string;
     status: string;
   }
   interface char_payload {
     related_works: string[];
     favorites: number
+  }
+  interface cache {
+    type: string;
+    query: string;
+    response: item[];
+  }
+  interface message_list {
+    message: string,
+    items: item[],
+    currentPage: number
   }
 }
 
@@ -501,5 +523,24 @@ declare namespace fandom {
   interface page {
     items: page_item_list,
     basepath: string
+  }
+
+  interface message_list {
+    message: string,
+    fandom: string,
+    articles: fandom.search_response,
+    currentPage: number
+  }
+
+  interface query_cache {
+    fandom: string,
+    query: string,
+    result: fandom.search_response
+  }
+
+  interface page_cache {
+    fandom: string,
+    id: number,
+    page: page
   }
 }

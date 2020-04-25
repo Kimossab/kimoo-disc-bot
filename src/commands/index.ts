@@ -1,15 +1,17 @@
 import DiscordSocket from "../discord/socket";
 import Helper from "../helper";
 import DiscordRest from "../discord/rest";
-import WeebCommands from "./weeb";
+import Weeb from "../modules/weeb";
 
 class Commands {
   private static cmdArray = ['help', 'getanime', 'searchmal'];
 
   private socket: DiscordSocket;
+  private weeb: Weeb;
 
-  constructor(_socket: DiscordSocket) {
+  constructor(_socket: DiscordSocket, _weeb: Weeb) {
     this.socket = _socket;
+    this.weeb = _weeb
   }
 
   public handle(messageData: discord.message) {
@@ -17,49 +19,41 @@ class Commands {
       const guildIndex = this.socket.guildList.findIndex(
         g => messageData.guild_id === g.id
       );
-      if (messageData.content.length === 1) {
-        WeebCommands.checkChoice(this.socket.guildList[guildIndex], messageData);
-      } else {
-        const trigger = process.env.DEFAULT_CMD_TRIGGER!;
-        const regex = new RegExp("\\" + trigger + "([^\\s]*)\\s?(.*)", "g");
-        const regExec = regex.exec(messageData.content);
+      const trigger = process.env.DEFAULT_CMD_TRIGGER!;
+      const regex = new RegExp("\\" + trigger + "([^\\s]*)\\s?(.*)", "g");
+      const regExec = regex.exec(messageData.content);
 
-        if (regExec) {
-          const splited = regExec.slice(1, 3);
+      if (regExec) {
+        const splited = regExec.slice(1, 3);
 
-          try {
-            switch (splited[0]) {
-              case 'help': {
-                this.help(guildIndex, trigger, messageData);
-                break;
-              }
-              case 'searchmal':
-              case 'mal': {
-                WeebCommands.searchMal(this.socket.guildList[guildIndex], trigger, messageData, splited);
-                break;
-              }
-              case 'getanime':
-              case 'anime': {
-                WeebCommands.getAnime(this.socket.guildList[guildIndex], trigger, messageData, splited);
-                break;
-              }
-              case 'wiki': {
-                WeebCommands.searchWiki(this.socket.guildList[guildIndex], trigger, messageData, splited);
-              }
+        try {
+          switch (splited[0]) {
+            case 'help': {
+              this.help(guildIndex, trigger, messageData);
+              break;
             }
-          } catch (e) {
-            console.log(e);
+            case 'searchmal':
+            case 'mal': {
+              this.weeb.searchMal(this.socket.guildList[guildIndex], trigger, messageData, splited);
+              break;
+            }
+            // case 'getanime':
+            // case 'anime': {
+            //   this.weeb.getAnime(this.socket.guildList[guildIndex], trigger, messageData, splited);
+            //   break;
+            // }
+            case 'wiki': {
+              this.weeb.searchWiki(this.socket.guildList[guildIndex], trigger, messageData, splited);
+            }
           }
+        } catch (e) {
+          console.log(e);
         }
       }
     }
   }
 
-  private help(
-    guildIndex: number,
-    trigger: string,
-    messageData: discord.message
-  ) {
+  private help(guildIndex: number, trigger: string, messageData: discord.message) {
     let embed: discord.embed = {
       title: Helper.translation(this.socket.guildList[guildIndex], "general.help"),
       color: 8995572,

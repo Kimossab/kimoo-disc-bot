@@ -3,13 +3,17 @@ import Helper from "../helper";
 import { GATEWAY_OPCODES } from "../definitions";
 import DB from "../database";
 import Commands from "../commands";
-import WeebCommands from "../commands/weeb";
+import Weeb from "../modules/weeb";
 
+/**
+ * Class that handles all socket communications with Discord
+ */
 class DiscordSocket {
   private url: string;
   // private db: DB;
 
   private cmd: Commands;
+  private weeb: Weeb;
 
   private client: WebSocket | null = null;
   private hbInterval: NodeJS.Timeout | null = null;
@@ -20,13 +24,22 @@ class DiscordSocket {
   private botUser: any = null;
   public guildList: any[] = [];
 
-  constructor(_url: string, ) {
+  /**
+   * Initializes the necessary classes
+   * ***
+   * @param _url URL of socket server
+   */
+  constructor(_url: string) {
     this.url = _url;
     // this.db = _db;
 
-    this.cmd = new Commands(this);
+    this.weeb = new Weeb();
+    this.cmd = new Commands(this, this.weeb);
   }
 
+  /**
+   * Connects to the socket server
+   */
   public connect() {
     try {
       this.client = new WebSocket(this.url);
@@ -41,13 +54,28 @@ class DiscordSocket {
   }
 
   // EVENTS
-  private onConnection(e: any) {
+  /**
+   * `(unused)` Handles `connection` event
+   * ***
+   * @param _ Event received
+   */
+  private onConnection(_: any) {
     // console.log("info", { name: "onConnection", data: e });
   }
-  private onOpen(e: any) {
+  /**
+   * `(unused)` Handles `open` event
+   * ***
+   * @param _ Event received
+   */
+  private onOpen(_: any) {
     // console.log("info", { name: "onOpen", data: e });
   }
-  private onClose(e: any) {
+  /**
+   * Cleans up intervals and reconnects.
+   * ***
+   * @param _ Event received
+   */
+  private onClose(_: any) {
     console.log("closing...");
     // console.log("info", { name: "onClose", data: e });
 
@@ -55,9 +83,15 @@ class DiscordSocket {
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
     }
+
     this.connect();
   };
 
+  /**
+   * Handles the received message
+   * ***
+   * @param c String received on message
+   */
   private onMessage(c: string) {
     // console.log("info", { name: "onMessage", data: c });
 
@@ -89,6 +123,12 @@ class DiscordSocket {
     }
   }
 
+  /**
+   * Handles hello event.  
+   * Starts Heartbeat interval and identifies the bot.  
+   * ***
+   * @param data Payload received from discord
+   */
   private onHello(data: discord.gateway.payload) {
     this.hbIntervalValue = data.d.heartbeat_interval;
     this.ping();
@@ -96,6 +136,11 @@ class DiscordSocket {
     this.hbInterval = setInterval(() => { this.ping(); }, this.hbIntervalValue);
   }
 
+  /**
+   * Handles event received from discord.  
+   * ***
+   * @param data Event information
+   */
   private async onDiscordEvent(data: discord.gateway.payload) {
     // https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events
     let index = null;
@@ -179,7 +224,7 @@ class DiscordSocket {
         delete data.d.guild_id;
 
         if (this.guildList[index].members) {
-          this.guildList[index].members!.push(data.d); // !. tells TS that this is infact not undefined
+          this.guildList[index].members!.push(data.d); // !. tells TS that this is in fact not undefined
         } else {
           this.guildList[index].members = [data.d];
         }
@@ -228,12 +273,12 @@ class DiscordSocket {
         break;
       case "MESSAGE_REACTION_ADD":
         if (this.botUser.id !== data.d.user_id) {
-          WeebCommands.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+          this.weeb.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
         }
         break;
       case "MESSAGE_REACTION_REMOVE":
         if (this.botUser.id !== data.d.user_id) {
-          WeebCommands.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+          this.weeb.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
         }
         break;
       case "MESSAGE_REACTION_REMOVE_ALL":
@@ -261,10 +306,16 @@ class DiscordSocket {
   };
 
   // HELPER
+  /**
+   * Sends ping to discord
+   */
   private ping = () => {
     this.send(JSON.stringify({ op: GATEWAY_OPCODES.HEARTBEAT, d: this.lastS }));
   }
 
+  /**
+   * Identifies the bot
+   */
   private identify() {
     console.log("identifying...");
     let data: discord.gateway.payload;
@@ -303,6 +354,11 @@ class DiscordSocket {
     this.send(JSON.stringify(data));
   };
 
+  /**
+   * Sends a message through the socket.  
+   * ***
+   * @param message Message to be sent
+   */
   private send(message: string) {
     if (this.client) {
       // console.log("info", { name: "sendMessage", data: message });
@@ -310,6 +366,11 @@ class DiscordSocket {
     }
   }
 
+  /**
+   * Handles a new message created by a user (checks if it's a command and logs it)
+   * ***
+   * @param data Message received
+   */
   private messageReceived(data: discord.message) {
     console.log(`[${new Date().toDateString()}] ${data.author.username}#${data.author.discriminator}: ${data.content}`);
     this.cmd.handle(data);

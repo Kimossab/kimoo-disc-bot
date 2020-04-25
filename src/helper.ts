@@ -2,14 +2,21 @@
 import tlEn from "../resources/translations/en.json";
 import tlPt from "../resources/translations/pt.json";
 
+/**
+ * Static class with helper functions
+ */
 class Helper {
 
-  public static translation(
-    server: discord.guild,
-    message: string,
-    replace: any | null = null
-  ) {
+  /**
+   * Gets a message translated.
+   * ***
+   * @param server Discord guild
+   * @param message Message key
+   * @param replace Replacing data
+   */
+  public static translation(server: discord.guild, message: string, replace: string_object | null = null) {
     let returnMessage = "";
+
     if (!server) {
       returnMessage = Helper.getObjectChild(tlEn, message);
     } else {
@@ -32,8 +39,19 @@ class Helper {
     return typeof returnMessage === "undefined" ? "" : returnMessage;
   }
 
-  public static getObjectChild(object: any, message: string) {
-    const childs = message.split(".");
+  /**
+   * Searches on an object for the value with the string notation  
+   * 
+   * Example get the value of `object.a.b.c` through a string:
+   * ```typescript
+   * getObjectChild({a:{b:{c:'c'}}}, 'a.b.c');
+   * ```
+   * ***
+   * @param object Object to search
+   * @param stringNotation String notation of the object to get
+   */
+  public static getObjectChild(object: any, stringNotation: string) {
+    const childs = stringNotation.split(".");
     let returnVal = object;
 
     for (let child of childs) {
