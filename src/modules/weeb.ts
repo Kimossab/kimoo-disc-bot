@@ -328,8 +328,8 @@ class Weeb {
 
     if (item.authorData) {
       embed.fields!.push({
-        name: item.authorData.authorName ? item.authorData.authorName : '',
-        value: item.authorData.authorUrl ? item.authorData.authorUrl : '',
+        name: item.authorData.authorName ? item.authorData.authorName : '-',
+        value: item.authorData.authorUrl ? item.authorData.authorUrl : '-',
       })
     }
     if (item.fallback) {
@@ -774,6 +774,7 @@ class Weeb {
     }
 
     const embed = this.sauceNaoEmbed(sauceData[0], 1, sauceData.length);
+    console.log(embed);
 
     let message = await DiscordRest.sendMessage(messageData.channel_id, "", embed);
 

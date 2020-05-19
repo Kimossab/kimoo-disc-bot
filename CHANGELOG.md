@@ -2,10 +2,19 @@
 
 ## Unreleased
 
+- better sauce command (input url)
 - Find a _better_ way to not get rate limited (timeouts?) (might not be needed after a timeout. need to waste time finding a smarter way of doing it)
 - Refactor the code x2 (finish)
 - Comments (finish)
 - Generalise even more the page cycle system so it can be reused for everything more easily
+
+---
+
+## [1.0.5] - 2020-05-20
+
+### Added
+
+- SauceNao search last image posted
 
 ---
 
