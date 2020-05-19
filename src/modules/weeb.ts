@@ -561,7 +561,7 @@ class Weeb {
         case 8: {
           //Nico Nico
           parsed.site = 'Nico Nico Seiga';
-          parsed.url = [`https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`];
+          parsed.url = data.data.ext_urls;
           parsed.name = data.data.title;
           parsed.authorData = {
             authorName: data.data.member_name ? data.data.member_name : null,
@@ -774,7 +774,6 @@ class Weeb {
     }
 
     const embed = this.sauceNaoEmbed(sauceData[0], 1, sauceData.length);
-    console.log(embed);
 
     let message = await DiscordRest.sendMessage(messageData.channel_id, "", embed);
 
