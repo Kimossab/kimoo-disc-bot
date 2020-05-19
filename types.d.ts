@@ -5,8 +5,8 @@ declare module "*.json" {
 
 declare module "unirest";
 
-declare interface string_object {
-  [index: string]: string
+declare interface string_object<T> {
+  [index: string]: T
 }
 
 declare type any_function = (...args: any[]) => any;
@@ -542,5 +542,110 @@ declare namespace fandom {
     fandom: string,
     id: number,
     page: page
+  }
+}
+
+declare namespace SauceNao {
+  interface index_response {
+    status: number,
+    parent_id: number,
+    id: number,
+    results: number
+  }
+
+  interface response_header {
+    user_id: string,
+    account_type: string,
+    short_limit: string,
+    long_limit: string,
+    long_remaining: number,
+    short_remaining: number,
+    status: number,
+    results_requested: number,
+    index: string_object<index_response>,
+    search_depth: string,
+    minimum_similarity: number,
+    query_image_display: string,
+    query_image: string,
+    results_returned: 6
+  }
+
+  interface result_header {
+    similarity: string,
+    thumbnail: string,
+    index_id: number,
+    index_name: string
+  }
+
+  interface result_data {
+    ext_urls: string[],
+    title: string,
+    da_id: number,
+    author_name: string,
+    author_url: string,
+    anidb_aid?: string,
+    bcy_id?: string,
+    bcy_type?: string,
+    danbooru_id?: string,
+    ddb_id?: string,
+    drawr_id?: string,
+    e621_id?: string,
+    file?: string,
+    gelbooru_id?: string,
+    idol_id?: string,
+    imdb_id?: string,
+    konachan_id?: string,
+    member_link_id?: string,
+    mu_id?: string,
+    nijie_id?: string,
+    pawoo_id?: string,
+    pg_id?: string,
+    pixiv_id?: string,
+    sankaku_id?: string,
+    seiga_id?: string,
+    source?: string,
+    url?: string,
+    user_acct?: string,
+    yandere_id?: string,
+    "anime-pictures_id"?: string,
+    member_id?: string,
+    member_name?: string,
+    creator?: string,
+    material?: string,
+    pawoo_user_display_name?: string,
+    eng_name?: string,
+    jp_name?: string
+  }
+
+  interface result {
+    header: result_header,
+    data: result_data
+  }
+
+  interface response {
+    header: response_header,
+    results: result[]
+  }
+
+  interface author_data {
+    authorName: string | null,
+    authorUrl: string | null,
+  }
+
+  interface data {
+    name: string,
+    site: string,
+    index: number,
+    similarity: number,
+    authorData: author_data | null,
+    thumbnail: string | null,
+    url: string[] | null,
+    fallback?: string
+  }
+
+  interface message_list {
+    message: string,
+    items: data[],
+    currentPage: number
   }
 }

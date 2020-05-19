@@ -42,6 +42,10 @@ class Commands {
             //   this.weeb.getAnime(this.socket.guildList[guildIndex], trigger, messageData, splited);
             //   break;
             // }
+            case 'sauce': {
+              this.weeb.sauceNao(this.socket.guildList[guildIndex], trigger, messageData, splited);
+              break;
+            }
             case 'wiki': {
               this.weeb.searchWiki(this.socket.guildList[guildIndex], trigger, messageData, splited);
             }

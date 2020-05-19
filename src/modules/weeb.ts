@@ -1,12 +1,13 @@
 import DiscordRest from "../discord/rest";
 import unirest from "unirest";
 import { FANDOM_LINKS } from "../definitions";
+import { parse } from "dotenv";
 
 /**
  * Adds some weeb functionality
  */
 class Weeb {
-  private malTypes: string_object = {
+  private malTypes: string_object<string> = {
     all: "all",
     manga: "manga",
     anime: "anime",
@@ -22,6 +23,11 @@ class Weeb {
 
   private malQueryCache: MAL.cache[] = [];
   private malMessageList: MAL.message_list[] = [];
+
+  private sauceNaoCache: string_object<SauceNao.data[]> = {};
+  private sauceNaoMessageList: SauceNao.message_list[] = [];
+
+  private lastAttachments: string_object<string> = {};
 
   // ==================
   // Fandom
@@ -272,6 +278,71 @@ class Weeb {
   }
 
   // ==================
+  // Sauce NAO 
+  // ==================
+  private async sauceNaoRequest(image: string): Promise<SauceNao.response> {
+    return new Promise((resolve, reject) => {
+      console.log(`requesting [https://saucenao.com/search.php?output_type=2&api_key=${process.env.SAUCENAO_API_KEY}&testmode=1&url=${image}]`);
+      unirest
+        .get(
+          `https://saucenao.com/search.php?output_type=2&api_key=${process.env.SAUCENAO_API_KEY}&testmode=1&url=${image}`
+        )
+        .then((r: any) => {
+          resolve(r.body);
+        });
+    });
+  }
+
+  private sauceNaoEmbed(item: SauceNao.data, index: number, count: number): discord.embed {
+
+    const embed: discord.embed = {
+      title: item.name,
+      description: item.site,
+      color: 3035554,
+      provider: {
+        name: item.site,
+        url: ""
+      },
+      fields: [],
+      footer: {
+        text: `Page ${index}/${count}`
+      }
+    };
+    if (item.thumbnail) {
+      embed.image = { url: item.thumbnail };
+    }
+
+    embed.fields!.push({
+      name: `similarity`,
+      value: item.similarity.toString()
+    });
+
+    if (item.url) {
+      for (const st of item.url) {
+        embed.fields!.push({
+          name: `url`,
+          value: st
+        });
+      }
+    }
+
+    if (item.authorData) {
+      embed.fields!.push({
+        name: item.authorData.authorName ? item.authorData.authorName : '',
+        value: item.authorData.authorUrl ? item.authorData.authorUrl : '',
+      })
+    }
+    if (item.fallback) {
+      embed.fields!.push({
+        name: "unknown fallback",
+        value: item.fallback,
+      })
+    }
+
+    return embed;
+  }
+
+  // ==================
   // Command Handling
   // ==================
   /**
@@ -389,8 +460,6 @@ class Weeb {
     }
   }
 
-
-
   public async handleReaction(message: string, channel: string, emoji: string) {
     if (emoji === "⬅" || emoji === "➡") {
       const wikiIndex = this.wikiMessageList.findIndex(w => w.message === message);
@@ -432,7 +501,299 @@ class Weeb {
 
         return;
       }
+
+      const sauceNaoIndex = this.sauceNaoMessageList.findIndex(w => w.message === message);
+
+      if (sauceNaoIndex >= 0) {
+        let cPage = this.sauceNaoMessageList[sauceNaoIndex].currentPage;
+        cPage += (emoji === "⬅" ? -1 : 1);
+        if (cPage < 0) {
+          cPage = this.sauceNaoMessageList[sauceNaoIndex].items.length - 1;
+        } else if (cPage >= this.sauceNaoMessageList[sauceNaoIndex].items.length) {
+          cPage = 0;
+        }
+
+        this.sauceNaoMessageList[sauceNaoIndex].currentPage = cPage;
+        const embed = this.sauceNaoEmbed(this.sauceNaoMessageList[sauceNaoIndex].items[cPage], cPage + 1, this.sauceNaoMessageList[sauceNaoIndex].items.length);
+
+        DiscordRest.editMessage(message, channel, "", embed);
+
+        return;
+      }
     }
+  }
+
+  private formatSauceNaoData(data: SauceNao.result): SauceNao.data {
+    try {
+      let parsed: SauceNao.data = {
+        name: '',
+        site: 'Unknown',
+        index: data.header.index_id,
+        similarity: Number(data.header.similarity),
+        authorData: null,
+        thumbnail: data.header.thumbnail,
+        url: null
+      };
+      switch (data.header.index_id) {
+        //dunno how this works
+        // case 2: {
+        //   //H-Game GG
+        //   parsed.site = 'pixiv';
+        //   parsed.url = [`https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`];
+        //   parsed.name = data.data.title;
+        //   parsed.authorData = {
+        //     authorName: data.data.member_name ? data.data.member_name : null,
+        //     authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`
+        //   };
+        // }
+        case 5:
+        case 6: {
+          //pixiv
+          parsed.site = 'pixiv';
+          parsed.url = [`https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`];
+          parsed.name = data.data.title;
+          parsed.authorData = {
+            authorName: data.data.member_name ? data.data.member_name : null,
+            authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`
+          };
+          break;
+        }
+        case 8: {
+          //Nico Nico
+          parsed.site = 'Nico Nico Seiga';
+          parsed.url = [`https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`];
+          parsed.name = data.data.title;
+          parsed.authorData = {
+            authorName: data.data.member_name ? data.data.member_name : null,
+            authorUrl: null
+          };
+          break;
+        }
+        case 9: {
+          //danbooru / gelbooru / sankaku
+          parsed.site = "danbooru / gelbooru / sankaku";
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.material ? data.data.material : "";
+          parsed.authorData = {
+            authorName: data.data.creator ? data.data.creator : null,
+            authorUrl: data.data.source ? data.data.source : null
+          };
+          break;
+        }
+        case 11: {
+          //nijie
+          parsed.site = "nijie";
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.title!;
+          parsed.authorData = {
+            authorName: data.data.member_name ? data.data.member_name : null,
+            authorUrl: `https://nijie.info/members.php?id=${data.data.member_id}`
+          };
+          break;
+        }
+        case 12: {
+          //yandere
+          parsed.site = "yande.re";
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.material!;
+          parsed.authorData = {
+            authorName: data.data.creator ? data.data.creator : null,
+            authorUrl: null
+          };
+          break;
+        }
+        case 16: {
+          //fakku
+          parsed.site = "fakku";
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.source!;
+          parsed.authorData = {
+            authorName: data.data.creator ? data.data.creator : null,
+            authorUrl: null
+          };
+          break;
+        }
+        case 18: {
+          //nhentai
+          parsed.site = "nhentai";
+          const match = /(\/nhentai\/\d*)[^\/]*(\/\d*)\.jpg/gm.exec(data.header.thumbnail);
+          if (match) {
+            const path = match[1] + match[2];
+            parsed.thumbnail = `https://i.nhentai.net/galleries/${path}.jpg`;
+            parsed.url = [`https://nhentai.net/g/${match[1]}`, `https://nhentai.net/g/${path}`];
+          }
+          parsed.name = (data.data.eng_name || data.data.jp_name)!;
+          parsed.authorData = {
+            authorName: data.data.creator!.concat(','),
+            authorUrl: null
+          };
+          break;
+        }
+        case 20: {
+          //MediBang
+          parsed.site = "MediBang";
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.title;
+          parsed.authorData = {
+            authorName: data.data.member_name ? data.data.member_name : null,
+            authorUrl: `https://medibang.com/author/${data.data.member_id}/`
+          };
+          break;
+        }
+        case 21:
+        case 22: {
+          //anidb
+          parsed.site = "anidb";
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.source!;
+          break;
+        }
+        case 24: {
+          //imdb
+          parsed.site = "imdb";
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.source!;
+          break;
+        }
+        case 27: {
+          //Sankaku
+          parsed.site = "Sankaku";
+          parsed.name = data.data.material!;
+          parsed.url = data.data.ext_urls;
+          parsed.authorData = {
+            authorName: data.data.creator ? data.data.creator : null,
+            authorUrl: null
+          };
+          break;
+        }
+        case 31:
+        case 32: {
+          //bcy
+          parsed.site = "bcy";
+          parsed.name = data.data.title;
+          parsed.url = data.data.ext_urls;
+          parsed.authorData = {
+            authorName: data.data.member_name ? data.data.member_name : null,
+            authorUrl: data.data.source ? data.data.source : null
+          };
+          break;
+        }
+        case 34: {
+          //deviantart
+          parsed.site = 'deviantart';
+          parsed.url = [data.data.ext_urls[0]];
+          parsed.name = data.data.title;
+          parsed.authorData = {
+            authorName: data.data.author_name ? data.data.author_name : null,
+            authorUrl: data.data.author_url
+          };
+          break;
+        }
+        case 35: {
+          //Pawoo
+          parsed.site = 'Pawoo';
+          parsed.url = [data.data.ext_urls[0] + data.data.pawoo_id];
+          parsed.name = "";
+          parsed.authorData = {
+            authorName: data.data.pawoo_user_display_name ? data.data.pawoo_user_display_name : null,
+            authorUrl: data.data.ext_urls[0]
+          };
+          break;
+        }
+        case 36: {
+          //MangaUpdates
+          parsed.site = 'MangaUpdates';
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.source!;
+          break;
+        }
+        case 37: {
+          //MangaDex
+          parsed.site = 'MangaDex';
+          parsed.url = data.data.ext_urls;
+          parsed.name = data.data.source!;
+          break;
+        }
+        default: {
+          parsed.fallback = JSON.stringify(data);
+        }
+      }
+
+      return parsed;
+    } catch (e) {
+      console.error(e, data);
+      return {
+        name: '',
+        site: 'Unknown',
+        index: data.header.index_id,
+        similarity: Number(data.header.similarity),
+        authorData: null,
+        thumbnail: data.header.thumbnail,
+        url: null,
+        fallback: JSON.stringify(data)
+      }
+    }
+  }
+
+  public async sauceNao(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
+    console.log('hello world');
+    if (!this.lastAttachments[messageData.channel_id]) {
+      console.log('somethwwing went wong?');
+      return DiscordRest.sendError(messageData.channel_id, guild, {
+        key: "errors.weeb.sauce_no_image"
+      });
+    }
+    console.log('woops?');
+
+    let sauceData = this.sauceNaoCache[this.lastAttachments[messageData.channel_id]];
+    if (!sauceData) {
+      const response = await this.sauceNaoRequest(this.lastAttachments[messageData.channel_id]);
+
+      if (response.header.status > 0) {
+        return DiscordRest.sendError(messageData.channel_id, guild, {
+          key: "errors.weeb.sauce_ext_error"
+        });
+      }
+      if (response.header.status < 0) {
+        return DiscordRest.sendError(messageData.channel_id, guild, {
+          key: "errors.weeb.sauce_int_error"
+        });
+      }
+
+      sauceData = [];
+
+      for (const res of response.results) {
+        sauceData.push(this.formatSauceNaoData(res));
+      }
+
+      sauceData = sauceData.sort((a, b) => b.similarity - a.similarity);
+
+      sauceData = sauceData.filter(a => a.similarity > 75);
+
+      this.sauceNaoCache[this.lastAttachments[messageData.channel_id]] = sauceData;
+    }
+
+    const embed = this.sauceNaoEmbed(sauceData[0], 1, sauceData.length);
+
+    let message = await DiscordRest.sendMessage(messageData.channel_id, "", embed);
+
+    DiscordRest.addReaction(messageData.channel_id, message.id, "⬅"); //arrow left
+    setTimeout(() => {
+      DiscordRest.addReaction(messageData.channel_id, message.id, "➡"); //arrow right
+    }, 500);
+
+    this.sauceNaoMessageList.push({
+      message: message.id,
+      items: sauceData,
+      currentPage: 0
+    });
+  }
+
+  // ===================
+  // Attachment Handling
+  // ===================
+  public processAttachment(channel: string, attachment: discord.attachment) {
+    this.lastAttachments[channel] = attachment.url;
   }
 }
 

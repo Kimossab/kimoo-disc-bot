@@ -374,6 +374,10 @@ class DiscordSocket {
   private messageReceived(data: discord.message) {
     console.log(`[${new Date().toDateString()}] ${data.author.username}#${data.author.discriminator}: ${data.content}`);
     this.cmd.handle(data);
+
+    data.attachments.forEach(file => {
+      this.weeb.processAttachment(data.channel_id, file);
+    });
   }
 
 }

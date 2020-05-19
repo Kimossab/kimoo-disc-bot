@@ -13,7 +13,8 @@
     "internal_error": "Erro interno, por favor contacte <@108208089987051520>",
     "weeb": {
       "noanime": "Não foi encontrada anime para a query <query> em <source>",
-      "wiki_fail": "Não foi nada encontrado para `<query>` em `<wiki>.fandom.com`. Por favor verifique a pesquisa"
+      "wiki_fail": "Não foi nada encontrado para `<query>` em `<wiki>.fandom.com`. Por favor verifique a pesquisa",
+      "sauce_no_image": "Nenhuma imagem foi postada neste canal"
     }
   },
   "help": {

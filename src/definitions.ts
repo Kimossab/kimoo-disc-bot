@@ -14,6 +14,42 @@ export enum GATEWAY_OPCODES {
   HEARTBEAT_ACK = 11
 };
 
+//https://saucenao.com/status.html
+// bitmask is currently broken on their side so use db=999 for now
+export enum SAUCENOW_INDEXES {
+  HMagazines = 0, //incomplete
+  HGame_CG = 2, //incomplete
+  DoujinshiDB = 3, //incomplete
+  pixiv = 5,
+  Nico_Nico = 8,
+  Danbooru = 9,
+  drawr = 10,
+  Nijie = 11,
+  Yandere = 12,
+  Shutterstock = 15,
+  FAKKU = 16,
+  HMisc = 18,
+  TwoDMarket = 19,
+  MediBang = 20,
+  Anime = 21, // ???
+  HAnime = 22,
+  Movies = 23,
+  Shows = 24,
+  Gelbooru = 25,
+  Konachan = 26,
+  Sankaku_Channel = 27,
+  AnimePicturesNet = 28,
+  e621 = 29,
+  Idol_Complex = 30,
+  bcy_illust = 31,
+  bcy_cosplay = 32,
+  PortalGraphics = 33,
+  DeviantArt = 34,
+  PawooNet = 35,
+  Madokami = 36,
+  MangaDex = 37,
+}
+
 export const FANDOM_LINKS: fandom.url_map = {
   // Sword Art Online
   "sao": "swordartonline",
