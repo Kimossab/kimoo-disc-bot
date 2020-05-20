@@ -14,7 +14,8 @@
     "weeb": {
       "noanime": "No anime found for query <query> in <source>",
       "wiki_fail": "Nothing was found for `<query>` in `<wiki>.fandom.com`. Please verify the inputs",
-      "sauce_no_image": "No image posted on this channel"
+      "sauce_no_image": "No image posted on this channel",
+      "sauce_no_sauce": "No sauce found for the pasta. Google yourself."
     }
   },
   "help": {

@@ -524,16 +524,16 @@ class Weeb {
   }
 
   private formatSauceNaoData(data: SauceNao.result): SauceNao.data {
+    let parsed: SauceNao.data = {
+      name: '',
+      site: 'Unknown',
+      index: data.header.index_id,
+      similarity: Number(data.header.similarity),
+      authorData: null,
+      thumbnail: data.header.thumbnail,
+      url: null
+    };
     try {
-      let parsed: SauceNao.data = {
-        name: '',
-        site: 'Unknown',
-        index: data.header.index_id,
-        similarity: Number(data.header.similarity),
-        authorData: null,
-        thumbnail: data.header.thumbnail,
-        url: null
-      };
       switch (data.header.index_id) {
         //dunno how this works
         // case 2: {
@@ -718,32 +718,21 @@ class Weeb {
           parsed.fallback = JSON.stringify(data);
         }
       }
-
-      return parsed;
     } catch (e) {
       console.error(e, data);
-      return {
-        name: '',
-        site: 'Unknown',
-        index: data.header.index_id,
-        similarity: Number(data.header.similarity),
-        authorData: null,
-        thumbnail: data.header.thumbnail,
-        url: null,
-        fallback: JSON.stringify(data)
-      }
+      parsed.fallback = JSON.stringify(data);
     }
+
+    return parsed;
   }
 
   public async sauceNao(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
-    console.log('hello world');
+
     if (!this.lastAttachments[messageData.channel_id]) {
-      console.log('somethwwing went wong?');
       return DiscordRest.sendError(messageData.channel_id, guild, {
         key: "errors.weeb.sauce_no_image"
       });
     }
-    console.log('woops?');
 
     let sauceData = this.sauceNaoCache[this.lastAttachments[messageData.channel_id]];
     if (!sauceData) {
@@ -771,6 +760,12 @@ class Weeb {
       sauceData = sauceData.filter(a => a.similarity > 75);
 
       this.sauceNaoCache[this.lastAttachments[messageData.channel_id]] = sauceData;
+    }
+
+    if (sauceData.length === 0) {
+      return DiscordRest.sendError(messageData.channel_id, guild, {
+        key: "errors.weeb.sauce_no_sauce"
+      });
     }
 
     const embed = this.sauceNaoEmbed(sauceData[0], 1, sauceData.length);

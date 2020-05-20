@@ -14,7 +14,8 @@
     "weeb": {
       "noanime": "Não foi encontrada anime para a query <query> em <source>",
       "wiki_fail": "Não foi nada encontrado para `<query>` em `<wiki>.fandom.com`. Por favor verifique a pesquisa",
-      "sauce_no_image": "Nenhuma imagem foi postada neste canal"
+      "sauce_no_image": "Nenhuma imagem foi postada neste canal",
+      "sauce_no_sauce": "Sem molho para a massa. Procura tu proprio."
     }
   },
   "help": {
