@@ -11,21 +11,30 @@
   },
   "errors": {
     "internal_error": "Internal error, please contact <@108208089987051520>",
+    "no_user_found": "No user found that corresponds to the input.",
+    "no_channel_found": "No channel found that corresponds to the input.",
     "weeb": {
       "noanime": "No anime found for query <query> in <source>",
       "wiki_fail": "Nothing was found for `<query>` in `<wiki>.fandom.com`. Please verify the inputs",
+      "sauce_ext_error": "External server error",
+      "sauce_int_error": "Internal server error",
       "sauce_no_image": "No image posted on this channel",
       "sauce_no_sauce": "No sauce found for the pasta. Google yourself."
+    },
+    "admin": {
+      "no_role": "Role not found"
     }
   },
+  "success": {
+    "setbirthday": "Set the birthday date with success",
+    "setadminrole": "Admin role set successfully",
+    "settrigger": "Trigger changed to <trigger>",
+    "setlanguage": "Language changed to <lang>",
+    "setbirthdaychannel": "Birthday channel set to <channel>"
+  },
   "help": {
-    "getanime": {
-      "command": "<trigger>getanime [(optional) source] [name]",
-      "description": "Command to get more info about an anime.",
-      "parameters": "**[(optional) source]** source of the info (MAL/Kitsu)\n**[name]** anime name or search query"
-    },
-    "searchmal": {
-      "command": "<trigger>searchmal [(optional) type] [name]",
+    "mal": {
+      "command": "<trigger>mal [(optional) type] [name]",
       "description": "Command to get a MAL link. Only first result is shown.",
       "parameters": "**[(optional) type]** type of info (anime/manga/person/character)\n**[name]** name or search query"
     },
@@ -34,10 +43,43 @@
       "description": "Gets the first article the search find for the given query in the wiki with the given slug.",
       "parameters": "**[wiki slug]** slug of the wiki page (for example: swordartonline for <https://swordartonline.fandom.com>)\n**[query]** search query"
     },
+    "setbirthday": {
+      "command": "<trigger>setbirthday [user] [day] [month] [year (optional)]",
+      "description": "[Admin Only] Inserts or updates a birthday for the specified user.",
+      "parameters": "**[user]** User id, or mention to be set the birthday for\n**[day]** Day of their birthday\n**[month]** Month of their birthday (January = 1 and December = 12)\n**[year]** Year of his birthday (optional)"
+    },
+    "sauce": {
+      "command": "<trigger>sauce",
+      "description": "Looks up the source for the last image uploaded to this channel.",
+      "parameters": null
+    },
     "help": {
       "command": "<trigger>help",
       "description": "Shows this.",
       "parameters": null
+    },
+    "setadminrole": {
+      "command": "<trigger>setadminrole [role]",
+      "description": "[Admin Only] Sets a role that will be able to use the admin commands",
+      "parameters": "**[role]** ID or name of the role"
+    },
+    "settrigger": {
+      "command": "<trigger>settrigger [trigger]",
+      "description": "[Admin Only] Changes the bot command trigger",
+      "parameters": "**[trigger]** string that corresponds to the trigger"
+    },
+    "setlanguage": {
+      "command": "<trigger>setlanguage [language]",
+      "description": "[Admin Only] Changes the bot language",
+      "parameters": "**[language]** `en` or `pt` only"
+    },
+    "setbirthdaychannel": {
+      "command": "<trigger>setbirthdaychannel [trigger]",
+      "description": "[Admin Only] Sets the channel for birthday messages",
+      "parameters": "**[channel]** ID or name of the channel"
     }
+  },
+  "birthdays": {
+    "message": "Happy birthday <@<user_id>>!!"
   }
 }

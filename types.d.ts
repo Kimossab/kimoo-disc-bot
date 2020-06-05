@@ -22,15 +22,34 @@ declare interface custom_commands {
 
 declare interface message_translate {
   key: string;
-  replaces?: string_object;
+  replaces?: string_object<string>;
 }
 
 declare namespace database {
   interface server_settings {
-    id: string;
-    cmd_trigger: string;
-    admin_role: string;
+    server_id: string;
+    cmd_trigger?: string | null;
+    admin_role: string | null;
     bot_lang: string;
+  }
+
+  interface birthday {
+    user_id: string,
+    day: number,
+    month: number,
+    year: number | null
+  }
+
+  interface birthday_settings {
+    server_id: string,
+    hours: number,
+    channel: string
+  }
+
+  interface server_data {
+    settings: server_settings,
+    birthdays: birthday[],
+    birthday_settings: birthday_settings | null
   }
 }
 
@@ -201,6 +220,7 @@ declare namespace discord {
     name: string;
     icon: string | null;
     splash: string | null;
+    discovery_splash: string | null;
     owner?: boolean;
     owner_id: string;
     permissions?: number;
@@ -220,6 +240,8 @@ declare namespace discord {
     widget_enabled?: boolean;
     widget_channel_id?: string;
     system_channel_id: string | null;
+    system_channel_flags: number;
+    rules_channel_id: string | null;
     joined_at?: string;
     large?: boolean;
     unavailable?: boolean;
@@ -236,16 +258,14 @@ declare namespace discord {
     premium_tier: number;
     premium_subscription_count?: number;
     preferred_locale: string;
+    public_updates_channel_id: string | null;
+    max_video_channel_users?: number;
+    approximate_member_count?: number;
+    approximate_presence_count?: number;
 
-    //bot server settings
-    cmd_trigger: string;
-    admin_role: string | null;
-    mod_role: string | null;
-    mute_role: string | null;
-    log_channel: string | null;
-    mod_channel: string | null;
-    bot_lang: string;
-    customCmds: custom_commands[];
+    settings: database.server_settings,
+    birthdays: database.birthday[],
+    birthday_settings: database.birthday_settings
   }
 
   interface attachment {

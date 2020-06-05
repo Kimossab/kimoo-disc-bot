@@ -1,12 +1,13 @@
 import DiscordRest from "../discord/rest";
 import unirest from "unirest";
 import { FANDOM_LINKS } from "../definitions";
-import { parse } from "dotenv";
 
 /**
  * Adds some weeb functionality
  */
 class Weeb {
+  private static _instance: Weeb;
+
   private malTypes: string_object<string> = {
     all: "all",
     manga: "manga",
@@ -28,6 +29,14 @@ class Weeb {
   private sauceNaoMessageList: SauceNao.message_list[] = [];
 
   private lastAttachments: string_object<string> = {};
+
+  public static getInstance() {
+    if (!Weeb._instance) {
+      Weeb._instance = new Weeb();
+    }
+
+    return Weeb._instance;
+  }
 
   // ==================
   // Fandom
@@ -421,7 +430,7 @@ class Weeb {
     try {
       // valid parameters
       if (data[1] === "") {
-        return DiscordRest.sendInfo(messageData.channel_id, guild, "searchmal", trigger);
+        return DiscordRest.sendInfo(messageData.channel_id, guild, "mal", trigger);
       }
 
       let type = "all";
@@ -738,16 +747,16 @@ class Weeb {
     if (!sauceData) {
       const response = await this.sauceNaoRequest(this.lastAttachments[messageData.channel_id]);
 
-      if (response.header.status > 0) {
-        return DiscordRest.sendError(messageData.channel_id, guild, {
-          key: "errors.weeb.sauce_ext_error"
-        });
-      }
-      if (response.header.status < 0) {
-        return DiscordRest.sendError(messageData.channel_id, guild, {
-          key: "errors.weeb.sauce_int_error"
-        });
-      }
+      // if (response.header.status > 0) {
+      //   return DiscordRest.sendError(messageData.channel_id, guild, {
+      //     key: "errors.weeb.sauce_ext_error"
+      //   });
+      // }
+      // if (response.header.status < 0) {
+      //   return DiscordRest.sendError(messageData.channel_id, guild, {
+      //     key: "errors.weeb.sauce_int_error"
+      //   });
+      // }
 
       sauceData = [];
 

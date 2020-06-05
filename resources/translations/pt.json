@@ -11,21 +11,30 @@
   },
   "errors": {
     "internal_error": "Erro interno, por favor contacte <@108208089987051520>",
+    "no_user_found": "Nenhum utilizador foi encontrado com os dados introduzidos.",
+    "no_channel_found": "Nenhum canal foi encontrado com os dados introduzidos.",
     "weeb": {
       "noanime": "Não foi encontrada anime para a query <query> em <source>",
       "wiki_fail": "Não foi nada encontrado para `<query>` em `<wiki>.fandom.com`. Por favor verifique a pesquisa",
+      "sauce_ext_error": "External server error",
+      "sauce_int_error": "Internal server error",
       "sauce_no_image": "Nenhuma imagem foi postada neste canal",
-      "sauce_no_sauce": "Sem molho para a massa. Procura tu proprio."
+      "sauce_no_sauce": "Sem molho para a massa. Procura tu próprio"
+    },
+    "admin": {
+      "no_role": "Não foi encontrada a role especificada"
     }
   },
+  "success": {
+    "setbirthday": "Definida a data de aniversário com sucesso",
+    "setadminrole": "Role de admin alterada com sucesso",
+    "settrigger": "Trigger alterado para <trigger>",
+    "setlanguage": "Lingua alterada para <lang>",
+    "setbirthdaychannel": "Canal para os aniversários alterado para <channel>"
+  },
   "help": {
-    "getanime": {
-      "command": "<trigger>getanime [(opcional) fonte] [nome] ",
-      "description": "Comando para obter mais informação sobre anime.",
-      "parameters": "**[(opcional) fonte]**  fonte de informação (MAL/Kitsu)\n**[nome]** nome do anime ou procura"
-    },
-    "searchmal": {
-      "command": "<trigger>searchmal [(optional) tipo] [nome]",
+    "mal": {
+      "command": "<trigger>mal [(optional) tipo] [nome]",
       "description": "Comando para obter link do MAL. Apenas o primeiro resultado é mostrado.",
       "parameters": "**[(opcional) tipo]** tipo (anime/manga/person/character)\n**[nome]** nome a procurar"
     },
@@ -34,10 +43,43 @@
       "description": "Obtem o primeiro artigo encontrado com a query usada na wiki com a slug inserida.",
       "parameters": "**[wiki slug]** slug da página da wiki (por exemplo: swordartonline para <https://swordartonline.fandom.com>)\n**[query]** procura"
     },
+    "setbirthday": {
+      "command": "<trigger>setbirthday [user] [dia] [mes] [ano (opcional)]",
+      "description": "[Admin Apenas] Insere ou atualiza o aniversário de um utilizador em especifico.",
+      "parameters": "**[user]** ID ou menção do aniversariante\n**[dia]** Dia do seu aniversário\n**[mês]** Mês do seu aniversário (January = 1 and December = 12)\n**[year]** Ano do seu aniversário (opcional)"
+    },
+    "sauce": {
+      "command": "<trigger>sauce",
+      "description": "Procura a origem da ultima imagem postada neste canal.",
+      "parameters": null
+    },
     "help": {
       "command": "<trigger>help",
       "description": "Mostra isto.",
       "parameters": null
+    },
+    "setadminrole": {
+      "command": "<trigger>setadminrole [role]",
+      "description": "[Admin Apenas] Define a role que pode usar os comandos de admin",
+      "parameters": "**[role]** ID ou nome da role"
+    },
+    "settrigger": {
+      "command": "<trigger>settrigger [trigger]",
+      "description": "[Admin Apenas] Altera o trigger para os comandos",
+      "parameters": "**[trigger]** Texto equivalente ao trigger"
+    },
+    "setlanguage": {
+      "command": "<trigger>setlanguage [lingua]",
+      "description": "[Admin Apenas] Altera a lingua do bot",
+      "parameters": "**[lingua]** `en` ou `pt` apenas"
+    },
+    "setbirthdaychannel": {
+      "command": "<trigger>setbirthdaychannel [channel]",
+      "description": "[Admin Apenas] Altera o canal de aniversários",
+      "parameters": "**[channel]** ID ou nome do canal"
     }
+  },
+  "birthdays": {
+    "message": "Parabéns <@<user_id>>!!"
   }
 }

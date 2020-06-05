@@ -6,7 +6,33 @@
 - Find a _better_ way to not get rate limited (timeouts?) (might not be needed after a timeout. need to waste time finding a smarter way of doing it)
 - Refactor the code x2 (finish)
 - Comments (finish)
-- Generalise even more the page cycle system so it can be reused for everything more easily
+- Generalize even more the page cycle system so it can be reused for everything more easily (need to focus on this)
+- Refactor command logic (make all command functions static on the classes and then use getInstance if necessary)
+
+---
+
+## [1.1.0] - 2020-06-05
+
+### Added
+
+- Birthday module
+  - Set birthday by admins
+  - Send a "happy birthday" message on the day
+- Admin module
+  - Set language
+  - Set bot trigger
+- Database
+- More translations
+
+### Changed
+
+- More code refactoring
+  - Most classes turned into Singletons
+
+### Removed
+
+- Anime command (clean up)
+  - Kitsu requests
 
 ---
 

@@ -9,11 +9,9 @@ import Weeb from "../modules/weeb";
  * Class that handles all socket communications with Discord
  */
 class DiscordSocket {
-  private url: string;
-  // private db: DB;
+  private static _instance: DiscordSocket | null = null;
 
-  private cmd: Commands;
-  private weeb: Weeb;
+  private url: string;
 
   private client: WebSocket | null = null;
   private hbInterval: NodeJS.Timeout | null = null;
@@ -22,7 +20,23 @@ class DiscordSocket {
   private sessionId: string | null = null;
 
   private botUser: any = null;
-  public guildList: any[] = [];
+  public guildList: discord.guild[] = [];
+
+  public static getInstance(): DiscordSocket | null {
+    return DiscordSocket._instance;
+  }
+
+  public static setInstance(_url: string): DiscordSocket {
+    if (!DiscordSocket._instance) {
+      DiscordSocket._instance = new DiscordSocket(_url);
+    }
+
+    return DiscordSocket._instance;
+  }
+
+  public static clean() {
+    DiscordSocket._instance = null;
+  }
 
   /**
    * Initializes the necessary classes
@@ -31,10 +45,6 @@ class DiscordSocket {
    */
   constructor(_url: string) {
     this.url = _url;
-    // this.db = _db;
-
-    this.weeb = new Weeb();
-    this.cmd = new Commands(this, this.weeb);
   }
 
   /**
@@ -171,38 +181,36 @@ class DiscordSocket {
         console.log("CHANNEL_PINS_UPDATE", JSON.stringify(data));
         break;
       case "GUILD_CREATE":
-        // try {
-        //   const settings = await this.db.loadServerSettings(data.d.id);
-        //   console.log('GUILD_CREATE SETTINGS', settings);
+        try {
+          const settings = await DB.getInstance().getServerData(data.d.id);
 
-        //   const serverData = {
-        //     ...data.d,
-        //     ...settings
-        //   };
-        //   this.guildList.push(serverData);
+          const serverData = {
+            ...data.d,
+            ...settings
+          };
+          this.guildList.push(serverData);
 
-        //   //todo: add to db
-        // } catch (e) {
-        this.guildList.push(data.d);
-        // console.log("GUILD_CREATE", e);
-        // }
+          //todo: add to db
+        } catch (e) {
+          this.guildList.push(data.d);
+          console.log("GUILD_CREATE", e);
+        }
         break;
       case "GUILD_UPDATE":
         index = this.guildList.findIndex(g => data.d.id !== g.id);
 
-        // try {
-        //   const settings = await this.db.loadServerSettings(data.d.id);
-        //   console.log('GUILD_UPDATE SETTINGS', settings);
+        try {
+          const settings = await DB.getInstance().getServerData(data.d.id);
 
-        //   const serverData = {
-        //     ...data.d,
-        //     ...settings
-        //   };
-        //   this.guildList[index] = serverData;
-        // } catch (e) {
-        this.guildList[index] = data.d;
-        // console.log("GUILD_UPDATE", e);
-        // }
+          const serverData = {
+            ...data.d,
+            ...settings
+          };
+          this.guildList[index] = serverData;
+        } catch (e) {
+          this.guildList[index] = data.d;
+          console.log("GUILD_UPDATE", e);
+        }
         break;
       case "GUILD_DELETE":
         this.guildList = this.guildList.filter(g => data.d.id !== g.id);
@@ -273,12 +281,12 @@ class DiscordSocket {
         break;
       case "MESSAGE_REACTION_ADD":
         if (this.botUser.id !== data.d.user_id) {
-          this.weeb.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+          Weeb.getInstance().handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
         }
         break;
       case "MESSAGE_REACTION_REMOVE":
         if (this.botUser.id !== data.d.user_id) {
-          this.weeb.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+          Weeb.getInstance().handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
         }
         break;
       case "MESSAGE_REACTION_REMOVE_ALL":
@@ -373,10 +381,10 @@ class DiscordSocket {
    */
   private messageReceived(data: discord.message) {
     console.log(`[${new Date().toDateString()}] ${data.author.username}#${data.author.discriminator}: ${data.content}`);
-    this.cmd.handle(data);
+    Commands.handle(data);
 
     data.attachments.forEach(file => {
-      this.weeb.processAttachment(data.channel_id, file);
+      Weeb.getInstance().processAttachment(data.channel_id, file);
     });
   }
 

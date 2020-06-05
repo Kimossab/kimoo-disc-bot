@@ -1,6 +1,6 @@
 # KIMOO DISCORD BOT
 
-### Requirements:
+### Requirements
 
 - [Node.js](https://nodejs.org/en/)
 - [yarn](https://yarnpkg.com/en/docs/install#windows-stable) or [npm](https://www.npmjs.com/)
@@ -10,7 +10,7 @@
 
 ---
 
-### Running:
+### Running
 
 - Rename **.example.env** to **.env**
 - Insert your bot token in **TOKEN** field in the **.env** file
