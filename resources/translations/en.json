@@ -74,12 +74,12 @@
       "parameters": "**[language]** `en` or `pt` only"
     },
     "setbirthdaychannel": {
-      "command": "<trigger>setbirthdaychannel [trigger]",
+      "command": "<trigger>setbirthdaychannel [channel]",
       "description": "[Admin Only] Sets the channel for birthday messages",
       "parameters": "**[channel]** ID or name of the channel"
     }
   },
   "birthdays": {
-    "message": "Happy birthday <@<user_id>>!!"
+    "message": "Deem todos os parabéns ao/s aniversariantes de hoje: "
   }
 }

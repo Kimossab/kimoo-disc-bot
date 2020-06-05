@@ -32,13 +32,23 @@ class Birthdays {
 
     for (const guild of socket.guildList) {
       if (guild.birthday_settings && guild.birthday_settings.hours === currentTime) {
+        const birthdays: database.birthday[] = [];
+
         for (const birthday of guild.birthdays) {
           if (birthday.day === date.getDay() && birthday.month === date.getMonth() + 1) {
-            // const age = birthday.year ? date.getFullYear() - birthday.year : null;
-            const message = Helper.translation(guild, "birthdays.message", { 'user_id': birthday.user_id });
-
-            DiscordRest.sendMessage(guild.birthday_settings.channel, message);
+            birthdays.push(birthday);
           }
+        }
+
+        if (birthdays.length > 0) {
+          let message = Helper.translation(guild, "birthdays.message");
+
+          for (const birthday of birthdays) {
+            // const age = birthday.year ? date.getFullYear() - birthday.year : null;
+            message += ` <@${birthday.user_id}>`;
+          }
+
+          DiscordRest.sendMessage(guild.birthday_settings.channel, message);
         }
       }
     }

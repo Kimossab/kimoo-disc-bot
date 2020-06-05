@@ -246,9 +246,14 @@ class DiscordSocket {
         break;
       case "GUILD_MEMBER_UPDATE":
         index = this.guildList.findIndex(g => data.d.guild_id === g.id);
-        memberIndex = this.guildList[index].members!.findIndex(
+        memberIndex = this.guildList[index].members?.findIndex(
           (m: any) => m.user.id === data.d.user.id
         );
+
+        if (!memberIndex) {
+          return;
+        }
+
         const user = this.guildList[index].members![memberIndex];
 
         delete data.d.guild_id;
@@ -380,7 +385,7 @@ class DiscordSocket {
    * @param data Message received
    */
   private messageReceived(data: discord.message) {
-    console.log(`[${new Date().toDateString()}] ${data.author.username}#${data.author.discriminator}: ${data.content}`);
+    // console.log(`[${new Date().toDateString()}] ${data.author.username}#${data.author.discriminator}: ${data.content}`);
     Commands.handle(data);
 
     data.attachments.forEach(file => {
