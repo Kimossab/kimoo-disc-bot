@@ -630,7 +630,7 @@ declare namespace SauceNao {
     "anime-pictures_id"?: string,
     member_id?: string,
     member_name?: string,
-    creator?: string,
+    creator?: string | string[],
     material?: string,
     pawoo_user_display_name?: string,
     eng_name?: string,

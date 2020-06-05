@@ -308,17 +308,13 @@ class Weeb {
       title: item.name,
       description: item.site,
       color: 3035554,
-      provider: {
-        name: item.site,
-        url: ""
-      },
       fields: [],
       footer: {
         text: `Page ${index}/${count}`
       }
     };
     if (item.thumbnail) {
-      embed.image = { url: item.thumbnail };
+      embed.image = { url: item.thumbnail.replace(/\s/g, '%20') };
     }
 
     embed.fields!.push({
@@ -625,15 +621,15 @@ class Weeb {
         case 18: {
           //nhentai
           parsed.site = "nhentai";
-          const match = /(\/nhentai\/\d*)[^\/]*(\/\d*)\.jpg/gm.exec(data.header.thumbnail);
+          const match = /\/nhentai\/(\d*)[^\/]*(\/\d*)/gm.exec(data.header.thumbnail);
           if (match) {
             const path = match[1] + match[2];
-            parsed.thumbnail = `https://i.nhentai.net/galleries/${path}.jpg`;
+            // parsed.thumbnail = `https://i.nhentai.net/galleries/${path}.jpg`;
             parsed.url = [`https://nhentai.net/g/${match[1]}`, `https://nhentai.net/g/${path}`];
           }
           parsed.name = (data.data.eng_name || data.data.jp_name)!;
           parsed.authorData = {
-            authorName: data.data.creator!.concat(','),
+            authorName: (data.data.creator as string[]).join(','),
             authorUrl: null
           };
           break;

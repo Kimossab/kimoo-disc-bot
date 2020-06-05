@@ -35,7 +35,7 @@
   "help": {
     "mal": {
       "command": "<trigger>mal [(optional) type] [name]",
-      "description": "Command to get a MAL link. Only first result is shown.",
+      "description": "Command to get a MAL link.",
       "parameters": "**[(optional) type]** type of info (anime/manga/person/character)\n**[name]** name or search query"
     },
     "wiki": {
