@@ -20,8 +20,8 @@ class Commands {
       const guildIndex = socket.guildList.findIndex(
         g => messageData.guild_id === g.id
       );
-      const trigger = Helper.getTrigger(socket.guildList[guildIndex]);
-      const regex = new RegExp("\\" + trigger + "([^\\s]*)\\s?(.*)", "g");
+      const trigger = Helper.getTrigger(socket.guildList[guildIndex]).replace(/\./g, '\\.');
+      const regex = new RegExp(trigger + "([^\\s]*)\\s?(.*)", "g");
       const regExec = regex.exec(messageData.content);
 
       if (regExec) {
