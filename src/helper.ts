@@ -56,26 +56,26 @@ class Helper {
     let returnVal = object;
 
     for (let child of childs) {
-      if (!returnVal[child]) {
-        console.log(returnVal, child);
-      }
       returnVal = returnVal[child];
     }
 
     return returnVal;
   }
 
-  public static findUser(guild: discord.guild, user: string): string | null {
+  public static findUser(guild: discord.guild, user: string): discord.user | null {
     const auxUser = user.toLowerCase();
     if (guild.members) {
       for (const m of guild.members) {
-        if (m.user.id === user || m.nick?.toLowerCase() === auxUser || m.user.username.toLowerCase() === auxUser) {
-          return m.user.id;
+        if (
+          m.user.id === user ||
+          m.nick?.toLowerCase() === auxUser ||
+          m.user.username.toLowerCase() === auxUser ||
+          m.user.username.toLowerCase() + '#' + m.user.discriminator === auxUser
+        ) {
+          return m.user;
         }
       }
     }
-
-    console.log(guild.members, user);
 
     return null;
   }
@@ -88,6 +88,10 @@ class Helper {
     }
 
     return guild.settings.cmd_trigger ?? process.env.DEFAULT_CMD_TRIGGER ?? '..';
+  }
+
+  public static snowflakeToDate(snowflake: string): Date {
+    return new Date(Number(snowflake) / 4194304 + 1420070400000);
   }
 }
 

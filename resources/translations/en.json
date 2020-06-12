@@ -13,6 +13,7 @@
     "internal_error": "Internal error, please contact <@108208089987051520>",
     "no_user_found": "No user found that corresponds to the input.",
     "no_channel_found": "No channel found that corresponds to the input.",
+    "permission": "You don't have permission to execute this command",
     "weeb": {
       "noanime": "No anime found for query <query> in <source>",
       "wiki_fail": "Nothing was found for `<query>` in `<wiki>.fandom.com`. Please verify the inputs",
@@ -21,16 +22,20 @@
       "sauce_no_image": "No image posted on this channel",
       "sauce_no_sauce": "No sauce found for the pasta. Google yourself."
     },
+    "birthday": {
+      "no_birthday": "No birthday found for the user"
+    },
     "admin": {
       "no_role": "Role not found"
     }
   },
   "success": {
-    "setbirthday": "Set the birthday date with success",
+    "setbirthday": "Set the birthday for <user> with success",
     "setadminrole": "Admin role set successfully",
     "settrigger": "Trigger changed to <trigger>",
     "setlanguage": "Language changed to <lang>",
-    "setbirthdaychannel": "Birthday channel set to <channel>"
+    "setbirthdaychannel": "Birthday channel set to <channel>",
+    "deletebirthday": "Birthday for <user> removed successfully"
   },
   "help": {
     "mal": {
@@ -77,9 +82,22 @@
       "command": "<trigger>setbirthdaychannel [channel]",
       "description": "[Admin Only] Sets the channel for birthday messages",
       "parameters": "**[channel]** ID or name of the channel"
+    },
+    "deletebirthday": {
+      "command": "<trigger>deletebirthday [user]",
+      "description": "[Admin Only] Deletes the birthday of a user",
+      "parameters": "**[user]**  ID or name of the user"
+    },
+    "getbirthday": {
+      "command": "<trigger>getbirthday [user]",
+      "description": "[Admin Only] Gets the birthday of a user",
+      "parameters": "**[user]**  ID or name of the user"
     }
   },
   "birthdays": {
-    "message": "Deem todos os parabéns ao/s aniversariantes de hoje: "
+    "message": "Deem todos os parabéns ao aniversariante de hoje:",
+    "message_multiple": "Deem todos os parabéns aos aniversariantes de hoje:",
+    "server": "Hoje, faz <age> ano que este server foi criado. MUITOS PARABÉNS <name>!",
+    "server_multiple": "Hoje, faz <age> anos que este server foi criado. MUITOS PARABÉNS <name>!"
   }
 }

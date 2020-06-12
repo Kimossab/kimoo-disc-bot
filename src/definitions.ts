@@ -84,5 +84,6 @@ export const FANDOM_LINKS: fandom.url_map = {
   "fateseries": "typemoon",
   "fate": "typemoon",
   // Fate Grand Order
-  "fgo": "fategrandorder"
+  "fgo": "fategrandorder",
+  "arknights": "mrfz",
 }

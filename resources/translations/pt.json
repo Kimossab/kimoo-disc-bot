@@ -13,6 +13,7 @@
     "internal_error": "Erro interno, por favor contacte <@108208089987051520>",
     "no_user_found": "Nenhum utilizador foi encontrado com os dados introduzidos.",
     "no_channel_found": "Nenhum canal foi encontrado com os dados introduzidos.",
+    "permission": "Não tens permissão para executar este comando",
     "weeb": {
       "noanime": "Não foi encontrada anime para a query <query> em <source>",
       "wiki_fail": "Não foi nada encontrado para `<query>` em `<wiki>.fandom.com`. Por favor verifique a pesquisa",
@@ -21,16 +22,20 @@
       "sauce_no_image": "Nenhuma imagem foi postada neste canal",
       "sauce_no_sauce": "Sem molho para a massa. Procura tu próprio"
     },
+    "birthday": {
+      "no_birthday": "Nenhum aniversário foi encontrado para o utilizador"
+    },
     "admin": {
       "no_role": "Não foi encontrada a role especificada"
     }
   },
   "success": {
-    "setbirthday": "Definida a data de aniversário com sucesso",
+    "setbirthday": "Definida a data de aniversário para <user> com sucesso",
     "setadminrole": "Role de admin alterada com sucesso",
     "settrigger": "Trigger alterado para <trigger>",
     "setlanguage": "Lingua alterada para <lang>",
-    "setbirthdaychannel": "Canal para os aniversários alterado para <channel>"
+    "setbirthdaychannel": "Canal para os aniversários alterado para <channel>",
+    "deletebirthday": "Aniversário do <user> removido com sucesso"
   },
   "help": {
     "mal": {
@@ -77,9 +82,22 @@
       "command": "<trigger>setbirthdaychannel [channel]",
       "description": "[Admin Apenas] Altera o canal de aniversários",
       "parameters": "**[channel]** ID ou nome do canal"
+    },
+    "deletebirthday": {
+      "command": "<trigger>deletebirthday [user]",
+      "description": "[Admin Apenas] Remove o aniversário de um utilizador",
+      "parameters": "**[user]** ID ou nome do utilizador"
+    },
+    "getbirthday": {
+      "command": "<trigger>getbirthday [user]",
+      "description": "[Admin Apenas] Obtém o aniversário de um utilizador",
+      "parameters": "**[user]** ID ou nome do utilizador"
     }
   },
   "birthdays": {
-    "message": "Deem todos os parabéns ao/s aniversariantes de hoje: "
+    "message": "Deem todos os parabéns ao aniversariante de hoje:",
+    "message_multiple": "Deem todos os parabéns aos aniversariantes de hoje:",
+    "server": "Hoje, faz <age> ano que este server foi criado. MUITOS PARABÉNS <name>!",
+    "server_multiple": "Hoje, faz <age> anos que este server foi criado. MUITOS PARABÉNS <name>!"
   }
 }

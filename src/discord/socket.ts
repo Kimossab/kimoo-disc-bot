@@ -189,8 +189,6 @@ class DiscordSocket {
             ...settings
           };
           this.guildList.push(serverData);
-
-          //todo: add to db
         } catch (e) {
           this.guildList.push(data.d);
           console.log("GUILD_CREATE", e);

@@ -8,7 +8,7 @@ import Admin from "../modules/admin";
 class Commands {
   //for help
   private static cmdArray = ['help', 'mal', 'wiki', 'sauce'];
-  private static adminCmdArray = ['setadminrole', 'settrigger', 'setlanguage', 'setbirthdaychannel', 'setbirthday'];
+  private static adminCmdArray = ['setadminrole', 'settrigger', 'setlanguage', 'setbirthdaychannel', 'setbirthday', 'deletebirthday', 'getbirthday'];
 
   public static handle(messageData: discord.message) {
     if (!messageData.author.bot) {
@@ -48,7 +48,7 @@ class Commands {
             }
             case 'setbirthday':
             case 'setbday': {
-              Birthdays.getInstance().setBirthday(socket.guildList[guildIndex], trigger, messageData, splited);
+              Birthdays.setBirthday(socket.guildList[guildIndex], trigger, messageData, splited);
               break;
             }
             case 'setbirthdaychannel':
@@ -68,6 +68,16 @@ class Commands {
             case 'setlanguage':
             case 'setlang': {
               Admin.setLanguage(socket.guildList[guildIndex], trigger, messageData, splited);
+              break;
+            }
+            case 'deletebirthday':
+            case 'deletebday': {
+              Birthdays.deleteBirthday(socket.guildList[guildIndex], trigger, messageData, splited);
+              break;
+            }
+            case 'getbirthday':
+            case 'getbday': {
+              Birthdays.getBirthday(socket.guildList[guildIndex], trigger, messageData, splited);
               break;
             }
           }

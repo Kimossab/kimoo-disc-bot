@@ -72,6 +72,20 @@ class DB {
     });
   }
 
+  public getBirthday(server: string, user_id: string): Promise<database.birthday> {
+    return new Promise((resolve, reject) => {
+      let sql = "SELECT * FROM birthdays WHERE server_id = ? AND user_id = ?";
+
+      this.db.get(sql, [server, user_id], (err, row: database.birthday) => {
+        if (err) {
+          reject(err);
+        }
+
+        resolve(row);
+      });
+    });
+  }
+
   // INSERTS
   public insertServerSettings(settings: database.server_settings) {
     const sql = "INSERT INTO `server_settings` (server_id,  cmd_trigger, admin_role, bot_lang) VALUES (?, ?, ?, ?)";
@@ -100,6 +114,13 @@ class DB {
     this.db.run(sql, [settings.cmd_trigger, settings.admin_role, settings.bot_lang, settings.server_id]);
 
     return this.getServerSettings(settings.server_id);
+  }
+
+  // DELETE
+  public deleteBirthday(server_id: string, user_id: string) {
+    const sql = "DELETE FROM `birthdays` WHERE server_id = ? AND user_id = ?";
+
+    this.db.run(sql, [server_id, user_id]);
   }
 
   // OTHERS

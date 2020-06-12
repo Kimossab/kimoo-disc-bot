@@ -8,6 +8,18 @@
 - Comments (finish)
 - Generalize even more the page cycle system so it can be reused for everything more easily (need to focus on this)
 - Refactor command logic (make all command functions static on the classes and then use getInstance if necessary)
+- https://trace.moe/ (https://soruly.github.io/trace.moe/#/README#me)
+- https://iqdb.org/
+
+---
+
+## [1.1.1] - 2020-06-12
+
+### Added
+
+- Server Birthday
+- Get Birthday
+- Remove Birthday
 
 ---
 
