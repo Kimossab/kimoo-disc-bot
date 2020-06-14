@@ -18,6 +18,7 @@ class Birthdays {
   }
 
   constructor() {
+    this.minuteTick();
     setInterval(this.minuteTick, 1 * 60 * 1000);
   }
 
@@ -48,6 +49,7 @@ class Birthdays {
           }
         }
 
+        console.log('<ServerBirthdays>', guild, birthdays);
         if (birthdays.length > 0) {
           let message = Helper.translation(guild, birthdays.length > 1 ? "birthdays.message_multiple" : "birthdays.message");
 

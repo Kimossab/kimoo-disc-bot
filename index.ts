@@ -16,9 +16,6 @@ process.on('uncaughtException', function (err) {
  */
 class Bot {
   constructor() {
-    DB.getInstance().start();
-    Weeb.getInstance();
-    Birthdays.getInstance();
   }
 
   /**
@@ -40,6 +37,11 @@ class Bot {
       DiscordSocket.clean();
       const socket = DiscordSocket.setInstance(url);
       socket.connect();
+
+
+      DB.getInstance().start();
+      Weeb.getInstance();
+      Birthdays.getInstance();
     } catch (e) {
       console.log(e);
     }
