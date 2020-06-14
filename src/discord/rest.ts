@@ -55,6 +55,7 @@ class DiscordRest {
       // }
 
       req.end((r: any) => {
+        console.log(r.body);
         resolve(r.body);
       });
     });
