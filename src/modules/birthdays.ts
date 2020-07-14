@@ -3,6 +3,7 @@ import Helper from "../helper";
 import DiscordRest from "../discord/rest";
 import DB from "../database";
 import Admin from "./admin";
+import Log from "../logger";
 
 class Birthdays {
   private static _instance: Birthdays;
@@ -49,8 +50,8 @@ class Birthdays {
           }
         }
 
-        console.log('<ServerBirthdays>', guild, birthdays);
         if (birthdays.length > 0) {
+          Log.write('birthday', '<ServerBirthdays>', guild, birthdays);
           let message = Helper.translation(guild, birthdays.length > 1 ? "birthdays.message_multiple" : "birthdays.message");
 
           for (const birthday of birthdays) {

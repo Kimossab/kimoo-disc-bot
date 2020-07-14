@@ -14,6 +14,7 @@
     "no_user_found": "Nenhum utilizador foi encontrado com os dados introduzidos.",
     "no_channel_found": "Nenhum canal foi encontrado com os dados introduzidos.",
     "permission": "Não tens permissão para executar este comando",
+    "nan": "Parametro não é um número.",
     "weeb": {
       "noanime": "Não foi encontrada anime para a query <query> em <source>",
       "wiki_fail": "Não foi nada encontrado para `<query>` em `<wiki>.fandom.com`. Por favor verifique a pesquisa",
@@ -27,6 +28,9 @@
     },
     "admin": {
       "no_role": "Não foi encontrada a role especificada"
+    },
+    "subscription": {
+      "subanime": "Subscrição já existente."
     }
   },
   "success": {
@@ -35,7 +39,9 @@
     "settrigger": "Trigger alterado para <trigger>",
     "setlanguage": "Lingua alterada para <lang>",
     "setbirthdaychannel": "Canal para os aniversários alterado para <channel>",
-    "deletebirthday": "Aniversário do <user> removido com sucesso"
+    "deletebirthday": "Aniversário do <user> removido com sucesso",
+    "subanime": "Adicionada subscrição para o anime com id <anime> com sucesso",
+    "subanimech": "Canal para os animes alterado para <channel>"
   },
   "help": {
     "mal": {
@@ -92,6 +98,16 @@
       "command": "<trigger>getbirthday [user]",
       "description": "[Admin Apenas] Obtém o aniversário de um utilizador",
       "parameters": "**[user]** ID ou nome do utilizador"
+    },
+    "subanime": {
+      "command": "<trigger>subanime [anime_id]",
+      "description": "Subscreve-te para seres notificado quando um novo episodo é lançado.",
+      "parameters": "**[anime_id]** ID do anime para o qual queres ser notificado de https://www.livechart.me/"
+    },
+    "subanimech": {
+      "command": "<trigger>subanimech [channel]",
+      "description": "[Admin Apenas] Altera o canal para o feed de anime",
+      "parameters": "**[channel]** ID ou nome do canal"
     }
   },
   "birthdays": {

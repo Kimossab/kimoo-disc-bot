@@ -3,12 +3,12 @@ import DiscordRest from "./src/discord/rest";
 import DiscordSocket from "./src/discord/socket";
 import DB from "./src/database";
 import Birthdays from "./src/modules/birthdays";
-import Weeb from "./src/modules/weeb";
+import Log from "./src/logger";
 
 dotenv.config();
 
 process.on('uncaughtException', function (err) {
-  console.log('Caught exception: ', err);
+  Log.write('app', 'Caught exception: ', err);
 });
 
 /**
@@ -38,12 +38,10 @@ class Bot {
       const socket = DiscordSocket.setInstance(url);
       socket.connect();
 
-
       DB.getInstance().start();
-      Weeb.getInstance();
       Birthdays.getInstance();
     } catch (e) {
-      console.log(e);
+      Log.write('app', 'error', e);
     }
   }
 }
@@ -53,6 +51,6 @@ const _ = new Bot();
 try {
   _.run();
 } catch (e) {
-  console.log('fatal error', e);
+  Log.write('app', 'fatal error', e);
   DB.getInstance().close();
 }

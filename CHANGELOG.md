@@ -13,6 +13,15 @@
 
 ---
 
+## [1.2.0] - 2020-07-14
+
+### Added
+
+- Anime air notification subscription
+- Simple logging system
+
+---
+
 ## [1.1.1] - 2020-06-12
 
 ### Added

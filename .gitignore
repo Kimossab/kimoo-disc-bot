@@ -5,3 +5,4 @@ custom_files/
 .env
 .vscode
 *.db
+log.*

@@ -4,6 +4,7 @@ import { GATEWAY_OPCODES } from "../definitions";
 import DB from "../database";
 import Commands from "../commands";
 import Weeb from "../modules/weeb";
+import Log from "../logger";
 
 /**
  * Class that handles all socket communications with Discord
@@ -59,7 +60,7 @@ class DiscordSocket {
       this.client.on("close", (e) => { this.onClose(e); });
       this.client.on("message", (e: string) => { this.onMessage(e); });
     } catch (e) {
-      console.log("error", e);
+      Log.write('socket', "error", e);
     }
   }
 
@@ -70,7 +71,7 @@ class DiscordSocket {
    * @param _ Event received
    */
   private onConnection(_: any) {
-    // console.log("info", { name: "onConnection", data: e });
+    // Log.write('socket', "info", { name: "onConnection", data: e });
   }
   /**
    * `(unused)` Handles `open` event
@@ -78,7 +79,7 @@ class DiscordSocket {
    * @param _ Event received
    */
   private onOpen(_: any) {
-    // console.log("info", { name: "onOpen", data: e });
+    // Log.write('socket', "info", { name: "onOpen", data: e });
   }
   /**
    * Cleans up intervals and reconnects.
@@ -86,8 +87,8 @@ class DiscordSocket {
    * @param _ Event received
    */
   private onClose(_: any) {
-    console.log("closing...");
-    // console.log("info", { name: "onClose", data: e });
+    Log.write('socket', "closing...");
+    // Log.write('socket', "info", { name: "onClose", data: e });
 
     this.client = null;
     if (this.hbInterval) {
@@ -103,7 +104,7 @@ class DiscordSocket {
    * @param c String received on message
    */
   private onMessage(c: string) {
-    // console.log("info", { name: "onMessage", data: c });
+    // Log.write('socket', "info", { name: "onMessage", data: c });
 
     const message = JSON.parse(c);
     const opCode = Number(message.op);
@@ -162,23 +163,25 @@ class DiscordSocket {
       case "READY":
         this.botUser = data.d.user;
         this.sessionId = data.d.session_id;
+
+        Weeb.getInstance();
         break;
 
       case "RESUMED":
-        // console.log("RESUMED", data);
+        // Log.write('socket', "RESUMED", data);
         break;
 
       case "CHANNEL_CREATE":
-        console.log("CHANNEL_CREATE", JSON.stringify(data));
+        Log.write('socket', "CHANNEL_CREATE", JSON.stringify(data));
         break;
       case "CHANNEL_UPDATE":
-        console.log("CHANNEL_UPDATE", JSON.stringify(data));
+        Log.write('socket', "CHANNEL_UPDATE", JSON.stringify(data));
         break;
       case "CHANNEL_DELETE":
-        console.log("CHANNEL_DELETE", JSON.stringify(data));
+        Log.write('socket', "CHANNEL_DELETE", JSON.stringify(data));
         break;
       case "CHANNEL_PINS_UPDATE":
-        console.log("CHANNEL_PINS_UPDATE", JSON.stringify(data));
+        Log.write('socket', "CHANNEL_PINS_UPDATE", JSON.stringify(data));
         break;
       case "GUILD_CREATE":
         try {
@@ -191,7 +194,7 @@ class DiscordSocket {
           this.guildList.push(serverData);
         } catch (e) {
           this.guildList.push(data.d);
-          console.log("GUILD_CREATE", e);
+          Log.write('socket', "GUILD_CREATE", e);
         }
         break;
       case "GUILD_UPDATE":
@@ -207,32 +210,34 @@ class DiscordSocket {
           this.guildList[index] = serverData;
         } catch (e) {
           this.guildList[index] = data.d;
-          console.log("GUILD_UPDATE", e);
+          Log.write('socket', "GUILD_UPDATE", e);
         }
         break;
       case "GUILD_DELETE":
         this.guildList = this.guildList.filter(g => data.d.id !== g.id);
         break;
       case "GUILD_BAN_ADD":
-        console.log("GUILD_BAN_ADD", JSON.stringify(data));
+        Log.write('socket', "GUILD_BAN_ADD", JSON.stringify(data));
         break;
       case "GUILD_BAN_REMOVE":
-        console.log("GUILD_BAN_REMOVE", JSON.stringify(data));
+        Log.write('socket', "GUILD_BAN_REMOVE", JSON.stringify(data));
         break;
       case "GUILD_EMOJIS_UPDATE":
-        console.log("GUILD_EMOJIS_UPDATE", JSON.stringify(data));
+        Log.write('socket', "GUILD_EMOJIS_UPDATE", JSON.stringify(data));
         break;
       case "GUILD_INTEGRATIONS_UPDATE":
-        console.log("GUILD_INTEGRATIONS_UPDATE", JSON.stringify(data));
+        Log.write('socket', "GUILD_INTEGRATIONS_UPDATE", JSON.stringify(data));
         break;
       case "GUILD_MEMBER_ADD":
         index = this.guildList.findIndex(g => data.d.guild_id === g.id);
         delete data.d.guild_id;
 
-        if (this.guildList[index].members) {
-          this.guildList[index].members!.push(data.d); // !. tells TS that this is in fact not undefined
-        } else {
-          this.guildList[index].members = [data.d];
+        if (index !== -1) {
+          if (this.guildList[index].members) {
+            this.guildList[index].members!.push(data.d); // !. tells TS that this is in fact not undefined
+          } else {
+            this.guildList[index].members = [data.d];
+          }
         }
         break;
       case "GUILD_MEMBER_REMOVE":
@@ -259,28 +264,28 @@ class DiscordSocket {
         this.guildList[index].members![memberIndex] = { ...user, ...data.d };
         break;
       case "GUILD_MEMBER_CHUNK":
-        console.log("GUILD_MEMBER_CHUNK", JSON.stringify(data));
+        Log.write('socket', "GUILD_MEMBER_CHUNK", JSON.stringify(data));
         break;
       case "GUILD_ROLE_CREATE":
-        console.log("GUILD_ROLE_CREATE", JSON.stringify(data));
+        Log.write('socket', "GUILD_ROLE_CREATE", JSON.stringify(data));
         break;
       case "GUILD_ROLE_UPDATE":
-        console.log("GUILD_ROLE_UPDATE", JSON.stringify(data));
+        Log.write('socket', "GUILD_ROLE_UPDATE", JSON.stringify(data));
         break;
       case "GUILD_ROLE_DELETE":
-        console.log("GUILD_ROLE_DELETE", JSON.stringify(data));
+        Log.write('socket', "GUILD_ROLE_DELETE", JSON.stringify(data));
         break;
       case "MESSAGE_CREATE":
         this.messageReceived(data.d);
         break;
       case "MESSAGE_UPDATE":
-        // console.log("MESSAGE_UPDATE", JSON.stringify(data));
+        // Log.write('socket', "MESSAGE_UPDATE", JSON.stringify(data));
         break;
       case "MESSAGE_DELETE":
-        console.log("MESSAGE_DELETE", JSON.stringify(data));
+        Log.write('socket', "MESSAGE_DELETE", JSON.stringify(data));
         break;
       case "MESSAGE_DELETE_BULK":
-        console.log("MESSAGE_DELETE_BULK", JSON.stringify(data));
+        Log.write('socket', "MESSAGE_DELETE_BULK", JSON.stringify(data));
         break;
       case "MESSAGE_REACTION_ADD":
         if (this.botUser.id !== data.d.user_id) {
@@ -293,25 +298,25 @@ class DiscordSocket {
         }
         break;
       case "MESSAGE_REACTION_REMOVE_ALL":
-        console.log("MESSAGE_REACTION_REMOVE_ALL", JSON.stringify(data));
+        Log.write('socket', "MESSAGE_REACTION_REMOVE_ALL", JSON.stringify(data));
         break;
       case "PRESENCE_UPDATE":
-        // console.log("PRESENCE_UPDATE", JSON.stringify(data));
+        // Log.write('socket', "PRESENCE_UPDATE", JSON.stringify(data));
         break;
       case "TYPING_START":
-        // console.log("TYPING_START", JSON.stringify(data));
+        // Log.write('socket', "TYPING_START", JSON.stringify(data));
         break;
       case "USER_UPDATE":
-        console.log("USER_UPDATE", JSON.stringify(data));
+        Log.write('socket', "USER_UPDATE", JSON.stringify(data));
         break;
       case "VOICE_STATE_UPDATE":
-        // console.log("VOICE_STATE_UPDATE", JSON.stringify(data));
+        // Log.write('socket', "VOICE_STATE_UPDATE", JSON.stringify(data));
         break;
       case "VOICE_SERVER_UPDATE":
-        console.log("VOICE_SERVER_UPDATE", JSON.stringify(data));
+        Log.write('socket', "VOICE_SERVER_UPDATE", JSON.stringify(data));
         break;
       case "WEBHOOKS_UPDATE":
-        console.log("WEBHOOKS_UPDATE", JSON.stringify(data));
+        Log.write('socket', "WEBHOOKS_UPDATE", JSON.stringify(data));
         break;
     }
   };
@@ -328,7 +333,7 @@ class DiscordSocket {
    * Identifies the bot
    */
   private identify() {
-    console.log("identifying...");
+    Log.write('socket', "identifying...");
     let data: discord.gateway.payload;
     if (!this.sessionId) {
       data = {
@@ -372,7 +377,7 @@ class DiscordSocket {
    */
   private send(message: string) {
     if (this.client) {
-      // console.log("info", { name: "sendMessage", data: message });
+      // Log.write('socket', "info", { name: "sendMessage", data: message });
       this.client.send(message);
     }
   }
@@ -383,7 +388,7 @@ class DiscordSocket {
    * @param data Message received
    */
   private messageReceived(data: discord.message) {
-    // console.log(`[${new Date().toDateString()}] ${data.author.username}#${data.author.discriminator}: ${data.content}`);
+    // Log.write('socket', `[${new Date().toDateString()}] ${data.author.username}#${data.author.discriminator}: ${data.content}`);
     Commands.handle(data);
 
     data.attachments.forEach(file => {

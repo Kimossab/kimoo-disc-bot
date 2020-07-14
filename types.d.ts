@@ -46,10 +46,21 @@ declare namespace database {
     channel: string
   }
 
+  interface anime_settings {
+    server_id: string,
+    channel: string
+  }
+
   interface server_data {
     settings: server_settings,
     birthdays: birthday[],
-    birthday_settings: birthday_settings | null
+    birthday_settings: birthday_settings | null,
+    anime_settings: anime_settings | null
+  }
+  interface anime_subscription {
+    server_id: string,
+    user_id: string,
+    anime_id: number
   }
 }
 
@@ -265,7 +276,8 @@ declare namespace discord {
 
     settings: database.server_settings,
     birthdays: database.birthday[],
-    birthday_settings: database.birthday_settings
+    birthday_settings: database.birthday_settings,
+    anime_settings: database.anime_settings
   }
 
   interface attachment {

@@ -4,11 +4,12 @@ import DiscordRest from "../discord/rest";
 import Weeb from "../modules/weeb";
 import Birthdays from "../modules/birthdays";
 import Admin from "../modules/admin";
+import Log from "../logger";
 
 class Commands {
   //for help
-  private static cmdArray = ['help', 'mal', 'wiki', 'sauce'];
-  private static adminCmdArray = ['setadminrole', 'settrigger', 'setlanguage', 'setbirthdaychannel', 'setbirthday', 'deletebirthday', 'getbirthday'];
+  private static cmdArray = ['help', 'mal', 'wiki', 'sauce', 'subanime'];
+  private static adminCmdArray = ['setadminrole', 'settrigger', 'setlanguage', 'setbirthdaychannel', 'setbirthday', 'deletebirthday', 'getbirthday', 'subanimech'];
 
   public static handle(messageData: discord.message) {
     if (!messageData.author.bot) {
@@ -21,7 +22,7 @@ class Commands {
         g => messageData.guild_id === g.id
       );
       const trigger = Helper.getTrigger(socket.guildList[guildIndex]).replace(/\./g, '\\.');
-      const regex = new RegExp(trigger + "([^\\s]*)\\s?(.*)", "g");
+      const regex = new RegExp("^" + trigger + "([^\\s]*)\\s?(.*)", "g");
       const regExec = regex.exec(messageData.content);
 
       if (regExec) {
@@ -30,7 +31,7 @@ class Commands {
         try {
           switch (splited[0]) {
             case 'help': {
-              this.help(socket.guildList[guildIndex], trigger, messageData);
+              Commands.help(socket.guildList[guildIndex], trigger, messageData);
               break;
             }
             case 'searchmal':
@@ -80,9 +81,20 @@ class Commands {
               Birthdays.getBirthday(socket.guildList[guildIndex], trigger, messageData, splited);
               break;
             }
+            case 'subscribefeed':
+            case 'subscribeanime':
+            case 'subanime':
+            case 'subfeed': {
+              Weeb.subscribeFeed(socket.guildList[guildIndex], trigger, messageData, splited);
+              break;
+            }
+            case 'subanimech': {
+              Weeb.setAnimeChannel(socket.guildList[guildIndex], trigger, messageData, splited);
+              break;
+            }
           }
         } catch (e) {
-          console.log(e);
+          Log.write('commands', 'error', e);
         }
       }
     }

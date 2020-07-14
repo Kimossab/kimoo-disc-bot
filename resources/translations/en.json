@@ -14,6 +14,7 @@
     "no_user_found": "No user found that corresponds to the input.",
     "no_channel_found": "No channel found that corresponds to the input.",
     "permission": "You don't have permission to execute this command",
+    "nan": "Parameter is not a number.",
     "weeb": {
       "noanime": "No anime found for query <query> in <source>",
       "wiki_fail": "Nothing was found for `<query>` in `<wiki>.fandom.com`. Please verify the inputs",
@@ -27,6 +28,9 @@
     },
     "admin": {
       "no_role": "Role not found"
+    },
+    "subscription": {
+      "subanime": "Subscription already exists."
     }
   },
   "success": {
@@ -35,7 +39,9 @@
     "settrigger": "Trigger changed to <trigger>",
     "setlanguage": "Language changed to <lang>",
     "setbirthdaychannel": "Birthday channel set to <channel>",
-    "deletebirthday": "Birthday for <user> removed successfully"
+    "deletebirthday": "Birthday for <user> removed successfully",
+    "subanime": "Added subscription to anime with id <anime> with success",
+    "subanimech": "Anime feed channel set to <channel>"
   },
   "help": {
     "mal": {
@@ -92,6 +98,16 @@
       "command": "<trigger>getbirthday [user]",
       "description": "[Admin Only] Gets the birthday of a user",
       "parameters": "**[user]**  ID or name of the user"
+    },
+    "subanime": {
+      "command": "<trigger>subanime [anime_id]",
+      "description": "Subscribes you to be notified when a new episode airs.",
+      "parameters": "**[anime_id]** ID of the anime to which you want to get notified from https://www.livechart.me/"
+    },
+    "subanimech": {
+      "command": "<trigger>subanimech [channel]",
+      "description": "[Admin Only] Sets the channel for anime feed",
+      "parameters": "**[channel]** ID or name of the channel"
     }
   },
   "birthdays": {

@@ -1,6 +1,12 @@
 import DiscordRest from "../discord/rest";
 import unirest from "unirest";
 import { FANDOM_LINKS } from "../definitions";
+import Log from "../logger";
+import DB from "../database";
+import Helper from "../helper";
+import Admin from "./admin";
+import DiscordSocket from "../discord/socket";
+import Parser from "rss-parser"
 
 /**
  * Adds some weeb functionality
@@ -30,12 +36,23 @@ class Weeb {
 
   private lastAttachments: string_object<string> = {};
 
+  private rssParser: Parser;
+
   public static getInstance() {
     if (!Weeb._instance) {
       Weeb._instance = new Weeb();
     }
 
     return Weeb._instance;
+  }
+
+  constructor() {
+    this.rssParser = new Parser();
+
+    this.checkAnimeFeed();
+    setInterval(() => {
+      this.checkAnimeFeed();
+    }, 15 * 60 * 1000);//15 mins
   }
 
   // ==================
@@ -49,7 +66,7 @@ class Weeb {
    */
   private async fandomQueryRequest(fandom: string, query: string): Promise<fandom.search_response> {
     return new Promise((resolve, reject) => {
-      console.log(`requesting [https://${fandom}.fandom.com/api/v1/Search/List?query=${encodeURIComponent(query)}&limit=20&minArticleQuality=10&batch=1&namespaces=0%2C14]`);
+      Log.write('weeb', `requesting [https://${fandom}.fandom.com/api/v1/Search/List?query=${encodeURIComponent(query)}&limit=20&minArticleQuality=10&batch=1&namespaces=0%2C14]`);
       unirest
         .get(`https://${fandom}.fandom.com/api/v1/Search/List?query=${encodeURIComponent(query)}&limit=20&minArticleQuality=10&batch=1&namespaces=0%2C14`)
         .then((r: any) => {
@@ -66,7 +83,7 @@ class Weeb {
    */
   private async fandomPageRequest(wiki: string, id: number): Promise<fandom.page> {
     return new Promise((resolve, reject) => {
-      console.log(`requesting [https://${wiki}.fandom.com/api/v1/Articles/Details?ids=${encodeURIComponent(id.toString())}&abstract=255&width=200&height=200]`);
+      Log.write('weeb', `requesting [https://${wiki}.fandom.com/api/v1/Articles/Details?ids=${encodeURIComponent(id.toString())}&abstract=255&width=200&height=200]`);
       unirest
         .get(`https://${wiki}.fandom.com/api/v1/Articles/Details?ids=${encodeURIComponent(id.toString())}&abstract=255&width=200&height=200`)
         .then((r: any) => {
@@ -190,7 +207,7 @@ class Weeb {
    */
   private async malQueryRequest(type: string, query: string): Promise<MAL.search_response> {
     return new Promise((resolve, reject) => {
-      console.log(`requesting [https://myanimelist.net/search/prefix.json?type=${type}&keyword=${encodeURIComponent(query)}&v=1]`);
+      Log.write('weeb', `requesting [https://myanimelist.net/search/prefix.json?type=${type}&keyword=${encodeURIComponent(query)}&v=1]`);
       unirest
         .get(
           `https://myanimelist.net/search/prefix.json?type=${type}&keyword=${encodeURIComponent(query)}&v=1`
@@ -291,7 +308,7 @@ class Weeb {
   // ==================
   private async sauceNaoRequest(image: string): Promise<SauceNao.response> {
     return new Promise((resolve, reject) => {
-      console.log(`requesting [https://saucenao.com/search.php?output_type=2&api_key=${process.env.SAUCENAO_API_KEY}&testmode=1&url=${image}]`);
+      Log.write('weeb', `requesting [https://saucenao.com/search.php?output_type=2&api_key=${process.env.SAUCENAO_API_KEY}&testmode=1&url=${image}]`);
       unirest
         .get(
           `https://saucenao.com/search.php?output_type=2&api_key=${process.env.SAUCENAO_API_KEY}&testmode=1&url=${image}`
@@ -461,7 +478,7 @@ class Weeb {
         });
       }
     } catch (e) {
-      console.log("searchMal", e);
+      Log.write('weeb', "searchMal", e);
     }
   }
 
@@ -580,7 +597,7 @@ class Weeb {
           parsed.url = data.data.ext_urls;
           parsed.name = data.data.material ? data.data.material : "";
           parsed.authorData = {
-            authorName: data.data.creator ? data.data.creator : null,
+            authorName: data.data.creator ? data.data.creator.toString() : null,
             authorUrl: data.data.source ? data.data.source : null
           };
           break;
@@ -602,7 +619,7 @@ class Weeb {
           parsed.url = data.data.ext_urls;
           parsed.name = data.data.material!;
           parsed.authorData = {
-            authorName: data.data.creator ? data.data.creator : null,
+            authorName: data.data.creator ? data.data.creator.toString() : null,
             authorUrl: null
           };
           break;
@@ -613,7 +630,7 @@ class Weeb {
           parsed.url = data.data.ext_urls;
           parsed.name = data.data.source!;
           parsed.authorData = {
-            authorName: data.data.creator ? data.data.creator : null,
+            authorName: data.data.creator ? data.data.creator.toString() : null,
             authorUrl: null
           };
           break;
@@ -666,7 +683,7 @@ class Weeb {
           parsed.name = data.data.material!;
           parsed.url = data.data.ext_urls;
           parsed.authorData = {
-            authorName: data.data.creator ? data.data.creator : null,
+            authorName: data.data.creator ? data.data.creator.toString() : null,
             authorUrl: null
           };
           break;
@@ -794,6 +811,177 @@ class Weeb {
   // ===================
   public processAttachment(channel: string, attachment: discord.attachment) {
     this.lastAttachments[channel] = attachment.url;
+  }
+
+  // ===================
+  // Anime RSS Feed
+  // ===================
+  /**
+   * Subscribes a user to receive notification when an anime episode airs
+   * ***
+   * @param guild Guild from the message
+   * @param trigger Guild command trigger
+   * @param messageData Message received
+   * @param data Message content
+   */
+  public static async subscribeFeed(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
+    if (data[1] === "") {
+      return DiscordRest.sendInfo(messageData.channel_id, guild, "subanime", trigger);
+    }
+
+    let animeId = Number(data[1]);
+    if (Number.isNaN(animeId)) {
+      return DiscordRest.sendError(messageData.channel_id, guild, { key: "errors.nan" });
+    }
+
+    const db = DB.getInstance();
+
+    const subscriptionList = await db.getAnimeSubscriptionList(guild.id, (messageData.author as discord.user).id);
+
+    console.log(typeof subscriptionList, subscriptionList);
+    if (subscriptionList && subscriptionList.includes(animeId)) {
+      return DiscordRest.sendError(messageData.channel_id, guild, { key: "errors.subscription.subanime" });
+    }
+
+    db.insertAnimeFeed(guild.id, (messageData.author as discord.user).id, animeId);
+
+    const translation = Helper.translation(guild, "success.subanime", { anime: animeId.toString() });
+    DiscordRest.sendMessage(messageData.channel_id, translation);
+  }
+
+  /**
+   * Set notification channel for anime feed
+   * ***
+   * @param guild Guild from the message
+   * @param trigger Guild command trigger
+   * @param messageData Message received
+   * @param data Message content
+   */
+  public static async setAnimeChannel(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
+    try {
+      if (!Admin.checkAdmin(guild, messageData.author.id)) {
+        return DiscordRest.sendError(messageData.channel_id, guild, { key: "errors.permission" });
+      }
+
+      const regex = /^((<#(?<id>\d*)>)|(?<name>.*))/;
+      const result = regex.exec(data[1]);
+
+      if (!result?.groups || (!result?.groups.id && !result?.groups.name)) {
+        return DiscordRest.sendInfo(messageData.channel_id, guild, "subanimech", trigger);
+      }
+
+      const channelName = result.groups.id ? result.groups.id : result.groups.name.toLowerCase();
+
+      const channel = guild.channels?.find(c => c.id === channelName || c.name?.toLowerCase() === channelName);
+
+      if (!channel) {
+        return DiscordRest.sendError(messageData.channel_id, guild, { key: "errors.no_channel_found" });
+      }
+
+      const socket = DiscordSocket.getInstance();
+      if (!socket) {
+        return;
+      }
+
+      const index = socket.guildList.findIndex(g => g.id === guild.id);
+
+      if (index < 0) {
+        return;
+      }
+
+      socket.guildList[index].anime_settings = await DB.getInstance().upsertAnimeSettings(guild.id, channel.id);
+
+      const translation = Helper.translation(guild, "success.subanimech", { 'channel': `<#${channel.id}>` });
+      DiscordRest.sendMessage(messageData.channel_id, translation);
+
+    } catch (e) {
+      console.error("setBirthday", e);
+    }
+  }
+
+  private async requestFeed() {
+    return this.rssParser.parseURL('https://www.livechart.me/feeds/episodes');
+  }
+
+  private animeFeedEmbed(item: Parser.Item): discord.embed {
+    const embed = {
+      title: item.title,
+      description: "New episode just aired.",
+      color: 6465461,
+      image: {
+        url: item.enclosure!.url
+      },
+      fields: [{
+        name: 'Date',
+        value: item.pubDate!
+      }]
+    };
+
+
+    return embed;
+  }
+
+  private async checkAnimeFeed() {
+    Log.write('weeb', 'Checking anime feed');
+    try {
+      const db = DB.getInstance();
+      const socket = DiscordSocket.getInstance();
+
+      const liveChartRegex = /\/(?<id>\d*)$/;
+      const lastRequest = Number(await db.getLastAnimeFeed());
+      const timeDiff = +new Date() - lastRequest;
+      if (Number.isNaN(timeDiff) || timeDiff > 14 * 60 * 1000) { //14 mins
+        const feed = await this.requestFeed();
+        const allSubs = await db.getAllAnimeSubscriptionList();
+
+        if (feed.items) {
+          for (const fItem of feed.items) {
+            if (fItem.link && fItem.pubDate) {
+              const itemDate = +new Date(fItem.pubDate);
+              if (itemDate > lastRequest) {
+                const result = liveChartRegex.exec(fItem.link);
+
+                const server: string_object<string[]> = {};
+                if (result?.groups && result?.groups.id) {
+                  const subs = allSubs.filter(s => s.anime_id.toString() === result!.groups!.id)
+
+                  for (const s of subs) {
+                    if (!server[s.server_id]) {
+                      server[s.server_id] = [];
+                    }
+
+                    server[s.server_id].push(s.user_id);
+                  }
+                }
+
+                for (const key in server) {
+                  const users = server[key];
+
+                  const guild = socket!.guildList.find(g => g.id === key);
+                  if (guild && guild.anime_settings.channel) {
+
+                    const embed = this.animeFeedEmbed(fItem);
+
+                    let mentions = '';
+                    for (const u of users) {
+                      mentions += `<@${u}> `;
+                    }
+                    DiscordRest.sendMessage(guild.anime_settings.channel, mentions, embed);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        db.updateLastAnimeFeed(+new Date());
+      }
+    }
+    catch (e) {
+      Log.write('weeb', e);
+    }
+
+
   }
 }
 

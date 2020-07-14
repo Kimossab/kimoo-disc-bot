@@ -1,5 +1,6 @@
 import unirest from "unirest";
 import Helper, * as helper from "../helper";
+import Log from "../logger";
 
 /**
  * Static class for Discord Rest communications
@@ -55,7 +56,7 @@ class DiscordRest {
       // }
 
       req.end((r: any) => {
-        console.log(r.body);
+        Log.write('rest', 'create message response', r.body);
         resolve(r.body);
       });
     });
