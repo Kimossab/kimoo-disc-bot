@@ -229,13 +229,11 @@ class DB {
     }
     const birthdays = await this.getServerBirthdays(server);
     const birthday_settings = await this.getServerBirthdaySettings(server);
-    const anime_settings = await this.getServerAnimeSettings(server);
 
     return {
       settings,
       birthdays,
-      birthday_settings: birthday_settings ? birthday_settings : null,
-      anime_settings: anime_settings ? anime_settings : null
+      birthday_settings: birthday_settings ? birthday_settings : null
     };
   }
 

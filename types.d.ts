@@ -54,8 +54,7 @@ declare namespace database {
   interface server_data {
     settings: server_settings,
     birthdays: birthday[],
-    birthday_settings: birthday_settings | null,
-    anime_settings: anime_settings | null
+    birthday_settings: birthday_settings | null
   }
   interface anime_subscription {
     server_id: string,
@@ -276,8 +275,7 @@ declare namespace discord {
 
     settings: database.server_settings,
     birthdays: database.birthday[],
-    birthday_settings: database.birthday_settings,
-    anime_settings: database.anime_settings
+    birthday_settings: database.birthday_settings
   }
 
   interface attachment {

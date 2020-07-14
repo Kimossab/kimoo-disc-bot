@@ -889,7 +889,8 @@ class Weeb {
         return;
       }
 
-      socket.guildList[index].anime_settings = await DB.getInstance().upsertAnimeSettings(guild.id, channel.id);
+
+      await DB.getInstance().upsertAnimeSettings(guild.id, channel.id);
 
       const translation = Helper.translation(guild, "success.subanimech", { 'channel': `<#${channel.id}>` });
       DiscordRest.sendMessage(messageData.channel_id, translation);
@@ -958,15 +959,17 @@ class Weeb {
                   const users = server[key];
 
                   const guild = socket!.guildList.find(g => g.id === key);
-                  if (guild && guild.anime_settings.channel) {
+                  if (guild) {
+                    const anime_settings = await db.getServerAnimeSettings(guild.id);
+                    if (anime_settings && anime_settings.channel) {
+                      const embed = this.animeFeedEmbed(fItem);
 
-                    const embed = this.animeFeedEmbed(fItem);
-
-                    let mentions = '';
-                    for (const u of users) {
-                      mentions += `<@${u}> `;
+                      let mentions = '';
+                      for (const u of users) {
+                        mentions += `<@${u}> `;
+                      }
+                      DiscordRest.sendMessage(anime_settings.channel, mentions, embed);
                     }
-                    DiscordRest.sendMessage(guild.anime_settings.channel, mentions, embed);
                   }
                 }
               }
