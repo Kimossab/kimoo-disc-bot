@@ -4,6 +4,7 @@ declare module "*.json" {
 }
 
 declare module "unirest";
+declare module 'dotenv';
 
 declare interface string_object<T> {
   [index: string]: T
