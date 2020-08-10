@@ -22,8 +22,9 @@
     "@types/dotenv": "^8.2.0",
     "@types/sqlite3": "^3.1.6",
     "@types/ws": "^7.2.6",
-    "typescript": "^3.9.6",
-    "ts-node-dev": "^1.0.0-pre.51"
+    "@types/xml2js": "^0.4.5",
+    "ts-node-dev": "^1.0.0-pre.51",
+    "typescript": "^3.9.6"
   },
   "engines": {
     "node": "12.x"
