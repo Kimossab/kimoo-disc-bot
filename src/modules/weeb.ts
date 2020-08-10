@@ -931,48 +931,57 @@ class Weeb {
       const liveChartRegex = /\/(?<id>\d*)$/;
       const lastRequest = Number(await db.getLastAnimeFeed());
       const timeDiff = +new Date() - lastRequest;
+
       if (Number.isNaN(timeDiff) || timeDiff > 14 * 60 * 1000) { //14 mins
         const feed = await this.requestFeed();
         const allSubs = await db.getAllAnimeSubscriptionList();
 
         if (feed.items) {
           for (const fItem of feed.items) {
-            if (fItem.link && fItem.pubDate) {
+            if (fItem.pubDate) {
               const itemDate = +new Date(fItem.pubDate);
               if (itemDate > lastRequest) {
-                const result = liveChartRegex.exec(fItem.link);
+                Log.write('weeb', `New episode just went live: ${fItem.title}`);
 
-                const server: string_object<string[]> = {};
-                if (result?.groups && result?.groups.id) {
-                  const subs = allSubs.filter(s => s.anime_id.toString() === result!.groups!.id)
+                if (fItem.link) {
+                  const result = liveChartRegex.exec(fItem.link);
 
-                  for (const s of subs) {
-                    if (!server[s.server_id]) {
-                      server[s.server_id] = [];
-                    }
+                  const server: string_object<string[]> = {};
+                  if (result?.groups && result?.groups.id) {
+                    const subs = allSubs.filter(s => s.anime_id.toString() === result!.groups!.id)
 
-                    server[s.server_id].push(s.user_id);
-                  }
-                }
-
-                for (const key in server) {
-                  const users = server[key];
-
-                  const guild = socket!.guildList.find(g => g.id === key);
-                  if (guild) {
-                    const anime_settings = await db.getServerAnimeSettings(guild.id);
-                    if (anime_settings && anime_settings.channel) {
-                      const embed = this.animeFeedEmbed(fItem);
-
-                      let mentions = '';
-                      for (const u of users) {
-                        mentions += `<@${u}> `;
+                    for (const s of subs) {
+                      if (!server[s.server_id]) {
+                        server[s.server_id] = [];
                       }
-                      DiscordRest.sendMessage(anime_settings.channel, mentions, embed);
+
+                      server[s.server_id].push(s.user_id);
                     }
                   }
+
+                  for (const key in server) {
+                    const users = server[key];
+
+                    const guild = socket!.guildList.find(g => g.id === key);
+                    if (guild) {
+                      const anime_settings = await db.getServerAnimeSettings(guild.id);
+                      if (anime_settings && anime_settings.channel) {
+                        const embed = this.animeFeedEmbed(fItem);
+
+                        let mentions = '';
+                        for (const u of users) {
+                          mentions += `<@${u}> `;
+                        }
+                        DiscordRest.sendMessage(anime_settings.channel, mentions, embed);
+                      }
+                    }
+                  }
+                } else {
+                  Log.write('weeb', `RSS item doesn't have link`, fItem);
                 }
               }
+            } else {
+              Log.write('weeb', `RSS item doesn't have pubDate`, fItem);
             }
           }
         }

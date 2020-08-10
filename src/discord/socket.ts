@@ -232,7 +232,7 @@ class DiscordSocket {
         index = this.guildList.findIndex(g => data.d.guild_id === g.id);
         delete data.d.guild_id;
 
-        if (index !== -1) {
+        if (index !== -1 && this.guildList[index]) {
           if (this.guildList[index].members) {
             this.guildList[index].members!.push(data.d); // !. tells TS that this is in fact not undefined
           } else {
@@ -249,19 +249,23 @@ class DiscordSocket {
         break;
       case "GUILD_MEMBER_UPDATE":
         index = this.guildList.findIndex(g => data.d.guild_id === g.id);
-        memberIndex = this.guildList[index].members?.findIndex(
-          (m: any) => m.user.id === data.d.user.id
-        );
+        if (index !== -1 && this.guildList[index]) {
+          memberIndex = this.guildList[index].members?.findIndex(
+            (m: any) => m.user.id === data.d.user.id
+          );
 
-        if (!memberIndex) {
-          return;
+          if (!memberIndex) {
+            return;
+          }
+
+          const user = this.guildList[index].members![memberIndex];
+
+          delete data.d.guild_id;
+
+          this.guildList[index].members![memberIndex] = { ...user, ...data.d };
+        } else {
+          Log.write('socket', 'couldn\'t find guild', index, this.guildList, data.d);
         }
-
-        const user = this.guildList[index].members![memberIndex];
-
-        delete data.d.guild_id;
-
-        this.guildList[index].members![memberIndex] = { ...user, ...data.d };
         break;
       case "GUILD_MEMBER_CHUNK":
         Log.write('socket', "GUILD_MEMBER_CHUNK", JSON.stringify(data));
@@ -282,7 +286,7 @@ class DiscordSocket {
         // Log.write('socket', "MESSAGE_UPDATE", JSON.stringify(data));
         break;
       case "MESSAGE_DELETE":
-        Log.write('socket', "MESSAGE_DELETE", JSON.stringify(data));
+        // Log.write('socket', "MESSAGE_DELETE", JSON.stringify(data));
         break;
       case "MESSAGE_DELETE_BULK":
         Log.write('socket', "MESSAGE_DELETE_BULK", JSON.stringify(data));
