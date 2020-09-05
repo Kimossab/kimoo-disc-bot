@@ -30,7 +30,8 @@
       "no_role": "Role not found"
     },
     "subscription": {
-      "subanime": "Subscription already exists."
+      "subanime": "Subscription already exists.",
+      "unsubanime": "No subscriptions with that ID exists."
     }
   },
   "success": {
@@ -40,7 +41,8 @@
     "setlanguage": "Language changed to <lang>",
     "setbirthdaychannel": "Birthday channel set to <channel>",
     "deletebirthday": "Birthday for <user> removed successfully",
-    "subanime": "Added subscription to anime with id <anime> with success",
+    "subanime": "Successfully added subscription to anime <anime>",
+    "unsubanime": "Successfully removed subscription to anime <anime>",
     "subanimech": "Anime feed channel set to <channel>"
   },
   "help": {
@@ -104,6 +106,16 @@
       "description": "Subscribes you to be notified when a new episode airs.",
       "parameters": "**[anime_id]** ID of the anime to which you want to get notified from https://www.livechart.me/"
     },
+    "unsubanime": {
+      "command": "<trigger>unsubanime [anime_id]",
+      "description": "Unsubscribes you from the notifications of a new episode from an anime.",
+      "parameters": "**[anime_id]** ID of the anime which you want to remove"
+    },
+    "subanimelist": {
+      "command": "<trigger>subanimelist",
+      "description": "Shows the list of anime to which you are subscribed.",
+      "parameters": null
+    },
     "subanimech": {
       "command": "<trigger>subanimech [channel]",
       "description": "[Admin Only] Sets the channel for anime feed",
@@ -115,5 +127,11 @@
     "message_multiple": "Deem todos os parabéns aos aniversariantes de hoje:",
     "server": "Hoje, faz <age> ano que este server foi criado. MUITOS PARABÉNS <name>!",
     "server_multiple": "Hoje, faz <age> anos que este server foi criado. MUITOS PARABÉNS <name>!"
+  },
+  "anime_subscription": {
+    "new_episode": "New episode just aired.",
+    "user_list_title_s": "<name>' anime subscription list.",
+    "user_list_title": "<name>'s anime subscription list.",
+    "user_list_empty": "No subscriptions are active."
   }
 }

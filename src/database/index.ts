@@ -135,7 +135,7 @@ class DB {
 
   public getLastAnimeFeed(): Promise<number> {
     return new Promise((resolve, reject) => {
-      let sql = "SELECT last_data FROM anime_rss_feed;";
+      let sql = "SELECT last_data FROM anime_rss_feed LIMIT 1;";
 
       this.db.get(sql, [], (err, row: any) => {
         if (err) {
@@ -207,11 +207,18 @@ class DB {
       this.db.run(sql, [time]);
     });
   }
+  
   // DELETE
   public deleteBirthday(server_id: string, user_id: string) {
     const sql = "DELETE FROM `birthdays` WHERE server_id = ? AND user_id = ?";
 
     this.db.run(sql, [server_id, user_id]);
+  }
+
+  public removeAnimeFeed(server: string, user_id: string, anime_id: number) {
+    const sql = "DELETE FROM `anime_rss_feed_subscriptions` WHERE server_id = ? AND user_id = ? AND anime_id = ?";
+
+    this.db.run(sql, [server, user_id, anime_id]);
   }
 
   // OTHERS

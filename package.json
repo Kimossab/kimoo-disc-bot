@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node ./build/index.js",
     "build": "./build.sh",
-    "build_win": "rmdir /s /q .\\build && tsc && xcopy .\\resources .\\build\\resources /e /i /h",
-    "dev": "ts-node-dev --respawn --transpileOnly ./index.ts",
+    "build_win": "rmdir /s /q .\\build 2>nul && tsc && xcopy .\\resources .\\build\\resources /e /i /h",
+    "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "prod": "./build.sh && node ./build/index.js"
   },
   "main": "index.js",
@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^6.2.0",
-    "rss-parser": "^3.8.0",
+    "rss-parser": "^3.9.0",
     "sqlite3": "^4.2.0",
     "unirest": "^0.6.0",
     "ws": "^6.0.0"
@@ -23,8 +23,8 @@
     "@types/sqlite3": "^3.1.6",
     "@types/ws": "^7.2.6",
     "@types/xml2js": "^0.4.5",
-    "ts-node-dev": "^1.0.0-pre.51",
-    "typescript": "^3.9.6"
+    "ts-node-dev": "^1.0.0-pre.62",
+    "typescript": "^3.9.7"
   },
   "engines": {
     "node": "12.x"

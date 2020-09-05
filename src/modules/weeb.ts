@@ -14,6 +14,8 @@ import Parser from "rss-parser"
 class Weeb {
   private static _instance: Weeb;
 
+  private static LIVE_CHART_ANIME_URL = 'https://www.livechart.me/anime/';
+
   private malTypes: string_object<string> = {
     all: "all",
     manga: "manga",
@@ -838,14 +840,45 @@ class Weeb {
 
     const subscriptionList = await db.getAnimeSubscriptionList(guild.id, (messageData.author as discord.user).id);
 
-    console.log(typeof subscriptionList, subscriptionList);
     if (subscriptionList && subscriptionList.includes(animeId)) {
       return DiscordRest.sendError(messageData.channel_id, guild, { key: "errors.subscription.subanime" });
     }
 
     db.insertAnimeFeed(guild.id, (messageData.author as discord.user).id, animeId);
 
-    const translation = Helper.translation(guild, "success.subanime", { anime: animeId.toString() });
+    const translation = Helper.translation(guild, "success.subanime", { anime: this.LIVE_CHART_ANIME_URL + animeId });
+    DiscordRest.sendMessage(messageData.channel_id, translation);
+  }
+  
+  /**
+   * Unsubscribes a user to receive notification when an anime episode airs
+   * ***
+   * @param guild Guild from the message
+   * @param trigger Guild command trigger
+   * @param messageData Message received
+   * @param data Message content
+   */
+  public static async unsubscribeFeed(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
+    if (data[1] === "") {
+      return DiscordRest.sendInfo(messageData.channel_id, guild, "unsubanime", trigger);
+    }
+
+    let animeId = Number(data[1]);
+    if (Number.isNaN(animeId)) {
+      return DiscordRest.sendError(messageData.channel_id, guild, { key: "errors.nan" });
+    }
+
+    const db = DB.getInstance();
+
+    const subscriptionList = await db.getAnimeSubscriptionList(guild.id, (messageData.author as discord.user).id);
+
+    if (!subscriptionList || !subscriptionList.includes(animeId)) {
+      return DiscordRest.sendError(messageData.channel_id, guild, { key: "errors.subscription.unsubanime" });
+    }
+
+    db.removeAnimeFeed(guild.id, (messageData.author as discord.user).id, animeId);
+
+    const translation = Helper.translation(guild, "success.unsubanime", { anime: this.LIVE_CHART_ANIME_URL + animeId });
     DiscordRest.sendMessage(messageData.channel_id, translation);
   }
 
@@ -900,14 +933,56 @@ class Weeb {
     }
   }
 
+  /**
+   * Sends the list of anime subscribed by the user on this server
+   * ***
+   * @param guild Guild from the message
+   * @param trigger Guild command trigger
+   * @param messageData Message received
+   * @param data Message content
+   */
+  public static async listAnimeSubscriptions(guild: discord.guild, trigger: string, messageData: discord.message, data: string[]) {
+    try {
+      const db = DB.getInstance();
+
+      const user = (messageData.author as discord.user);
+      const userName = messageData.member?.nick ?? `${user.username}`;
+
+      const subscriptionList = await db.getAnimeSubscriptionList(guild.id, user.id);
+
+      const titleMessage = userName.charAt(userName.length - 1) === "s" ? "anime_subscription.user_list_title_s" : "anime_subscription.user_list_title";
+      const embed:discord.embed = {
+        title: Helper.translation(guild, titleMessage, {name: userName}),
+        color: 6465461,
+        fields: []
+      };
+
+      if(subscriptionList.length === 0) {
+        embed.description = Helper.translation(guild, "anime_subscription.user_list_empty");
+      } else {
+        for (const sub of subscriptionList) {
+          embed.fields!.push({
+            name: sub.toString(),
+            value: `${this.LIVE_CHART_ANIME_URL}${sub}`
+          });  
+        }
+      }
+
+      DiscordRest.sendMessage(messageData.channel_id, '', embed);
+
+    } catch(e) {
+      Log.write('weeb', "[Error] listAnimeSubscriptions", e);
+    }
+  }
+
   private async requestFeed() {
     return this.rssParser.parseURL('https://www.livechart.me/feeds/episodes');
   }
 
-  private animeFeedEmbed(item: Parser.Item): discord.embed {
+  private animeFeedEmbed(guild: discord.guild, item: Parser.Item): discord.embed {
     const embed = {
       title: item.title,
-      description: "New episode just aired.",
+      description: Helper.translation(guild, "anime_subscription.new_episode"),
       color: 6465461,
       image: {
         url: item.enclosure!.url
@@ -917,7 +992,6 @@ class Weeb {
         value: item.pubDate!
       }]
     };
-
 
     return embed;
   }
@@ -966,7 +1040,7 @@ class Weeb {
                     if (guild) {
                       const anime_settings = await db.getServerAnimeSettings(guild.id);
                       if (anime_settings && anime_settings.channel) {
-                        const embed = this.animeFeedEmbed(fItem);
+                        const embed = this.animeFeedEmbed(guild, fItem);
 
                         let mentions = '';
                         for (const u of users) {

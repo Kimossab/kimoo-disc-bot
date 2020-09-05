@@ -30,7 +30,8 @@
       "no_role": "Não foi encontrada a role especificada"
     },
     "subscription": {
-      "subanime": "Subscrição já existente."
+      "subanime": "Subscrição já existente.",
+      "unsubanime": "Não estás subscrito a esse ID."
     }
   },
   "success": {
@@ -40,7 +41,8 @@
     "setlanguage": "Lingua alterada para <lang>",
     "setbirthdaychannel": "Canal para os aniversários alterado para <channel>",
     "deletebirthday": "Aniversário do <user> removido com sucesso",
-    "subanime": "Adicionada subscrição para o anime com id <anime> com sucesso",
+    "subanime": "Adicionada subscrição para o anime <anime>",
+    "unsubanime": "Removida subscrição para o anime <anime>",
     "subanimech": "Canal para os animes alterado para <channel>"
   },
   "help": {
@@ -104,6 +106,16 @@
       "description": "Subscreve-te para seres notificado quando um novo episodo é lançado.",
       "parameters": "**[anime_id]** ID do anime para o qual queres ser notificado de https://www.livechart.me/"
     },
+    "unsubanime": {
+      "command": "<trigger>unsubanime [anime_id]",
+      "description": "Remove a subscrição de um anime.",
+      "parameters": "**[anime_id]** ID do anime que queres remover."
+    },
+    "subanimelist": {
+      "command": "<trigger>subanimelist",
+      "description": "Mostra a lista de animes à qual estás subscrito.",
+      "parameters": null
+    },
     "subanimech": {
       "command": "<trigger>subanimech [channel]",
       "description": "[Admin Apenas] Altera o canal para o feed de anime",
@@ -115,5 +127,11 @@
     "message_multiple": "Deem todos os parabéns aos aniversariantes de hoje:",
     "server": "Hoje, faz <age> ano que este server foi criado. MUITOS PARABÉNS <name>!",
     "server_multiple": "Hoje, faz <age> anos que este server foi criado. MUITOS PARABÉNS <name>!"
+  },
+  "anime_subscription": {
+    "new_episode": "Novo episódio acabado de lançar.",
+    "user_list_title_s": "List a de subscrição de anime de <name>.",
+    "user_list_title": "List a de subscrição de anime de <name>.",
+    "user_list_empty": "Sem subscrições ativas."
   }
 }
