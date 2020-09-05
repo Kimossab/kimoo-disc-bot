@@ -89,9 +89,12 @@ class Helper {
     return null;
   }
 
+  /**
+   * Gets the trigger of this server, or the default trigger if not found.
+   * ***
+   * @param guild Discord guild object
+   */
   public static getTrigger(guild: discord.guild): string {
-    const socket = DiscordSocket.getInstance();
-
     const defaultTrigger = process.env.DEFAULT_CMD_TRIGGER ?? '..';
 
     if (!guild || !guild.settings) {
@@ -101,6 +104,11 @@ class Helper {
     return guild.settings.cmd_trigger ?? defaultTrigger;
   }
 
+  /**
+   * Converts a snowflake string from Discord into a Date object.
+   * ***
+   * @param snowflake Snowflake string given by Discord
+   */
   public static snowflakeToDate(snowflake: string): Date {
     return new Date(Number(snowflake) / 4194304 + 1420070400000);
   }
