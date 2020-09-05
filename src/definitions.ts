@@ -1,4 +1,7 @@
 
+/**
+ * Discord Gateway Opcodes
+ */
 export enum GATEWAY_OPCODES {
   DISPATCH = 0,
   HEARTBEAT = 1,

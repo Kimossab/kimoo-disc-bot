@@ -15,13 +15,12 @@ process.on('uncaughtException', function (err) {
  * Bot Start class
  */
 class Bot {
-  constructor() {
-  }
+  constructor() {}
 
   /**
    * Runs the bot
    */
-  async run(): Promise<void> {
+  public async run(): Promise<void> {
     try {
       Log.write('app', 'Start run');
       // Get discord gateway
@@ -53,17 +52,10 @@ class Bot {
   }
 }
 
-function sleep(ms: number) {
-  console.log('sleep', ms);
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-} 
-
 // Actually start the bot
-const _ = new Bot();
 
 try {
+  const _ = new Bot();
   _.run();
 } catch (e) {
   Log.write('app', 'fatal error', e);

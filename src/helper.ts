@@ -13,7 +13,7 @@ class Helper {
    * ***
    * @param server Discord guild
    * @param message Message key
-   * @param replace Replacing data
+   * @param replace Optional replacing data
    */
   public static translation(server: discord.guild, message: string, replace: string_object<string> | null = null) {
     let returnMessage = "";
@@ -62,6 +62,15 @@ class Helper {
     return returnVal;
   }
 
+  /**
+   * Will search for the first user found on the server that matches the given user.
+   * This searches for id, nickname, username and username with discriminator.
+   * All names (given and from the guild) are lower cased for easier search.
+   * Be careful with users with same name
+   * ***
+   * @param guild Discord guild to search
+   * @param user User name, id, nickname or name with discriminator
+   */
   public static findUser(guild: discord.guild, user: string): discord.user | null {
     const auxUser = user.toLowerCase();
     if (guild.members) {
@@ -83,11 +92,13 @@ class Helper {
   public static getTrigger(guild: discord.guild): string {
     const socket = DiscordSocket.getInstance();
 
+    const defaultTrigger = process.env.DEFAULT_CMD_TRIGGER ?? '..';
+
     if (!guild || !guild.settings) {
-      return process.env.DEFAULT_CMD_TRIGGER ?? '..';
+      return defaultTrigger
     }
 
-    return guild.settings.cmd_trigger ?? process.env.DEFAULT_CMD_TRIGGER ?? '..';
+    return guild.settings.cmd_trigger ?? defaultTrigger;
   }
 
   public static snowflakeToDate(snowflake: string): Date {

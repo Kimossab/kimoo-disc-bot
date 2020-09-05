@@ -1,9 +1,15 @@
 import fs from 'fs';
 
+/**
+ * Static class to write logs.
+ * Writes to standard output and to a file as well
+ */
 class Log {
+  /** Static file variable to write to */
   private static file: fs.WriteStream;
 
-  private static getInstance() {
+  /** Gets or creates a new file instance */
+  private static getFileInstance() {
     if (!this.file) {
       this.file = fs.createWriteStream("log.txt", { flags: 'a' });
     }
@@ -11,6 +17,13 @@ class Log {
     return this.file;
   }
 
+  /**
+   * Write a log message to standard output and log file.
+   * ***
+   * @param module Module name to better identify where the log comes from
+   * @param message Message to log
+   * @param args Any variable(s) to log (will be stringified when written to the file, a variable per line)
+   */
   public static write(module: string, message: string, ...args: any[]) {
     const currentDate = new Date();
     const dateMessage = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
@@ -22,7 +35,7 @@ class Log {
       console.log(a);
     }
 
-    this.getInstance().write(writeMessage + '\n');
+    this.getFileInstance().write(writeMessage + '\n');
   }
 }
 
