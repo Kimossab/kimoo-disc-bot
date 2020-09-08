@@ -29,10 +29,9 @@ class Log {
     const dateMessage = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
     let writeMessage = `[${dateMessage}][${module}] ${message}`;
 
-    console.log(writeMessage);
+    console.log(writeMessage, ...args);
     for (const a of args) {
       writeMessage += `\n\t- ${JSON.stringify(a)}`;
-      console.log(a);
     }
 
     this.getFileInstance().write(writeMessage + '\n');

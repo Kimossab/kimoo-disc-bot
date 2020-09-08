@@ -26,6 +26,17 @@ declare interface message_translate {
   replaces?: string_object<string>;
 }
 
+declare interface status_message<T> {
+  success: boolean;
+  status: number;
+  data: T;
+}
+
+declare interface queue {
+  function: any_function,
+  args: any[]
+}
+
 declare namespace database {
   interface server_settings {
     server_id: string;
@@ -676,7 +687,34 @@ declare namespace SauceNao {
 
   interface message_list {
     message: string,
-    items: data[],
+    items: discord.embed[],
     currentPage: number
+  }
+}
+
+declare namespace BotModule {
+  interface translation_object {
+    pt: string_object<string | single_command_help>;
+    en: string_object<string | single_command_help>;
+  }
+
+  interface single_command_help {
+    command: string;
+    description: string;
+    parameters?: string;
+  }
+
+  interface command_info {
+    name: string,
+    admin: boolean
+  }
+
+  interface command_response {
+    success: boolean,
+    status: number,
+    data: {
+      message: string,
+      replaces?: string_object<string>
+    } | null
   }
 }

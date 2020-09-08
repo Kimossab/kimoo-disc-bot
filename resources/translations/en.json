@@ -16,12 +16,7 @@
     "permission": "You don't have permission to execute this command",
     "nan": "Parameter is not a number.",
     "weeb": {
-      "noanime": "No anime found for query <query> in <source>",
-      "wiki_fail": "Nothing was found for `<query>` in `<wiki>.fandom.com`. Please verify the inputs",
-      "sauce_ext_error": "External server error",
-      "sauce_int_error": "Internal server error",
-      "sauce_no_image": "No image posted on this channel",
-      "sauce_no_sauce": "No sauce found for the pasta. Google yourself."
+      "noanime": "No anime found for query <query> in <source>"
     },
     "birthday": {
       "no_birthday": "No birthday found for the user"
@@ -46,25 +41,10 @@
     "subanimech": "Anime feed channel set to <channel>"
   },
   "help": {
-    "mal": {
-      "command": "<trigger>mal [(optional) type] [name]",
-      "description": "Command to get a MAL link.",
-      "parameters": "**[(optional) type]** type of info (anime/manga/person/character)\n**[name]** name or search query"
-    },
-    "wiki": {
-      "command": "<trigger>wiki [wiki slug] [query]",
-      "description": "Gets the first article the search find for the given query in the wiki with the given slug.",
-      "parameters": "**[wiki slug]** slug of the wiki page (for example: swordartonline for <https://swordartonline.fandom.com>)\n**[query]** search query"
-    },
     "setbirthday": {
       "command": "<trigger>setbirthday [user] [day] [month] [year (optional)]",
       "description": "[Admin Only] Inserts or updates a birthday for the specified user.",
       "parameters": "**[user]** User id, or mention to be set the birthday for\n**[day]** Day of their birthday\n**[month]** Month of their birthday (January = 1 and December = 12)\n**[year]** Year of his birthday (optional)"
-    },
-    "sauce": {
-      "command": "<trigger>sauce",
-      "description": "Looks up the source for the last image uploaded to this channel.",
-      "parameters": null
     },
     "help": {
       "command": "<trigger>help",

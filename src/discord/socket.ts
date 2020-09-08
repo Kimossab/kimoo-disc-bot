@@ -2,9 +2,10 @@ import WebSocket from "ws";
 import Helper from "../helper";
 import { GATEWAY_OPCODES } from "../definitions";
 import DB from "../database";
-import Commands from "../commands";
-import Weeb from "../modules/weeb";
+// import Commands from "../commands";
+// import Weeb from "../modules/weeb";
 import Log from "../logger";
+import ModuleManager from "../modules/ModuleManager";
 
 /**
  * Class that handles all socket communications with Discord
@@ -22,6 +23,8 @@ class DiscordSocket {
 
   private botUser: any = null;
   public guildList: discord.guild[] = [];
+
+  public lastAttachments: string_object<string> = {};
 
   public static getInstance(): DiscordSocket | null {
     return DiscordSocket._instance;
@@ -164,7 +167,7 @@ class DiscordSocket {
         this.botUser = data.d.user;
         this.sessionId = data.d.session_id;
 
-        Weeb.getInstance();
+        // Weeb.getInstance();
         break;
 
       case "RESUMED":
@@ -293,12 +296,14 @@ class DiscordSocket {
         break;
       case "MESSAGE_REACTION_ADD":
         if (this.botUser.id !== data.d.user_id) {
-          Weeb.getInstance().handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+          // Weeb.getInstance().handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+          ModuleManager.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
         }
         break;
       case "MESSAGE_REACTION_REMOVE":
         if (this.botUser.id !== data.d.user_id) {
-          Weeb.getInstance().handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+          // Weeb.getInstance().handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
+          ModuleManager.handleReaction(data.d.message_id, data.d.channel_id, data.d.emoji.name);
         }
         break;
       case "MESSAGE_REACTION_REMOVE_ALL":
@@ -393,10 +398,13 @@ class DiscordSocket {
    */
   private messageReceived(data: discord.message) {
     // Log.write('socket', `[${new Date().toDateString()}] ${data.author.username}#${data.author.discriminator}: ${data.content}`);
-    Commands.handle(data);
+    // Commands.handle(data);
+
+    ModuleManager.handleMessage(data);
 
     data.attachments.forEach(file => {
-      Weeb.getInstance().processAttachment(data.channel_id, file);
+      this.lastAttachments[data.channel_id] = file.url;
+      // Weeb.getInstance().processAttachment(data.channel_id, file);
     });
   }
 

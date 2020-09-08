@@ -4,18 +4,20 @@ import DiscordSocket from "./src/discord/socket";
 import DB from "./src/database";
 import Birthdays from "./src/modules/birthdays";
 import Log from "./src/logger";
+import ModuleManager from "./src/modules/ModuleManager";
 
 dotenv.config();
 
 process.on('uncaughtException', function (err) {
   Log.write('app', 'Caught exception: ', err);
+  process.exit();
 });
 
 /**
  * Bot Start class
  */
 class Bot {
-  constructor() {}
+  constructor() { }
 
   /**
    * Runs the bot
@@ -23,16 +25,15 @@ class Bot {
   public async run(): Promise<void> {
     try {
       Log.write('app', 'Start run');
+
       // Get discord gateway
       const response = await DiscordRest.getGatewayBot();
-      // console.log(response);
+
       if (response.session_start_limit.remaining === 0) {
         Log.write('app', `session_start_limit.remaining is 0. Restarting in ${response.session_start_limit.reset_after}`);
         setTimeout(() => { this.run(); }, response.session_start_limit.reset_after);
         return;
       }
-
-      // console.log(response);
 
       const urlParams = "/?v=" + process.env.API_V + "&encoding=json";
       const url = response.url + urlParams;
@@ -43,6 +44,7 @@ class Bot {
       socket.connect();
 
       DB.getInstance().start();
+      ModuleManager.getInstance();
       Birthdays.getInstance();
     } catch (e) {
       Log.write('app', `Error. Restarting in 1 min`, e);

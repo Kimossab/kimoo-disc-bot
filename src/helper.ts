@@ -41,6 +41,39 @@ class Helper {
   }
 
   /**
+   * Gets a message translated.
+   * ***
+   * @param translationObject Module translation object
+   * @param server Discord guild
+   * @param message Message key
+   * @param replace Optional replacing data
+   */
+  public static translationFromObject(translationObject: BotModule.translation_object, server: discord.guild, message: string, replace: string_object<string> | null = null) {
+    let returnMessage = "";
+
+    if (!server) {
+      returnMessage = Helper.getObjectChild(translationObject.en, message);
+    } else {
+      switch (server.settings.bot_lang) {
+        case "pt":
+          returnMessage = Helper.getObjectChild(translationObject.pt, message);
+          break;
+        default:
+          returnMessage = Helper.getObjectChild(translationObject.en, message);
+          break;
+      }
+    }
+
+    if (replace) {
+      for (let i in replace) {
+        returnMessage = returnMessage.replace(`<${i.toString()}>`, replace[i]);
+      }
+    }
+
+    return returnMessage || "";
+  }
+
+  /**
    * Searches on an object for the value with the string notation  
    * 
    * Example get the value of `object.a.b.c` through a string:
@@ -111,6 +144,33 @@ class Helper {
    */
   public static snowflakeToDate(snowflake: string): Date {
     return new Date(Number(snowflake) / 4194304 + 1420070400000);
+  }
+
+  public static commandHelpEmbed(server: discord.guild): discord.embed {
+    return {
+      title: Helper.translation(server, "general.help.usage"),
+      color: 8995572,
+      fields: []
+    };
+  }
+
+  public static singleCommandHelpFields(server: discord.guild, cmd: BotModule.single_command_help): discord.embed_field[] {
+    const fields = [
+      {
+        name: cmd.command,
+        value: cmd.description
+      }
+    ];
+
+    if (cmd.parameters) {
+      fields.push(
+        {
+          name: Helper.translation(server, "general.parameters"),
+          value: cmd.parameters
+        });
+    }
+
+    return fields;
   }
 }
 
