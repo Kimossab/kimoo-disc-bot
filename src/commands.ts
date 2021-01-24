@@ -1,6 +1,6 @@
 import { application_command_option_type } from "./helper/constants";
 
-export const version = "1.0.0";
+export const version = "1.0.1";
 
 export const list: discord.application_command[] = [
   {
