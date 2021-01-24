@@ -344,6 +344,7 @@ const commandExecuted = async (data: discord.interaction) => {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: message,
+              allowed_mentions: no_mentions,
             },
           });
 

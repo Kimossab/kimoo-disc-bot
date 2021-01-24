@@ -98,7 +98,7 @@ class Socket {
         break;
       case opcodes.reconnect:
         this.logger.log('Received "reconnect"', data.d);
-        this.client!.close(10002);
+        this.client!.close();
         this.connect(this.url!);
         break;
       case opcodes.invalid_session:
@@ -188,7 +188,7 @@ class Socket {
   // OTHERS
   private forceReconnect(): void {
     if (this.client) {
-      this.client.close(10001);
+      this.client.close();
     }
     this.client = null;
     if (this.url) {

@@ -7,6 +7,19 @@
 
 ---
 
+## [2.0.2] - 2021-01-24
+
+### Added
+
+- Get birthdays by month
+- Get birthday channel
+
+### Fixed
+
+- Fixed error with closing websocket codes. Now it uses default codes.
+
+---
+
 ## [2.0.1] - 2021-01-24
 
 ### Added
