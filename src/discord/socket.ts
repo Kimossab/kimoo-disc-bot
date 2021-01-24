@@ -180,8 +180,8 @@ class Socket {
           );
         }
         break;
-      default:
-        this.logger.log("Not expected message", event);
+      /*default:
+        this.logger.log("Not expected message", event);*/
     }
   }
 

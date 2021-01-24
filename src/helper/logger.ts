@@ -29,9 +29,14 @@ class Logger {
    * @param data Variables to log
    */
   public log(message: string | null | undefined, ...data: any) {
+    const timeString = new Date().toLocaleTimeString();
     const colStr = `\x1b[${90 + this._color}m`;
 
-    console.log(`${colStr}[${this._module}]`, message, "\x1b[0m");
+    console.log(
+      `${colStr}[${timeString}][${this._module}]`,
+      message,
+      "\x1b[0m"
+    );
     if (data.length) {
       for (const d of data) {
         console.log(`${colStr}•\x1b[0m`, util.inspect(d, false, null, true));
@@ -45,9 +50,14 @@ class Logger {
    * @param data Variables to log
    */
   public error(message: string, ...data: any) {
+    const timeString = new Date().toLocaleTimeString();
     const colStr = `\x1b[5;${90 + colors.white};${100 + colors.red}m`;
 
-    console.log(`${colStr}[${this._module}]`, message, "\x1b[0m");
+    console.log(
+      `${colStr}[${timeString}][${this._module}]`,
+      message,
+      "\x1b[0m"
+    );
     if (data.length) {
       for (const d of data) {
         console.log(

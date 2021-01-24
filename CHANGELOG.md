@@ -2,14 +2,44 @@
 
 ## Unreleased
 
-- better sauce command (input url)
-- Find a _better_ way to not get rate limited (timeouts?) (might not be needed after a timeout. need to waste time finding a smarter way of doing it)
-- Refactor the code x2 (finish)
-- Comments (finish)
-- Generalize even more the page cycle system so it can be reused for everything more easily (need to focus on this)
-- Refactor command logic (make all command functions static on the classes and then use getInstance if necessary)
-- https://trace.moe/ (https://soruly.github.io/trace.moe/#/README#me)
-- https://iqdb.org/
+- Get birthdays by month
+- Get birthday channel
+
+---
+
+## [2.0.1] - 2021-01-24
+
+### Added
+
+- Added time to logs
+
+### Changed
+
+- Changed time for bot presence update
+
+### Fixed
+
+- Fixed mal interaction response with wrong order
+
+### Removed
+
+- Remove log for default socket event
+
+---
+
+## [2.0.0] - 2021-01-23
+
+### Added
+
+- Trace.moe implementation
+
+### Changed
+
+- Discord api version 6 to 8
+- Commands are now discord slash commands
+- MySQLite to MongoDB
+- Restructure of the code, easier to read and modify
+- Wiki queries (their services changed and my code stopped working)
 
 ---
 

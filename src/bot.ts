@@ -179,7 +179,7 @@ const ready = async () => {
 const updateBotPresence = () => {
   socket.randomPresence();
 
-  const time = randomNum(2 * 60 * 1000, 15 * 60 * 1000);
+  const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);
   _logger.log(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
   setTimeout(updateBotPresence, time);
 };
@@ -200,7 +200,7 @@ const main = async () => {
     return setTimeout(main, gateway.session_start_limit.reset_after);
   }
 
-  const time = randomNum(2 * 60 * 1000, 15 * 60 * 1000);
+  const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);
   _logger.log(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
   setTimeout(updateBotPresence, time);
 

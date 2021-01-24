@@ -146,7 +146,7 @@ const commandExecuted = async (data: discord.interaction) => {
       return;
     }
 
-    createInteractionResponse(data.id, data.token, {
+    await createInteractionResponse(data.id, data.token, {
       type: interaction_response_type.acknowledge_with_source,
     });
 
