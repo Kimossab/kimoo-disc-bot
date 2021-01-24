@@ -63,6 +63,21 @@ export const getUserBirthday = async (
 };
 
 /**
+ * Gets a birthday for a specific user in a server
+ * @param server Server where to look for
+ * @param user User to get the birthday
+ */
+export const getBirthdaysByMonth = async (
+  server: string,
+  month: number
+): Promise<IBirthday[]> => {
+  return await Birthday.find({
+    server,
+    month,
+  });
+};
+
+/**
  * Updates the year of the last time the users were wished a happy birthday to prevent wishing more than once
  * @param server Server where birthdays were posted
  * @param users List of user ids with the users that received a happy birthday

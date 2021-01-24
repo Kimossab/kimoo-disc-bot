@@ -4,7 +4,7 @@ export default {
     no_permission: "You don't have permission to use this command",
   },
   birthday: {
-    user: "User's birthday: <date>",
+    user: "<user>'s birthday: <date>",
     server: "Server's birthday: <date>",
     server_bday:
       "Hoje, faz <age> anos que este server foi criado. MUITOS PARABÉNS <name>!",
@@ -15,6 +15,7 @@ export default {
     set_success: "Birthday to user <user> set successfully for date <date>",
     remove_success: "User birthday removed",
     channel_set_success: "Birthday channel set successfully to <channel>",
+    servers_channel: "Server's birthday channel: <channel>",
   },
   fandom: {
     invalid_slug: "Invalid fandom slug",

@@ -1,6 +1,7 @@
 import {
   addBirthday,
   getBirthdays,
+  getBirthdaysByMonth,
   getUserBirthday,
   updateLastWishes,
 } from "../controllers/birthday.controller";
@@ -9,13 +10,14 @@ import {
   getLastServerBirthdayWishes,
   setServerBirthdayChannel,
   updateServerLastWishes,
+  getServerAnimeChannel,
 } from "../controllers/bot.controller";
 import { createInteractionResponse, sendMessage } from "../discord/rest";
 import { checkAdmin, snowflakeToDate, stringReplacer } from "../helper/common";
 import Logger from "../helper/logger";
 import { IBirthday } from "../models/birthday.model";
 import { getGuilds, setCommandExecutedCallback } from "../state/actions";
-import { interaction_response_type } from "../helper/constants";
+import { interaction_response_type, no_mentions } from "../helper/constants";
 import messageList from "../helper/messages";
 
 const _logger = new Logger("birthday");
@@ -134,20 +136,41 @@ const commandExecuted = async (data: discord.interaction) => {
           return;
         }
 
-        const ch = data.data.options[0].options![0].value;
-        await setServerBirthdayChannel(data.guild_id, ch);
-        createInteractionResponse(data.id, data.token, {
-          type: interaction_response_type.channel_message_with_source,
-          data: {
-            content: stringReplacer(messageList.birthday.channel_set_success, {
-              channel: `<#${ch}>`,
-            }),
-          },
-        });
+        const opt = data.data.options[0].options;
+        const channel = opt?.find((o) => o.name === "channel");
 
-        _logger.log(
-          `Set anime channel to ${ch} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
-        );
+        if (channel) {
+          await setServerBirthdayChannel(data.guild_id, channel.value);
+          createInteractionResponse(data.id, data.token, {
+            type: interaction_response_type.channel_message_with_source,
+            data: {
+              content: stringReplacer(
+                messageList.birthday.channel_set_success,
+                {
+                  channel: `<#${channel.value}>`,
+                }
+              ),
+            },
+          });
+
+          _logger.log(
+            `Set anime channel to ${channel.value} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+          );
+        } else {
+          const ch = await getServerAnimeChannel(data.guild_id);
+          createInteractionResponse(data.id, data.token, {
+            type: interaction_response_type.channel_message_with_source,
+            data: {
+              content: stringReplacer(messageList.birthday.servers_channel, {
+                channel: `<#${ch}>`,
+              }),
+            },
+          });
+
+          _logger.log(
+            `Get anime channel in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+          );
+        }
 
         break;
       }
@@ -256,12 +279,12 @@ const commandExecuted = async (data: discord.interaction) => {
         break;
       }
       case "get": {
-        const user = data.data.options[0].options![0].value!;
+        const opt = data.data.options[0].options;
+        const user = opt?.find((o) => o.name === "user");
+        const month = opt?.find((o) => o.name === "month");
 
-        if (
-          user !== data.member.user?.id &&
-          !checkAdmin(data.guild_id, data.member)
-        ) {
+        // no permission
+        if ((user || month) && !checkAdmin(data.guild_id, data.member)) {
           createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
@@ -271,31 +294,93 @@ const commandExecuted = async (data: discord.interaction) => {
           return;
         }
 
-        const bd = await getUserBirthday(data.guild_id, user);
+        // for a user
+        if (user) {
+          const bd = await getUserBirthday(data.guild_id, user.value);
 
-        if (bd) {
-          const birthdayString = `${bd.day}/${bd.month}${
-            bd.year ? "/" + bd.year : ""
-          }`;
+          if (bd) {
+            const birthdayString = `${bd.day}/${bd.month}${
+              bd.year ? "/" + bd.year : ""
+            }`;
+            createInteractionResponse(data.id, data.token, {
+              type: interaction_response_type.channel_message_with_source,
+              data: {
+                content: stringReplacer(messageList.birthday.user, {
+                  user: `<@${user.value}>`,
+                  date: birthdayString,
+                }),
+                allowed_mentions: no_mentions,
+              },
+            });
+
+            _logger.log(
+              `Birthday for ${user} requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+            );
+          } else {
+            createInteractionResponse(data.id, data.token, {
+              type: interaction_response_type.channel_message_with_source,
+              data: {
+                content: messageList.birthday.not_found,
+              },
+            });
+          }
+        }
+        // for a month
+        else if (month) {
+          const bd = await getBirthdaysByMonth(data.guild_id, month.value);
+
+          let message = "";
+
+          for (const b of bd) {
+            message += `<@${b.user}> - ${b.day}/${b.month}`;
+            if (b.year) {
+              message += `/${b.year}`;
+            }
+
+            message += "\n";
+          }
+
           createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: stringReplacer(messageList.birthday.user, {
-                date: birthdayString,
-              }),
+              content: message,
             },
           });
 
           _logger.log(
-            `Birthday for ${user} requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+            `Birthday for month ${month.value} requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
           );
-        } else {
-          createInteractionResponse(data.id, data.token, {
-            type: interaction_response_type.channel_message_with_source,
-            data: {
-              content: messageList.birthday.not_found,
-            },
-          });
+        }
+        //for the user
+        else {
+          const bd = await getUserBirthday(data.guild_id, data.member.user!.id);
+
+          if (bd) {
+            const birthdayString = `${bd.day}/${bd.month}${
+              bd.year ? "/" + bd.year : ""
+            }`;
+            createInteractionResponse(data.id, data.token, {
+              type: interaction_response_type.channel_message_with_source,
+              data: {
+                content: stringReplacer(messageList.birthday.user, {
+                  user: `<@${data.member.user!.id}>`,
+                  date: birthdayString,
+                }),
+                allowed_mentions: no_mentions,
+              },
+            });
+
+            _logger.log(
+              `Birthday requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+            );
+          } else {
+            createInteractionResponse(data.id, data.token, {
+              type: interaction_response_type.channel_message_with_source,
+              data: {
+                content: messageList.birthday.not_found,
+              },
+            });
+          }
         }
         break;
       }

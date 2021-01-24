@@ -174,6 +174,13 @@ enum interaction_response_type {
   acknowledge_with_source = 5,
 }
 
+const no_mentions: discord.allowed_mentions = {
+  parse: [],
+  roles: [],
+  users: [],
+  replied_user: false,
+};
+
 export {
   colors,
   opcodes,
@@ -183,4 +190,5 @@ export {
   gateway_events,
   application_command_option_type,
   interaction_response_type,
+  no_mentions,
 };

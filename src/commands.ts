@@ -1,6 +1,6 @@
 import { application_command_option_type } from "./helper/constants";
 
-export const version = "0.1.11";
+export const version = "1.0.0";
 
 export const list: discord.application_command[] = [
   {
@@ -77,7 +77,7 @@ export const list: discord.application_command[] = [
             description:
               "The channel where the happy birthday message is sent to",
             type: application_command_option_type.CHANNEL,
-            required: true,
+            required: false,
           },
         ],
       },
@@ -133,7 +133,13 @@ export const list: discord.application_command[] = [
             name: "user",
             description: "The user whose birthday you're getting",
             type: application_command_option_type.USER,
-            required: true,
+            required: false,
+          },
+          {
+            name: "month",
+            description: "The users whose birthday is on a certain month",
+            type: application_command_option_type.INTEGER,
+            required: false,
           },
         ],
       },
