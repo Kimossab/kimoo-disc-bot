@@ -15,6 +15,7 @@ import {
   intents,
   opcodes,
 } from "../helper/constants";
+import { timingSafeEqual } from "crypto";
 
 class Socket {
   private logger = new Logger("socket");
@@ -73,6 +74,7 @@ class Socket {
     this.logger.log("Socket opened");
 
     if (this.sessionId) {
+      this.logger.log("resume");
       this.send(
         JSON.stringify({
           op: opcodes.resume,
@@ -122,6 +124,7 @@ class Socket {
         this.hbAck = true;
         break;
       case opcodes.resume:
+        this.logger.log("received resume");
         this.resumed = true;
         break;
       default:
@@ -132,6 +135,8 @@ class Socket {
 
   // DISCORD EVENTS
   private onHello(data: discord.hello): void {
+    this.logger.log("Received Hello");
+
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
     }
@@ -144,7 +149,7 @@ class Socket {
       if (!this.resumed) {
         this.identify();
       }
-    }, 500);
+    }, 5000);
   }
 
   private onEvent(event: string, data: any): void {
