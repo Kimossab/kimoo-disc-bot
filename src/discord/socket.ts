@@ -63,7 +63,9 @@ class Socket {
     }
     this.client = null;
 
-    this.connect(this.url!);
+    setTimeout(() => {
+      this.connect(this.url!);
+    }, 2000);
   }
 
   private onOpen() {
@@ -99,7 +101,6 @@ class Socket {
       case opcodes.reconnect:
         this.logger.log('Received "reconnect"', data.d);
         this.client!.close();
-        this.connect(this.url!);
         break;
       case opcodes.invalid_session:
         if (!data.d) {

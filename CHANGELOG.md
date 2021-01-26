@@ -2,8 +2,13 @@
 
 ## Unreleased
 
-- Get birthdays by month
-- Get birthday channel
+---
+
+## [2.0.3] - 2021-01-26
+
+### Fixed
+
+- Removed double connection when recoonect is received
 
 ---
 
