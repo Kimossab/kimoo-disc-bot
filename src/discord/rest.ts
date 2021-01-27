@@ -1,162 +1,192 @@
-import unirest from "unirest";
-import Helper, * as helper from "../helper";
-import Log from "../logger";
+import axios from "axios";
+import { stringReplacer, string_constants } from "../helper/common";
+import Logger from "../helper/logger";
+
+const requester = axios.create({
+  baseURL: `https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}`,
+  headers: {
+    authorization: `Bot ${process.env.TOKEN}`,
+  },
+});
+
+const _logger = new Logger("rest");
+
+const handleErrors = (place: string, e: any): void => {
+  if (e.data) {
+    _logger.error(
+      `[${place}] ${e.data.code} - ${e.data.message}`,
+      e.data.errors
+    );
+  } else {
+    _logger.error(`[${place}] ${e.message}`, e);
+  }
+};
 
 /**
- * Static class for Discord Rest communications
+ * Request the gateway bot from discord
  */
-class DiscordRest {
-  /**
-   * Gets the gateway bot information
-   */
-  public static getGatewayBot(): Promise<discord.gateway.bot> {
-    return new Promise((resolve, reject) => {
-      unirest
-        .get(`https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}/gateway/bot`)
-        .headers({
-          authorization: `Bot ${process.env.TOKEN}`
-        })
-        .end((response: any) => {
-          if (response.body.code === 0) {
-            reject(response.body);
-          }
+export const getGatewayBot = async (): Promise<discord.gateway_bot | null> => {
+  try {
+    const response = await requester.get("/gateway/bot");
 
-          resolve(response.body);
-        });
-    });
+    return response.data;
+  } catch (e) {
+    handleErrors("getGatewayBot", e);
   }
 
-  /**
-   * Sends a new message to a channel.  
-   * ***
-   * @param channel Channel id to send message to
-   * @param content Message text to send
-   * @param embed Embed information to add
-   * @param tts Text To Speech
-   */
-  public static sendMessage(channel: string, content: string | null, embed: discord.embed | null = null, tts: boolean = false): Promise<discord.message> {
-    return new Promise((resolve, reject) => {
-      const req = unirest
-        .post(`https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}/channels/${channel}/messages`)
-        .headers({
-          "Content-Type": "multipart/form-data",
-          authorization: `Bot ${process.env.TOKEN}`
-        });
+  return null;
+};
 
-      const message = {
-        content: content,
-        embed: embed,
-        tts: tts
-      };
+// messages
+/**
+ * Send a message to a channel
+ * @param channel Channel id
+ * @param content Message
+ * @param embed Embed data
+ */
+export const sendMessage = async (
+  channel: string,
+  content: string,
+  embed: discord.embed | null = null
+): Promise<discord.message | null> => {
+  try {
+    const message: discord.message_request = { content };
+    if (embed) {
+      message.embed = embed;
+    }
 
-      req.field("payload_json", JSON.stringify(message));
-
-      // if (file) {
-      //   req.attach("file", `${root}custom_files/${file}`);
-      // }
-
-      req.end((r: any) => {
-        Log.write('rest', 'create message response', r.body);
-        resolve(r.body);
-      });
-    });
+    const res = await requester.post(`/channels/${channel}/messages`, message);
+    return res.data as discord.message;
+  } catch (e) {
+    handleErrors("sendMessage", e);
   }
+  return null;
+};
 
-  /**
-   * Edits an existing message.  
-   * ***
-   * @param message Message ID to edit
-   * @param channel Channel ID of the message
-   * @param content New message content
-   * @param embed New Embed content
-   */
-  public static editMessage(message: string, channel: string, content: string | null, embed: discord.embed) {
-    return new Promise((resolve, reject) => {
-      const req = unirest
-        .patch(`https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}/channels/${channel}/messages/${message}`)
-        .headers({
-          "Content-Type": "application/json",
-          authorization: `Bot ${process.env.TOKEN}`
-        });
+/**
+ * Edits a message on discord
+ * @param channel Channel id
+ * @param message Message id
+ * @param content Message
+ * @param embed Embed data
+ */
+export const editMessage = async (
+  channel: string,
+  message: string,
+  content: string,
+  embed: discord.embed | null = null
+): Promise<discord.message | null> => {
+  try {
+    const messageData: discord.message_request = { content };
+    if (embed) {
+      messageData.embed = embed;
+    }
 
-      req.send({
-        content,
-        embed
-      });
-
-      req.end((r: any) => {
-        resolve(r.body);
-      });
-    });
+    const res = await requester.patch(
+      `/channels/${channel}/messages/${message}`,
+      messageData
+    );
+    return res.data as discord.message;
+  } catch (e) {
+    handleErrors("editMessage", e);
   }
+  return null;
+};
 
-  /**
-   * Helper function to send the information of a command from translation object.  
-   * ***
-   * @param channel Channel ID to send the message to
-   * @param server Server ID to get the correct language
-   * @param command Command that needs to be sent
-   * @param trigger Server's trigger for messages
-   */
-  public static sendInfo(channel: string, server: discord.guild, command: string, trigger: string) {
-    const embed = {
-      title: Helper.translation(server, "general.help.usage"),
-      color: 8995572,
-      fields: [
-        {
-          name: Helper.translation(server, `help.${command}.command`, {
-            trigger: trigger
-          }),
-          value: Helper.translation(server, `help.${command}.description`)
-        },
-        {
-          name: Helper.translation(server, "general.parameters"),
-          value: Helper.translation(server, `help.${command}.parameters`)
-        }
-      ]
-    };
-
-    DiscordRest.sendMessage(channel, "", embed);
+// reactions
+/**
+ * Sends a reaction to a message
+ * @param channel Channel id
+ * @param message Message id
+ * @param reaction Reaction name
+ */
+export const createReaction = async (
+  channel: string,
+  message: string,
+  reaction: string
+): Promise<void> => {
+  try {
+    await requester.put(
+      `/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(
+        reaction
+      )}/@me`
+    );
+  } catch (e) {
+    handleErrors("createReaction", e);
   }
+};
 
-  /**
-   * Helper function to send an error message.  
-   * ***
-   * @param channel Channel ID to send the message to
-   * @param server Server ID to get the correct language
-   * @param message Error message
-   */
-  public static sendError(channel: string, server: discord.guild, message: message_translate) {
-    // const guild = store.guildList.find(g => g.id === server);
-    const embed = {
-      title: Helper.translation(server, "general.error"),
-      description: Helper.translation(server, message.key, message.replaces),
-      color: 11143192
-    };
-
-    DiscordRest.sendMessage(channel, null, embed);
+//SLASH COMMANDS
+/**
+ * Gets the commands for the application
+ * @param application Application id
+ */
+export const getCommands = async (
+  application: string
+): Promise<discord.application_command[] | null> => {
+  try {
+    const res = await requester.get(`/applications/${application}/commands`);
+    return res.data;
+  } catch (e) {
+    handleErrors("getCommands", e);
   }
+  return null;
+};
 
-  /**
-   * Adds a reaction to a message.
-   * ***
-   * @param channel Channel ID of the message
-   * @param message Message ID to react to
-   * @param reaction Reaction name
-   */
-  public static addReaction(channel: string, message: string, reaction: string) {
-    return new Promise((resolve, reject) => {
-      const req = unirest
-        .put(`https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(reaction)}/@me`)
-        .headers({
-          authorization: `Bot ${process.env.TOKEN}`
-        });
-
-      req.end((r: any) => {
-        resolve(r.body);
-      });
-    });
+/**
+ * Deletes an existing command with the name in this application
+ * @param application Application id
+ * @param command Command name
+ */
+export const deleteCommand = async (
+  application: string,
+  command: string
+): Promise<void> => {
+  try {
+    await requester.delete(`/applications/${application}/commands/${command}`);
+  } catch (e) {
+    handleErrors("deleteCommand", e);
   }
-}
+};
 
-export default DiscordRest;
+/**
+ * Creates or updates a new command for this application
+ * @param application Application id
+ * @param command Command data
+ */
+export const createCommand = async (
+  application: string,
+  command: discord.application_command
+): Promise<discord.application_command | null> => {
+  try {
+    const res = await requester.post(
+      `/applications/${application}/commands`,
+      command
+    );
+    return res.data as discord.application_command;
+  } catch (e) {
+    handleErrors("createCommand", e);
+  }
+  return null;
+};
+
+/**
+ * Sends a response to an interaction
+ * @param interaction Interaction id
+ * @param token Token string
+ * @param data Interaction response data
+ */
+export const createInteractionResponse = async (
+  interaction: string,
+  token: string,
+  data: discord.interaction_response
+): Promise<void> => {
+  try {
+    const res = await requester.post(
+      `/interactions/${interaction}/${token}/callback`,
+      data
+    );
+  } catch (e) {
+    handleErrors("createInteractionResponse", e);
+  }
+};
