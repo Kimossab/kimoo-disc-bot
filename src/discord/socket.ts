@@ -60,13 +60,14 @@ class Socket {
   }
 
   private onClose(e: any) {
-    this.logger.log("Socket closed - Restarting in 5 seconds", e);
+    this.logger.log("Socket closed - Restarting in 2 seconds", e);
 
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
     }
 
     if (e === 4005) {
+      // already identified
       setDiscordSession(null);
       setDiscordLastS(null);
     }
@@ -75,7 +76,7 @@ class Socket {
 
     setTimeout(() => {
       this.connect(this.url!);
-    }, 5000);
+    }, 2000);
   }
 
   private onOpen() {
@@ -92,7 +93,6 @@ class Socket {
 
     switch (data.op) {
       case opcodes.dispatch:
-        this.logger.log("opcode dispatch");
         this.onEvent(data.t!, data.d);
         break;
       case opcodes.heartbeat:
@@ -108,15 +108,14 @@ class Socket {
           setDiscordLastS(null);
         }
 
-        this.client!.close();
-
         this.logger.log(
-          'Received "invalid_session", sending identify in 5 seconds',
+          'Received "invalid_session", restarting socket connection.',
           data.d
         );
+
+        this.client!.close();
         break;
       case opcodes.hello:
-        this.logger.log("opcode hello");
         this.onHello(data.d);
         break;
       case opcodes.heartbeat_ack:
@@ -144,11 +143,7 @@ class Socket {
     const lastS = getDiscordLastS();
 
     if (sessionId) {
-      this.logger.log("Invoking resume", {
-        token: process.env.TOKEN!,
-        session_id: sessionId,
-        seq: lastS,
-      });
+      this.logger.log("Invoking resume");
 
       this.send(
         JSON.stringify({
@@ -162,11 +157,11 @@ class Socket {
       );
 
       setTimeout(() => {
-        this.logger.log("did not resume, identifying...");
         if (!this.resumed) {
+          this.logger.log("Did not resume.");
           this.identify();
         }
-      }, 5000);
+      }, 2000);
     } else {
       this.identify();
     }
@@ -257,7 +252,6 @@ class Socket {
   }
 
   private identify(): void {
-    console.trace();
     this.logger.log("Identifying...");
     const randomPresence = randomNum(0, PRESENCE_STRINGS.length);
 

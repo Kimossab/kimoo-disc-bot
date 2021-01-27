@@ -4,6 +4,14 @@
 
 ---
 
+## [2.1.0] - 2021-01-27
+
+### Fixed
+
+- Fixed errors caused from not handling reconnection requests properly
+
+---
+
 ## [2.0.5] - 2021-01-27
 
 ### Fixed

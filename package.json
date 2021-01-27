@@ -1,14 +1,13 @@
 {
   "name": "kimoo-disc-bot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "2.1.0",
+  "description": "Kimossab's Discord Bot",
   "scripts": {
     "build": "tsc",
-    "prod": "node ./build/bot.js",
     "dev": "ts-node-dev --respawn --transpile-only ./src/bot.ts",
     "test": "jest",
-    "coverage": "jest --coverage --detectOpenHandles"
+    "coverage": "jest --coverage --detectOpenHandles",
+    "prod": "node ./build/bot.js"
   },
   "author": "",
   "license": "ISC",
