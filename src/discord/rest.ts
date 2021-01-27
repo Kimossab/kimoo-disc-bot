@@ -18,7 +18,7 @@ const handleErrors = (place: string, e: any): void => {
       e.data.errors
     );
   } else {
-    _logger.error(`[${place}] ${e.message}`, e);
+    _logger.error(`[${place}] ${e.message}`, e.toJSON());
   }
 };
 
