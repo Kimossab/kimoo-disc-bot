@@ -7,6 +7,8 @@ import {
   ADD_PAGINATION,
   SET_REACTION_CALLBACK,
   SET_CHANNEL_LAST_ATTACHMENT,
+  SET_DISCORD_SESSION,
+  SET_DISCORD_LAST_S,
 } from "./types";
 import store from "./store";
 import Pagination from "../helper/pagination";
@@ -196,4 +198,26 @@ export const setChannelLastAttachment = (
  */
 export const getChannelLastAttchment = (channel: string): string => {
   return store.getState().channelLastAttachment[channel];
+};
+
+export const setDiscordSession = (session: string | null): void => {
+  store.dispatch({
+    type: SET_DISCORD_SESSION,
+    session,
+  });
+};
+
+export const getDiscordSession = (): string | null => {
+  return store.getState().discordSessionId;
+};
+
+export const setDiscordLastS = (lastS: number | null): void => {
+  store.dispatch({
+    type: SET_DISCORD_LAST_S,
+    lastS,
+  });
+};
+
+export const getDiscordLastS = (): number | null => {
+  return store.getState().discordLastS;
 };

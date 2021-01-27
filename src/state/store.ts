@@ -11,6 +11,8 @@ import {
   ADD_PAGINATION,
   SET_REACTION_CALLBACK,
   SET_CHANNEL_LAST_ATTACHMENT,
+  SET_DISCORD_SESSION,
+  SET_DISCORD_LAST_S,
 } from "./types";
 import * as handler from "./handler";
 
@@ -20,6 +22,8 @@ const initialState: State = {
   application: null,
   guilds: [],
   allPaginations: [],
+  discordSessionId: null,
+  discordLastS: null,
   channelLastAttachment: {},
   readyCallback: null,
   commandExecutedCallback: [],
@@ -55,6 +59,10 @@ const storeReducer = (state: State = initialState, action: Actions) => {
         action.channel,
         action.attachment
       );
+    case SET_DISCORD_SESSION:
+      return handler.SET_DISCORD_SESSION(state, action.session);
+    case SET_DISCORD_LAST_S:
+      return handler.SET_DISCORD_LAST_S(state, action.lastS);
     default:
       return state;
   }

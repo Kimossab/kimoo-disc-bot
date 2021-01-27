@@ -6,6 +6,8 @@ export const SET_READY_CALLBACK = "SET_READY_CALLBACK";
 export const SET_COMMAND_EXECUTED_CALLBACK = "SET_COMMAND_EXECUTED_CALLBACK";
 export const SET_REACTION_CALLBACK = "SET_REACTION_CALLBACK";
 export const SET_CHANNEL_LAST_ATTACHMENT = "SET_CHANNEL_LAST_ATTACHMENT";
+export const SET_DISCORD_SESSION = "SET_DISCORD_SESSION";
+export const SET_DISCORD_LAST_S = "SET_DISCORD_LAST_S";
 export const ADD_GUILD = "ADD_GUILD";
 export const ADD_GUILD_MEMBERS = "ADD_GUILD_MEMBERS";
 export const ADD_PAGINATION = "ADD_PAGINATION";
@@ -17,6 +19,9 @@ export interface State {
   guilds: discord.guild[];
   allPaginations: Pagination<any>[];
   channelLastAttachment: string_object<string>;
+  discordSessionId: string | null;
+  discordLastS: number | null;
+
   readyCallback: (() => void) | null;
   commandExecutedCallback: ((_: discord.interaction) => void)[];
   messageReactionCallback: ((
@@ -76,6 +81,16 @@ export interface SetChannelLastAttachment {
   attachment: string;
 }
 
+export interface SetDiscordSession {
+  type: typeof SET_DISCORD_SESSION;
+  session: string | null;
+}
+
+export interface SetDiscordLastS {
+  type: typeof SET_DISCORD_LAST_S;
+  lastS: number | null;
+}
+
 export type Actions =
   | SetUser
   | SetApplication
@@ -83,6 +98,8 @@ export type Actions =
   | SetCommandExecutedCallback
   | SetReactionCallback
   | SetChannelLastAttachment
+  | SetDiscordSession
+  | SetDiscordLastS
   | AddGuild
   | AddGuildMembers
   | AddPagination;

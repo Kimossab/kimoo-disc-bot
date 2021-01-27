@@ -5,8 +5,12 @@ import Logger from "../helper/logger";
 import {
   addGuild,
   commandExecuted,
+  getDiscordLastS,
+  getDiscordSession,
   gotNewReaction,
   setChannelLastAttachment,
+  setDiscordLastS,
+  setDiscordSession,
   setReadyData,
 } from "../state/actions";
 import {
@@ -15,7 +19,6 @@ import {
   intents,
   opcodes,
 } from "../helper/constants";
-import { timingSafeEqual } from "crypto";
 
 class Socket {
   private logger = new Logger("socket");
@@ -23,16 +26,15 @@ class Socket {
   private url: string | null = null;
 
   private hbInterval: NodeJS.Timeout | null = null;
-  private lastS: number | null = null;
   private hbAck: boolean = true;
-
-  private sessionId: string | null = null;
 
   private client: WebSocket | null = null;
 
   private resumed: boolean = false;
 
   public connect(gateway: string) {
+    this.logger.log("starting connection");
+
     this.resumed = false;
     this.url = gateway;
     this.logger.log(this.url);
@@ -58,30 +60,40 @@ class Socket {
   }
 
   private onClose(e: any) {
-    this.logger.log("Socket closed", e);
+    this.logger.log("Socket closed - Restarting in 5 seconds", e);
+
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
     }
+
     this.client = null;
 
     setTimeout(() => {
       this.connect(this.url!);
-    }, 2000);
+    }, 5000);
   }
 
   private onOpen() {
     this.hbAck = true;
     this.logger.log("Socket opened");
 
-    if (this.sessionId) {
-      this.logger.log("resume");
+    const sessionId = getDiscordSession();
+    const lastS = getDiscordLastS();
+
+    if (sessionId) {
+      this.logger.log("Invoking resume", {
+        token: process.env.TOKEN!,
+        session_id: sessionId,
+        seq: lastS,
+      });
+
       this.send(
         JSON.stringify({
           op: opcodes.resume,
           d: {
             token: process.env.TOKEN!,
-            session_id: this.sessionId,
-            seq: this.lastS,
+            session_id: sessionId,
+            seq: lastS,
           },
         })
       );
@@ -91,7 +103,7 @@ class Socket {
   private onMessage(d: string): void {
     const data: discord.payload = JSON.parse(d);
 
-    this.lastS = data.s;
+    setDiscordLastS(data.s);
 
     switch (data.op) {
       case opcodes.dispatch:
@@ -106,15 +118,15 @@ class Socket {
         break;
       case opcodes.invalid_session:
         if (!data.d) {
-          this.sessionId = null;
+          setDiscordSession(null);
+          setDiscordLastS(null);
         }
 
-        setTimeout(() => {
-          this.identify();
-        }, 5000);
+        this.client!.close();
 
         this.logger.log(
-          'Received "invalid_session", sending identify in 5 seconds'
+          'Received "invalid_session", sending identify in 5 seconds',
+          data.d
         );
         break;
       case opcodes.hello:
@@ -155,7 +167,7 @@ class Socket {
   private onEvent(event: string, data: any): void {
     switch (event) {
       case gateway_events.ready:
-        this.sessionId = (data as discord.ready).session_id;
+        setDiscordSession((data as discord.ready).session_id);
 
         setReadyData(data as discord.ready);
         break;
@@ -196,17 +208,15 @@ class Socket {
     if (this.client) {
       this.client.close();
     }
-    this.client = null;
-    if (this.url) {
-      this.connect(this.url);
-    }
   }
 
   private sendHeartbeat(): void {
     if (!this.hbAck) {
       this.forceReconnect();
     } else {
-      this.send(JSON.stringify({ op: opcodes.heartbeat, d: this.lastS }));
+      this.send(
+        JSON.stringify({ op: opcodes.heartbeat, d: getDiscordLastS() })
+      );
       this.hbAck = false;
     }
   }

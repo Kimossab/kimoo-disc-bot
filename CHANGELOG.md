@@ -4,6 +4,15 @@
 
 ---
 
+## [2.0.4] - 2021-01-27
+
+### Changed
+
+- Changed last S and session id from socket to the state store.
+- More logs to try and understand why discord is constantly asking my bot to reconnect and giving invalid session.
+
+---
+
 ## [2.0.3] - 2021-01-26
 
 ### Fixed

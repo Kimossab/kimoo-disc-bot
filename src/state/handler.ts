@@ -78,3 +78,23 @@ export const SET_CHANNEL_LAST_ATTACHMENT = (
   state.channelLastAttachment[channel] = attachment;
   return state;
 };
+
+export const SET_DISCORD_SESSION = (
+  state: State,
+  session: string | null
+): State => {
+  return {
+    ...state,
+    discordSessionId: session,
+  };
+};
+
+export const SET_DISCORD_LAST_S = (
+  state: State,
+  lastS: number | null
+): State => {
+  return {
+    ...state,
+    discordLastS: lastS,
+  };
+};
