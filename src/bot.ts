@@ -44,7 +44,7 @@ const _logger = new Logger("bot");
 
 const commandExecuted = async (data: discord.interaction) => {
   if (data && data.type === 1) {
-    createInteractionResponse(data.id, data.token, {
+    await createInteractionResponse(data.id, data.token, {
       type: interaction_response_type.pong,
     });
     _logger.log("Got Ping");
@@ -53,7 +53,7 @@ const commandExecuted = async (data: discord.interaction) => {
     const option = data.data.options![0];
     if (option.name === "admin_role") {
       if (!checkAdmin(data.guild_id, data.member)) {
-        createInteractionResponse(data.id, data.token, {
+        await createInteractionResponse(data.id, data.token, {
           type: interaction_response_type.channel_message_with_source,
           data: {
             content: messageList.common.no_permission,
@@ -66,7 +66,7 @@ const commandExecuted = async (data: discord.interaction) => {
 
       if (role) {
         await setAdminRole(data.guild_id, role.value);
-        createInteractionResponse(data.id, data.token, {
+        await createInteractionResponse(data.id, data.token, {
           type: interaction_response_type.channel_message_with_source,
           data: {
             content: `Admin role set to <@&${role.value}>`,
@@ -81,7 +81,7 @@ const commandExecuted = async (data: discord.interaction) => {
       } else {
         const role = await getAdminRole(data.guild_id);
         if (role) {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: `Admin role is <@&${role}>`,
@@ -94,7 +94,7 @@ const commandExecuted = async (data: discord.interaction) => {
             },
           });
         } else {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: `This server doesn't have an admin role defined`,

@@ -137,7 +137,7 @@ const commandExecuted = async (data: discord.interaction) => {
     const queryResult = await malQuery(type?.value, query?.value);
 
     if (!queryResult) {
-      createInteractionResponse(data.id, data.token, {
+      await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
           content: messageList.mal.not_found,

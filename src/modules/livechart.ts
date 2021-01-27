@@ -104,7 +104,7 @@ const checkRss = async (): Promise<void> => {
 const handleCommandSet = async (data: discord.interaction) => {
   try {
     if (!checkAdmin(data.guild_id, data.member)) {
-      createInteractionResponse(data.id, data.token, {
+      await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
           content: messageList.common.no_permission,
@@ -116,7 +116,7 @@ const handleCommandSet = async (data: discord.interaction) => {
     const channel = data.data!.options![0].options![0].value;
     setServerAnimeChannel(data.guild_id, channel);
 
-    createInteractionResponse(data.id, data.token, {
+    await createInteractionResponse(data.id, data.token, {
       type: interaction_response_type.channel_message_with_source,
       data: {
         content: stringReplacer(messageList.livechart.channel_set_success, {
@@ -131,7 +131,7 @@ const handleCommandSet = async (data: discord.interaction) => {
   } catch (e) {
     _logger.error("handleCommandSet", e);
 
-    createInteractionResponse(data.id, data.token, {
+    await createInteractionResponse(data.id, data.token, {
       type: interaction_response_type.acknowledge,
     });
   }
@@ -152,7 +152,7 @@ const handleCommandSub = async (data: discord.interaction) => {
         );
 
         if (hasSub) {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.livechart.sub_exists, {
@@ -163,7 +163,7 @@ const handleCommandSub = async (data: discord.interaction) => {
         } else {
           setSubscription(data.guild_id, data.member.user!.id, lcId);
 
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.livechart.sub_success, {
@@ -191,7 +191,7 @@ const handleCommandSub = async (data: discord.interaction) => {
         if (hasSub) {
           removeSubscription(data.guild_id, data.member.user!.id, lcId);
 
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.livechart.unsub_success, {
@@ -200,7 +200,7 @@ const handleCommandSub = async (data: discord.interaction) => {
             },
           });
         } else {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.livechart.sub_doesnt_exists, {
@@ -237,7 +237,7 @@ const handleCommandSub = async (data: discord.interaction) => {
               value: `${LIVE_CHART_ANIME_URL}${l}`,
             });
           }
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: ``,
@@ -245,7 +245,7 @@ const handleCommandSub = async (data: discord.interaction) => {
             },
           });
         } else {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: messageList.livechart.list_not_found,
@@ -263,7 +263,7 @@ const handleCommandSub = async (data: discord.interaction) => {
   } catch (e) {
     _logger.error("handleCommandSub", e);
 
-    createInteractionResponse(data.id, data.token, {
+    await createInteractionResponse(data.id, data.token, {
       type: interaction_response_type.acknowledge,
     });
   }

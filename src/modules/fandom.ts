@@ -45,7 +45,7 @@ const commandExecuted = async (data: discord.interaction): Promise<void> => {
     const query = data.data.options.find((o) => o.name === "query");
 
     if ((slug!.value as string).includes(" ")) {
-      createInteractionResponse(data.id, data.token, {
+      await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
           content: messageList.fandom.invalid_slug,
@@ -55,7 +55,7 @@ const commandExecuted = async (data: discord.interaction): Promise<void> => {
       return;
     }
 
-    createInteractionResponse(data.id, data.token, {
+    await createInteractionResponse(data.id, data.token, {
       type: interaction_response_type.acknowledge_with_source,
     });
 

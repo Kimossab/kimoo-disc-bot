@@ -127,7 +127,7 @@ const commandExecuted = async (data: discord.interaction) => {
     switch (data.data.options[0].name) {
       case "channel": {
         if (!checkAdmin(data.guild_id, data.member)) {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: messageList.common.no_permission,
@@ -141,7 +141,7 @@ const commandExecuted = async (data: discord.interaction) => {
 
         if (channel) {
           await setServerBirthdayChannel(data.guild_id, channel.value);
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(
@@ -158,7 +158,7 @@ const commandExecuted = async (data: discord.interaction) => {
           );
         } else {
           const ch = await getServerAnimeChannel(data.guild_id);
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.birthday.servers_channel, {
@@ -176,7 +176,7 @@ const commandExecuted = async (data: discord.interaction) => {
       }
       case "add": {
         if (!checkAdmin(data.guild_id, data.member)) {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: messageList.common.no_permission,
@@ -201,7 +201,7 @@ const commandExecuted = async (data: discord.interaction) => {
         const bd = await getUserBirthday(data.guild_id, user.value!);
 
         if (bd) {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: messageList.birthday.already_set,
@@ -221,7 +221,7 @@ const commandExecuted = async (data: discord.interaction) => {
           const birthdayString = `${day.value!}/${month.value!}${
             yearArray.length > 0 ? "/" + yearArray[0].value! : ""
           }`;
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.birthday.set_success, {
@@ -243,7 +243,7 @@ const commandExecuted = async (data: discord.interaction) => {
       }
       case "remove": {
         if (!checkAdmin(data.guild_id, data.member)) {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: messageList.common.no_permission,
@@ -258,7 +258,7 @@ const commandExecuted = async (data: discord.interaction) => {
 
         if (bd) {
           await bd.delete();
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: messageList.birthday.remove_success,
@@ -269,7 +269,7 @@ const commandExecuted = async (data: discord.interaction) => {
             `Removed user ${user} birthday in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
           );
         } else {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: messageList.birthday.not_found,
@@ -285,7 +285,7 @@ const commandExecuted = async (data: discord.interaction) => {
 
         // no permission
         if ((user || month) && !checkAdmin(data.guild_id, data.member)) {
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: messageList.common.no_permission,
@@ -302,7 +302,7 @@ const commandExecuted = async (data: discord.interaction) => {
             const birthdayString = `${bd.day}/${bd.month}${
               bd.year ? "/" + bd.year : ""
             }`;
-            createInteractionResponse(data.id, data.token, {
+            await createInteractionResponse(data.id, data.token, {
               type: interaction_response_type.channel_message_with_source,
               data: {
                 content: stringReplacer(messageList.birthday.user, {
@@ -317,7 +317,7 @@ const commandExecuted = async (data: discord.interaction) => {
               `Birthday for ${user} requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
             );
           } else {
-            createInteractionResponse(data.id, data.token, {
+            await createInteractionResponse(data.id, data.token, {
               type: interaction_response_type.channel_message_with_source,
               data: {
                 content: messageList.birthday.not_found,
@@ -340,7 +340,7 @@ const commandExecuted = async (data: discord.interaction) => {
             message += "\n";
           }
 
-          createInteractionResponse(data.id, data.token, {
+          await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: message,
@@ -360,7 +360,7 @@ const commandExecuted = async (data: discord.interaction) => {
             const birthdayString = `${bd.day}/${bd.month}${
               bd.year ? "/" + bd.year : ""
             }`;
-            createInteractionResponse(data.id, data.token, {
+            await createInteractionResponse(data.id, data.token, {
               type: interaction_response_type.channel_message_with_source,
               data: {
                 content: stringReplacer(messageList.birthday.user, {
@@ -375,7 +375,7 @@ const commandExecuted = async (data: discord.interaction) => {
               `Birthday requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
             );
           } else {
-            createInteractionResponse(data.id, data.token, {
+            await createInteractionResponse(data.id, data.token, {
               type: interaction_response_type.channel_message_with_source,
               data: {
                 content: messageList.birthday.not_found,
@@ -392,7 +392,7 @@ const commandExecuted = async (data: discord.interaction) => {
           serverDate.getMonth() + 1
         }/${serverDate.getFullYear()}`;
 
-        createInteractionResponse(data.id, data.token, {
+        await createInteractionResponse(data.id, data.token, {
           type: interaction_response_type.channel_message_with_source,
           data: {
             content: stringReplacer(messageList.birthday.server, {

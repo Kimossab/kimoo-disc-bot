@@ -53,7 +53,7 @@ const commandExecuted = async (data: discord.interaction) => {
         }
       }
 
-      createInteractionResponse(data.id, data.token, {
+      await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
           content: "",

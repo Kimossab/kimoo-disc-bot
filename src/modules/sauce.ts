@@ -486,7 +486,7 @@ const commandExecuted = async (data: discord.interaction) => {
     const lastAttachment = getChannelLastAttchment(data.channel_id);
 
     if (!image && !lastAttachment) {
-      createInteractionResponse(data.id, data.token, {
+      await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
           content: messageList.sauce.image_not_found,
@@ -495,7 +495,7 @@ const commandExecuted = async (data: discord.interaction) => {
       return;
     }
 
-    createInteractionResponse(data.id, data.token, {
+    await createInteractionResponse(data.id, data.token, {
       type: interaction_response_type.acknowledge,
     });
 

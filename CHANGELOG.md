@@ -4,11 +4,19 @@
 
 ---
 
+## [2.1.1] - 2021-01-27
+
+### Added
+
+- Add await to all create interaction responses
+
+---
+
 ## [2.1.0] - 2021-01-27
 
 ### Fixed
 
-- Fixed errors caused from not handling reconnection requests properly
+- Fixed errors caused from not handling reconnection requests properly.
 
 ---
 
