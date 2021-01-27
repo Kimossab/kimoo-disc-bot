@@ -4,6 +4,15 @@
 
 ---
 
+## [2.0.5] - 2021-01-27
+
+### Fixed
+
+- Fixed resume event, had mistakenly been looking for opcode resume. The opcode is only for sending, the resumed is an event that's received as a message data.
+- More logs to see if the situation improves
+
+---
+
 ## [2.0.4] - 2021-01-27
 
 ### Changed

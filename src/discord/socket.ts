@@ -66,6 +66,11 @@ class Socket {
       clearInterval(this.hbInterval);
     }
 
+    if (e === 4005) {
+      setDiscordSession(null);
+      setDiscordLastS(null);
+    }
+
     this.client = null;
 
     setTimeout(() => {
@@ -76,37 +81,18 @@ class Socket {
   private onOpen() {
     this.hbAck = true;
     this.logger.log("Socket opened");
-
-    const sessionId = getDiscordSession();
-    const lastS = getDiscordLastS();
-
-    if (sessionId) {
-      this.logger.log("Invoking resume", {
-        token: process.env.TOKEN!,
-        session_id: sessionId,
-        seq: lastS,
-      });
-
-      this.send(
-        JSON.stringify({
-          op: opcodes.resume,
-          d: {
-            token: process.env.TOKEN!,
-            session_id: sessionId,
-            seq: lastS,
-          },
-        })
-      );
-    }
   }
 
   private onMessage(d: string): void {
     const data: discord.payload = JSON.parse(d);
 
-    setDiscordLastS(data.s);
+    if (data.s) {
+      setDiscordLastS(data.s);
+    }
 
     switch (data.op) {
       case opcodes.dispatch:
+        this.logger.log("opcode dispatch");
         this.onEvent(data.t!, data.d);
         break;
       case opcodes.heartbeat:
@@ -130,14 +116,11 @@ class Socket {
         );
         break;
       case opcodes.hello:
+        this.logger.log("opcode hello");
         this.onHello(data.d);
         break;
       case opcodes.heartbeat_ack:
         this.hbAck = true;
-        break;
-      case opcodes.resume:
-        this.logger.log("received resume");
-        this.resumed = true;
         break;
       default:
         this.logger.log("Unknown op code", data);
@@ -157,11 +140,36 @@ class Socket {
       this.sendHeartbeat();
     }, data.heartbeat_interval);
 
-    setTimeout(() => {
-      if (!this.resumed) {
-        this.identify();
-      }
-    }, 5000);
+    const sessionId = getDiscordSession();
+    const lastS = getDiscordLastS();
+
+    if (sessionId) {
+      this.logger.log("Invoking resume", {
+        token: process.env.TOKEN!,
+        session_id: sessionId,
+        seq: lastS,
+      });
+
+      this.send(
+        JSON.stringify({
+          op: opcodes.resume,
+          d: {
+            token: process.env.TOKEN!,
+            session_id: sessionId,
+            seq: lastS,
+          },
+        })
+      );
+
+      setTimeout(() => {
+        this.logger.log("did not resume, identifying...");
+        if (!this.resumed) {
+          this.identify();
+        }
+      }, 5000);
+    } else {
+      this.identify();
+    }
   }
 
   private onEvent(event: string, data: any): void {
@@ -197,6 +205,10 @@ class Socket {
             data.attachments[data.attachments.length - 1].url
           );
         }
+        break;
+      case gateway_events.resumed:
+        this.resumed = true;
+        this.logger.log("resumed", event);
         break;
       /*default:
         this.logger.log("Not expected message", event);*/
