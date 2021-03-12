@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+- Achievements feature (image, description and who has what, when, etc for each server)
+  - Create
+  - Edit
+  - Delete
+  - Give
+  - Check (list)
+
+---
+
+## [2.1.2] - 2021-03-12
+
+### Changed
+
+- Trace.moe api to use the same as website (it's slower but gives better results)
+
+### Fixed
+
+- Birthday timeout calculation (it was sending at 02:02:02 instead of 00:00:00)
+- Small bug fixes like mising values in embeds in messages
+- 
 ---
 
 ## [2.1.1] - 2021-01-27

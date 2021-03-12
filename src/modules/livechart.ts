@@ -7,11 +7,11 @@ import {
   getUserSubscriptions,
   removeSubscription,
   setSubscription,
-  updateLastRequest,
+  updateLastRequest
 } from "../controllers/livechart.controller";
 import {
   getServerAnimeChannel,
-  setServerAnimeChannel,
+  setServerAnimeChannel
 } from "../controllers/bot.controller";
 import { createInteractionResponse, sendMessage } from "../discord/rest";
 import { interaction_response_type } from "../helper/constants";
@@ -41,14 +41,14 @@ const itemEmbed = (item: Parser.Item): discord.embed => {
     url: item.link,
     color: 6465461,
     image: {
-      url: item.enclosure!.url,
+      url: item.enclosure!.url
     },
     fields: [
       {
         name: messageList.livechart.date,
-        value: item.pubDate!,
-      },
-    ],
+        value: item.pubDate!
+      }
+    ]
   };
 };
 const checkRss = async (): Promise<void> => {
@@ -83,7 +83,7 @@ const checkRss = async (): Promise<void> => {
         for (const s in serverUsers) {
           if (Object.prototype.hasOwnProperty.call(serverUsers, s)) {
             const embed = itemEmbed(item);
-            const mentions = serverUsers[s].map((u) => `<@${u}>`).join(" ");
+            const mentions = serverUsers[s].map(u => `<@${u}>`).join(" ");
 
             const channel = await getServerAnimeChannel(s);
 
@@ -107,8 +107,8 @@ const handleCommandSet = async (data: discord.interaction) => {
       await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
-          content: messageList.common.no_permission,
-        },
+          content: messageList.common.no_permission
+        }
       });
       return;
     }
@@ -120,9 +120,9 @@ const handleCommandSet = async (data: discord.interaction) => {
       type: interaction_response_type.channel_message_with_source,
       data: {
         content: stringReplacer(messageList.livechart.channel_set_success, {
-          channel: `<#${channel}>`,
-        }),
-      },
+          channel: `<#${channel}>`
+        })
+      }
     });
 
     _logger.log(
@@ -132,7 +132,7 @@ const handleCommandSet = async (data: discord.interaction) => {
     _logger.error("handleCommandSet", e);
 
     await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.acknowledge,
+      type: interaction_response_type.acknowledge
     });
   }
 };
@@ -156,20 +156,20 @@ const handleCommandSub = async (data: discord.interaction) => {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.livechart.sub_exists, {
-                link: `${LIVE_CHART_ANIME_URL}${lcId}`,
-              }),
-            },
+                link: `${LIVE_CHART_ANIME_URL}${lcId}`
+              })
+            }
           });
         } else {
-          setSubscription(data.guild_id, data.member.user!.id, lcId);
+          await setSubscription(data.guild_id, data.member.user!.id, lcId);
 
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.livechart.sub_success, {
-                link: `${LIVE_CHART_ANIME_URL}${lcId}`,
-              }),
-            },
+                link: `${LIVE_CHART_ANIME_URL}${lcId}`
+              })
+            }
           });
         }
 
@@ -189,24 +189,24 @@ const handleCommandSub = async (data: discord.interaction) => {
         );
 
         if (hasSub) {
-          removeSubscription(data.guild_id, data.member.user!.id, lcId);
+          await removeSubscription(data.guild_id, data.member.user!.id, lcId);
 
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.livechart.unsub_success, {
-                link: `${LIVE_CHART_ANIME_URL}${lcId}`,
-              }),
-            },
+                link: `${LIVE_CHART_ANIME_URL}${lcId}`
+              })
+            }
           });
         } else {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.livechart.sub_doesnt_exists, {
-                link: `${LIVE_CHART_ANIME_URL}${lcId}`,
-              }),
-            },
+                link: `${LIVE_CHART_ANIME_URL}${lcId}`
+              })
+            }
           });
         }
 
@@ -225,31 +225,31 @@ const handleCommandSub = async (data: discord.interaction) => {
         if (list.length) {
           const embed: discord.embed = {
             title: stringReplacer(messageList.livechart.list, {
-              user: `${data.member.user?.username}#${data.member.user?.discriminator}`,
+              user: `${data.member.user?.username}#${data.member.user?.discriminator}`
             }),
             color: 6465461,
-            fields: [],
+            fields: []
           };
 
           for (const l of list) {
             embed.fields!.push({
               name: l.toString(),
-              value: `${LIVE_CHART_ANIME_URL}${l}`,
+              value: `${LIVE_CHART_ANIME_URL}${l}`
             });
           }
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: ``,
-              embeds: [embed],
-            },
+              embeds: [embed]
+            }
           });
         } else {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: messageList.livechart.list_not_found,
-            },
+              content: messageList.livechart.list_not_found
+            }
           });
         }
 
@@ -264,7 +264,7 @@ const handleCommandSub = async (data: discord.interaction) => {
     _logger.error("handleCommandSub", e);
 
     await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.acknowledge,
+      type: interaction_response_type.acknowledge
     });
   }
 };

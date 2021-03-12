@@ -3,14 +3,14 @@ import {
   getBirthdays,
   getBirthdaysByMonth,
   getUserBirthday,
-  updateLastWishes,
+  updateLastWishes
 } from "../controllers/birthday.controller";
 import {
   getServerBirthdayChannel,
   getLastServerBirthdayWishes,
   setServerBirthdayChannel,
   updateServerLastWishes,
-  getServerAnimeChannel,
+  getServerAnimeChannel
 } from "../controllers/bot.controller";
 import { createInteractionResponse, sendMessage } from "../discord/rest";
 import { checkAdmin, snowflakeToDate, stringReplacer } from "../helper/common";
@@ -59,7 +59,7 @@ const checkBirthdays = async () => {
       if (!lastWishes || lastWishes < year) {
         const message = stringReplacer(messageList.birthday.server_bday, {
           age: (year - serverDate.getFullYear()).toString(),
-          name: s.name,
+          name: s.name
         });
 
         await sendMessage(serverChannels[s.id]!, message);
@@ -108,14 +108,14 @@ const checkBirthdays = async () => {
 
   const time =
     1000 -
-    milliseconds +
-    (60 - seconds + 1) * 1000 +
-    (60 - minutes + 1) * 60 * 1000 +
-    ((hours > 12 ? 24 : 12) - hours + 1) * 60 * 60 * 1000;
+    milliseconds + //ms to next s
+    (60 - seconds - 1) * 1000 + //s to next m
+    (60 - minutes - 1) * 60 * 1000 + //m to next h
+    ((hours > 12 ? 24 : 12) - hours - 1) * 60 * 60 * 1000; //h to next 12/24
 
   _logger.log(`next check in ${time} milliseconds`);
 
-  checkTimeout = setInterval(checkBirthdays, time);
+  checkTimeout = setTimeout(checkBirthdays, time);
 };
 
 const start = () => {
@@ -123,6 +123,7 @@ const start = () => {
 };
 
 const commandExecuted = async (data: discord.interaction) => {
+  // _logger.log("commandExecuted", data);
   if (data.data && data.data.name === "birthday" && data.data.options) {
     switch (data.data.options[0].name) {
       case "channel": {
@@ -130,14 +131,14 @@ const commandExecuted = async (data: discord.interaction) => {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: messageList.common.no_permission,
-            },
+              content: messageList.common.no_permission
+            }
           });
           return;
         }
 
         const opt = data.data.options[0].options;
-        const channel = opt?.find((o) => o.name === "channel");
+        const channel = opt?.find(o => o.name === "channel");
 
         if (channel) {
           await setServerBirthdayChannel(data.guild_id, channel.value);
@@ -147,10 +148,10 @@ const commandExecuted = async (data: discord.interaction) => {
               content: stringReplacer(
                 messageList.birthday.channel_set_success,
                 {
-                  channel: `<#${channel.value}>`,
+                  channel: `<#${channel.value}>`
                 }
-              ),
-            },
+              )
+            }
           });
 
           _logger.log(
@@ -162,9 +163,9 @@ const commandExecuted = async (data: discord.interaction) => {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: stringReplacer(messageList.birthday.servers_channel, {
-                channel: `<#${ch}>`,
-              }),
-            },
+                channel: `<#${ch}>`
+              })
+            }
           });
 
           _logger.log(
@@ -179,23 +180,23 @@ const commandExecuted = async (data: discord.interaction) => {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: messageList.common.no_permission,
-            },
+              content: messageList.common.no_permission
+            }
           });
           return;
         }
 
         const user = data.data.options[0].options!.filter(
-          (o) => o.name === "user"
+          o => o.name === "user"
         )[0];
         const day = data.data.options[0].options!.filter(
-          (o) => o.name === "day"
+          o => o.name === "day"
         )[0];
         const month = data.data.options[0].options!.filter(
-          (o) => o.name === "month"
+          o => o.name === "month"
         )[0];
         const yearArray = data.data.options[0].options!.filter(
-          (o) => o.name === "year"
+          o => o.name === "year"
         );
 
         const bd = await getUserBirthday(data.guild_id, user.value!);
@@ -204,8 +205,8 @@ const commandExecuted = async (data: discord.interaction) => {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: messageList.birthday.already_set,
-            },
+              content: messageList.birthday.already_set
+            }
           });
         } else {
           await addBirthday(
@@ -226,9 +227,9 @@ const commandExecuted = async (data: discord.interaction) => {
             data: {
               content: stringReplacer(messageList.birthday.set_success, {
                 user: `<@${user.value!}>`,
-                date: birthdayString,
-              }),
-            },
+                date: birthdayString
+              })
+            }
           });
 
           _logger.log(
@@ -246,8 +247,8 @@ const commandExecuted = async (data: discord.interaction) => {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: messageList.common.no_permission,
-            },
+              content: messageList.common.no_permission
+            }
           });
           return;
         }
@@ -261,8 +262,8 @@ const commandExecuted = async (data: discord.interaction) => {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: messageList.birthday.remove_success,
-            },
+              content: messageList.birthday.remove_success
+            }
           });
 
           _logger.log(
@@ -272,24 +273,24 @@ const commandExecuted = async (data: discord.interaction) => {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: messageList.birthday.not_found,
-            },
+              content: messageList.birthday.not_found
+            }
           });
         }
         break;
       }
       case "get": {
         const opt = data.data.options[0].options;
-        const user = opt?.find((o) => o.name === "user");
-        const month = opt?.find((o) => o.name === "month");
+        const user = opt?.find(o => o.name === "user");
+        const month = opt?.find(o => o.name === "month");
 
         // no permission
         if ((user || month) && !checkAdmin(data.guild_id, data.member)) {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: messageList.common.no_permission,
-            },
+              content: messageList.common.no_permission
+            }
           });
           return;
         }
@@ -307,10 +308,10 @@ const commandExecuted = async (data: discord.interaction) => {
               data: {
                 content: stringReplacer(messageList.birthday.user, {
                   user: `<@${user.value}>`,
-                  date: birthdayString,
+                  date: birthdayString
                 }),
-                allowed_mentions: no_mentions,
-              },
+                allowed_mentions: no_mentions
+              }
             });
 
             _logger.log(
@@ -320,8 +321,8 @@ const commandExecuted = async (data: discord.interaction) => {
             await createInteractionResponse(data.id, data.token, {
               type: interaction_response_type.channel_message_with_source,
               data: {
-                content: messageList.birthday.not_found,
-              },
+                content: messageList.birthday.not_found
+              }
             });
           }
         }
@@ -340,12 +341,18 @@ const commandExecuted = async (data: discord.interaction) => {
             message += "\n";
           }
 
+          if (message === "") {
+            message = stringReplacer(messageList.birthday.found_zero, {
+              month: month.value
+            });
+          }
+
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
               content: message,
-              allowed_mentions: no_mentions,
-            },
+              allowed_mentions: no_mentions
+            }
           });
 
           _logger.log(
@@ -365,10 +372,10 @@ const commandExecuted = async (data: discord.interaction) => {
               data: {
                 content: stringReplacer(messageList.birthday.user, {
                   user: `<@${data.member.user!.id}>`,
-                  date: birthdayString,
+                  date: birthdayString
                 }),
-                allowed_mentions: no_mentions,
-              },
+                allowed_mentions: no_mentions
+              }
             });
 
             _logger.log(
@@ -378,8 +385,8 @@ const commandExecuted = async (data: discord.interaction) => {
             await createInteractionResponse(data.id, data.token, {
               type: interaction_response_type.channel_message_with_source,
               data: {
-                content: messageList.birthday.not_found,
-              },
+                content: messageList.birthday.not_found
+              }
             });
           }
         }
@@ -396,9 +403,9 @@ const commandExecuted = async (data: discord.interaction) => {
           type: interaction_response_type.channel_message_with_source,
           data: {
             content: stringReplacer(messageList.birthday.server, {
-              date: birthdayString,
-            }),
-          },
+              date: birthdayString
+            })
+          }
         });
       }
       default:

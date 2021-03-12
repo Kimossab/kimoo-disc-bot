@@ -2,7 +2,7 @@ import axios from "axios";
 import {
   createInteractionResponse,
   editMessage,
-  sendMessage,
+  sendMessage
 } from "../discord/rest";
 import { formatSecondsIntoMinutes, stringReplacer } from "../helper/common";
 import Logger from "../helper/logger";
@@ -10,10 +10,13 @@ import Pagination from "../helper/pagination";
 import {
   addPagination,
   getChannelLastAttchment,
-  setCommandExecutedCallback,
+  setCommandExecutedCallback
 } from "../state/actions";
 import { interaction_response_type } from "../helper/constants";
 import messageList from "../helper/messages";
+import FormData from "form-data";
+import fs from "fs";
+import https from "https";
 
 const _logger = new Logger("sauce");
 let firstSetup = true;
@@ -43,7 +46,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
     similarity: Number(data.header.similarity),
     authorData: null,
     thumbnail: data.header.thumbnail,
-    url: null,
+    url: null
   };
   try {
     switch (data.header.index_id) {
@@ -63,12 +66,12 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         //pixiv
         parsed.site = "pixiv";
         parsed.url = [
-          `https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`,
+          `https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`
         ];
         parsed.name = data.data.title;
         parsed.authorData = {
           authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`,
+          authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`
         };
         break;
       }
@@ -79,7 +82,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.name = data.data.title;
         parsed.authorData = {
           authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: null,
+          authorUrl: null
         };
         break;
       }
@@ -90,7 +93,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.name = data.data.material ? data.data.material : "";
         parsed.authorData = {
           authorName: data.data.creator ? data.data.creator.toString() : null,
-          authorUrl: data.data.source ? data.data.source : null,
+          authorUrl: data.data.source ? data.data.source : null
         };
         break;
       }
@@ -101,7 +104,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.name = data.data.title!;
         parsed.authorData = {
           authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: `https://nijie.info/members.php?id=${data.data.member_id}`,
+          authorUrl: `https://nijie.info/members.php?id=${data.data.member_id}`
         };
         break;
       }
@@ -112,7 +115,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.name = data.data.material!;
         parsed.authorData = {
           authorName: data.data.creator ? data.data.creator.toString() : null,
-          authorUrl: null,
+          authorUrl: null
         };
         break;
       }
@@ -123,7 +126,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.name = data.data.source!;
         parsed.authorData = {
           authorName: data.data.creator ? data.data.creator.toString() : null,
-          authorUrl: null,
+          authorUrl: null
         };
         break;
       }
@@ -138,13 +141,13 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
           // parsed.thumbnail = `https://i.nhentai.net/galleries/${path}.jpg`;
           parsed.url = [
             `https://nhentai.net/g/${match[1]}`,
-            `https://nhentai.net/g/${path}`,
+            `https://nhentai.net/g/${path}`
           ];
         }
         parsed.name = (data.data.eng_name || data.data.jp_name)!;
         parsed.authorData = {
           authorName: (data.data.creator as string[]).join(","),
-          authorUrl: null,
+          authorUrl: null
         };
         break;
       }
@@ -155,7 +158,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.name = data.data.title;
         parsed.authorData = {
           authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: `https://medibang.com/author/${data.data.member_id}/`,
+          authorUrl: `https://medibang.com/author/${data.data.member_id}/`
         };
         break;
       }
@@ -181,7 +184,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.url = data.data.ext_urls;
         parsed.authorData = {
           authorName: data.data.creator ? data.data.creator.toString() : null,
-          authorUrl: null,
+          authorUrl: null
         };
         break;
       }
@@ -193,7 +196,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.url = data.data.ext_urls;
         parsed.authorData = {
           authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: data.data.source ? data.data.source : null,
+          authorUrl: data.data.source ? data.data.source : null
         };
         break;
       }
@@ -204,7 +207,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.name = data.data.title;
         parsed.authorData = {
           authorName: data.data.author_name ? data.data.author_name : null,
-          authorUrl: data.data.author_url,
+          authorUrl: data.data.author_url
         };
         break;
       }
@@ -217,7 +220,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
           authorName: data.data.pawoo_user_display_name
             ? data.data.pawoo_user_display_name
             : null,
-          authorUrl: data.data.ext_urls[0],
+          authorUrl: data.data.ext_urls[0]
         };
         break;
       }
@@ -242,7 +245,7 @@ const formatSauceNaoData = (data: SauceNao.result): SauceNao.data => {
         parsed.name = `Tweet by ${data.data.twitter_user_handle!}`;
         parsed.authorData = {
           authorName: data.data.twitter_user_handle!,
-          authorUrl: `https://twitter.com/${data.data.twitter_user_handle!}/`,
+          authorUrl: `https://twitter.com/${data.data.twitter_user_handle!}/`
         };
         break;
       }
@@ -269,8 +272,8 @@ const sauceNaoEmbed = (
     color: 3035554,
     fields: [],
     footer: {
-      text: stringReplacer(messageList.common.page, { page, total }),
-    },
+      text: stringReplacer(messageList.common.page, { page, total })
+    }
   };
   if (item.thumbnail) {
     embed.image = { url: item.thumbnail.replace(/\s/g, "%20") };
@@ -278,14 +281,14 @@ const sauceNaoEmbed = (
 
   embed.fields!.push({
     name: `similarity`,
-    value: item.similarity.toString(),
+    value: item.similarity.toString()
   });
 
   if (item.url) {
     for (const st of item.url) {
       embed.fields!.push({
         name: `url`,
-        value: st,
+        value: st
       });
     }
   }
@@ -293,13 +296,13 @@ const sauceNaoEmbed = (
   if (item.authorData) {
     embed.fields!.push({
       name: item.authorData.authorName ? item.authorData.authorName : "-",
-      value: item.authorData.authorUrl ? item.authorData.authorUrl : "-",
+      value: item.authorData.authorUrl ? item.authorData.authorUrl : "-"
     });
   }
   if (item.fallback) {
     embed.fields!.push({
       name: "unknown fallback",
-      value: item.fallback,
+      value: item.fallback
     });
   }
 
@@ -346,7 +349,7 @@ const handleSauceNao = async (
 
   // sort and filter
   resData = resData.sort((a, b) => b.similarity - a.similarity);
-  resData = resData.filter((a) => a.similarity > 75);
+  resData = resData.filter(a => a.similarity > 75);
 
   if (resData.length === 0) {
     await sendMessage(data.channel_id, messageList.sauce.not_found);
@@ -372,68 +375,135 @@ const handleSauceNao = async (
 
 //TRACE MOE
 const traceMoeEmbed = (
-  item: TraceMoe.doc,
+  item: TraceMoe.resultData,
   page: number,
   total: number
 ): discord.embed => {
+  let title: string[] = [];
+
+  if (item.anilist.title.english) {
+    title.push(item.anilist.title.english);
+  }
+
+  if (item.anilist.title.romaji) {
+    title.push(item.anilist.title.romaji);
+  }
+
+  if (item.anilist.title.native) {
+    title.push(item.anilist.title.native);
+  }
+
+  title = title.filter((elem, index, self) => {
+    return index === self.indexOf(elem);
+  });
+
+  const description: string[] = [];
+
+  if (item.episode) {
+    description.push(`Episode #${item.episode}`);
+  }
+  description.push(`@${formatSecondsIntoMinutes(item.from)}`);
+
   const embed: discord.embed = {
-    title: `${item.title_english} (${item.title})`,
-    description: `Episode #${item.episode} @${formatSecondsIntoMinutes(
-      item.at
-    )}`,
+    title: title.length ? title.join(" - ") : "UNKNOWN",
+    description: description.join(" "),
     color: 3035554,
-    url: `https://myanimelist.net/anime/${item.mal_id}`,
+    url: `https://myanimelist.net/anime/${item.anilist.idMal}`,
     fields: [
       {
         name: messageList.sauce.similarity,
-        value: `${Math.round(item.similarity * 100)}%`,
-      },
-      {
-        name: messageList.sauce.season,
-        value: item.season,
-      },
+        value: `${Math.round(item.similarity * 100)}%`
+      }
+      // {
+      //   name: messageList.sauce.season,
+      //   value: item.season === "" ? "N/A" : item.season
+      // }
     ],
+    // image: {
+    //   url: `https://trace.moe/thumbnail.php?anilist_id=${
+    //     item.anilist_id
+    //   }&file=${encodeURIComponent(item.filename)}&t=${item.at}&token=${
+    //     item.tokenthumb
+    //   }`
+    // },
     image: {
-      url: `https://trace.moe/thumbnail.php?anilist_id=${
-        item.anilist_id
-      }&file=${encodeURIComponent(item.filename)}&t=${item.at}&token=${
-        item.tokenthumb
-      }`,
+      url: item.image
     },
     footer: {
-      text: stringReplacer(messageList.common.page, { page, total }),
-    },
+      text: stringReplacer(messageList.common.page, { page, total })
+    }
   };
 
-  if (item.synonyms.length > 0) {
+  if (item.anilist.synonyms.length > 0) {
     embed.fields?.push({
       name: messageList.sauce.other_names,
-      value: item.synonyms.join(" | "),
+      value: item.anilist.synonyms.join(" | ")
     });
   }
 
   embed.fields?.push({
     name: `⠀`,
-    value: `[Video](https://media.trace.moe/video/${
-      item.anilist_id
-    }/${encodeURIComponent(item.filename)}?t=${item.at}&token=${
-      item.tokenthumb
-    })`,
+    value: `[Video](${item.video})`
   });
 
   _logger.log("embed", embed);
   return embed;
 };
 
+// const requestTraceMoe = async (
+//   image: string
+// ): Promise<TraceMoe.response | null> => {
+//   try {
+//     const res = await axios.get(`https://trace.moe/api/search?url=${image}`);
+
+//     console.log(res.data);
+//     return res.data;
+//   } catch (e) {
+//     _logger.error("Requestion sauce nao", e.response);
+//   }
+
+//   return null;
+// };
+
+const download = async (url: string, dest: string): Promise<boolean> => {
+  return new Promise(resolve => {
+    const file = fs.createWriteStream(dest);
+
+    https
+      .get(url, response => {
+        response.pipe(file);
+
+        file.on("finish", () => {
+          file.close();
+          resolve(true);
+        });
+      })
+      .on("error", function (err) {
+        fs.unlink(dest, () => {
+          resolve(false);
+        });
+      });
+  });
+};
+
 const requestTraceMoe = async (
   image: string
 ): Promise<TraceMoe.response | null> => {
   try {
-    const res = await axios.get(`https://trace.moe/api/search?url=${image}`);
+    const result = await download(image, "trash/trash.png");
 
-    return res.data;
+    if (result) {
+      const data = new FormData();
+      data.append("image", fs.createReadStream("trash/trash.png"));
+      const res = await axios.post(`https://api.trace.moe/search`, data, {
+        headers: data.getHeaders()
+      });
+      return res.data;
+    }
+
+    return null;
   } catch (e) {
-    _logger.error("Requestion sauce nao", e.response);
+    _logger.error("Requestion sauce trace moe", e.toJSON());
   }
 
   return null;
@@ -442,7 +512,7 @@ const requestTraceMoe = async (
 const traceMoeUpdatePage = async (
   channel: string,
   message: string,
-  data: TraceMoe.doc,
+  data: TraceMoe.resultData,
   page: number,
   total: number
 ): Promise<void> => {
@@ -456,7 +526,7 @@ const handleTraceMoe = async (
   //https://soruly.github.io/trace.moe/#/
   const traceMoe = await requestTraceMoe(image);
 
-  if (!traceMoe || traceMoe.docs.length === 0) {
+  if (!traceMoe || traceMoe.result.length === 0) {
     await sendMessage(data.channel_id, messageList.sauce.not_found);
     return;
   }
@@ -464,14 +534,14 @@ const handleTraceMoe = async (
   const message = await sendMessage(
     data.channel_id,
     "",
-    traceMoeEmbed(traceMoe.docs[0], 1, traceMoe.docs.length)
+    traceMoeEmbed(traceMoe.result[0], 1, traceMoe.result.length)
   );
 
   if (message) {
-    const pagination = new Pagination<TraceMoe.doc>(
+    const pagination = new Pagination<TraceMoe.resultData>(
       data.channel_id,
       message.id,
-      traceMoe.docs,
+      traceMoe.result,
       traceMoeUpdatePage
     );
 
@@ -481,22 +551,22 @@ const handleTraceMoe = async (
 
 const commandExecuted = async (data: discord.interaction) => {
   if (data.data && data.data.name === "sauce") {
-    const type = data.data.options?.find((o) => o.name === "type");
-    const image = data.data.options?.find((o) => o.name === "image");
+    const type = data.data.options?.find(o => o.name === "type");
+    const image = data.data.options?.find(o => o.name === "image");
     const lastAttachment = getChannelLastAttchment(data.channel_id);
 
     if (!image && !lastAttachment) {
       await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
-          content: messageList.sauce.image_not_found,
-        },
+          content: messageList.sauce.image_not_found
+        }
       });
       return;
     }
 
     await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.acknowledge,
+      type: interaction_response_type.acknowledge
     });
 
     let url = image ? image.value : lastAttachment;
