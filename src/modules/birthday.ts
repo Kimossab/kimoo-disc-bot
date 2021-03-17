@@ -123,7 +123,6 @@ const start = () => {
 };
 
 const commandExecuted = async (data: discord.interaction) => {
-  // _logger.log("commandExecuted", data);
   if (data.data && data.data.name === "birthday" && data.data.options) {
     switch (data.data.options[0].name) {
       case "channel": {
@@ -407,6 +406,7 @@ const commandExecuted = async (data: discord.interaction) => {
             })
           }
         });
+        break;
       }
       default:
         _logger.error(

@@ -231,3 +231,11 @@ declare namespace TraceMoe {
     result: resultData[];
   }
 }
+
+declare namespace achievement {
+  interface server_leaderboard {
+    user: string;
+    points: number;
+    rank: string;
+  }
+}

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import achievementModel from "../models/achievement.model";
 import Logger from "./logger";
 
 const _logger = new Logger("database");
@@ -10,11 +11,13 @@ const _logger = new Logger("database");
 const connect = (url: string) => {
   mongoose.connect(url, {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true
   });
 
   mongoose.connection.on("error", onError);
   mongoose.connection.on("open", onOpen);
+
+  achievementModel.createCollection();
 };
 
 const onError = (e: any) => {

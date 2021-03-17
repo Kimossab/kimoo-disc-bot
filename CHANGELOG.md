@@ -3,11 +3,27 @@
 ## Unreleased
 
 - Achievements feature (image, description and who has what, when, etc for each server)
-  - Create
   - Edit
   - Delete
-  - Give
-  - Check (list)
+- Queue system for rest requests
+  - For every response check the http headers (https://discord.com/developers/docs/topics/rate-limits#header-format-rate-limit-header-examples)
+  - Create queue system and keep feeding it to send them by order
+    - This will need url, data and callback
+  - Check response, if 429 then retry before calling the callback
+  - Can be testing updating all commands at once
+- Refactor
+  - separate everything into modules instead of types/states/controllers etc.
+  - bring out classes and implements and stuff
+
+---
+
+## [2.2.0 alpha] - UNRELEASED
+
+### Added
+
+- Added module Achievements
+  - Server achievements
+  - Achievement Ranks
 
 ---
 

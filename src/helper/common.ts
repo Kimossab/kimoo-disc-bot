@@ -2,7 +2,7 @@ import { getGuilds } from "../state/actions";
 import { getAdminRole } from "../controllers/bot.controller";
 
 export enum string_constants {
-  endpoint_wrong_response = "Wrong reply from `<endpoint>`",
+  endpoint_wrong_response = "Wrong reply from `<endpoint>`"
 }
 
 /**
@@ -80,7 +80,7 @@ export const checkAdmin = async (
   server: string,
   member: discord.guild_member
 ): Promise<boolean> => {
-  const guild = getGuilds().find((g) => g.id === server);
+  const guild = getGuilds().find(g => g.id === server);
 
   if (!guild || !member.user) {
     return false;
@@ -97,4 +97,12 @@ export const checkAdmin = async (
   }
 
   return member.roles.includes(role);
+};
+
+export const chunkArray = <T>(data: T[], size: number): T[][] => {
+  const R = [];
+  for (var i = 0; i < data.length; i += size) {
+    R.push(data.slice(i, i + size));
+  }
+  return R;
 };

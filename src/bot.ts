@@ -3,7 +3,7 @@ import {
   getAdminRole,
   setAdminRole,
   getCommandVersion,
-  setCommandVersion,
+  setCommandVersion
 } from "./controllers/bot.controller";
 dotenv.config();
 
@@ -12,7 +12,7 @@ import {
   createInteractionResponse,
   deleteCommand,
   getCommands,
-  getGatewayBot,
+  getGatewayBot
 } from "./discord/rest";
 import socket from "./discord/socket";
 import connect from "./helper/database";
@@ -21,14 +21,14 @@ import {
   checkAdmin,
   formatSecondsIntoMinutes,
   isValidReactionUser,
-  randomNum,
+  randomNum
 } from "./helper/common";
 import {
   getApplication,
   getPagination,
   setCommandExecutedCallback,
   setReactionCallback,
-  setReadyCallback,
+  setReadyCallback
 } from "./state/actions";
 import * as commandInfo from "./commands";
 import { interaction_response_type } from "./helper/constants";
@@ -38,6 +38,7 @@ import * as Fandom from "./modules/fandom";
 import * as Mal from "./modules/mal";
 import * as Sauce from "./modules/sauce";
 import * as Misc from "./modules/misc";
+import * as Achievement from "./modules/achievements";
 import messageList from "./helper/messages";
 
 const _logger = new Logger("bot");
@@ -45,7 +46,7 @@ const _logger = new Logger("bot");
 const commandExecuted = async (data: discord.interaction) => {
   if (data && data.type === 1) {
     await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.pong,
+      type: interaction_response_type.pong
     });
     _logger.log("Got Ping");
     return;
@@ -56,8 +57,8 @@ const commandExecuted = async (data: discord.interaction) => {
         await createInteractionResponse(data.id, data.token, {
           type: interaction_response_type.channel_message_with_source,
           data: {
-            content: messageList.common.no_permission,
-          },
+            content: messageList.common.no_permission
+          }
         });
         return;
       }
@@ -74,9 +75,9 @@ const commandExecuted = async (data: discord.interaction) => {
               parse: [],
               roles: [],
               users: [],
-              replied_user: false,
-            },
-          },
+              replied_user: false
+            }
+          }
         });
       } else {
         const role = await getAdminRole(data.guild_id);
@@ -89,16 +90,16 @@ const commandExecuted = async (data: discord.interaction) => {
                 parse: [],
                 roles: [],
                 users: [],
-                replied_user: false,
-              },
-            },
+                replied_user: false
+              }
+            }
           });
         } else {
           await createInteractionResponse(data.id, data.token, {
             type: interaction_response_type.channel_message_with_source,
             data: {
-              content: `This server doesn't have an admin role defined`,
-            },
+              content: `This server doesn't have an admin role defined`
+            }
           });
         }
       }
@@ -135,20 +136,22 @@ const ready = async () => {
   Mal.SetUp();
   Sauce.SetUp();
   Misc.SetUp();
+  Achievement.setUp();
 
   const app = getApplication();
   if (app) {
     let commandData = await getCommands(app.id);
+    if (commandData) console.log(commandData[commandData?.length - 1].options);
     if (commandData === null) {
       return;
     }
 
     const commandVersion = await getCommandVersion();
 
-    const commandNames = commandInfo.list.map((c) => c.name);
+    const commandNames = commandInfo.list.map(c => c.name);
 
     const commandsToRemove = commandData.filter(
-      (c) => !commandNames.includes(c.name)
+      c => !commandNames.includes(c.name)
     );
 
     for (const cmd of commandsToRemove) {
@@ -159,14 +162,19 @@ const ready = async () => {
     }
 
     for (const cmd of commandInfo.list) {
-      const existing = commandData.filter((c) => c.name === cmd.name);
+      const existing = commandData.filter(c => c.name === cmd.name);
 
-      if (!existing || commandVersion !== commandInfo.version) {
+      if (
+        !existing.length ||
+        commandVersion !==
+          commandInfo.version /*||
+        cmd.name === "achievements"*/
+      ) {
         _logger.log("Creating command", cmd);
         const nCmd = await createCommand(app.id, cmd);
 
         if (nCmd) {
-          commandData = commandData.filter((c) => c.name !== nCmd.name);
+          commandData = commandData.filter(c => c.name !== nCmd.name);
         }
       }
     }

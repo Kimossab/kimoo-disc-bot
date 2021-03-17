@@ -1,6 +1,6 @@
 import { application_command_option_type } from "./helper/constants";
 
-export const version = "1.0.1";
+export const version = "1.1.0";
 
 export const list: discord.application_command[] = [
   {
@@ -16,9 +16,9 @@ export const list: discord.application_command[] = [
             name: "channel",
             description: "Channel where notifications will be sent",
             type: application_command_option_type.CHANNEL,
-            required: true,
-          },
-        ],
+            required: true
+          }
+        ]
       },
       {
         name: "sub",
@@ -35,9 +35,9 @@ export const list: discord.application_command[] = [
                 description:
                   "ID in livechart of the anime to which you want to subscribe",
                 type: application_command_option_type.INTEGER,
-                required: true,
-              },
-            ],
+                required: true
+              }
+            ]
           },
           {
             name: "remove",
@@ -49,18 +49,18 @@ export const list: discord.application_command[] = [
                 description:
                   "ID in livechart of the anime to which you want to subscribe",
                 type: application_command_option_type.INTEGER,
-                required: true,
-              },
-            ],
+                required: true
+              }
+            ]
           },
           {
             name: "list",
             description: "Lists a subscription.",
-            type: application_command_option_type.SUB_COMMAND,
-          },
-        ],
-      },
-    ],
+            type: application_command_option_type.SUB_COMMAND
+          }
+        ]
+      }
+    ]
   },
   {
     name: "birthday",
@@ -77,9 +77,9 @@ export const list: discord.application_command[] = [
             description:
               "The channel where the happy birthday message is sent to",
             type: application_command_option_type.CHANNEL,
-            required: false,
-          },
-        ],
+            required: false
+          }
+        ]
       },
       {
         name: "add",
@@ -90,26 +90,26 @@ export const list: discord.application_command[] = [
             name: "user",
             description: "The user whose birthday you're setting",
             type: application_command_option_type.USER,
-            required: true,
+            required: true
           },
           {
             name: "day",
             description: "The day when they were born",
             type: application_command_option_type.INTEGER,
-            required: true,
+            required: true
           },
           {
             name: "month",
             description: "The month when they were born",
             type: application_command_option_type.INTEGER,
-            required: true,
+            required: true
           },
           {
             name: "year",
             description: "The year when they were born",
-            type: application_command_option_type.INTEGER,
-          },
-        ],
+            type: application_command_option_type.INTEGER
+          }
+        ]
       },
       {
         name: "remove",
@@ -120,9 +120,9 @@ export const list: discord.application_command[] = [
             name: "user",
             description: "The user whose birthday you're removing",
             type: application_command_option_type.USER,
-            required: true,
-          },
-        ],
+            required: true
+          }
+        ]
       },
       {
         name: "get",
@@ -133,23 +133,23 @@ export const list: discord.application_command[] = [
             name: "user",
             description: "The user whose birthday you're getting",
             type: application_command_option_type.USER,
-            required: false,
+            required: false
           },
           {
             name: "month",
             description: "The users whose birthday is on a certain month",
             type: application_command_option_type.INTEGER,
-            required: false,
-          },
-        ],
+            required: false
+          }
+        ]
       },
       {
         name: "server",
         description: "Shows the server's birthday",
         type: application_command_option_type.SUB_COMMAND,
-        options: [],
-      },
-    ],
+        options: []
+      }
+    ]
   },
   {
     name: "wiki",
@@ -159,15 +159,15 @@ export const list: discord.application_command[] = [
         name: "fandom",
         description: "Slug of the fandom to search",
         type: application_command_option_type.STRING,
-        required: true,
+        required: true
       },
       {
         name: "query",
         description: "Search query",
         type: application_command_option_type.STRING,
-        required: true,
-      },
-    ],
+        required: true
+      }
+    ]
   },
   {
     name: "mal",
@@ -177,7 +177,7 @@ export const list: discord.application_command[] = [
         name: "query",
         description: "Query to search for",
         type: application_command_option_type.STRING,
-        required: true,
+        required: true
       },
       {
         name: "type",
@@ -187,27 +187,27 @@ export const list: discord.application_command[] = [
         choices: [
           {
             name: "all",
-            value: "all",
+            value: "all"
           },
           {
             name: "manga",
-            value: "manga",
+            value: "manga"
           },
           {
             name: "anime",
-            value: "anime",
+            value: "anime"
           },
           {
             name: "person",
-            value: "person",
+            value: "person"
           },
           {
             name: "character",
-            value: "character",
-          },
-        ],
-      },
-    ],
+            value: "character"
+          }
+        ]
+      }
+    ]
   },
   {
     name: "sauce",
@@ -216,7 +216,7 @@ export const list: discord.application_command[] = [
       {
         name: "image",
         description: "Image url to search",
-        type: application_command_option_type.STRING,
+        type: application_command_option_type.STRING
       },
       {
         name: "type",
@@ -224,10 +224,10 @@ export const list: discord.application_command[] = [
         type: application_command_option_type.STRING,
         choices: [
           { name: "art", value: "art" },
-          { name: "anime", value: "anime" },
-        ],
-      },
-    ],
+          { name: "anime", value: "anime" }
+        ]
+      }
+    ]
   },
   {
     name: "settings",
@@ -242,11 +242,144 @@ export const list: discord.application_command[] = [
             name: "role",
             description: "Role you want to set as admin",
             type: application_command_option_type.ROLE,
-            required: false,
+            required: false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "achievements",
+    description: "Handles everything related to achievements",
+    options: [
+      {
+        name: "create",
+        description: "Creates a new achievement (admin only)",
+        type: application_command_option_type.SUB_COMMAND,
+        options: [
+          {
+            name: "name",
+            description: "Achievement name",
+            type: application_command_option_type.STRING,
+            required: true
           },
-        ],
+          {
+            name: "description",
+            description: "Achievement description",
+            type: application_command_option_type.STRING,
+            required: true
+          },
+          {
+            name: "points",
+            description: "Achievement point value",
+            type: application_command_option_type.INTEGER,
+            required: true
+          },
+          {
+            name: "image",
+            description: "Achievement image URL",
+            type: application_command_option_type.STRING,
+            required: true
+          }
+        ]
       },
-    ],
+      {
+        name: "rank",
+        description: "Server achievement ranks",
+        type: application_command_option_type.SUB_COMMAND_GROUP,
+        options: [
+          {
+            name: "list",
+            description: "Lists the server ranks",
+            type: application_command_option_type.SUB_COMMAND,
+            options: []
+          },
+          {
+            name: "user",
+            description: "Shows the rank of a user",
+            type: application_command_option_type.SUB_COMMAND,
+            options: [
+              {
+                name: "user",
+                description: "User to get the rank of",
+                type: application_command_option_type.USER,
+                required: false
+              }
+            ]
+          },
+          {
+            name: "leaderboard",
+            description: "Shows the server leaderboard",
+            type: application_command_option_type.SUB_COMMAND,
+            options: []
+          },
+          {
+            name: "create",
+            description: "Creates a new rank",
+            type: application_command_option_type.SUB_COMMAND,
+            options: [
+              {
+                name: "name",
+                description: "Rank name",
+                type: application_command_option_type.STRING,
+                required: true
+              },
+              {
+                name: "points",
+                description: "Points necessary to achieve this rank",
+                type: application_command_option_type.INTEGER,
+                required: true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: "list",
+        description: "Lists achievements",
+        type: application_command_option_type.SUB_COMMAND_GROUP,
+        options: [
+          {
+            name: "server",
+            description: "Lists server achievements",
+            type: application_command_option_type.SUB_COMMAND,
+            options: []
+          },
+          {
+            name: "user",
+            description: "Lists user achievements",
+            type: application_command_option_type.SUB_COMMAND,
+            options: [
+              {
+                name: "user",
+                description: "User to lsit",
+                type: application_command_option_type.USER,
+                required: false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: "give",
+        description: "Gives an achievement to a user (Admin only)",
+        type: application_command_option_type.SUB_COMMAND,
+        options: [
+          {
+            name: "user",
+            description: "User to give the achievement to",
+            type: application_command_option_type.USER,
+            required: true
+          },
+          {
+            name: "achievement",
+            description: "Achievement id to give to the user",
+            type: application_command_option_type.INTEGER,
+            required: true
+          }
+        ]
+      }
+    ]
   },
   {
     name: "misc",
@@ -261,16 +394,16 @@ export const list: discord.application_command[] = [
             name: "groups",
             description: "Number of groups to create",
             type: application_command_option_type.INTEGER,
-            required: true,
+            required: true
           },
           {
             name: "values",
             description: "Names to group (seperate each name with ` | `)",
             type: application_command_option_type.STRING,
-            required: true,
-          },
-        ],
-      },
-    ],
-  },
+            required: true
+          }
+        ]
+      }
+    ]
+  }
 ];

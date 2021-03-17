@@ -51,5 +51,17 @@ export default {
     season: "Season",
     other_names: "Other names",
     image_not_found: "No image found to request."
+  },
+  achievements: {
+    already_exists: "Achievement already exists",
+    create_success: "Achievement <name> created successfully",
+    not_found: "Achievement with id <id> was not found",
+    already_got: "User <user> already got the achievement <id>",
+    given_success: "Achievement <name> given to <user> with success",
+    rank_exists: "Achievement rank <name> already exists",
+    rank_point_exists:
+      "Achievement wtih <points> points already exists: <name>",
+    rank_create_success:
+      "Achievement <name> with <points> points created successfully"
   }
 };
