@@ -28,11 +28,12 @@ class Pagination<T> {
     this._callback = callback;
 
     if (isReady()) {
-      createReaction(this._channel, this._message, "⬅");
-
-      setTimeout(() => {
-        createReaction(this._channel, this._message, "➡");
-      }, 500);
+      const channel = this._channel;
+      const message = this._message;
+      (async () => {
+        await createReaction(channel, message, "◀");
+        await createReaction(channel, message, "▶");
+      })();
     }
   }
 

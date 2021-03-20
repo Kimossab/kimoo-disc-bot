@@ -164,12 +164,7 @@ const ready = async () => {
     for (const cmd of commandInfo.list) {
       const existing = commandData.filter(c => c.name === cmd.name);
 
-      if (
-        !existing.length ||
-        commandVersion !==
-          commandInfo.version /*||
-        cmd.name === "achievements"*/
-      ) {
+      if (!existing.length || commandVersion !== commandInfo.version) {
         _logger.log("Creating command", cmd);
         const nCmd = await createCommand(app.id, cmd);
 
