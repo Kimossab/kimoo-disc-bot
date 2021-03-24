@@ -1,10 +1,10 @@
 import AchievementRank, {
   IAchievementRank
-} from "../models/achievement-rank.model";
-import Achievement, { IAchievement } from "../models/achievement.model";
+} from "./models/achievement-rank.model";
+import Achievement, { IAchievement } from "./models/achievement.model";
 import UserAchievement, {
   IUserAchievement
-} from "../models/user-achievement.model";
+} from "./models/user-achievement.model";
 
 const getHighestId = async (server: string): Promise<number> => {
   const ach: IAchievement = await Achievement.findOne({ server }, null, {

@@ -2,7 +2,7 @@ import axios from "axios";
 import {
   createInteractionResponse,
   editMessage,
-  sendMessage,
+  sendMessage
 } from "../discord/rest";
 import Logger from "../helper/logger";
 import Pagination from "../helper/pagination";
@@ -10,6 +10,7 @@ import { addPagination, setCommandExecutedCallback } from "../state/actions";
 import { interaction_response_type } from "../helper/constants";
 import { stringReplacer } from "../helper/common";
 import messageList from "../helper/messages";
+import { getOptionValue } from "../helper/modules.helper";
 
 const _logger = new Logger("mal");
 let firstSetup = true;
@@ -44,59 +45,59 @@ const createEmbed = (
     color: 3035554,
     url: data.url,
     image: {
-      url: data.image_url,
+      url: data.image_url
     },
     provider: {
       name: "My Anime List",
-      url: "https://myanimelist.net/",
+      url: "https://myanimelist.net/"
     },
     fields: [],
     footer: {
-      text: stringReplacer(messageList.common.page, { page, total }),
-    },
+      text: stringReplacer(messageList.common.page, { page, total })
+    }
   };
 
   if (data.type === "manga") {
     const payload = data.payload as mal.manga;
     embed.fields?.push({
       name: stringReplacer(messageList.mal.type, { type: payload.media_type }),
-      value: payload.published,
+      value: payload.published
     });
     embed.fields?.push({
       name: messageList.mal.score,
-      value: payload.score,
+      value: payload.score
     });
     embed.fields?.push({
       name: messageList.mal.status,
-      value: payload.status,
+      value: payload.status
     });
   } else if (data.type === "anime") {
     const payload = data.payload as mal.anime;
     embed.fields?.push({
       name: stringReplacer(messageList.mal.type, { type: payload.media_type }),
-      value: payload.aired,
+      value: payload.aired
     });
     embed.fields?.push({
       name: messageList.mal.score,
-      value: payload.score,
+      value: payload.score
     });
     embed.fields?.push({
       name: messageList.mal.status,
-      value: payload.status,
+      value: payload.status
     });
   } else if (data.type === "character") {
     const payload = data.payload as mal.character;
 
     embed.fields?.push({
       name: messageList.mal.favorites,
-      value: payload.favorites.toString(),
+      value: payload.favorites.toString()
     });
 
     for (const work of payload.related_works) {
       embed.fields?.push({
         name: messageList.mal.related_works,
         value: work,
-        inline: false,
+        inline: false
       });
     }
   } else if (data.type === "person") {
@@ -104,15 +105,15 @@ const createEmbed = (
 
     embed.fields?.push({
       name: messageList.mal.alternative_names,
-      value: payload.alternative_name,
+      value: payload.alternative_name
     });
     embed.fields?.push({
       name: messageList.mal.birthday,
-      value: payload.birthday,
+      value: payload.birthday
     });
     embed.fields?.push({
       name: messageList.mal.favorites,
-      value: payload.favorites.toString(),
+      value: payload.favorites.toString()
     });
   }
 
@@ -131,23 +132,23 @@ const updatePage = async (
 
 const commandExecuted = async (data: discord.interaction) => {
   if (data.data && data.data.name === "mal" && data.data.options) {
-    const type = data.data.options.find((o) => o.name === "type");
-    const query = data.data.options.find((o) => o.name === "query");
+    const type = getOptionValue<string>(data.data.options, "type");
+    const query = getOptionValue<string>(data.data.options, "query");
 
-    const queryResult = await malQuery(type?.value, query?.value);
+    const queryResult = await malQuery(type!, query!);
 
     if (!queryResult) {
       await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
-          content: messageList.mal.not_found,
-        },
+          content: messageList.mal.not_found
+        }
       });
       return;
     }
 
     await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.acknowledge_with_source,
+      type: interaction_response_type.acknowledge_with_source
     });
 
     let paginationItems: mal.item[] = [];
@@ -175,7 +176,7 @@ const commandExecuted = async (data: discord.interaction) => {
   }
 };
 
-export const SetUp = () => {
+export const setUp = () => {
   if (firstSetup) {
     setCommandExecutedCallback(commandExecuted);
     firstSetup = false;

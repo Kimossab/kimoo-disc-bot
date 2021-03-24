@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import { saveGuild } from "../controllers/bot.controller";
+import { saveGuild } from "../bot/bot.controller";
 import { randomNum } from "../helper/common";
 import Logger from "../helper/logger";
 import {

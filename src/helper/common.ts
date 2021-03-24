@@ -1,5 +1,5 @@
 import { getGuilds } from "../state/actions";
-import { getAdminRole } from "../controllers/bot.controller";
+import { getAdminRole } from "../bot/bot.controller";
 
 export enum string_constants {
   endpoint_wrong_response = "Wrong reply from `<endpoint>`"

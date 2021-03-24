@@ -4,7 +4,7 @@ import {
   setAdminRole,
   getCommandVersion,
   setCommandVersion
-} from "./controllers/bot.controller";
+} from "./bot/bot.controller";
 dotenv.config();
 
 import {
@@ -32,13 +32,13 @@ import {
 } from "./state/actions";
 import * as commandInfo from "./commands";
 import { interaction_response_type } from "./helper/constants";
-import * as Livechart from "./modules/livechart";
-import * as Birthday from "./modules/birthday";
-import * as Fandom from "./modules/fandom";
-import * as Mal from "./modules/mal";
-import * as Sauce from "./modules/sauce";
-import * as Misc from "./modules/misc";
-import * as Achievement from "./modules/achievements";
+import * as Sauce from "./sauce/sauce.module";
+import * as Birthday from "./birthday/birthday.module";
+import * as Mal from "./mal/mal.module";
+import * as Livechart from "./livechart/livechart.module";
+import * as Fandom from "./fandom/fandom.module";
+import * as Misc from "./misc/misc.module";
+import * as Achievement from "./achievement/achievement.module";
 import messageList from "./helper/messages";
 
 const _logger = new Logger("bot");
@@ -116,10 +116,10 @@ const reactionAdded = async (
 
     if (pag) {
       switch (data.emoji.name) {
-        case "⬅":
+        case "◀":
           pag.previous();
           break;
-        case "➡":
+        case "▶":
           pag.next();
           break;
       }
@@ -130,11 +130,11 @@ const reactionAdded = async (
 const ready = async () => {
   _logger.log("Discord says Ready");
 
-  Livechart.setUp();
+  Sauce.setUp();
   Birthday.setUp();
+  Mal.setUp();
+  Livechart.setUp();
   Fandom.setUp();
-  Mal.SetUp();
-  Sauce.SetUp();
   Misc.SetUp();
   Achievement.setUp();
 

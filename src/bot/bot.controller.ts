@@ -1,10 +1,6 @@
 import Logger from "../helper/logger";
-import CommandVersion, {
-  ICommandVersion,
-} from "../models/command-version.model";
-import ServerSettings, {
-  IServerSettings,
-} from "../models/server-settings.model";
+import CommandVersion, { ICommandVersion } from "./command-version.model";
+import ServerSettings, { IServerSettings } from "./server-settings.model";
 
 const _logger = new Logger("bot.controller");
 
@@ -15,7 +11,7 @@ const _logger = new Logger("bot.controller");
 export const saveGuild = async (id: string): Promise<void> => {
   try {
     let exists = await ServerSettings.exists({
-      serverId: id,
+      serverId: id
     });
 
     if (!exists) {
@@ -43,7 +39,7 @@ export const setServerAnimeChannel = async (
   channel: string
 ): Promise<void> => {
   const settings: IServerSettings = await ServerSettings.findOne({
-    serverId: server,
+    serverId: server
   });
 
   settings.animeChannel = channel;
@@ -58,7 +54,7 @@ export const getServerAnimeChannel = async (
   id: string
 ): Promise<string | null> => {
   const server: IServerSettings = await ServerSettings.findOne({
-    serverId: id,
+    serverId: id
   });
 
   return server?.animeChannel;
@@ -103,7 +99,7 @@ export const setServerBirthdayChannel = async (
 ): Promise<void> => {
   await ServerSettings.updateOne(
     {
-      serverId: server,
+      serverId: server
     },
     { birthdayChannel: channel }
   );
@@ -117,7 +113,7 @@ export const getServerBirthdayChannel = async (
   id: string
 ): Promise<string | null> => {
   const server: IServerSettings = await ServerSettings.findOne({
-    serverId: id,
+    serverId: id
   });
 
   return server?.birthdayChannel;
@@ -130,7 +126,7 @@ export const getServerBirthdayChannel = async (
 export const updateServerLastWishes = async (server: string): Promise<void> => {
   await ServerSettings.updateOne(
     {
-      serverId: server,
+      serverId: server
     },
     { lastBirthdayWishes: new Date().getFullYear() }
   );
@@ -144,7 +140,7 @@ export const getLastServerBirthdayWishes = async (
   id: string
 ): Promise<number | null> => {
   const server: IServerSettings = await ServerSettings.findOne({
-    serverId: id,
+    serverId: id
   });
 
   return server?.lastBirthdayWishes;
@@ -161,7 +157,7 @@ export const setAdminRole = async (
 ): Promise<void> => {
   await ServerSettings.updateOne(
     {
-      serverId: server,
+      serverId: server
     },
     { adminRole: role }
   );
@@ -173,7 +169,7 @@ export const setAdminRole = async (
  */
 export const getAdminRole = async (id: string): Promise<string | null> => {
   const server: IServerSettings = await ServerSettings.findOne({
-    serverId: id,
+    serverId: id
   });
 
   return server?.adminRole;

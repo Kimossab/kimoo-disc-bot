@@ -2,13 +2,14 @@ import axios from "axios";
 import {
   createInteractionResponse,
   editMessage,
-  sendMessage,
+  sendMessage
 } from "../discord/rest";
 import Logger from "../helper/logger";
 import Pagination from "../helper/pagination";
 import { addPagination, setCommandExecutedCallback } from "../state/actions";
 import { FANDOM_LINKS, interaction_response_type } from "../helper/constants";
 import messageList from "../helper/messages";
+import { getOptionValue } from "../helper/modules.helper";
 
 const _logger = new Logger("fandom");
 let firstSetup: boolean = true;
@@ -41,29 +42,27 @@ const updatePage = async (
 
 const commandExecuted = async (data: discord.interaction): Promise<void> => {
   if (data.data && data.data.name === "wiki" && data.data.options) {
-    const slug = data.data.options.find((o) => o.name === "fandom");
-    const query = data.data.options.find((o) => o.name === "query");
+    const slug = getOptionValue<string>(data.data.options, "fandom");
+    const query = getOptionValue<string>(data.data.options, "query");
 
-    if ((slug!.value as string).includes(" ")) {
+    if (slug!.includes(" ")) {
       await createInteractionResponse(data.id, data.token, {
         type: interaction_response_type.channel_message_with_source,
         data: {
-          content: messageList.fandom.invalid_slug,
-        },
+          content: messageList.fandom.invalid_slug
+        }
       });
 
       return;
     }
 
     await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.acknowledge_with_source,
+      type: interaction_response_type.acknowledge_with_source
     });
 
-    const fandom = FANDOM_LINKS[slug!.value]
-      ? FANDOM_LINKS[slug!.value]
-      : slug!.value;
+    const fandom = FANDOM_LINKS[slug!] ? FANDOM_LINKS[slug!] : slug!;
 
-    const links = await requestFandom(fandom, query!.value);
+    const links = await requestFandom(fandom, query!);
 
     if (links) {
       const message = await sendMessage(data.channel_id, links[0]);

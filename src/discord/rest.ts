@@ -52,7 +52,7 @@ export const editMessage = (
   }
 
   return rateLimiter.request<discord.message>(
-    "POST",
+    "PATCH",
     `/channels/${channel}/messages/${message}`,
     messageData
   );

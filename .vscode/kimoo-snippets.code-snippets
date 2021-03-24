@@ -1,0 +1,65 @@
+{
+  "Get option value": {
+    "scope": "typescript",
+    "prefix": ["optv", "getoptv"],
+    "body": ["const $1 = getOptionValue<$2>(${3:option.options}, '$1');"],
+    "description": "Get the value from the options of a command"
+  },
+  "Get option ": {
+    "scope": "typescript",
+    "prefix": ["opt", "getopt"],
+    "body": ["const $1 = getOption(${3:option.options}, '$1');"],
+    "description": "Get the option of a command"
+  },
+  "Module setup": {
+    "scope": "typescript",
+    "prefix": "newmodule",
+    "body": [
+      "import { setCommandExecutedCallback } from \"../../state/actions\";",
+      "",
+      "let firstSetup = true;",
+      "",
+      "$LINE_COMMENT COMMAND CALLBACK",
+      "const commandExecuted = async (data: discord.interaction): Promise<void> => {}",
+      "",
+      "export const setUp = () => {",
+      "\tif (firstSetup) {",
+      "\t\tsetCommandExecutedCallback(commandExecuted);",
+      "\t\tfirstSetup = false;",
+      "\t}",
+      "};"
+    ],
+    "description": "Creates default module setup"
+  },
+  "Command Handle": {
+    "scope": "typescript",
+    "prefix": "command",
+    "body": [
+      "const handle$1Command = async (",
+      "\tdata: discord.interaction,",
+      "\t${2:option: discord.application_command_interaction_data_option}",
+      "): Promise<void> => {",
+      "\t$0",
+      "};"
+    ],
+    "description": "Creates a new command handle"
+  },
+  "Command check admin": {
+    "scope": "typescript",
+    "prefix": "adminonly",
+    "body": [
+      "if (!checkAdmin(data.guild_id, data.member)) {",
+      "\tawait createInteractionResponse(data.id, data.token, {",
+      "\t\ttype: interaction_response_type.channel_message_with_source,",
+      "\t\tdata: {",
+      "\t\t\tcontent: messageList.common.no_permission,",
+      "\t\t},",
+      "\t\t});",
+      "\treturn;",
+      "}",
+      "",
+      ""
+    ],
+    "description": "Check if the user is admin"
+  }
+}

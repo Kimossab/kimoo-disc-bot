@@ -4,6 +4,7 @@ import Logger from "../helper/logger";
 import { setCommandExecutedCallback } from "../state/actions";
 import { interaction_response_type } from "../helper/constants";
 import messageList from "../helper/messages";
+import { getOptionValue } from "../helper/modules.helper";
 
 let firstSetup = true;
 
@@ -15,9 +16,9 @@ const groupEmbed = (groups: string[][]): discord.embed => {
   for (const index in groups) {
     embed.fields!.push({
       name: stringReplacer(messageList.misc.group, {
-        index: Number(index) + 1,
+        index: Number(index) + 1
       }),
-      value: groups[index].join(" | "),
+      value: groups[index].join(" | ")
     });
   }
 
@@ -29,15 +30,15 @@ const commandExecuted = async (data: discord.interaction) => {
     if (data.data.options[0].name === "group") {
       const options = data.data.options[0].options;
 
-      const groups = options?.find((o) => o.name === "groups");
-      const values = options?.find((o) => o.name === "values");
+      const groups = getOptionValue<number>(options, "groups");
+      const values = getOptionValue<string>(options, "values");
 
-      let names = values?.value.split(" | ");
-      const count = names.length / groups!.value;
+      let names = values!.split(" | ");
+      const count = names.length / groups!;
 
       const grouped = [];
 
-      for (let i = 0; i < groups!.value; i++) {
+      for (let i = 0; i < groups!; i++) {
         const g = [];
 
         const max = Math.min(count, names.length);
@@ -57,8 +58,8 @@ const commandExecuted = async (data: discord.interaction) => {
         type: interaction_response_type.channel_message_with_source,
         data: {
           content: "",
-          embeds: [groupEmbed(grouped)],
-        },
+          embeds: [groupEmbed(grouped)]
+        }
       });
     }
   }

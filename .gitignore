@@ -2,5 +2,4 @@ build/
 node_modules/
 logs/
 .env
-.vscode
 log.*

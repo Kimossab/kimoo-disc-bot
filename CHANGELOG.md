@@ -5,9 +5,7 @@
 - Achievements feature (image, description and who has what, when, etc for each server)
   - Edit
   - Delete
-- Refactor
-  - separate everything into modules instead of types/states/controllers etc.
-  - bring out classes and implements and stuff
+- Tests
 
 ---
 
@@ -19,6 +17,11 @@
   - Server achievements
   - Achievement Ranks
 - Added prevention of rate limits in discord requests
+- VSCode snippets for modules and commands
+
+### Changed
+- Small refactor on modules
+  - Changed file structure, now there's a folder for each module and its related files
 
 ---
 

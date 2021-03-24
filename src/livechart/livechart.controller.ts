@@ -1,9 +1,9 @@
 import LivechartLastRequest, {
-  ILivechartLastRequest,
-} from "../models/last-request.model";
+  ILivechartLastRequest
+} from "./last-request.model";
 import LivechartSubscription, {
-  ILivechartSubscription,
-} from "../models/subscription.model";
+  ILivechartSubscription
+} from "./subscription.model";
 
 /**
  * Updates the last time a request to livechart was made
@@ -59,7 +59,7 @@ export const getSubscriptions = async (
   id: number
 ): Promise<ILivechartSubscription[]> => {
   return await LivechartSubscription.find({
-    id: id,
+    id: id
   });
 };
 
@@ -77,7 +77,7 @@ export const checkSubscription = async (
   return await LivechartSubscription.exists({
     server,
     user,
-    id,
+    id
   });
 };
 
@@ -95,7 +95,7 @@ export const removeSubscription = async (
   await LivechartSubscription.deleteOne({
     server,
     user,
-    id,
+    id
   });
 };
 
@@ -110,8 +110,8 @@ export const getUserSubscriptions = async (
 ): Promise<number[]> => {
   const list: ILivechartSubscription[] = await LivechartSubscription.find({
     server,
-    user,
+    user
   });
 
-  return list.map((l) => l.id);
+  return list.map(l => l.id);
 };

@@ -1,4 +1,4 @@
-import Birthday, { IBirthday } from "../models/birthday.model";
+import Birthday, { IBirthday } from "./birthday.model";
 
 /**
  * Adds a new birthday to the database
@@ -41,7 +41,7 @@ export const getBirthdays = async (
   const list = await Birthday.find({
     day,
     month,
-    $or: [{ lastWishes: null }, { lastWishes: { $lt: year } }],
+    $or: [{ lastWishes: null }, { lastWishes: { $lt: year } }]
   });
 
   return list;
@@ -58,7 +58,7 @@ export const getUserBirthday = async (
 ): Promise<IBirthday> => {
   return await Birthday.findOne({
     server,
-    user,
+    user
   });
 };
 
@@ -73,7 +73,7 @@ export const getBirthdaysByMonth = async (
 ): Promise<IBirthday[]> => {
   return await Birthday.find({
     server,
-    month,
+    month
   });
 };
 
@@ -89,7 +89,7 @@ export const updateLastWishes = async (
   await Birthday.updateMany(
     {
       server,
-      user: { $in: users },
+      user: { $in: users }
     },
     { lastWishes: new Date().getFullYear() }
   );

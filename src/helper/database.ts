@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import achievementModel from "../models/achievement.model";
+import achievementModel from "../achievement/models/achievement.model";
 import Logger from "./logger";
 
 const _logger = new Logger("database");
