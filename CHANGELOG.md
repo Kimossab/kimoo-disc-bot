@@ -2,14 +2,11 @@
 
 ## Unreleased
 
-- Achievements feature (image, description and who has what, when, etc for each server)
-  - Edit
-  - Delete
 - Tests
 
 ---
 
-## [2.2.0 alpha] - UNRELEASED
+## [2.2.0] - 2021-03-28
 
 ### Added
 
@@ -22,6 +19,8 @@
 ### Changed
 - Small refactor on modules
   - Changed file structure, now there's a folder for each module and its related files
+- Discord interactions now follow the correct setup of acknowledging the interaction and later updating the message
+- Since interaction token only lasts for 15 minutes paginations are now supposed to self destroy after 15 minutes
 
 ---
 
