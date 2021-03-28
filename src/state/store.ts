@@ -1,4 +1,4 @@
-import { createStore } from "redux";
+import { createStore } from 'redux';
 import {
   Actions,
   State,
@@ -13,8 +13,9 @@ import {
   SET_CHANNEL_LAST_ATTACHMENT,
   SET_DISCORD_SESSION,
   SET_DISCORD_LAST_S,
-} from "./types";
-import * as handler from "./handler";
+  REMOVE_PAGINATION,
+} from './types';
+import * as handler from './handler';
 
 const initialState: State = {
   ready: false,
@@ -63,6 +64,8 @@ const storeReducer = (state: State = initialState, action: Actions) => {
       return handler.SET_DISCORD_SESSION(state, action.session);
     case SET_DISCORD_LAST_S:
       return handler.SET_DISCORD_LAST_S(state, action.lastS);
+    case REMOVE_PAGINATION:
+      return handler.REMOVE_PAGINATION(state, action.data);
     default:
       return state;
   }

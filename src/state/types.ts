@@ -1,16 +1,17 @@
-import Pagination from "../helper/pagination";
+import Pagination from '../helper/pagination';
 
-export const SET_USER = "SET_USER";
-export const SET_APPLICATION = "SET_APPLICATION";
-export const SET_READY_CALLBACK = "SET_READY_CALLBACK";
-export const SET_COMMAND_EXECUTED_CALLBACK = "SET_COMMAND_EXECUTED_CALLBACK";
-export const SET_REACTION_CALLBACK = "SET_REACTION_CALLBACK";
-export const SET_CHANNEL_LAST_ATTACHMENT = "SET_CHANNEL_LAST_ATTACHMENT";
-export const SET_DISCORD_SESSION = "SET_DISCORD_SESSION";
-export const SET_DISCORD_LAST_S = "SET_DISCORD_LAST_S";
-export const ADD_GUILD = "ADD_GUILD";
-export const ADD_GUILD_MEMBERS = "ADD_GUILD_MEMBERS";
-export const ADD_PAGINATION = "ADD_PAGINATION";
+export const SET_USER = 'SET_USER';
+export const SET_APPLICATION = 'SET_APPLICATION';
+export const SET_READY_CALLBACK = 'SET_READY_CALLBACK';
+export const SET_COMMAND_EXECUTED_CALLBACK = 'SET_COMMAND_EXECUTED_CALLBACK';
+export const SET_REACTION_CALLBACK = 'SET_REACTION_CALLBACK';
+export const SET_CHANNEL_LAST_ATTACHMENT = 'SET_CHANNEL_LAST_ATTACHMENT';
+export const SET_DISCORD_SESSION = 'SET_DISCORD_SESSION';
+export const SET_DISCORD_LAST_S = 'SET_DISCORD_LAST_S';
+export const ADD_GUILD = 'ADD_GUILD';
+export const ADD_GUILD_MEMBERS = 'ADD_GUILD_MEMBERS';
+export const ADD_PAGINATION = 'ADD_PAGINATION';
+export const REMOVE_PAGINATION = 'REMOVE_PAGINATION';
 
 export interface State {
   ready: boolean;
@@ -62,6 +63,11 @@ export interface AddPagination {
   data: Pagination<any>;
 }
 
+export interface RemovePagination {
+  type: typeof REMOVE_PAGINATION;
+  data: Pagination<any>;
+}
+
 export interface SetCommandExecutedCallback {
   type: typeof SET_COMMAND_EXECUTED_CALLBACK;
   callback: (data: discord.interaction) => void;
@@ -102,4 +108,5 @@ export type Actions =
   | SetDiscordLastS
   | AddGuild
   | AddGuildMembers
-  | AddPagination;
+  | AddPagination
+  | RemovePagination;

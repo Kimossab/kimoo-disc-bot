@@ -1,30 +1,30 @@
-import fs from "fs";
-import https from "https";
-import axios from "axios";
-import FormData from "form-data";
-import { formatSecondsIntoMinutes, stringReplacer } from "../helper/common";
-import Pagination from "../helper/pagination";
-import messageList from "../helper/messages";
-import { editMessage, sendMessage } from "../discord/rest";
-import Logger from "../helper/logger";
-import { addPagination } from "../state/actions";
+import fs from 'fs';
+import https from 'https';
+import axios from 'axios';
+import FormData from 'form-data';
+import { formatSecondsIntoMinutes, stringReplacer } from '../helper/common';
+import Pagination from '../helper/pagination';
+import messageList from '../helper/messages';
+import { editMessage, editOriginalInteractionResponse } from '../discord/rest';
+import Logger from '../helper/logger';
+import { addPagination, getApplication } from '../state/actions';
 
-const _logger = new Logger("sauce-trace-moe");
+const _logger = new Logger('sauce-trace-moe');
 
 const download = async (url: string, dest: string): Promise<boolean> => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const file = fs.createWriteStream(dest);
 
     https
-      .get(url, response => {
+      .get(url, (response) => {
         response.pipe(file);
 
-        file.on("finish", () => {
+        file.on('finish', () => {
           file.close();
           resolve(true);
         });
       })
-      .on("error", function (err) {
+      .on('error', function (err) {
         fs.unlink(dest, () => {
           resolve(false);
         });
@@ -63,15 +63,15 @@ const traceMoeEmbed = (
   description.push(`@${formatSecondsIntoMinutes(item.from)}`);
 
   const embed: discord.embed = {
-    title: title.length ? title.join(" - ") : "UNKNOWN",
-    description: description.join(" "),
+    title: title.length ? title.join(' - ') : 'UNKNOWN',
+    description: description.join(' '),
     color: 3035554,
     url: `https://myanimelist.net/anime/${item.anilist.idMal}`,
     fields: [
       {
         name: messageList.sauce.similarity,
-        value: `${Math.round(item.similarity * 100)}%`
-      }
+        value: `${Math.round(item.similarity * 100)}%`,
+      },
       // {
       //   name: messageList.sauce.season,
       //   value: item.season === "" ? "N/A" : item.season
@@ -85,57 +85,62 @@ const traceMoeEmbed = (
     //   }`
     // },
     image: {
-      url: item.image
+      url: item.image,
     },
     footer: {
-      text: stringReplacer(messageList.common.page, { page, total })
-    }
+      text: stringReplacer(messageList.common.page, { page, total }),
+    },
   };
 
   if (item.anilist.synonyms.length > 0) {
     embed.fields?.push({
       name: messageList.sauce.other_names,
-      value: item.anilist.synonyms.join(" | ")
+      value: item.anilist.synonyms.join(' | '),
     });
   }
 
   embed.fields?.push({
     name: `⠀`,
-    value: `[Video](${item.video})`
+    value: `[Video](${item.video})`,
   });
 
   return embed;
 };
 
 const traceMoeUpdatePage = async (
-  channel: string,
-  message: string,
   data: TraceMoe.resultData,
   page: number,
-  total: number
+  total: number,
+  token: string
 ): Promise<void> => {
-  await editMessage(channel, message, "", traceMoeEmbed(data, page, total));
+  const app = getApplication();
+  if (app) {
+    await editOriginalInteractionResponse(app.id, token, {
+      content: '',
+      embeds: [traceMoeEmbed(data, page, total)],
+    });
+  }
 };
 
 const requestTraceMoe = async (
   image: string
 ): Promise<TraceMoe.response | null> => {
   try {
-    const result = await download(image, "trash/trash.png");
+    const result = await download(image, 'trash/trash.png');
 
     if (result) {
       const data = new FormData();
-      data.append("image", fs.createReadStream("trash/trash.png"));
+      data.append('image', fs.createReadStream('trash/trash.png'));
 
       const res = await axios.post(`https://api.trace.moe/search`, data, {
-        headers: data.getHeaders()
+        headers: data.getHeaders(),
       });
       return res.data;
     }
 
     return null;
   } catch (e) {
-    _logger.error("Requestion sauce trace moe", e.toJSON());
+    _logger.error('Requestion sauce trace moe', e.toJSON());
   }
 
   return null;
@@ -145,29 +150,34 @@ const handleTraceMoe = async (
   data: discord.interaction,
   image: string
 ): Promise<void> => {
-  //https://soruly.github.io/trace.moe/#/
-  const traceMoe = await requestTraceMoe(image);
+  const app = getApplication();
+  if (app) {
+    //https://soruly.github.io/trace.moe/#/
+    const traceMoe = await requestTraceMoe(image);
 
-  if (!traceMoe || traceMoe.result.length === 0) {
-    await sendMessage(data.channel_id, messageList.sauce.not_found);
-    return;
-  }
+    if (!traceMoe || traceMoe.result.length === 0) {
+      await editOriginalInteractionResponse(app.id, data.token, {
+        content: messageList.sauce.not_found,
+      });
+      return;
+    }
 
-  const message = await sendMessage(
-    data.channel_id,
-    "",
-    traceMoeEmbed(traceMoe.result[0], 1, traceMoe.result.length)
-  );
+    const message = await editOriginalInteractionResponse(app.id, data.token, {
+      content: '',
+      embeds: [traceMoeEmbed(traceMoe.result[0], 1, traceMoe.result.length)],
+    });
 
-  if (message) {
-    const pagination = new Pagination<TraceMoe.resultData>(
-      data.channel_id,
-      message.id,
-      traceMoe.result,
-      traceMoeUpdatePage
-    );
+    if (message) {
+      const pagination = new Pagination<TraceMoe.resultData>(
+        data.channel_id,
+        message.id,
+        traceMoe.result,
+        traceMoeUpdatePage,
+        data.token
+      );
 
-    addPagination(pagination);
+      addPagination(pagination);
+    }
   }
 };
 

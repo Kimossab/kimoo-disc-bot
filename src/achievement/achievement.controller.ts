@@ -1,17 +1,17 @@
 import AchievementRank, {
-  IAchievementRank
-} from "./models/achievement-rank.model";
-import Achievement, { IAchievement } from "./models/achievement.model";
+  IAchievementRank,
+} from './models/achievement-rank.model';
+import Achievement, { IAchievement } from './models/achievement.model';
 import UserAchievement, {
-  IUserAchievement
-} from "./models/user-achievement.model";
+  IUserAchievement,
+} from './models/user-achievement.model';
 
 const getHighestId = async (server: string): Promise<number> => {
   const ach: IAchievement = await Achievement.findOne({ server }, null, {
     sort: {
-      id: -1
+      id: -1,
     },
-    limit: 1
+    limit: 1,
   });
 
   return ach ? ach.id : 0;
@@ -29,7 +29,7 @@ export const getAchievement = async (
 ): Promise<IAchievement | null> => {
   return Achievement.findOne({
     server,
-    name
+    name,
   });
 };
 
@@ -39,7 +39,7 @@ export const getAchievementById = async (
 ): Promise<IAchievement | null> => {
   return Achievement.findOne({
     server,
-    id
+    id,
   });
 };
 
@@ -47,7 +47,7 @@ export const getServerAchievements = async (
   server: string
 ): Promise<IAchievement[]> => {
   return Achievement.find({
-    server
+    server,
   });
 };
 
@@ -78,6 +78,48 @@ export const createAchievement = async (
   }
 };
 
+export const updateAchievement = async (
+  server: string,
+  id: number,
+  name: string | null,
+  image: string | null,
+  description: string | null,
+  points: number | null
+): Promise<IAchievement | null> => {
+  const ach = await getAchievementById(server, id);
+  if (ach) {
+    if (server) {
+      ach.server = server;
+    }
+    if (name) {
+      ach.name = name;
+    }
+    if (image) {
+      ach.image = image;
+    }
+    if (description) {
+      ach.description = description;
+    }
+    if (points) {
+      ach.points = points;
+    }
+
+    await ach.save();
+  }
+
+  return ach;
+};
+
+export const deleteAchievement = async (
+  server: string,
+  id: number
+): Promise<void> => {
+  const ach = await getAchievementById(server, id);
+  if (ach) {
+    await ach.delete();
+  }
+};
+
 // USER ACHIEVEMENTS
 export const getUserAchievement = async (
   server: string,
@@ -87,7 +129,7 @@ export const getUserAchievement = async (
   return UserAchievement.findOne({
     server,
     user,
-    achievement: achievement._id
+    achievement: achievement._id,
   });
 };
 
@@ -97,8 +139,8 @@ export const getAllUserAchievements = async (
 ): Promise<IUserAchievement[]> => {
   return UserAchievement.find({
     server,
-    user
-  }).populate("achievement");
+    user,
+  }).populate('achievement');
 };
 
 export const getServerAchievementLeaderboard = async (
@@ -108,39 +150,39 @@ export const getServerAchievementLeaderboard = async (
     [
       {
         $match: {
-          server: server
-        }
+          server: server,
+        },
       },
       {
         $group: {
-          _id: "$user",
+          _id: '$user',
           achievement: {
-            $push: "$achievement"
-          }
-        }
+            $push: '$achievement',
+          },
+        },
       },
       {
         $lookup: {
-          from: "achievements",
-          localField: "achievement",
-          foreignField: "_id",
-          as: "achievement"
-        }
+          from: 'achievements',
+          localField: 'achievement',
+          foreignField: '_id',
+          as: 'achievement',
+        },
       },
       {
         $project: {
           _id: 0,
-          user: "$_id",
+          user: '$_id',
           points: {
-            $sum: "$achievement.points"
-          }
-        }
+            $sum: '$achievement.points',
+          },
+        },
       },
       {
         $lookup: {
-          from: "achievementranks",
+          from: 'achievementranks',
           let: {
-            user_points: "$points"
+            user_points: '$points',
           },
           pipeline: [
             {
@@ -148,39 +190,39 @@ export const getServerAchievementLeaderboard = async (
                 $expr: {
                   $and: [
                     {
-                      $lte: ["$points", "$$user_points"]
+                      $lte: ['$points', '$$user_points'],
                     },
                     {
-                      $eq: ["$server", server]
-                    }
-                  ]
-                }
-              }
+                      $eq: ['$server', server],
+                    },
+                  ],
+                },
+              },
             },
             {
               $sort: {
-                points: -1
-              }
-            }
+                points: -1,
+              },
+            },
           ],
-          as: "rank"
-        }
+          as: 'rank',
+        },
       },
       {
         $sort: {
-          points: -1
-        }
+          points: -1,
+        },
       },
       {
         $project: {
-          user: "$user",
-          points: "$points",
+          user: '$user',
+          points: '$points',
           rank: {
-            $arrayElemAt: ["$rank.name", 0]
-          }
-        }
-      }
-    ]
+            $arrayElemAt: ['$rank.name', 0],
+          },
+        },
+      },
+    ],
   ]);
 };
 
@@ -206,7 +248,7 @@ export const getRankByName = async (
 ): Promise<IAchievementRank | null> => {
   return AchievementRank.findOne({
     server,
-    name
+    name,
   });
 };
 
@@ -216,7 +258,7 @@ export const getRankByPoints = async (
 ): Promise<IAchievementRank | null> => {
   return AchievementRank.findOne({
     server,
-    points
+    points,
   });
 };
 
@@ -224,7 +266,7 @@ export const getServerRanks = async (
   server: string
 ): Promise<IAchievementRank[]> => {
   return AchievementRank.find({
-    server
+    server,
   });
 };
 
@@ -240,4 +282,15 @@ export const createRank = async (
   rank.points = points;
 
   await rank.save();
+};
+
+export const deleteRank = async (
+  server: string,
+  name: string
+): Promise<void> => {
+  const rank = await getRankByName(server, name);
+
+  if (rank) {
+    rank.delete();
+  }
 };

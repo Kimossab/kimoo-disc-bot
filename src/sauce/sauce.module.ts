@@ -1,45 +1,49 @@
-import { createInteractionResponse } from "../discord/rest";
-import { interaction_response_type } from "../helper/constants";
-import Logger from "../helper/logger";
 import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from '../discord/rest';
+import { interaction_response_type } from '../helper/constants';
+import Logger from '../helper/logger';
+import {
+  getApplication,
   getChannelLastAttchment,
-  setCommandExecutedCallback
-} from "../state/actions";
-import messageList from "../helper/messages";
-import handleTraceMoe from "./trace-moe";
-import handleSauceNao from "./sauce-nao";
-import { getOptionValue } from "../helper/modules.helper";
+  setCommandExecutedCallback,
+} from '../state/actions';
+import messageList from '../helper/messages';
+import handleTraceMoe from './trace-moe';
+import handleSauceNao from './sauce-nao';
+import { getOptionValue } from '../helper/modules.helper';
 
-const _logger = new Logger("sauce");
+const _logger = new Logger('sauce');
 let firstSetup = true;
 
 const commandExecuted = async (data: discord.interaction): Promise<void> => {
-  if (data.data && data.data.name === "sauce") {
-    const type = getOptionValue<string>(data.data.options, "type");
-    const image = getOptionValue<string>(data.data.options, "image");
-    const lastAttachment = getChannelLastAttchment(data.channel_id);
-
-    if (!image && !lastAttachment) {
+  const app = getApplication();
+  if (app) {
+    if (data.data && data.data.name === 'sauce') {
       await createInteractionResponse(data.id, data.token, {
-        type: interaction_response_type.channel_message_with_source,
-        data: {
-          content: messageList.sauce.image_not_found
-        }
+        type: interaction_response_type.acknowledge_with_source,
       });
-      return;
-    }
 
-    await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.acknowledge
-    });
+      const type = getOptionValue<string>(data.data.options, 'type');
+      const image = getOptionValue<string>(data.data.options, 'image');
+      const lastAttachment = getChannelLastAttchment(data.channel_id);
 
-    let url = image ?? lastAttachment;
+      if (!image && !lastAttachment) {
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.sauce.image_not_found,
+        });
+        return;
+      }
 
-    if (type === "anime") {
-      //anime
-      handleTraceMoe(data, url);
-    } else {
-      handleSauceNao(data, url);
+      let url = image ?? lastAttachment;
+
+      if (type === 'anime') {
+        //anime
+        handleTraceMoe(data, url);
+      } else {
+        handleSauceNao(data, url);
+      }
     }
   }
 };

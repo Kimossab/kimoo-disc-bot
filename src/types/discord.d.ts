@@ -1,7 +1,7 @@
 type snowflake = string;
 
 declare namespace discord {
-  type allowed_mentions_types = "roles" | "users" | "everyone";
+  type allowed_mentions_types = 'roles' | 'users' | 'everyone';
   type application_command_option_type = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
   declare interface session_start_limit {
@@ -43,7 +43,7 @@ declare namespace discord {
   declare interface update_status {
     since: ?number;
     activities: ?activity[];
-    status: "online" | "dnd" | "idle" | "invisible" | "offline";
+    status: 'online' | 'dnd' | 'idle' | 'invisible' | 'offline';
     afk: boolean;
   }
 
@@ -327,7 +327,7 @@ declare namespace discord {
   }
   declare interface embed {
     title?: string;
-    type?: "rich" | "image" | "video" | "gifv" | "article" | "link";
+    type?: 'rich' | 'image' | 'video' | 'gifv' | 'article' | 'link';
     description?: string;
     url?: string;
     timestamp?: number;
@@ -516,10 +516,17 @@ declare namespace discord {
     content: string; // message content
     embeds?: embed[]; // supports up to 10 embeds
     allowed_mentions?: allowed_mentions; // allowed mentions object
+    flags?: 64; //set to 64 to make your response ephemeral
   }
 
   declare interface interaction_response {
-    type: 1 | 2 | 3 | 4 | 5; // the type of response
+    type: 1 | 4 | 5; // the type of response
     data?: interaction_application_command_callback_data; // an optional response message
+  }
+
+  declare interface edit_webhook_message_request {
+    content: string; //	the message contents (up to 2000 characters)
+    embeds?: embed[]; //	array of up to 10 embed objects	embedded rich content
+    allowed_mentions?: allowed_mentions; // allowed mentions for the message
   }
 }

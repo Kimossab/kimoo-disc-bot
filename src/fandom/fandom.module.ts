@@ -1,17 +1,20 @@
-import axios from "axios";
+import axios from 'axios';
 import {
   createInteractionResponse,
-  editMessage,
-  sendMessage
-} from "../discord/rest";
-import Logger from "../helper/logger";
-import Pagination from "../helper/pagination";
-import { addPagination, setCommandExecutedCallback } from "../state/actions";
-import { FANDOM_LINKS, interaction_response_type } from "../helper/constants";
-import messageList from "../helper/messages";
-import { getOptionValue } from "../helper/modules.helper";
+  editOriginalInteractionResponse,
+} from '../discord/rest';
+import Logger from '../helper/logger';
+import Pagination from '../helper/pagination';
+import {
+  addPagination,
+  getApplication,
+  setCommandExecutedCallback,
+} from '../state/actions';
+import { FANDOM_LINKS, interaction_response_type } from '../helper/constants';
+import messageList from '../helper/messages';
+import { getOptionValue } from '../helper/modules.helper';
 
-const _logger = new Logger("fandom");
+const _logger = new Logger('fandom');
 let firstSetup: boolean = true;
 
 const requestFandom = async (
@@ -31,50 +34,63 @@ const requestFandom = async (
 };
 
 const updatePage = async (
-  channel: string,
-  message: string,
   data: string,
   page: number,
-  total: number
+  total: number,
+  token: string
 ): Promise<void> => {
-  await editMessage(channel, message, data);
+  // await editMessage(channel, message, data);
+  const app = getApplication();
+  if (app) {
+    await editOriginalInteractionResponse(app.id, token, {
+      content: data,
+    });
+  }
 };
 
 const commandExecuted = async (data: discord.interaction): Promise<void> => {
-  if (data.data && data.data.name === "wiki" && data.data.options) {
-    const slug = getOptionValue<string>(data.data.options, "fandom");
-    const query = getOptionValue<string>(data.data.options, "query");
-
-    if (slug!.includes(" ")) {
+  const app = getApplication();
+  if (app) {
+    if (data.data && data.data.name === 'wiki' && data.data.options) {
       await createInteractionResponse(data.id, data.token, {
-        type: interaction_response_type.channel_message_with_source,
-        data: {
-          content: messageList.fandom.invalid_slug
-        }
+        type: interaction_response_type.acknowledge_with_source,
       });
 
-      return;
-    }
+      const slug = getOptionValue<string>(data.data.options, 'fandom');
+      const query = getOptionValue<string>(data.data.options, 'query');
 
-    await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.acknowledge_with_source
-    });
+      if (slug!.includes(' ')) {
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.fandom.invalid_slug,
+        });
+        return;
+      }
 
-    const fandom = FANDOM_LINKS[slug!] ? FANDOM_LINKS[slug!] : slug!;
+      const fandom = FANDOM_LINKS[slug!] ? FANDOM_LINKS[slug!] : slug!;
 
-    const links = await requestFandom(fandom, query!);
+      const links = await requestFandom(fandom, query!);
 
-    if (links) {
-      const message = await sendMessage(data.channel_id, links[0]);
-      if (message) {
-        const pagination = new Pagination<string>(
-          data.channel_id,
-          message.id,
-          links,
-          updatePage
+      if (links) {
+        const app = getApplication();
+        const message = await editOriginalInteractionResponse(
+          app?.id!,
+          data.token,
+          {
+            content: links[0],
+          }
         );
 
-        addPagination(pagination);
+        if (message) {
+          const pagination = new Pagination<string>(
+            data.channel_id,
+            message.id,
+            links,
+            updatePage,
+            data.token
+          );
+
+          addPagination(pagination);
+        }
       }
     }
   }

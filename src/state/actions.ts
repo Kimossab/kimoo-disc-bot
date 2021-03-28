@@ -9,9 +9,11 @@ import {
   SET_CHANNEL_LAST_ATTACHMENT,
   SET_DISCORD_SESSION,
   SET_DISCORD_LAST_S,
-} from "./types";
-import store from "./store";
-import Pagination from "../helper/pagination";
+  REMOVE_PAGINATION,
+} from './types';
+import store from './store';
+import Pagination from '../helper/pagination';
+import { DISCORD_TOKEN_TTL } from '../helper/constants';
 
 /**
  * Adds a callback for when discord says it's ready
@@ -134,6 +136,13 @@ export const addPagination = (data: Pagination<any>): void => {
     type: ADD_PAGINATION,
     data,
   });
+
+  setTimeout(() => {
+    store.dispatch({
+      type: REMOVE_PAGINATION,
+      data,
+    });
+  }, DISCORD_TOKEN_TTL);
 };
 
 /**

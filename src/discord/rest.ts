@@ -1,4 +1,4 @@
-import RestRateLimitHandler from "./rest-rate-limit-handler";
+import RestRateLimitHandler from './rest-rate-limit-handler';
 
 const rateLimiter = new RestRateLimitHandler();
 
@@ -6,7 +6,7 @@ const rateLimiter = new RestRateLimitHandler();
  * Request the gateway bot from discord
  */
 export const getGatewayBot = (): Promise<discord.gateway_bot | null> => {
-  return rateLimiter.request<discord.gateway_bot>("GET", "/gateway/bot");
+  return rateLimiter.request<discord.gateway_bot>('GET', '/gateway/bot');
 };
 
 // messages
@@ -27,7 +27,7 @@ export const sendMessage = (
   }
 
   return rateLimiter.request<discord.message>(
-    "POST",
+    'POST',
     `/channels/${channel}/messages`,
     message
   );
@@ -52,7 +52,7 @@ export const editMessage = (
   }
 
   return rateLimiter.request<discord.message>(
-    "PATCH",
+    'PATCH',
     `/channels/${channel}/messages/${message}`,
     messageData
   );
@@ -71,7 +71,7 @@ export const createReaction = (
   reaction: string
 ): Promise<void | null> => {
   return rateLimiter.request<void>(
-    "PUT",
+    'PUT',
     `/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(
       reaction
     )}/@me`
@@ -87,7 +87,7 @@ export const getCommands = (
   application: string
 ): Promise<discord.application_command[] | null> => {
   return rateLimiter.request<discord.application_command[]>(
-    "GET",
+    'GET',
     `/applications/${application}/commands`
   );
 };
@@ -102,7 +102,7 @@ export const deleteCommand = (
   command: string
 ): Promise<void | null> => {
   return rateLimiter.request<void>(
-    "DELETE",
+    'DELETE',
     `/applications/${application}/commands/${command}`
   );
 };
@@ -117,7 +117,7 @@ export const createCommand = (
   command: discord.application_command
 ): Promise<discord.application_command | null> => {
   return rateLimiter.request<discord.application_command>(
-    "POST",
+    'POST',
     `/applications/${application}/commands`,
     command
   );
@@ -135,8 +135,20 @@ export const createInteractionResponse = (
   data: discord.interaction_response
 ): Promise<void | null> => {
   return rateLimiter.request<void>(
-    "POST",
+    'POST',
     `/interactions/${interaction}/${token}/callback`,
+    data
+  );
+};
+
+export const editOriginalInteractionResponse = (
+  applicationId: string,
+  token: string,
+  data: discord.edit_webhook_message_request
+): Promise<discord.message | null> => {
+  return rateLimiter.request<discord.message>(
+    'PATCH',
+    `/webhooks/${applicationId}/${token}/messages/@original`,
     data
   );
 };

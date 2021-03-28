@@ -1,5 +1,5 @@
-import Pagination from "../helper/pagination";
-import { State } from "./types";
+import Pagination from '../helper/pagination';
+import { State } from './types';
 
 export const SET_USER = (state: State, user: discord.user): State => {
   return {
@@ -96,5 +96,19 @@ export const SET_DISCORD_LAST_S = (
   return {
     ...state,
     discordLastS: lastS,
+  };
+};
+
+export const REMOVE_PAGINATION = (
+  state: State,
+  data: Pagination<any>
+): State => {
+  const filtered = state.allPaginations.filter(
+    (p) => p.message !== data.message
+  );
+
+  return {
+    ...state,
+    allPaginations: filtered,
   };
 };

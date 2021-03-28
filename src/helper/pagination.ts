@@ -1,12 +1,11 @@
-import { createReaction } from "../discord/rest";
-import { isReady } from "../state/actions";
+import { createReaction } from '../discord/rest';
+import { isReady } from '../state/actions';
 
 declare type pagination_callback<T> = (
-  channel: string,
-  message: string,
   data: T,
   page: number,
-  total: number
+  total: number,
+  token: string
 ) => void;
 
 class Pagination<T> {
@@ -15,35 +14,37 @@ class Pagination<T> {
   private _data: T[];
   private _callback: pagination_callback<T>;
   private _page = 1;
+  private _token: string;
 
   constructor(
     channel: string,
     message: string,
     data: T[],
-    callback: pagination_callback<T>
+    callback: pagination_callback<T>,
+    token: string
   ) {
     this._channel = channel;
     this._message = message;
     this._data = data;
     this._callback = callback;
+    this._token = token;
 
     if (isReady()) {
       const channel = this._channel;
       const message = this._message;
       (async () => {
-        await createReaction(channel, message, "◀");
-        await createReaction(channel, message, "▶");
+        await createReaction(channel, message, '◀');
+        await createReaction(channel, message, '▶');
       })();
     }
   }
 
   private emitCallback() {
     this._callback(
-      this._channel,
-      this._message,
       this._data[this._page - 1],
       this._page,
-      this._data.length
+      this._data.length,
+      this._token
     );
   }
 
