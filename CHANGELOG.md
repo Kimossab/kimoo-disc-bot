@@ -2,7 +2,18 @@
 
 ## Unreleased
 
-- Tests
+- Tests & comments
+- VNDB
+  - messages
+  - more commands?
+
+---
+
+## [2.3.0] - 2021-04-03
+
+### Added
+
+- Added VNDB module
 
 ---
 

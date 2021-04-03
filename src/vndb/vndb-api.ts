@@ -85,7 +85,7 @@ export class VNDBApi {
         data: {
           protocol: 1,
           client: 'kimoo-disc-bot',
-          clientver: '0.0.1',
+          clientver: '2.3.0',
         },
       }),
       (data): void => {
