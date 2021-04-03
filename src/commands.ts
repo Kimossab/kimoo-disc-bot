@@ -1,6 +1,6 @@
 import { application_command_option_type } from './helper/constants';
 
-export const version = '1.1.0-beta';
+export const version = '1.2.0';
 
 export const list: discord.application_command[] = [
   {
@@ -437,6 +437,18 @@ export const list: discord.application_command[] = [
             required: true,
           },
         ],
+      },
+    ],
+  },
+  {
+    name: 'vn',
+    description: 'Gets Visual Novel information',
+    options: [
+      {
+        name: 'search',
+        description: 'Title to search for',
+        type: application_command_option_type.STRING,
+        required: true,
       },
     ],
   },

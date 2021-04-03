@@ -15,7 +15,7 @@
     "scope": "typescript",
     "prefix": "newmodule",
     "body": [
-      "import { setCommandExecutedCallback } from \"../../state/actions\";",
+      "import { setCommandExecutedCallback } from \"../state/actions\";",
       "",
       "let firstSetup = true;",
       "",

@@ -33,8 +33,8 @@
 ### Fixed
 
 - Birthday timeout calculation (it was sending at 02:02:02 instead of 00:00:00)
-- Small bug fixes like mising values in embeds in messages
-- 
+- Small bug fixes like missing values in embeds in messages
+
 ---
 
 ## [2.1.1] - 2021-01-27

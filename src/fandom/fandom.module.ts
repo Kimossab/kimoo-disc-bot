@@ -39,7 +39,6 @@ const updatePage = async (
   total: number,
   token: string
 ): Promise<void> => {
-  // await editMessage(channel, message, data);
   const app = getApplication();
   if (app) {
     await editOriginalInteractionResponse(app.id, token, {
