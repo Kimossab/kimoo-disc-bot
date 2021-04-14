@@ -1,4 +1,5 @@
 import net from 'net';
+import { stringReplacer } from '../helper/common';
 import Logger from '../helper/logger';
 import { operators, VNDB } from './types';
 
@@ -17,7 +18,7 @@ export type vndb_get_vn = VNDB.return_data.get_vn &
 
 export class VNDBApi {
   private client: net.Socket;
-  private logger = new Logger('VNDBTcp');
+  private logger = new Logger('VNDBApi');
   private queue: VNDB.queue[] = [];
   private waitingReply = false;
   private commandTimeout: NodeJS.Timeout | null = null;
@@ -29,32 +30,12 @@ export class VNDBApi {
       {
         host: VNDB_API,
         port: VNDB_PORT,
-        onread: {
-          buffer: Buffer.alloc(RESPONSE_BYTE_BUFFER),
-          callback: (nread, buf: Buffer) => {
-            const end = buf.includes(0x04);
-
-            const str = buf.toString('utf8', 0, end ? nread - 1 : nread);
-
-            if (this.responseBuffer === null) {
-              this.responseBuffer = str;
-            } else {
-              this.responseBuffer += str;
-            }
-
-            if (end) {
-              this.onData(this.responseBuffer);
-              this.responseBuffer = null;
-            }
-
-            return true;
-          },
-        },
       },
       () => this.onConnect()
     );
 
     this.client.on('end', () => this.OnEnd());
+    this.client.on('data', (data) => this.OnData(data));
   }
 
   // EVENTS
@@ -63,7 +44,24 @@ export class VNDBApi {
     this.login();
   }
 
-  private onData(data: string): void {
+  private OnData(data: Buffer): void {
+    const end = data.includes(0x04);
+
+    const str = data.toString('utf8');
+
+    if (this.responseBuffer === null) {
+      this.responseBuffer = str;
+    } else {
+      this.responseBuffer += str;
+    }
+
+    if (end) {
+      this.onDataStr(this.responseBuffer);
+      this.responseBuffer = null;
+    }
+  }
+
+  private onDataStr(data: string): void {
     if (data.startsWith('error')) {
       const sData = data.substring(6);
       this.queueResolve(null);
@@ -116,7 +114,7 @@ export class VNDBApi {
       this.addQueue(this.formatCommand(searchCommand), (data) => {
         if (data) {
           if (data.startsWith('results')) {
-            data = data.slice(8);
+            data = data.slice(8, data.length - 1);
           }
           const parsed: VNDB.return_data.data<vndb_get_vn> = JSON.parse(data);
 

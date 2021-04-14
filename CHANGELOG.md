@@ -9,6 +9,13 @@
 
 ---
 
+## [2.3.1] - 2021-04-14
+
+### Fixed
+
+- VNDB TCP communication behaviour
+- Achievement's link to images that don't exist (shows up as `null` on mobile)
+
 ## [2.3.0] - 2021-04-03
 
 ### Added

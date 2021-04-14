@@ -106,10 +106,13 @@ const createAchievementGivenEmbed = (
   const embed: discord.embed = {
     title: messageList.achievements.new_achievement_awarded,
     description: descMessage,
-    image: {
-      url: achievement.image,
-    },
   };
+
+  if (achievement.image) {
+    embed.image = {
+      url: achievement.image,
+    };
+  }
 
   return embed;
 };
@@ -169,7 +172,12 @@ const createUserAchievementsEmbed = (
   }
 
   for (const ach of data) {
-    embed.description += `${ach.achievement.id} - [${ach.achievement.name}](${ach.achievement.image})`;
+    embed.description += `${ach.achievement.id} - `;
+    if (ach.achievement.image) {
+      embed.description += `[${ach.achievement.name}](${ach.achievement.image})`;
+    } else {
+      embed.description += ach.achievement.name;
+    }
 
     embed.description +=
       ' - ' +
@@ -213,7 +221,12 @@ const createServerAchievementsEmbed = (
   }
 
   for (const ach of data) {
-    embed.description += `${ach.id} - [${ach.name}](${ach.image})`;
+    embed.description += `${ach.id} - `;
+    if (ach.image) {
+      embed.description += `[${ach.name}](${ach.image}))`;
+    } else {
+      embed.description += ach.name;
+    }
     if (ach.description) {
       embed.description += ` - ${ach.description}`;
     }
@@ -517,7 +530,7 @@ const handleRankCreateCommand = async (
     const name = getOptionValue<string>(option.options, 'name');
     const points = getOptionValue<number>(option.options, 'points');
 
-    if (!name || !points) {
+    if (name === null || points === null) {
       return;
     }
 
@@ -621,13 +634,7 @@ const handleCreateCommand = async (
       return;
     }
 
-    await createAchievement(
-      data.guild_id,
-      name!,
-      image!,
-      description!,
-      points!
-    );
+    await createAchievement(data.guild_id, name!, image, description!, points!);
 
     await editOriginalInteractionResponse(app.id, data.token, {
       content: stringReplacer(messageList.achievements.create_success, {

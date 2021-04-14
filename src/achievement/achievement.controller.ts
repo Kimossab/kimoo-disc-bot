@@ -61,7 +61,7 @@ export const getServerAchievements = async (
 export const createAchievement = async (
   server: string,
   name: string,
-  image: string,
+  image: string | null,
   description: string,
   points: number
 ): Promise<void> => {

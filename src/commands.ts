@@ -1,6 +1,6 @@
 import { application_command_option_type } from './helper/constants';
 
-export const version = '1.2.0';
+export const version = '1.2.1';
 
 export const list: discord.application_command[] = [
   {
@@ -279,7 +279,7 @@ export const list: discord.application_command[] = [
             name: 'image',
             description: 'Achievement image URL',
             type: application_command_option_type.STRING,
-            required: true,
+            required: false,
           },
         ],
       },

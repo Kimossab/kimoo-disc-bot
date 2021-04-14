@@ -407,7 +407,7 @@ const checkBirthdays = async () => {
     milliseconds + //ms to next s
     (60 - seconds) * 1000 + //s to next m
     (60 - minutes - 1) * 60 * 1000 + //m to next h
-    ((hours > 12 ? 24 : 12) - hours - 1) * 60 * 60 * 1000; //h to next 12/24
+    ((hours >= 12 ? 24 : 12) - hours - 1) * 60 * 60 * 1000; //h to next 12/24
 
   _logger.log(`next check in ${time} milliseconds`);
 
