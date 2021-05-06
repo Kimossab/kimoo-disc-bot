@@ -2,6 +2,7 @@ import Logger from '../helper/logger';
 import Parser from 'rss-parser';
 import {
   checkSubscription,
+  getAnimeInfo,
   getLastRequest,
   getSubscriptions,
   getUserSubscriptions,
@@ -19,14 +20,19 @@ import {
   sendMessage,
 } from '../discord/rest';
 import { interaction_response_type } from '../helper/constants';
-import { getApplication, setCommandExecutedCallback } from '../state/actions';
+import {
+  addPagination,
+  getApplication,
+  setCommandExecutedCallback,
+} from '../state/actions';
 import messageList from '../helper/messages';
-import { checkAdmin, stringReplacer } from '../helper/common';
+import { checkAdmin, chunkArray, stringReplacer } from '../helper/common';
 import { getOption, getOptionValue } from '../helper/modules.helper';
+import { ILivechartAnimeInfo } from './anime-info.model';
+import Pagination from '../helper/pagination';
 
 export const name = 'livechart';
 
-const LIVE_CHART_ANIME_URL = 'https://www.livechart.me/anime/';
 const INTERVAL_TIME = 15;
 
 const _logger = new Logger(name);
@@ -107,6 +113,76 @@ const checkRss = async (): Promise<void> => {
   }
 };
 
+const animeInfoEmbed = (data: ILivechartAnimeInfo): discord.embed => {
+  const embed: discord.embed = {
+    title: data.title || data.id.toString(),
+    url: data.url,
+    color: 3905532,
+    provider: {
+      name: 'LiveChart.me',
+      url: 'https://www.livechart.me',
+    },
+  };
+
+  if (data.description) {
+    embed.description = data.description;
+  }
+
+  if (data.image) {
+    embed.image = {
+      url: data.image,
+    };
+  }
+
+  return embed;
+};
+
+const updateListPage = async (
+  data: number[],
+  page: number,
+  total: number,
+  token: string,
+  userInfo: Nullable<discord.guild_member>
+) => {
+  const app = getApplication();
+  if (app) {
+    await editOriginalInteractionResponse(app.id, token, {
+      content: '',
+      embeds: [await itemListEmbed(data, page, total, userInfo)],
+    });
+  }
+};
+
+const itemListEmbed = async (
+  items: number[],
+  page: number,
+  total: number,
+  member: Nullable<discord.guild_member>
+): Promise<discord.embed> => {
+  const embed: discord.embed = {
+    title: stringReplacer(messageList.livechart.list, {
+      user: `${member?.user?.username}#${member?.user?.discriminator}`,
+    }),
+    color: 6465461,
+    fields: [],
+    footer: {
+      text: stringReplacer(messageList.common.page, { page, total }),
+    },
+  };
+
+  for (const l of items) {
+    const animeInfo = await getAnimeInfo(l);
+    if (animeInfo) {
+      embed.fields!.push({
+        name: animeInfo.title || animeInfo.id.toString(),
+        value: animeInfo.url,
+      });
+    }
+  }
+
+  return embed;
+};
+
 const handleCommandSet = async (
   data: discord.interaction,
   option: discord.application_command_interaction_data_option
@@ -158,6 +234,21 @@ const handleCommandSub = async (
       if (add) {
         const lcId = getOptionValue<number>(add.options, 'livechart_id');
 
+        if (!lcId) {
+          throw 'Missing id';
+        }
+
+        const animeInfo = await getAnimeInfo(lcId);
+
+        if (!animeInfo) {
+          await editOriginalInteractionResponse(app.id, data.token, {
+            content: stringReplacer(messageList.livechart.anime_not_found, {
+              id: `${lcId}`,
+            }),
+          });
+          return;
+        }
+
         const hasSub = await checkSubscription(
           data.guild_id,
           data.member.user!.id,
@@ -165,18 +256,23 @@ const handleCommandSub = async (
         );
 
         if (hasSub) {
+          const embed = animeInfoEmbed(animeInfo);
           await editOriginalInteractionResponse(app.id, data.token, {
             content: stringReplacer(messageList.livechart.sub_exists, {
-              link: `${LIVE_CHART_ANIME_URL}${lcId}`,
+              link: `[${animeInfo.title || animeInfo.url}](${animeInfo.url})`,
             }),
+            embeds: [embed],
           });
         } else {
           await setSubscription(data.guild_id, data.member.user!.id, lcId!);
 
+          const embed = animeInfoEmbed(animeInfo);
+
           await editOriginalInteractionResponse(app.id, data.token, {
             content: stringReplacer(messageList.livechart.sub_success, {
-              link: `${LIVE_CHART_ANIME_URL}${lcId}`,
+              link: `[${animeInfo.title || animeInfo.url}](${animeInfo.url})`,
             }),
+            embeds: [embed],
           });
         }
 
@@ -185,6 +281,21 @@ const handleCommandSub = async (
         );
       } else if (remove) {
         const lcId = getOptionValue<number>(remove.options, 'livechart_id');
+
+        if (!lcId) {
+          throw 'Missing id';
+        }
+
+        const animeInfo = await getAnimeInfo(lcId);
+
+        if (!animeInfo) {
+          await editOriginalInteractionResponse(app.id, data.token, {
+            content: stringReplacer(messageList.livechart.anime_not_found, {
+              id: `${lcId}`,
+            }),
+          });
+          return;
+        }
 
         const hasSub = await checkSubscription(
           data.guild_id,
@@ -197,13 +308,13 @@ const handleCommandSub = async (
 
           await editOriginalInteractionResponse(app.id, data.token, {
             content: stringReplacer(messageList.livechart.unsub_success, {
-              link: `${LIVE_CHART_ANIME_URL}${lcId}`,
+              link: `[${animeInfo.title || animeInfo.url}](${animeInfo.url})`,
             }),
           });
         } else {
           await editOriginalInteractionResponse(app.id, data.token, {
             content: stringReplacer(messageList.livechart.sub_doesnt_exists, {
-              link: `${LIVE_CHART_ANIME_URL}${lcId}`,
+              link: `[${animeInfo.title || animeInfo.url}](${animeInfo.url})`,
             }),
           });
         }
@@ -218,24 +329,34 @@ const handleCommandSub = async (
         );
 
         if (list.length) {
-          const embed: discord.embed = {
-            title: stringReplacer(messageList.livechart.list, {
-              user: `${data.member.user?.username}#${data.member.user?.discriminator}`,
-            }),
-            color: 6465461,
-            fields: [],
-          };
+          const chunks = chunkArray<number>(list, 10);
 
-          for (const l of list) {
-            embed.fields!.push({
-              name: l.toString(),
-              value: `${LIVE_CHART_ANIME_URL}${l}`,
-            });
+          const embed = await itemListEmbed(
+            chunks[0],
+            1,
+            chunks.length,
+            data.member
+          );
+          const message = await editOriginalInteractionResponse(
+            app.id,
+            data.token,
+            {
+              content: '',
+              embeds: [embed],
+            }
+          );
+          if (message && chunks.length > 1) {
+            const pagination = new Pagination<number[]>(
+              data.channel_id,
+              message.id,
+              chunks,
+              updateListPage,
+              data.token,
+              data.member
+            );
+
+            addPagination(pagination);
           }
-          await editOriginalInteractionResponse(app.id, data.token, {
-            content: ``,
-            embeds: [embed],
-          });
         } else {
           await editOriginalInteractionResponse(app.id, data.token, {
             content: messageList.livechart.list_not_found,

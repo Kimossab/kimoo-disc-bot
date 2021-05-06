@@ -1,9 +1,15 @@
+import LivechartAnimeInfo, { ILivechartAnimeInfo } from './anime-info.model';
 import LivechartLastRequest, {
-  ILivechartLastRequest
-} from "./last-request.model";
+  ILivechartLastRequest,
+} from './last-request.model';
 import LivechartSubscription, {
-  ILivechartSubscription
-} from "./subscription.model";
+  ILivechartSubscription,
+} from './subscription.model';
+import ogs, { OpenGraphImage } from 'open-graph-scraper';
+import Logger from '../helper/logger';
+
+const LIVE_CHART_ANIME_URL = 'https://www.livechart.me/anime/';
+const _logger = new Logger('livechart.controller');
 
 /**
  * Updates the last time a request to livechart was made
@@ -59,7 +65,7 @@ export const getSubscriptions = async (
   id: number
 ): Promise<ILivechartSubscription[]> => {
   return await LivechartSubscription.find({
-    id: id
+    id: id,
   });
 };
 
@@ -77,7 +83,7 @@ export const checkSubscription = async (
   return await LivechartSubscription.exists({
     server,
     user,
-    id
+    id,
   });
 };
 
@@ -95,7 +101,7 @@ export const removeSubscription = async (
   await LivechartSubscription.deleteOne({
     server,
     user,
-    id
+    id,
   });
 };
 
@@ -110,8 +116,44 @@ export const getUserSubscriptions = async (
 ): Promise<number[]> => {
   const list: ILivechartSubscription[] = await LivechartSubscription.find({
     server,
-    user
+    user,
   });
 
-  return list.map(l => l.id);
+  return list.map((l) => l.id);
+};
+
+export const getAnimeInfo = async (
+  id: number
+): Promise<ILivechartAnimeInfo | null> => {
+  const dbInfo: ILivechartAnimeInfo = await LivechartAnimeInfo.findOne({
+    id,
+  });
+
+  if (dbInfo) {
+    return dbInfo;
+  }
+
+  const liveChartLink = `${LIVE_CHART_ANIME_URL}${id}`;
+  let ogInfo;
+
+  try {
+    ogInfo = await ogs({ url: liveChartLink });
+    _logger.log('requested', ogInfo.result, ogInfo.error);
+  } catch (e) {
+    _logger.error('requesting og error', e);
+    return null;
+  }
+
+  if (ogInfo.error) {
+    return null;
+  }
+
+  const animeInfo = new LivechartAnimeInfo();
+  animeInfo.id = id;
+  animeInfo.title = ogInfo.result.ogTitle;
+  animeInfo.description = ogInfo.result.ogDescription;
+  animeInfo.url = ogInfo.result.ogUrl || liveChartLink;
+  animeInfo.image = (ogInfo.result.ogImage as OpenGraphImage | null)?.url;
+
+  return await animeInfo.save();
 };

@@ -132,9 +132,13 @@ const requestTraceMoe = async (
       const data = new FormData();
       data.append('image', fs.createReadStream('trash/trash.png'));
 
-      const res = await axios.post(`https://api.trace.moe/search`, data, {
-        headers: data.getHeaders(),
-      });
+      const res = await axios.post(
+        `https://api.trace.moe/search?info=advanced`,
+        data,
+        {
+          headers: data.getHeaders(),
+        }
+      );
       return res.data;
     }
 

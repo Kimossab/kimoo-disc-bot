@@ -32,6 +32,7 @@ export default {
     channel_set_success: 'Anime channel set successfully to <channel>',
     sub_success: 'Subscription for <link> addedd successfully',
     unsub_success: 'Subscription for <link> removed successfully',
+    anime_not_found: 'Anime with ID <id> not found',
   },
   mal: {
     type: 'Type: <type>',

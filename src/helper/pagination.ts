@@ -5,7 +5,8 @@ declare type pagination_callback<T> = (
   data: T,
   page: number,
   total: number,
-  token: string
+  token: string,
+  userInfo?: Nullable<discord.guild_member>
 ) => void;
 
 class Pagination<T> {
@@ -15,26 +16,31 @@ class Pagination<T> {
   private _callback: pagination_callback<T>;
   private _page = 1;
   private _token: string;
+  private _user: Nullable<discord.guild_member>;
 
   constructor(
     channel: string,
     message: string,
     data: T[],
     callback: pagination_callback<T>,
-    token: string
+    token: string,
+    userInfo?: discord.guild_member
   ) {
     this._channel = channel;
     this._message = message;
     this._data = data;
     this._callback = callback;
     this._token = token;
+    this._user = userInfo;
 
     if (isReady()) {
       const channel = this._channel;
       const message = this._message;
       (async () => {
         await createReaction(channel, message, '◀');
-        await createReaction(channel, message, '▶');
+        setTimeout(() => {
+          createReaction(channel, message, '▶');
+        }, 250);
       })();
     }
   }
@@ -44,7 +50,8 @@ class Pagination<T> {
       this._data[this._page - 1],
       this._page,
       this._data.length,
-      this._token
+      this._token,
+      this._user
     );
   }
 

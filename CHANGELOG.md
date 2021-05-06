@@ -2,10 +2,21 @@
 
 ## Unreleased
 
+- Send graceful disconection to discord socket when the application forcefully stops (signals)
 - Tests & comments
 - VNDB
   - messages
-  - more commands?
+
+---
+
+## [2.3.2] - 2021-04-30
+
+### Changed
+
+- Changed trace moe endpoint
+  - Using the trace moe public api again, instead of the api used in the site. 
+- Livechart anime info
+  - Started using open graph info from the livechart url to get more info about the name (like name and description)
 
 ---
 
@@ -15,6 +26,8 @@
 
 - VNDB TCP communication behaviour
 - Achievement's link to images that don't exist (shows up as `null` on mobile)
+
+---
 
 ## [2.3.0] - 2021-04-03
 

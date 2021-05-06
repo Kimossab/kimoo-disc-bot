@@ -10,6 +10,9 @@ export const PRESENCE_STRINGS = [
   "Who's that cute witch flying in this summer sky? That's right, it's me, Elaina",
   'EMT',
   "Who's Rem?",
+  'As you like my pleasure',
+  'Sono me, dare no me?',
+  'Whose eyes are those?',
 ];
 
 enum colors {

@@ -118,7 +118,7 @@ declare namespace SauceNao {
     url?: string;
     user_acct?: string;
     yandere_id?: string;
-    "anime-pictures_id"?: string;
+    'anime-pictures_id'?: string;
     member_id?: string;
     member_name?: string;
     creator?: string | string[];
@@ -239,3 +239,5 @@ declare namespace achievement {
     rank: string;
   }
 }
+
+declare type Nullable<T> = T | null | undefined;
