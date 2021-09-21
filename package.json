@@ -7,12 +7,14 @@
     "dev": "ts-node-dev --respawn --transpile-only ./src/bot.ts",
     "test": "jest",
     "coverage": "jest --coverage --detectOpenHandles",
-    "prod": "node ./build/bot.js"
+    "prod": "node ./build/bot.js",
+    "lint": "eslint src"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/axios": "^0.14.0",
+    "@types/jest": "^27.0.2",
     "@types/mmmagic": "^0.4.30",
     "@types/mongoose": "^5.11.97",
     "@types/node": "^16.9.4",
@@ -21,6 +23,10 @@
     "@types/supertest": "^2.0.11",
     "@types/ws": "^7.4.7",
     "@types/xml2js": "^0.4.9",
+    "@typescript-eslint/eslint-plugin": "^4.31.2",
+    "@typescript-eslint/parser": "^4.31.2",
+    "eslint": "^7.32.0",
+    "eslint-config-standard-with-typescript": "^21.0.1",
     "jest": "^27.2.1",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.5",
