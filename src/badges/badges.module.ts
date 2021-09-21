@@ -26,6 +26,17 @@ import { IBadge } from './models/badges.model';
 import { createGrid } from './list.helper';
 import Pagination from '../helper/pagination';
 
+interface IFastAverageColorResult {
+  rgb: string;
+  rgba: string;
+  hex: string;
+  hexa: string;
+  isDark: boolean;
+  isLight: boolean;
+  value: number[];
+  error: Error;
+}
+
 const _logger = new Logger('badges');
 let firstSetup = true;
 

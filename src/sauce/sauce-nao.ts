@@ -19,7 +19,11 @@ const requestSauceNao = async (
 
     return res.data;
   } catch (e) {
-    _logger.error('Requestion sauce nao', e.response);
+    if (axios.isAxiosError(e)) {
+      _logger.error('Requestion sauce nao', e.response);
+    } else {
+      _logger.error('Requestion sauce nao', JSON.stringify(e));
+    }
   }
 
   return null;

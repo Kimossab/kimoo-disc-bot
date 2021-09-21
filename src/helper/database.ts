@@ -9,10 +9,7 @@ const _logger = new Logger("database");
  * @param url Database url
  */
 const connect = (url: string) => {
-  mongoose.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
+  mongoose.connect(url);
 
   mongoose.connection.on("error", onError);
   mongoose.connection.on("open", onOpen);

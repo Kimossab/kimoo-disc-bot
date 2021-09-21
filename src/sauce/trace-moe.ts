@@ -112,7 +112,7 @@ const requestTraceMoe = async (
 
     return null;
   } catch (e) {
-    _logger.error('Requestion sauce trace moe', e.toJSON());
+    _logger.error('Requestion sauce trace moe', JSON.stringify(e));
   }
 
   return null;

@@ -109,7 +109,7 @@ const checkRss = async (): Promise<void> => {
 
     await updateLastRequest(+new Date());
   } catch (e) {
-    _logger.error('Something went wrong', e.toJSON());
+    _logger.error('Something went wrong', JSON.stringify(e));
   }
 };
 

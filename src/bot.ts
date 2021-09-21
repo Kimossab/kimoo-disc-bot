@@ -190,7 +190,7 @@ const updateBotPresence = () => {
   setTimeout(updateBotPresence, time);
 };
 
-const main = async () => {
+const main = async (): Promise<void> => {
   setReadyCallback(ready);
   setCommandExecutedCallback(commandExecuted);
   setReactionCallback(reactionAdded);
@@ -203,7 +203,8 @@ const main = async () => {
   }
 
   if (gateway.session_start_limit.remaining === 0) {
-    return setTimeout(main, gateway.session_start_limit.reset_after);
+    setTimeout(main, gateway.session_start_limit.reset_after);
+    return;
   }
 
   const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);

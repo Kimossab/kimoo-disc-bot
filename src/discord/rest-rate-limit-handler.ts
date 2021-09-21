@@ -127,7 +127,7 @@ export default class RestRateLimitHandler {
         )
       );
     } catch (e) {
-      if (e.response.status === 429) {
+      if (axios.isAxiosError(e) && e.response?.status === 429) {
         //rate limited
 
         const parsedHeaders = this.handleHeaders(e.response.headers);
