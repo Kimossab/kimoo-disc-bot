@@ -1,8 +1,10 @@
-import { getGuilds } from "../state/actions";
-import { getAdminRole } from "../bot/bot.controller";
+import { getGuilds } from '../state/actions';
+import { getAdminRole } from '../bot/bot.controller';
+import fs from 'fs';
+import https from 'https';
 
 export enum string_constants {
-  endpoint_wrong_response = "Wrong reply from `<endpoint>`"
+  endpoint_wrong_response = 'Wrong reply from `<endpoint>`',
 }
 
 /**
@@ -80,7 +82,7 @@ export const checkAdmin = async (
   server: string,
   member: discord.guild_member
 ): Promise<boolean> => {
-  const guild = getGuilds().find(g => g.id === server);
+  const guild = getGuilds().find((g) => g.id === server);
 
   if (!guild || !member.user) {
     return false;
@@ -106,3 +108,52 @@ export const chunkArray = <T>(data: T[], size: number): T[][] => {
   }
   return R;
 };
+
+export const getDayInfo = (day = new Date()): DayInfo => {
+  return {
+    year: day.getFullYear(),
+    month: day.getMonth() + 1,
+    day: day.getDate(),
+    hours: day.getHours(),
+    minutes: day.getMinutes(),
+    seconds: day.getSeconds(),
+    milliseconds: day.getMilliseconds(),
+  };
+};
+
+export const downloadFile = async (url: string, dest: string): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const file = fs.createWriteStream(dest);
+
+    https
+      .get(url, (response) => {
+        response.pipe(file);
+
+        file.on('finish', () => {
+          file.close();
+          resolve(true);
+        });
+      })
+      .on('error', function (err) {
+        fs.unlink(dest, () => {
+          resolve(false);
+        });
+      });
+  });
+};
+
+export const moveFile = async (source: string, destination: string): Promise<boolean> => {
+  return new Promise((resolve) => {
+    fs.rename(source, destination, (err: NodeJS.ErrnoException | null) => {
+      resolve(!err);
+    });
+  });
+}
+
+export const deleteFile = async (file: string): Promise<boolean> => {
+  return new Promise((resolve) => {
+    fs.unlink(file, (err: NodeJS.ErrnoException | null) => {
+      resolve(!err);
+    });
+  });
+}

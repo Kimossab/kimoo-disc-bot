@@ -1,6 +1,6 @@
 import { application_command_option_type } from './helper/constants';
 
-export const version = '1.2.1';
+export const version = '1.3.3';
 
 export const list: discord.application_command[] = [
   {
@@ -475,6 +475,87 @@ export const list: discord.application_command[] = [
           },
         ],
       },
+      {
+        name: 'donut',
+        description: 'Create a donut',
+        type: application_command_option_type.SUB_COMMAND,
+        options: [
+          {
+            name: 'a',
+            description: 'Angle of A (radians)',
+            type: application_command_option_type.STRING,
+            required: false,
+          },
+          {
+            name: 'b',
+            description: 'Angle of B (radians)',
+            type: application_command_option_type.STRING,
+            required: false,
+          },
+        ],
+      },
     ],
   },
+  {
+    name: 'badges',
+    description: 'Badges commands',
+    options: [
+      {
+        name: 'create',
+        description: 'Create a new badge',
+        type: application_command_option_type.SUB_COMMAND,
+        options: [
+          {
+            name: 'name',
+            description: 'Badge name',
+            type: application_command_option_type.STRING,
+            required: true,
+          },
+          {
+            name: 'image',
+            description: 'Badge image',
+            type: application_command_option_type.STRING,
+            required: false
+          }
+        ]
+      },
+      {
+        name: 'list',
+        description: 'List badges from the user or the server',
+        type: application_command_option_type.SUB_COMMAND
+      },
+      {
+        name: 'give',
+        description: 'Give a badge to a user',
+        type: application_command_option_type.SUB_COMMAND,
+        options: [
+          {
+            name: 'name',
+            description: 'Badge name',
+            type: application_command_option_type.STRING,
+            required: true,
+          },
+          {
+            name: 'user',
+            description: 'User',
+            type: application_command_option_type.USER,
+            required: true
+          }
+        ]
+      },
+      {
+        name: 'user',
+        description: 'Get user badges',
+        type: application_command_option_type.SUB_COMMAND,
+        options: [
+          {
+            name: 'user',
+            description: 'User',
+            type: application_command_option_type.USER,
+            required: false
+          }
+        ]
+      }
+    ]
+  }
 ];

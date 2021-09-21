@@ -1,7 +1,7 @@
-import WebSocket from "ws";
-import { saveGuild } from "../bot/bot.controller";
-import { randomNum } from "../helper/common";
-import Logger from "../helper/logger";
+import WebSocket from 'ws';
+import { saveGuild } from '../bot/bot.controller';
+import { randomNum } from '../helper/common';
+import Logger from '../helper/logger';
 import {
   addGuild,
   commandExecuted,
@@ -12,16 +12,17 @@ import {
   setDiscordLastS,
   setDiscordSession,
   setReadyData,
-} from "../state/actions";
+} from '../state/actions';
 import {
   PRESENCE_STRINGS,
   gateway_events,
   intents,
   opcodes,
-} from "../helper/constants";
+} from '../helper/constants';
+import { editMessage, sendMessage } from './rest';
 
 class Socket {
-  private logger = new Logger("socket");
+  private logger = new Logger('socket');
 
   private url: string | null = null;
 
@@ -33,34 +34,34 @@ class Socket {
   private resumed: boolean = false;
 
   public connect(gateway: string) {
-    this.logger.log("starting connection");
+    this.logger.log('starting connection');
 
     this.resumed = false;
     this.url = gateway;
     this.logger.log(this.url);
     this.client = new WebSocket(this.url);
 
-    this.client.on("connection", (e: any) => {
+    this.client.on('connection', (e: any) => {
       this.onConnection(e);
     });
-    this.client.on("open", () => {
+    this.client.on('open', () => {
       this.onOpen();
     });
-    this.client.on("close", (e: any) => {
+    this.client.on('close', (e: any) => {
       this.onClose(e);
     });
-    this.client.on("message", (e: string) => {
+    this.client.on('message', (e: string) => {
       this.onMessage(e);
     });
   }
 
   // EVENTS
   private onConnection(e: any) {
-    this.logger.log("Socket connected", e);
+    this.logger.log('Socket connected', e);
   }
 
   private onClose(e: any) {
-    this.logger.log("Socket closed - Restarting in 2 seconds", e);
+    this.logger.log('Socket closed - Restarting in 2 seconds', e);
 
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
@@ -81,7 +82,7 @@ class Socket {
 
   private onOpen() {
     this.hbAck = true;
-    this.logger.log("Socket opened");
+    this.logger.log('Socket opened');
   }
 
   private onMessage(d: string): void {
@@ -122,14 +123,14 @@ class Socket {
         this.hbAck = true;
         break;
       default:
-        this.logger.log("Unknown op code", data);
+        this.logger.log('Unknown op code', data);
         break;
     }
   }
 
   // DISCORD EVENTS
   private onHello(data: discord.hello): void {
-    this.logger.log("Received Hello");
+    this.logger.log('Received Hello');
 
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
@@ -143,7 +144,7 @@ class Socket {
     const lastS = getDiscordLastS();
 
     if (sessionId) {
-      this.logger.log("Invoking resume");
+      this.logger.log('Invoking resume');
 
       this.send(
         JSON.stringify({
@@ -158,7 +159,7 @@ class Socket {
 
       setTimeout(() => {
         if (!this.resumed) {
-          this.logger.log("Did not resume.");
+          this.logger.log('Did not resume.');
           this.identify();
         }
       }, 2000);
@@ -194,16 +195,22 @@ class Socket {
         gotNewReaction(data as discord.message_reaction_remove, true);
         break;
       case gateway_events.message_create:
-        if ((data as discord.message).attachments.length > 0) {
+        const messageData = data as discord.message;
+        if (messageData.attachments.length > 0) {
           setChannelLastAttachment(
-            (data as discord.message).channel_id,
+            messageData.channel_id,
             data.attachments[data.attachments.length - 1].url
           );
         }
+
+        if (!messageData.guild_id) {
+          this.handleDM(messageData);
+        }
+
         break;
       case gateway_events.resumed:
         this.resumed = true;
-        this.logger.log("resumed", event);
+        this.logger.log('resumed', event);
         break;
       /*default:
         this.logger.log("Not expected message", event);*/
@@ -244,7 +251,7 @@ class Socket {
               type: 0,
             },
           ],
-          status: "online",
+          status: 'online',
           afk: false,
         },
       })
@@ -252,14 +259,14 @@ class Socket {
   }
 
   private identify(): void {
-    this.logger.log("Identifying...");
+    this.logger.log('Identifying...');
     const randomPresence = randomNum(0, PRESENCE_STRINGS.length);
 
     const obj: discord.identify = {
       token: process.env.TOKEN!,
       properties: {
-        $browser: "Kimoo-bot",
-        $device: "Kimoo-bot",
+        $browser: 'Kimoo-bot',
+        $device: 'Kimoo-bot',
         $os: process.platform,
       },
       presence: {
@@ -270,7 +277,7 @@ class Socket {
             type: 0,
           },
         ],
-        status: "online",
+        status: 'online',
         afk: false,
       },
       intents:
@@ -298,6 +305,47 @@ class Socket {
   private send(message: string): void {
     if (this.client) {
       this.client.send(message);
+    }
+  }
+
+  private async handleDM(data: discord.message): Promise<void> {
+    if (data.author.id === '108208089987051520') {
+      const sendMessageRegex = /^sudo\smessage\s(?<channel>\d*)\s(?<content>(.|\n)*)/gm;
+      const sendMatch = sendMessageRegex.exec(data.content);
+
+      if (sendMatch && sendMatch.groups?.channel && sendMatch.groups?.content) {
+        const message = await sendMessage(
+          sendMatch.groups.channel,
+          sendMatch.groups.content +
+            '\n[stuff](https://www.livechart.me/anime/1235)'
+        );
+        await sendMessage(
+          data.channel_id,
+          message ? 'Message sent successfully' : 'Failed to send message'
+        );
+        return;
+      }
+
+      const editMessageRegex = /^sudo\sedit\s(?<channel>\d*)\s(?<message>\d*)\s(?<content>(.|\n)*)/gm;
+      const editMatch = editMessageRegex.exec(data.content);
+
+      if (
+        editMatch &&
+        editMatch.groups?.channel &&
+        editMatch.groups?.message &&
+        editMatch.groups?.content
+      ) {
+        const message = await editMessage(
+          editMatch.groups.channel,
+          editMatch.groups.message,
+          editMatch.groups.content
+        );
+        await sendMessage(
+          data.channel_id,
+          message ? 'Message edited successfully' : 'Failed to edit message'
+        );
+        return;
+      }
     }
   }
 }

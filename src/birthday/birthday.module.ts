@@ -1,11 +1,15 @@
 import {
   getLastServerBirthdayWishes,
   getServerAnimeChannel,
-  getServerBirthdayChannel,
   setServerBirthdayChannel,
   updateServerLastWishes,
 } from '../bot/bot.controller';
-import { checkAdmin, snowflakeToDate, stringReplacer } from '../helper/common';
+import {
+  checkAdmin,
+  getDayInfo,
+  snowflakeToDate,
+  stringReplacer,
+} from '../helper/common';
 import Logger from '../helper/logger';
 import {
   getApplication,
@@ -23,6 +27,7 @@ import {
   getBirthdays,
   getUserBirthday,
   getBirthdaysByMonth,
+  getServersBirthdayChannel,
   updateLastWishes,
 } from './birthday.controller';
 import { IBirthday } from './birthday.model';
@@ -172,9 +177,8 @@ const handleGetCommand = async (
       const bd = await getUserBirthday(data.guild_id, user);
 
       if (bd) {
-        const birthdayString = `${bd.day}/${bd.month}${
-          bd.year ? '/' + bd.year : ''
-        }`;
+        const birthdayString = `${bd.day}/${bd.month}${bd.year ? '/' + bd.year : ''
+          }`;
         await editOriginalInteractionResponse(app.id, data.token, {
           content: stringReplacer(messageList.birthday.user, {
             user: `<@${user}>`,
@@ -227,9 +231,8 @@ const handleGetCommand = async (
       const bd = await getUserBirthday(data.guild_id, data.member.user!.id);
 
       if (bd) {
-        const birthdayString = `${bd.day}/${bd.month}${
-          bd.year ? '/' + bd.year : ''
-        }`;
+        const birthdayString = `${bd.day}/${bd.month}${bd.year ? '/' + bd.year : ''
+          }`;
         await editOriginalInteractionResponse(app.id, data.token, {
           content: stringReplacer(messageList.birthday.user, {
             user: `<@${data.member.user!.id}>`,
@@ -257,9 +260,8 @@ const handleServerCommand = async (
   if (app) {
     const serverDate = snowflakeToDate(data.guild_id);
 
-    const birthdayString = `${serverDate.getDate()}/${
-      serverDate.getMonth() + 1
-    }/${serverDate.getFullYear()}`;
+    const birthdayString = `${serverDate.getDate()}/${serverDate.getMonth() + 1
+      }/${serverDate.getFullYear()}`;
 
     await editOriginalInteractionResponse(app.id, data.token, {
       content: stringReplacer(messageList.birthday.server, {
@@ -328,76 +330,72 @@ const checkBirthdays = async () => {
     clearTimeout(checkTimeout);
   }
 
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds();
-  const milliseconds = now.getMilliseconds();
-  const day = now.getDate();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
+  const {
+    hours,
+    minutes,
+    seconds,
+    milliseconds,
+    day,
+    month,
+    year,
+  } = getDayInfo();
 
-  const servers = getGuilds();
+  const serversData = getGuilds();
+  const serverChannels = await getServersBirthdayChannel();
 
-  const serverChannels: string_object<string | null> = {};
+  // Server birthdays
+  for (const s in serverChannels) {
+    const serverDate = snowflakeToDate(s);
 
-  for (const s of servers) {
-    const serverDate = snowflakeToDate(s.id);
-    serverChannels[s.id] = await getServerBirthdayChannel(s.id);
-
-    if (
-      serverChannels[s.id] &&
-      serverDate.getDate() == day &&
-      serverDate.getMonth() + 1 === month
-    ) {
-      const lastWishes = await getLastServerBirthdayWishes(s.id);
+    if (serverDate.getDate() == day && serverDate.getMonth() + 1 === month) {
+      const lastWishes = await getLastServerBirthdayWishes(s);
 
       if (!lastWishes || lastWishes < year) {
         const message = stringReplacer(messageList.birthday.server_bday, {
           age: (year - serverDate.getFullYear()).toString(),
-          name: s.name,
+          name: serversData.find((server) => server.id === s)?.name || '',
         });
 
-        await sendMessage(serverChannels[s.id]!, message);
-        await updateServerLastWishes(s.id);
+        await sendMessage(serverChannels[s], message);
+        await updateServerLastWishes(s);
       }
     }
   }
 
-  const todayBDay = await getBirthdays(day, month, year);
-  if (todayBDay.length > 0) {
-    _logger.log("Today's birthdays", todayBDay);
+  // User birthdays
+  const todayBirthDays = await getBirthdays(day, month, year);
+  if (todayBirthDays.length > 0) {
+    _logger.log("Today's birthdays", todayBirthDays);
 
-    const serverBdays: string_object<IBirthday[]> = {};
+    const serverBirthdays: string_object<IBirthday[]> = {};
 
-    for (const bday of todayBDay) {
-      if (serverBdays[bday.server] === undefined) {
-        serverBdays[bday.server] = [bday];
+    for (const birthday of todayBirthDays) {
+      if (!serverBirthdays[birthday.server]) {
+        serverBirthdays[birthday.server] = [birthday];
       } else {
-        serverBdays[bday.server].push(bday);
+        serverBirthdays[birthday.server].push(birthday);
       }
     }
 
-    for (const server in serverBdays) {
+    for (const server in serverBirthdays) {
       if (serverChannels[server]) {
         const usersCongratulated: string[] = [];
-        if (Object.prototype.hasOwnProperty.call(serverBdays, server)) {
-          let message =
-            serverBdays[server].length > 1
-              ? messageList.birthday.today_bday_s
-              : messageList.birthday.today_bday;
 
-          for (const bd of serverBdays[server]) {
-            usersCongratulated.push(bd.user);
+        let message =
+          serverBirthdays[server].length > 1
+            ? messageList.birthday.today_bday_s
+            : messageList.birthday.today_bday;
 
-            message += `\n - <@${bd.user}>`;
-            if (bd.year) {
-              message += ` (${year - bd.year})`;
-            }
+        for (const bd of serverBirthdays[server]) {
+          usersCongratulated.push(bd.user);
+
+          message += `\n - <@${bd.user}>`;
+          if (bd.year) {
+            message += ` (${year - bd.year})`;
           }
-          await updateLastWishes(server, usersCongratulated);
-          await sendMessage(serverChannels[server]!, message);
         }
+        await updateLastWishes(server, usersCongratulated);
+        await sendMessage(serverChannels[server], message);
       }
     }
   }

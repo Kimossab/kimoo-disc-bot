@@ -2,7 +2,7 @@ import fs from 'fs';
 import https from 'https';
 import axios from 'axios';
 import FormData from 'form-data';
-import { formatSecondsIntoMinutes, stringReplacer } from '../helper/common';
+import { downloadFile, formatSecondsIntoMinutes, stringReplacer } from '../helper/common';
 import Pagination from '../helper/pagination';
 import messageList from '../helper/messages';
 import { editMessage, editOriginalInteractionResponse } from '../discord/rest';
@@ -11,27 +11,6 @@ import { addPagination, getApplication } from '../state/actions';
 
 const _logger = new Logger('sauce-trace-moe');
 
-const download = async (url: string, dest: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    const file = fs.createWriteStream(dest);
-
-    https
-      .get(url, (response) => {
-        response.pipe(file);
-
-        file.on('finish', () => {
-          file.close();
-          resolve(true);
-        });
-      })
-      .on('error', function (err) {
-        fs.unlink(dest, () => {
-          resolve(false);
-        });
-      });
-  });
-};
-
 const traceMoeEmbed = (
   item: TraceMoe.resultData,
   page: number,
@@ -39,15 +18,15 @@ const traceMoeEmbed = (
 ): discord.embed => {
   let title: string[] = [];
 
-  if (item.anilist.title.english) {
+  if (item.anilist.title?.english) {
     title.push(item.anilist.title.english);
   }
 
-  if (item.anilist.title.romaji) {
+  if (item.anilist.title?.romaji) {
     title.push(item.anilist.title.romaji);
   }
 
-  if (item.anilist.title.native) {
+  if (item.anilist.title?.native) {
     title.push(item.anilist.title.native);
   }
 
@@ -71,19 +50,8 @@ const traceMoeEmbed = (
       {
         name: messageList.sauce.similarity,
         value: `${Math.round(item.similarity * 100)}%`,
-      },
-      // {
-      //   name: messageList.sauce.season,
-      //   value: item.season === "" ? "N/A" : item.season
-      // }
+      }
     ],
-    // image: {
-    //   url: `https://trace.moe/thumbnail.php?anilist_id=${
-    //     item.anilist_id
-    //   }&file=${encodeURIComponent(item.filename)}&t=${item.at}&token=${
-    //     item.tokenthumb
-    //   }`
-    // },
     image: {
       url: item.image,
     },
@@ -92,7 +60,7 @@ const traceMoeEmbed = (
     },
   };
 
-  if (item.anilist.synonyms.length > 0) {
+  if (item.anilist.synonyms?.length > 0) {
     embed.fields?.push({
       name: messageList.sauce.other_names,
       value: item.anilist.synonyms.join(' | '),
@@ -126,14 +94,14 @@ const requestTraceMoe = async (
   image: string
 ): Promise<TraceMoe.response | null> => {
   try {
-    const result = await download(image, 'trash/trash.png');
+    const result = await downloadFile(image, 'trash/trash.png');
 
     if (result) {
       const data = new FormData();
       data.append('image', fs.createReadStream('trash/trash.png'));
 
       const res = await axios.post(
-        `https://api.trace.moe/search?info=advanced`,
+        `https://api.trace.moe/search?anilistInfo`,
         data,
         {
           headers: data.getHeaders(),

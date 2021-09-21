@@ -1,4 +1,6 @@
 import RestRateLimitHandler from './rest-rate-limit-handler';
+import FormData from 'form-data';
+import fs from 'fs';
 
 const rateLimiter = new RestRateLimitHandler();
 
@@ -144,8 +146,22 @@ export const createInteractionResponse = (
 export const editOriginalInteractionResponse = (
   applicationId: string,
   token: string,
-  data: discord.edit_webhook_message_request
+  data: discord.edit_webhook_message_request,
+  image?: string,
 ): Promise<discord.message | null> => {
+  if (image) {
+    const formData = new FormData();
+    const file = fs.createReadStream(image);
+    formData.append('file', file);
+    formData.append('payload_json', JSON.stringify(data));
+
+    return rateLimiter.request<discord.message>(
+      'PATCH',
+      `/webhooks/${applicationId}/${token}/messages/@original`,
+      formData,
+      formData.getHeaders()
+    );
+  }
   return rateLimiter.request<discord.message>(
     'PATCH',
     `/webhooks/${applicationId}/${token}/messages/@original`,

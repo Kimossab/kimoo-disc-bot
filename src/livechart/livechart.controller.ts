@@ -7,6 +7,7 @@ import LivechartSubscription, {
 } from './subscription.model';
 import ogs, { OpenGraphImage } from 'open-graph-scraper';
 import Logger from '../helper/logger';
+import getOpenGraphInfo from '../helper/opengraph';
 
 const LIVE_CHART_ANIME_URL = 'https://www.livechart.me/anime/';
 const _logger = new Logger('livechart.controller');
@@ -16,7 +17,7 @@ const _logger = new Logger('livechart.controller');
  * @param timestamp timestamp value
  */
 export const updateLastRequest = async (timestamp: number): Promise<void> => {
-  const lastRequest: ILivechartLastRequest = await LivechartLastRequest.findOne();
+  const lastRequest: Nullable<ILivechartLastRequest> = await LivechartLastRequest.findOne();
 
   if (lastRequest) {
     lastRequest.timestamp = timestamp;
@@ -32,7 +33,7 @@ export const updateLastRequest = async (timestamp: number): Promise<void> => {
  * Gets the timestamp value of the last request made to livechart
  */
 export const getLastRequest = async (): Promise<number> => {
-  const lastRequest: ILivechartLastRequest = await LivechartLastRequest.findOne();
+  const lastRequest: Nullable<ILivechartLastRequest> = await LivechartLastRequest.findOne();
 
   return lastRequest ? lastRequest.timestamp : 0;
 };
@@ -125,7 +126,7 @@ export const getUserSubscriptions = async (
 export const getAnimeInfo = async (
   id: number
 ): Promise<ILivechartAnimeInfo | null> => {
-  const dbInfo: ILivechartAnimeInfo = await LivechartAnimeInfo.findOne({
+  const dbInfo: Nullable<ILivechartAnimeInfo> = await LivechartAnimeInfo.findOne({
     id,
   });
 
@@ -134,26 +135,35 @@ export const getAnimeInfo = async (
   }
 
   const liveChartLink = `${LIVE_CHART_ANIME_URL}${id}`;
-  let ogInfo;
+  let ogInfo = null;
+  let attempts = 0;
+  let success = false;
+  
+  while (!success && attempts < 3) {
+    ogInfo = await getOpenGraphInfo(liveChartLink);
+    if (!ogInfo) {
+      break;
+    }
 
-  try {
-    ogInfo = await ogs({ url: liveChartLink });
-    _logger.log('requested', ogInfo.result, ogInfo.error);
-  } catch (e) {
-    _logger.error('requesting og error', e);
+    if (Object.keys(ogInfo).length !== 0) {
+      success = true;
+    }
+
+    attempts++;
+  }
+
+  if (!ogInfo || Object.keys(ogInfo).length === 0) {
+    _logger.error('requesting og error');
     return null;
   }
 
-  if (ogInfo.error) {
-    return null;
-  }
 
   const animeInfo = new LivechartAnimeInfo();
   animeInfo.id = id;
-  animeInfo.title = ogInfo.result.ogTitle;
-  animeInfo.description = ogInfo.result.ogDescription;
-  animeInfo.url = ogInfo.result.ogUrl || liveChartLink;
-  animeInfo.image = (ogInfo.result.ogImage as OpenGraphImage | null)?.url;
+  animeInfo.title = ogInfo.title;
+  animeInfo.description = ogInfo.description;
+  animeInfo.url = ogInfo.url || liveChartLink;
+  animeInfo.image = ogInfo.image;
 
   return await animeInfo.save();
 };

@@ -13,6 +13,9 @@ export const PRESENCE_STRINGS = [
   'As you like my pleasure',
   'Sono me, dare no me?',
   'Whose eyes are those?',
+  'NullPo... Gah!',
+  'Let us carry out the Singularity Project',
+  'As you like my pleasure'
 ];
 
 enum colors {

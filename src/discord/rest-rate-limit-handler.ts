@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse, Method } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from "axios";
 import Logger from "../helper/logger";
 
 interface RateLimitObject {
@@ -65,7 +65,8 @@ export default class RestRateLimitHandler {
   public async request<T>(
     method: Method,
     path: string,
-    data?: any
+    data?: any,
+    headers?: string_object<string>,
   ): Promise<T | null> {
     const bucket = this.routeBucket[path];
     const rateLimits = bucket ? this.rateLimits[bucket] : null;
@@ -89,7 +90,7 @@ export default class RestRateLimitHandler {
         //rate limited
         return new Promise<T | null>(resolve => {
           setTimeout(() => {
-            resolve(this.request<T>(method, path, data));
+            resolve(this.request<T>(method, path, data, headers));
           }, resetTimeMs - now);
         });
       }
@@ -99,11 +100,17 @@ export default class RestRateLimitHandler {
 
     let response: AxiosResponse<T> | null = null;
     try {
-      response = await this.requester.request<any, AxiosResponse<T>>({
+      const requestOptions: AxiosRequestConfig = {
         method,
         url: path,
         data
-      });
+      };
+
+      if (headers) {
+        requestOptions.headers = headers;
+      }
+
+      response = await this.requester.request<T>(requestOptions);
 
       const parsedHeaders = this.handleHeaders(response.headers);
 
@@ -137,7 +144,7 @@ export default class RestRateLimitHandler {
 
         return new Promise<T | null>(resolve => {
           setTimeout(() => {
-            resolve(this.request<T>(method, path, data));
+            resolve(this.request<T>(method, path, data, headers));
           }, parsedHeaders.resetAfter);
         });
       } else {

@@ -3,6 +3,7 @@ export default {
     page: 'Page <page>/<total>',
     no_permission: "You don't have permission to use this command",
     internal_error: 'Something went wrong',
+    no_image: 'No image was found',
   },
   birthday: {
     user: "<user>'s birthday: <date>",
@@ -79,4 +80,7 @@ export default {
     server_leaderboard: 'Server Achievement Leaderboard',
     rank_deleted: 'Rank deleted',
   },
+  badges: {
+    not_found: 'No badge found with that name'
+  }
 };

@@ -40,6 +40,7 @@ import * as Fandom from './fandom/fandom.module';
 import * as Misc from './misc/misc.module';
 import * as Achievement from './achievement/achievement.module';
 import * as VNDB from './vndb/vndb.module';
+import * as Badges from './badges/badges.module';
 import messageList from './helper/messages';
 
 const _logger = new Logger('bot');
@@ -139,6 +140,7 @@ const ready = async () => {
   Misc.SetUp();
   Achievement.setUp();
   VNDB.setUp();
+  Badges.setUp();
 
   const app = getApplication();
   if (app) {

@@ -140,8 +140,8 @@ describe("Logger", () => {
     Actions.setChannelLastAttachment("123456", "attach_1");
     Actions.setChannelLastAttachment("654321", "attach_2");
 
-    const a1 = Actions.getChannelLastAttchment("123456");
-    const a2 = Actions.getChannelLastAttchment("654321");
+    const a1 = Actions.getChannelLastAttachment("123456");
+    const a2 = Actions.getChannelLastAttachment("654321");
 
     expect(a1).toEqual("attach_1");
     expect(a2).toEqual("attach_2");

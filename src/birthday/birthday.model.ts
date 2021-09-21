@@ -9,7 +9,7 @@ export interface IBirthday extends Document {
   lastWishes: number | null;
 }
 
-const BirthdaySchema: Schema = new mongoose.Schema({
+const BirthdaySchema: Schema<IBirthday> = new mongoose.Schema({
   day: Number,
   month: Number,
   year: Number,

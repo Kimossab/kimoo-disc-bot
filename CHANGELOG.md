@@ -9,6 +9,14 @@
 
 ---
 
+## [2.3.3] - 2021-07-08 - Hotfix
+
+### Fixed
+
+- Change method to get OG tags from livechart since they added stronger cloudflare protection
+
+---
+
 ## [2.3.2] - 2021-04-30
 
 ### Changed

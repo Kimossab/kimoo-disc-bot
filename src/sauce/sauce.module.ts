@@ -6,7 +6,7 @@ import { interaction_response_type } from '../helper/constants';
 import Logger from '../helper/logger';
 import {
   getApplication,
-  getChannelLastAttchment,
+  getChannelLastAttachment,
   setCommandExecutedCallback,
 } from '../state/actions';
 import messageList from '../helper/messages';
@@ -27,16 +27,17 @@ const commandExecuted = async (data: discord.interaction): Promise<void> => {
 
       const type = getOptionValue<string>(data.data.options, 'type');
       const image = getOptionValue<string>(data.data.options, 'image');
-      const lastAttachment = getChannelLastAttchment(data.channel_id);
+      const lastAttachment = getChannelLastAttachment(data.channel_id);
 
-      if (!image && !lastAttachment) {
+      const url = image ?? lastAttachment;
+
+      if (!url) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.sauce.image_not_found,
         });
         return;
       }
 
-      let url = image ?? lastAttachment;
 
       if (type === 'anime') {
         //anime

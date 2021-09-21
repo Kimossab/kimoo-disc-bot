@@ -7,7 +7,7 @@ import UserAchievement, {
 } from './models/user-achievement.model';
 
 const getHighestId = async (server: string): Promise<number> => {
-  const ach: IAchievement = await Achievement.findOne({ server }, null, {
+  const ach: Nullable<IAchievement> = await Achievement.findOne({ server }, null, {
     sort: {
       id: -1,
     },

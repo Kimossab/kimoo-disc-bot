@@ -528,5 +528,6 @@ declare namespace discord {
     content: string; //	the message contents (up to 2000 characters)
     embeds?: embed[]; //	array of up to 10 embed objects	embedded rich content
     allowed_mentions?: allowed_mentions; // allowed mentions for the message
+    attachments?: attachments[];
   }
 }

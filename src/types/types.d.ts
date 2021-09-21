@@ -1,3 +1,5 @@
+declare module 'puppeteer-bypass';
+
 interface string_object<T> {
   [index: string]: T;
 }
@@ -241,3 +243,13 @@ declare namespace achievement {
 }
 
 declare type Nullable<T> = T | null | undefined;
+
+declare interface DayInfo {
+  year: number;
+  month: number;
+  day: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  milliseconds: number;
+}

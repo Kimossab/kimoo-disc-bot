@@ -205,7 +205,7 @@ export const setChannelLastAttachment = (
  * Gets the last attachment sent to the channel
  * @param channel Channel id
  */
-export const getChannelLastAttchment = (channel: string): string => {
+export const getChannelLastAttachment = (channel: string): string | undefined => {
   return store.getState().channelLastAttachment[channel];
 };
 
