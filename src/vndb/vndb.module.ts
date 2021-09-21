@@ -23,10 +23,15 @@ const codeReplaces = [
     regex: /\[url=([^\]]*)\]([^\[]*)\[\/url\]/gm,
     replace: `[$2]($1)`,
   },
+  {
+    regex: /"/gm,
+    replace: `\'`
+  }
 ];
 
 const replaceDescriptionCodes = (text: string): string => {
   for (const rep of codeReplaces) {
+    console.log(rep, text);
     text = text.replace(rep.regex, rep.replace);
   }
 
@@ -35,37 +40,43 @@ const replaceDescriptionCodes = (text: string): string => {
 
 const groupRelations = (
   relations: VNDB.return_data.get_vn_single_relation[]
-): string => {
-  let returnStr = '';
+): string[] => {
+  const returnValues: string[] = [];
   const group: string_object<string[]> = {};
 
   for (const rel of relations) {
     if (group[rel.relation]) {
       group[rel.relation].push(
-        `${rel.official ? '' : '[Unofficial] '}[${
-          rel.title
+        `${rel.official ? '' : '[Unofficial] '}[${rel.title
         }](https://vndb.org/v${rel.id})`
       );
     } else {
       group[rel.relation] = [
-        `${rel.official ? '' : '[Unofficial] '}[${
-          rel.title
+        `${rel.official ? '' : '[Unofficial] '}[${rel.title
         }](https://vndb.org/v${rel.id})`,
       ];
     }
   }
 
+  let returnStr = '';
   for (const rel in group) {
     if (Object.prototype.hasOwnProperty.call(group, rel)) {
       const relArr = group[rel];
 
-      returnStr += `**${
-        RELATION_TYPES[rel] ? RELATION_TYPES[rel] : rel
-      }**\n- ${relArr.join('\n- ')}\n`;
+      const relationString = `**${RELATION_TYPES[rel] ? RELATION_TYPES[rel] : rel
+        }**\n- ${relArr.join('\n- ')}\n`;
+
+      if (returnStr.length + relationString.length >= 1024) {
+        returnValues.push(returnStr);
+        returnStr = '';
+      }
+      returnStr += relationString;
     }
   }
 
-  return returnStr;
+  returnValues.push(returnStr);
+
+  return returnValues;
 };
 
 const vndbSearchEmbed = (
@@ -132,11 +143,15 @@ const vndbSearchEmbed = (
   }
 
   if (item.relations.length) {
-    embed.fields?.push({
-      name: 'Related VNs',
-      value: groupRelations(item.relations),
-      inline: false,
-    });
+    const groupRel = groupRelations(item.relations);
+
+    for (let index = 0; index < groupRel.length; index++) {
+      embed.fields?.push({
+        name: index === 0 ? 'Related VNs' : '.',
+        value: groupRel[index],
+        inline: false,
+      });
+    }
   }
 
   return embed;
