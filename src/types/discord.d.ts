@@ -1,8 +1,20 @@
+/* eslint-disable max-len */
 type snowflake = string;
 
 declare namespace discord {
-  type allowed_mentions_types = 'roles' | 'users' | 'everyone';
-  type application_command_option_type = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  type allowed_mentions_types =
+    | "roles"
+    | "users"
+    | "everyone";
+  type application_command_option_type =
+    | 1
+    | 2
+    | 3
+    | 4
+    | 5
+    | 6
+    | 7
+    | 8;
 
   declare interface session_start_limit {
     total: number;
@@ -17,9 +29,9 @@ declare namespace discord {
     session_start_limit: session_start_limit;
   }
 
-  declare interface payload {
+  declare interface payload<T = unknown> {
     op: constants.opcodes;
-    d?: any;
+    d?: T;
     s: ?number;
     t: ?string;
   }
@@ -43,11 +55,16 @@ declare namespace discord {
   declare interface update_status {
     since: ?number;
     activities: ?activity[];
-    status: 'online' | 'dnd' | 'idle' | 'invisible' | 'offline';
+    status:
+      | "online"
+      | "dnd"
+      | "idle"
+      | "invisible"
+      | "offline";
     afk: boolean;
   }
 
-  //requests
+  // requests
   declare interface identify {
     token: string;
     properties: connection_properties;
@@ -78,7 +95,7 @@ declare namespace discord {
     nonce?: string;
   }
 
-  //models
+  // models
   declare interface user {
     id: snowflake;
     username: string;
@@ -287,32 +304,32 @@ declare namespace discord {
     application: application_object;
   }
 
-  //messages
+  // messages
   declare interface embed_footer {
     text: string;
     icon_url?: string;
     proxy_icon_url?: string;
   }
   declare interface embed_image {
-    url?: string; //source url of image (only supports http(s) and attachments)
-    proxy_url?: string; //a proxied url of the image
-    height?: integer; //height of image
-    width?: integer; //width of image
+    url?: string; // source url of image (only supports http(s) and attachments)
+    proxy_url?: string; // a proxied url of the image
+    height?: integer; // height of image
+    width?: integer; // width of image
   }
   declare interface embed_thumbnail {
-    url?: string; //source url of thumbnail (only supports http(s) and attachments)
-    proxy_url?: string; //a proxied url of the thumbnail
-    height?: integer; //height of thumbnail
-    width?: integer; //width of thumbnail
+    url?: string; // source url of thumbnail (only supports http(s) and attachments)
+    proxy_url?: string; // a proxied url of the thumbnail
+    height?: integer; // height of thumbnail
+    width?: integer; // width of thumbnail
   }
   declare interface embed_video {
-    url?: string; //source url of video
-    height?: integer; //height of video
-    width?: integer; //width of video
+    url?: string; // source url of video
+    height?: integer; // height of video
+    width?: integer; // width of video
   }
   declare interface embed_provider {
-    name?: string; //name of provider
-    url?: string; //url of provider
+    name?: string; // name of provider
+    url?: string; // url of provider
   }
   declare interface embed_author {
     name?: string; // name of author
@@ -327,7 +344,13 @@ declare namespace discord {
   }
   declare interface embed {
     title?: string;
-    type?: 'rich' | 'image' | 'video' | 'gifv' | 'article' | 'link';
+    type?:
+      | "rich"
+      | "image"
+      | "video"
+      | "gifv"
+      | "article"
+      | "link";
     description?: string;
     url?: string;
     timestamp?: number;
@@ -465,19 +488,19 @@ declare namespace discord {
     emoji: emoji; // the emoji used to react - example
   }
 
-  //slash commands
+  // slash commands
   declare interface application_command_option_choice {
     name: string; // 1-100 character choice name
     value: string | number; // value of the choice
   }
   declare interface application_command_option {
-    type: application_command_option_type; //value of ApplicationCommandOptionType
-    name: string; //1-32 character name matching ^[\w-]{1,32}$
-    description: string; //1-100 character description
-    default?: boolean; //the first required option for the user to complete--only one option can be default
-    required?: boolean; //if the parameter is required or optional--default false
-    choices?: application_command_option_choice[]; //choices for string and int types for the user to pick from
-    options?: application_command_option[]; //if the option is a subcommand or subcommand group type, this nested options will be the parameters
+    type: application_command_option_type; // value of ApplicationCommandOptionType
+    name: string; // 1-32 character name matching ^[\w-]{1,32}$
+    description: string; // 1-100 character description
+    default?: boolean; // the first required option for the user to complete--only one option can be default
+    required?: boolean; // if the parameter is required or optional--default false
+    choices?: application_command_option_choice[]; // choices for string and int types for the user to pick from
+    options?: application_command_option[]; // if the option is a subcommand or subcommand group type, this nested options will be the parameters
   }
 
   declare interface application_command {
@@ -516,7 +539,7 @@ declare namespace discord {
     content: string; // message content
     embeds?: embed[]; // supports up to 10 embeds
     allowed_mentions?: allowed_mentions; // allowed mentions object
-    flags?: 64; //set to 64 to make your response ephemeral
+    flags?: 64; // set to 64 to make your response ephemeral
   }
 
   declare interface interaction_response {

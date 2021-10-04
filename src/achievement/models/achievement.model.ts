@@ -1,10 +1,10 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IAchievement extends Document {
   id: number;
   name: string;
   description: string;
-  image: string | null;
+  image: Nullable<string>;
   server: string;
   points: number;
 }
@@ -18,4 +18,7 @@ const AchievementSchema: Schema = new mongoose.Schema({
   points: Number,
 });
 
-export default mongoose.model<IAchievement>('Achievement', AchievementSchema);
+export default mongoose.model<IAchievement>(
+  "Achievement",
+  AchievementSchema
+);

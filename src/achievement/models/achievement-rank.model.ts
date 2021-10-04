@@ -9,7 +9,7 @@ export interface IAchievementRank extends Document {
 const AchievementRankSchema: Schema = new mongoose.Schema({
   server: String,
   name: String,
-  points: Number
+  points: Number,
 });
 
 export default mongoose.model<IAchievementRank>(

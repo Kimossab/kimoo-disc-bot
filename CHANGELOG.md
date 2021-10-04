@@ -1,13 +1,20 @@
 # Changelog
 
-## Unreleased
+## [2.4.0] - 2021-10-04
 
-- Send graceful disconection to discord socket when the application forcefully stops (signals)
-- Tests & comments
-- VNDB
-  - messages
+### Changed
 
----
+- Modules now use classes to make it easier to create new ones
+
+### Added
+
+- More tests (the need of which is at least questionable, but just practice)
+- Anilist integration
+
+### Removed
+
+- MAL Module
+- Subscription Module
 
 ## [2.3.3] - 2021-07-08 - Hotfix
 

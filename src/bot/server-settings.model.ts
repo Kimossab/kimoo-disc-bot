@@ -4,9 +4,9 @@ export interface IServerSettings extends Document {
   serverId: string;
   language: "EN" | "PT";
   adminRole: string | null;
-  //livechart
+  // livechart
   animeChannel: string | null;
-  //birthdays
+  // birthdays
   birthdayChannel: string | null;
   lastBirthdayWishes: number | null;
 }

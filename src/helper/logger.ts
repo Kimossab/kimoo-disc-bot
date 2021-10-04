@@ -8,6 +8,7 @@ let currentColor = 1;
  */
 class Logger {
   private _color = colors.white;
+
   private _module;
 
   constructor(module: string, color?: colors) {
@@ -28,7 +29,10 @@ class Logger {
    * @param message Message to write
    * @param data Variables to log
    */
-  public log(message: string | null | undefined, ...data: any) {
+  public log(
+    message: string | null | undefined,
+    ...data: unknown[]
+  ): void {
     const timeString = new Date().toLocaleTimeString();
     const colStr = `\x1b[${90 + this._color}m`;
 
@@ -39,7 +43,10 @@ class Logger {
     );
     if (data.length) {
       for (const d of data) {
-        console.log(`${colStr}•\x1b[0m`, util.inspect(d, false, null, true));
+        console.log(
+          `${colStr}•\x1b[0m`,
+          util.inspect(d, false, null, true)
+        );
       }
     }
   }
@@ -49,9 +56,11 @@ class Logger {
    * @param message Message to write
    * @param data Variables to log
    */
-  public error(message: string, ...data: any) {
+  public error(message: string, ...data: unknown[]): void {
     const timeString = new Date().toLocaleTimeString();
-    const colStr = `\x1b[5;${90 + colors.white};${100 + colors.red}m`;
+    const colStr = `\x1b[5;${90 + colors.white};${
+      100 + colors.red
+    }m`;
 
     console.log(
       `${colStr}[${timeString}][${this._module}]`,

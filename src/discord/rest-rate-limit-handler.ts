@@ -1,4 +1,9 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, Method } from "axios";
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  Method,
+} from "axios";
 import Logger from "../helper/logger";
 
 interface RateLimitObject {
@@ -12,14 +17,16 @@ interface RateLimitObject {
 export default class RestRateLimitHandler {
   // class
   private _logger = new Logger("RestRateLimitHandler");
+
   private routeBucket: string_object<string> = {};
+
   private rateLimits: string_object<RateLimitObject> = {};
 
   private requester: AxiosInstance = axios.create({
     baseURL: `https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}`,
     headers: {
-      authorization: `Bot ${process.env.TOKEN}`
-    }
+      authorization: `Bot ${process.env.TOKEN}`,
+    },
   });
 
   private handleErrors = (place: string, e: any): void => {
@@ -29,17 +36,24 @@ export default class RestRateLimitHandler {
         e.data.errors
       );
     } else {
-      this._logger.error(`[${place}] ${e.message}`, e.toJSON());
+      this._logger.error(
+        `[${place}] ${e.message}`,
+        e.toJSON()
+      );
     }
   };
 
-  private handleHeaders(headers: string_object<any>): RateLimitObject {
+  private handleHeaders(
+    headers: string_object<any>
+  ): RateLimitObject {
     return {
       limit: Number(headers["x-ratelimit-limit"]),
       remaining: Number(headers["x-ratelimit-remaining"]),
       reset: Number(headers["x-ratelimit-reset"]),
-      resetAfter: Number(headers["x-ratelimit-reset-after"]),
-      bucket: headers["x-ratelimit-bucket"]
+      resetAfter: Number(
+        headers["x-ratelimit-reset-after"]
+      ),
+      bucket: headers["x-ratelimit-bucket"],
     };
   }
 
@@ -66,10 +80,12 @@ export default class RestRateLimitHandler {
     method: Method,
     path: string,
     data?: any,
-    headers?: string_object<string>,
+    headers?: string_object<string>
   ): Promise<T | null> {
     const bucket = this.routeBucket[path];
-    const rateLimits = bucket ? this.rateLimits[bucket] : null;
+    const rateLimits = bucket
+      ? this.rateLimits[bucket]
+      : null;
 
     if (rateLimits) {
       const resetTimeMs = rateLimits.reset * 1000;
@@ -87,32 +103,38 @@ export default class RestRateLimitHandler {
           )
         );
 
-        //rate limited
-        return new Promise<T | null>(resolve => {
+        // rate limited
+        return new Promise<T | null>((resolve) => {
           setTimeout(() => {
-            resolve(this.request<T>(method, path, data, headers));
+            resolve(
+              this.request<T>(method, path, data, headers)
+            );
           }, resetTimeMs - now);
         });
       }
     }
 
-    //not rate limited - ok
+    // not rate limited - ok
 
     let response: AxiosResponse<T> | null = null;
     try {
       const requestOptions: AxiosRequestConfig = {
         method,
         url: path,
-        data
+        data,
       };
 
       if (headers) {
         requestOptions.headers = headers;
       }
 
-      response = await this.requester.request<T>(requestOptions);
+      response = await this.requester.request<T>(
+        requestOptions
+      );
 
-      const parsedHeaders = this.handleHeaders(response.headers);
+      const parsedHeaders = this.handleHeaders(
+        response.headers
+      );
 
       this.routeBucket[path] = parsedHeaders.bucket;
       this.rateLimits[parsedHeaders.bucket] = parsedHeaders;
@@ -127,10 +149,15 @@ export default class RestRateLimitHandler {
         )
       );
     } catch (e) {
-      if (axios.isAxiosError(e) && e.response?.status === 429) {
-        //rate limited
+      if (
+        axios.isAxiosError(e) &&
+        e.response?.status === 429
+      ) {
+        // rate limited
 
-        const parsedHeaders = this.handleHeaders(e.response.headers);
+        const parsedHeaders = this.handleHeaders(
+          e.response.headers
+        );
         this._logger.error(
           this.logMessage(
             path,
@@ -142,14 +169,15 @@ export default class RestRateLimitHandler {
           )
         );
 
-        return new Promise<T | null>(resolve => {
+        return new Promise<T | null>((resolve) => {
           setTimeout(() => {
-            resolve(this.request<T>(method, path, data, headers));
+            resolve(
+              this.request<T>(method, path, data, headers)
+            );
           }, parsedHeaders.resetAfter);
         });
-      } else {
-        this.handleErrors(path, e);
       }
+      this.handleErrors(path, e);
     }
 
     return response ? response.data : null;

@@ -1,10 +1,9 @@
-import { createStore } from 'redux';
+import { createStore } from "redux";
 import {
   Actions,
   State,
   SET_USER,
   ADD_GUILD,
-  ADD_GUILD_MEMBERS,
   SET_APPLICATION,
   SET_READY_CALLBACK,
   SET_COMMAND_EXECUTED_CALLBACK,
@@ -14,8 +13,8 @@ import {
   SET_DISCORD_SESSION,
   SET_DISCORD_LAST_S,
   REMOVE_PAGINATION,
-} from './types';
-import * as handler from './handler';
+} from "./types";
+import * as handler from "./handler";
 
 const initialState: State = {
   ready: false,
@@ -31,7 +30,10 @@ const initialState: State = {
   messageReactionCallback: [],
 };
 
-const storeReducer = (state: State = initialState, action: Actions) => {
+const storeReducer = (
+  state: State = initialState,
+  action: Actions
+) => {
   switch (action.type) {
     case SET_USER:
       return handler.SET_USER(state, action.user);
@@ -45,13 +47,25 @@ const storeReducer = (state: State = initialState, action: Actions) => {
     //     action.members
     //   );
     case SET_APPLICATION:
-      return handler.SET_APPLICATION(state, action.application);
+      return handler.SET_APPLICATION(
+        state,
+        action.application
+      );
     case SET_READY_CALLBACK:
-      return handler.SET_READY_CALLBACK(state, action.callback);
+      return handler.SET_READY_CALLBACK(
+        state,
+        action.callback
+      );
     case SET_COMMAND_EXECUTED_CALLBACK:
-      return handler.SET_COMMAND_EXECUTED_CALLBACK(state, action.callback);
+      return handler.SET_COMMAND_EXECUTED_CALLBACK(
+        state,
+        action.callback
+      );
     case SET_REACTION_CALLBACK:
-      return handler.SET_REACTION_CALLBACK(state, action.callback);
+      return handler.SET_REACTION_CALLBACK(
+        state,
+        action.callback
+      );
     case ADD_PAGINATION:
       return handler.ADD_PAGINATION(state, action.data);
     case SET_CHANNEL_LAST_ATTACHMENT:
@@ -61,9 +75,15 @@ const storeReducer = (state: State = initialState, action: Actions) => {
         action.attachment
       );
     case SET_DISCORD_SESSION:
-      return handler.SET_DISCORD_SESSION(state, action.session);
+      return handler.SET_DISCORD_SESSION(
+        state,
+        action.session
+      );
     case SET_DISCORD_LAST_S:
-      return handler.SET_DISCORD_LAST_S(state, action.lastS);
+      return handler.SET_DISCORD_LAST_S(
+        state,
+        action.lastS
+      );
     case REMOVE_PAGINATION:
       return handler.REMOVE_PAGINATION(state, action.data);
     default:

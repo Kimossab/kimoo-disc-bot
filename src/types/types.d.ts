@@ -1,8 +1,16 @@
-declare module 'puppeteer-bypass';
+declare module "puppeteer-bypass";
 
 interface string_object<T> {
   [index: string]: T;
 }
+
+type CommandHandler = (
+  data: discord.interaction,
+  option: discord.application_command_interaction_data_option
+) => Promise<void>;
+type SingleCommandHandler = (
+  data: discord.interaction
+) => Promise<void>;
 
 declare interface command_list {
   list: discord.application_command[];
@@ -120,7 +128,7 @@ declare namespace SauceNao {
     url?: string;
     user_acct?: string;
     yandere_id?: string;
-    'anime-pictures_id'?: string;
+    "anime-pictures_id"?: string;
     member_id?: string;
     member_name?: string;
     creator?: string | string[];
@@ -235,7 +243,7 @@ declare namespace TraceMoe {
 }
 
 declare namespace achievement {
-  interface server_leaderboard {
+  interface serverLeaderboard {
     user: string;
     points: number;
     rank: string;

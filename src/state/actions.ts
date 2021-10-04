@@ -10,16 +10,18 @@ import {
   SET_DISCORD_SESSION,
   SET_DISCORD_LAST_S,
   REMOVE_PAGINATION,
-} from './types';
-import store from './store';
-import Pagination from '../helper/pagination';
-import { DISCORD_TOKEN_TTL } from '../helper/constants';
+} from "./types";
+import store from "./store";
+import Pagination from "../helper/pagination";
+import { DISCORD_TOKEN_TTL } from "../helper/constants";
 
 /**
  * Adds a callback for when discord says it's ready
  * @param callback Callback function
  */
-export const setReadyCallback = (callback: () => void): void => {
+export const setReadyCallback = (
+  callback: () => void
+): void => {
   store.dispatch({
     type: SET_READY_CALLBACK,
     callback,
@@ -29,9 +31,8 @@ export const setReadyCallback = (callback: () => void): void => {
 /**
  * Checks if the application is ready
  */
-export const isReady = (): boolean => {
-  return store.getState().ready;
-};
+export const isReady = (): boolean =>
+  store.getState().ready;
 
 /**
  * Sets all store variables and calls the callback when discord says it's ready
@@ -71,7 +72,9 @@ export const setCommandExecutedCallback = (
  * Runs all callbacks for commands
  * @param data Interaction data
  */
-export const commandExecuted = (data: discord.interaction): void => {
+export const commandExecuted = (
+  data: discord.interaction
+): void => {
   const callback = store.getState().commandExecutedCallback;
 
   for (const cb of callback) {
@@ -93,9 +96,8 @@ export const addGuild = (guild: discord.guild): void => {
 /**
  * Get all guilds
  */
-export const getGuilds = (): discord.guild[] => {
-  return store.getState().guilds;
-};
+export const getGuilds = (): discord.guild[] =>
+  store.getState().guilds;
 
 // export const addGuildMembers = (data: discord.guild_members_chunk): void => {
 //   store.dispatch({
@@ -123,15 +125,17 @@ export const getGuilds = (): discord.guild[] => {
 /**
  * Get application info
  */
-export const getApplication = (): discord.application_object | null => {
-  return store.getState().application;
-};
+export const getApplication =
+  (): discord.application_object | null =>
+    store.getState().application;
 
 /**
  * Add pagination to the store
  * @param data Pagination data
  */
-export const addPagination = (data: Pagination<any>): void => {
+export const addPagination = (
+  data: Pagination<any>
+): void => {
   store.dispatch({
     type: ADD_PAGINATION,
     data,
@@ -149,9 +153,12 @@ export const addPagination = (data: Pagination<any>): void => {
  * Get pagination by message id
  * @param message Message id to find
  */
-export const getPagination = (message: string): Pagination<any> | undefined => {
-  return store.getState().allPaginations.find((f) => f.message === message);
-};
+export const getPagination = (
+  message: string
+): Pagination<any> | undefined =>
+  store
+    .getState()
+    .allPaginations.find((f) => f.message === message);
 
 /**
  * Adds a callback for new reactions
@@ -159,7 +166,9 @@ export const getPagination = (message: string): Pagination<any> | undefined => {
  */
 export const setReactionCallback = (
   callback: (
-    data: discord.message_reaction_add | discord.message_reaction_remove,
+    data:
+      | discord.message_reaction_add
+      | discord.message_reaction_remove,
     remove: boolean
   ) => void
 ): void => {
@@ -175,7 +184,9 @@ export const setReactionCallback = (
  * @param remove If the reaction was removed or added
  */
 export const gotNewReaction = (
-  data: discord.message_reaction_add | discord.message_reaction_remove,
+  data:
+    | discord.message_reaction_add
+    | discord.message_reaction_remove,
   remove: boolean
 ): void => {
   const callback = store.getState().messageReactionCallback;
@@ -205,28 +216,31 @@ export const setChannelLastAttachment = (
  * Gets the last attachment sent to the channel
  * @param channel Channel id
  */
-export const getChannelLastAttachment = (channel: string): string | undefined => {
-  return store.getState().channelLastAttachment[channel];
-};
+export const getChannelLastAttachment = (
+  channel: string
+): string | undefined =>
+  store.getState().channelLastAttachment[channel];
 
-export const setDiscordSession = (session: string | null): void => {
+export const setDiscordSession = (
+  session: string | null
+): void => {
   store.dispatch({
     type: SET_DISCORD_SESSION,
     session,
   });
 };
 
-export const getDiscordSession = (): string | null => {
-  return store.getState().discordSessionId;
-};
+export const getDiscordSession = (): string | null =>
+  store.getState().discordSessionId;
 
-export const setDiscordLastS = (lastS: number | null): void => {
+export const setDiscordLastS = (
+  lastS: number | null
+): void => {
   store.dispatch({
     type: SET_DISCORD_LAST_S,
     lastS,
   });
 };
 
-export const getDiscordLastS = (): number | null => {
-  return store.getState().discordLastS;
-};
+export const getDiscordLastS = (): number | null =>
+  store.getState().discordLastS;

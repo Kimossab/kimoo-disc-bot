@@ -14,8 +14,8 @@ const UserAchievementSchema: Schema = new mongoose.Schema({
   awardDate: Date,
   achievement: {
     type: Schema.Types.ObjectId,
-    ref: "Achievement"
-  }
+    ref: "Achievement",
+  },
 });
 
 export default mongoose.model<IUserAchievement>(

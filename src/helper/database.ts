@@ -8,7 +8,7 @@ const _logger = new Logger("database");
  * Connects to a monog DB
  * @param url Database url
  */
-const connect = (url: string) => {
+const connect = (url: string): void => {
   mongoose.connect(url);
 
   mongoose.connection.on("error", onError);
@@ -17,7 +17,7 @@ const connect = (url: string) => {
   achievementModel.createCollection();
 };
 
-const onError = (e: any) => {
+const onError = (e: unknown) => {
   _logger.error("Could not connect to the database.", e);
 };
 

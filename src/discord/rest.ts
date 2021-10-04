@@ -1,15 +1,18 @@
-import RestRateLimitHandler from './rest-rate-limit-handler';
-import FormData from 'form-data';
-import fs from 'fs';
+import FormData from "form-data";
+import fs from "fs";
+import RestRateLimitHandler from "./rest-rate-limit-handler";
 
 const rateLimiter = new RestRateLimitHandler();
 
 /**
  * Request the gateway bot from discord
  */
-export const getGatewayBot = (): Promise<discord.gateway_bot | null> => {
-  return rateLimiter.request<discord.gateway_bot>('GET', '/gateway/bot');
-};
+export const getGatewayBot =
+  (): Promise<discord.gateway_bot | null> =>
+    rateLimiter.request<discord.gateway_bot>(
+      "GET",
+      "/gateway/bot"
+    );
 
 // messages
 /**
@@ -29,7 +32,7 @@ export const sendMessage = (
   }
 
   return rateLimiter.request<discord.message>(
-    'POST',
+    "POST",
     `/channels/${channel}/messages`,
     message
   );
@@ -54,7 +57,7 @@ export const editMessage = (
   }
 
   return rateLimiter.request<discord.message>(
-    'PATCH',
+    "PATCH",
     `/channels/${channel}/messages/${message}`,
     messageData
   );
@@ -71,28 +74,26 @@ export const createReaction = (
   channel: string,
   message: string,
   reaction: string
-): Promise<void | null> => {
-  return rateLimiter.request<void>(
-    'PUT',
+): Promise<void | null> =>
+  rateLimiter.request<void>(
+    "PUT",
     `/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(
       reaction
     )}/@me`
   );
-};
 
-//SLASH COMMANDS
+// SLASH COMMANDS
 /**
  * Gets the commands for the application
  * @param application Application id
  */
 export const getCommands = (
   application: string
-): Promise<discord.application_command[] | null> => {
-  return rateLimiter.request<discord.application_command[]>(
-    'GET',
+): Promise<discord.application_command[] | null> =>
+  rateLimiter.request<discord.application_command[]>(
+    "GET",
     `/applications/${application}/commands`
   );
-};
 
 /**
  * Deletes an existing command with the name in this application
@@ -102,12 +103,11 @@ export const getCommands = (
 export const deleteCommand = (
   application: string,
   command: string
-): Promise<void | null> => {
-  return rateLimiter.request<void>(
-    'DELETE',
+): Promise<void | null> =>
+  rateLimiter.request<void>(
+    "DELETE",
     `/applications/${application}/commands/${command}`
   );
-};
 
 /**
  * Creates or updates a new command for this application
@@ -117,13 +117,12 @@ export const deleteCommand = (
 export const createCommand = (
   application: string,
   command: discord.application_command
-): Promise<discord.application_command | null> => {
-  return rateLimiter.request<discord.application_command>(
-    'POST',
+): Promise<discord.application_command | null> =>
+  rateLimiter.request<discord.application_command>(
+    "POST",
     `/applications/${application}/commands`,
     command
   );
-};
 
 /**
  * Sends a response to an interaction
@@ -135,35 +134,34 @@ export const createInteractionResponse = (
   interaction: string,
   token: string,
   data: discord.interaction_response
-): Promise<void | null> => {
-  return rateLimiter.request<void>(
-    'POST',
+): Promise<void | null> =>
+  rateLimiter.request<void>(
+    "POST",
     `/interactions/${interaction}/${token}/callback`,
     data
   );
-};
 
 export const editOriginalInteractionResponse = (
   applicationId: string,
   token: string,
   data: discord.edit_webhook_message_request,
-  image?: string,
+  image?: string
 ): Promise<discord.message | null> => {
   if (image) {
     const formData = new FormData();
     const file = fs.createReadStream(image);
-    formData.append('file', file);
-    formData.append('payload_json', JSON.stringify(data));
+    formData.append("file", file);
+    formData.append("payload_json", JSON.stringify(data));
 
     return rateLimiter.request<discord.message>(
-      'PATCH',
+      "PATCH",
       `/webhooks/${applicationId}/${token}/messages/@original`,
       formData,
       formData.getHeaders()
     );
   }
   return rateLimiter.request<discord.message>(
-    'PATCH',
+    "PATCH",
     `/webhooks/${applicationId}/${token}/messages/@original`,
     data
   );

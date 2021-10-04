@@ -1,10 +1,10 @@
-import { getGuilds } from '../state/actions';
-import { getAdminRole } from '../bot/bot.controller';
-import fs from 'fs';
-import https from 'https';
+import fs from "fs";
+import https from "https";
+import { getGuilds } from "../state/actions";
+import { getAdminRole } from "../bot/database";
 
 export enum string_constants {
-  endpoint_wrong_response = 'Wrong reply from `<endpoint>`',
+  endpoint_wrong_response = "Wrong reply from `<endpoint>`",
 }
 
 /**
@@ -15,7 +15,7 @@ export enum string_constants {
 export const stringReplacer = (
   str: string,
   replace: string_object<string | number>
-) => {
+): string => {
   let result = str;
   for (const s in replace) {
     const r = replace[s];
@@ -32,26 +32,37 @@ export const stringReplacer = (
  * @param remove Is the reaction a removal
  */
 export const isValidReactionUser = (
-  data: discord.message_reaction_add | discord.message_reaction_remove,
+  data:
+    | discord.message_reaction_add
+    | discord.message_reaction_remove,
   remove: boolean
 ): boolean => {
   if (remove) {
     return true;
   }
 
-  const d: discord.message_reaction_add = data as discord.message_reaction_add;
-  return !!(d.member && d.member.user && !d.member.user.bot);
+  const d: discord.message_reaction_add =
+    data as discord.message_reaction_add;
+  return !!(
+    d.member &&
+    d.member.user &&
+    !d.member.user.bot
+  );
 };
 
 /**
  * Converts a value in seconds into a string of MM:SS
  * @param seconds Time in seconds
  */
-export const formatSecondsIntoMinutes = (seconds: number): string => {
-  let mins = Math.floor(seconds / 60);
-  let minsString = mins < 10 ? `0${mins}` : mins.toString();
+export const formatSecondsIntoMinutes = (
+  seconds: number
+): string => {
+  const mins = Math.floor(seconds / 60);
+  const minsString =
+    mins < 10 ? `0${mins}` : mins.toString();
   const secs = Math.trunc(seconds % 60);
-  let secsString = secs < 10 ? `0${secs}` : secs.toString();
+  const secsString =
+    secs < 10 ? `0${secs}` : secs.toString();
 
   return `${minsString}:${secsString}`;
 };
@@ -60,18 +71,18 @@ export const formatSecondsIntoMinutes = (seconds: number): string => {
  * Converts a snowflake into a date object
  * @param snowflake Snowflake value
  */
-export const snowflakeToDate = (snowflake: string): Date => {
-  return new Date(Number(snowflake) / 4194304 + 1420070400000);
-};
+export const snowflakeToDate = (snowflake: string): Date =>
+  new Date(Number(snowflake) / 4194304 + 1420070400000);
 
 /**
  * Get a random number between 2 values
  * @param min Minimum value
  * @param max Maximum value (excluded)
  */
-export const randomNum = (min: number, max: number): number => {
-  return Math.floor(Math.random() * (max - min)) + min;
-};
+export const randomNum = (
+  min: number,
+  max: number
+): number => Math.floor(Math.random() * (max - min)) + min;
 
 /**
  * Checks if the user is an admin for this server
@@ -101,59 +112,69 @@ export const checkAdmin = async (
   return member.roles.includes(role);
 };
 
-export const chunkArray = <T>(data: T[], size: number): T[][] => {
+export const chunkArray = <T>(
+  data: T[],
+  size: number
+): T[][] => {
   const R = [];
-  for (var i = 0; i < data.length; i += size) {
+  for (let i = 0; i < data.length; i += size) {
     R.push(data.slice(i, i + size));
   }
   return R;
 };
 
-export const getDayInfo = (day = new Date()): DayInfo => {
-  return {
-    year: day.getFullYear(),
-    month: day.getMonth() + 1,
-    day: day.getDate(),
-    hours: day.getHours(),
-    minutes: day.getMinutes(),
-    seconds: day.getSeconds(),
-    milliseconds: day.getMilliseconds(),
-  };
-};
+export const getDayInfo = (day = new Date()): DayInfo => ({
+  year: day.getFullYear(),
+  month: day.getMonth() + 1,
+  day: day.getDate(),
+  hours: day.getHours(),
+  minutes: day.getMinutes(),
+  seconds: day.getSeconds(),
+  milliseconds: day.getMilliseconds(),
+});
 
-export const downloadFile = async (url: string, dest: string): Promise<boolean> => {
-  return new Promise((resolve) => {
+export const downloadFile = async (
+  url: string,
+  dest: string
+): Promise<boolean> =>
+  new Promise((resolve) => {
     const file = fs.createWriteStream(dest);
 
     https
       .get(url, (response) => {
         response.pipe(file);
 
-        file.on('finish', () => {
+        file.on("finish", () => {
           file.close();
           resolve(true);
         });
       })
-      .on('error', function (err) {
+      .on("error", () => {
         fs.unlink(dest, () => {
           resolve(false);
         });
       });
   });
-};
 
-export const moveFile = async (source: string, destination: string): Promise<boolean> => {
-  return new Promise((resolve) => {
-    fs.rename(source, destination, (err: NodeJS.ErrnoException | null) => {
-      resolve(!err);
-    });
+export const moveFile = async (
+  source: string,
+  destination: string
+): Promise<boolean> =>
+  new Promise((resolve) => {
+    fs.rename(
+      source,
+      destination,
+      (err: NodeJS.ErrnoException | null) => {
+        resolve(!err);
+      }
+    );
   });
-}
 
-export const deleteFile = async (file: string): Promise<boolean> => {
-  return new Promise((resolve) => {
+export const deleteFile = async (
+  file: string
+): Promise<boolean> =>
+  new Promise((resolve) => {
     fs.unlink(file, (err: NodeJS.ErrnoException | null) => {
       resolve(!err);
     });
   });
-}

@@ -1,14 +1,20 @@
-import Pagination from '../helper/pagination';
-import { State } from './types';
+import Pagination from "../helper/pagination";
+import { State } from "./types";
 
-export const SET_USER = (state: State, user: discord.user): State => {
-  return {
-    ...state,
-    user,
-  };
-};
-export const ADD_GUILD = (state: State, guild: discord.guild): State => {
-  state.guilds = state.guilds.filter((g) => g.id !== guild.id);
+export const SET_USER = (
+  state: State,
+  user: discord.user
+): State => ({
+  ...state,
+  user,
+});
+export const ADD_GUILD = (
+  state: State,
+  guild: discord.guild
+): State => {
+  state.guilds = state.guilds.filter(
+    (g) => g.id !== guild.id
+  );
   state.guilds.push(guild);
   return state;
 };
@@ -30,22 +36,18 @@ export const ADD_GUILD = (state: State, guild: discord.guild): State => {
 export const SET_APPLICATION = (
   state: State,
   application: discord.application_object
-): State => {
-  return {
-    ...state,
-    ready: true,
-    application,
-  };
-};
+): State => ({
+  ...state,
+  ready: true,
+  application,
+});
 export const SET_READY_CALLBACK = (
   state: State,
   callback: () => void
-): State => {
-  return {
-    ...state,
-    readyCallback: callback,
-  };
-};
+): State => ({
+  ...state,
+  readyCallback: callback,
+});
 export const SET_COMMAND_EXECUTED_CALLBACK = (
   state: State,
   callback: (data: discord.interaction) => void
@@ -57,7 +59,9 @@ export const SET_COMMAND_EXECUTED_CALLBACK = (
 export const SET_REACTION_CALLBACK = (
   state: State,
   callback: (
-    data: discord.message_reaction_add | discord.message_reaction_remove,
+    data:
+      | discord.message_reaction_add
+      | discord.message_reaction_remove,
     remove: boolean
   ) => void
 ): State => {
@@ -65,7 +69,10 @@ export const SET_REACTION_CALLBACK = (
   return state;
 };
 
-export const ADD_PAGINATION = (state: State, data: Pagination<any>): State => {
+export const ADD_PAGINATION = (
+  state: State,
+  data: Pagination<any>
+): State => {
   state.allPaginations.push(data);
   return state;
 };
@@ -82,22 +89,18 @@ export const SET_CHANNEL_LAST_ATTACHMENT = (
 export const SET_DISCORD_SESSION = (
   state: State,
   session: string | null
-): State => {
-  return {
-    ...state,
-    discordSessionId: session,
-  };
-};
+): State => ({
+  ...state,
+  discordSessionId: session,
+});
 
 export const SET_DISCORD_LAST_S = (
   state: State,
   lastS: number | null
-): State => {
-  return {
-    ...state,
-    discordLastS: lastS,
-  };
-};
+): State => ({
+  ...state,
+  discordLastS: lastS,
+});
 
 export const REMOVE_PAGINATION = (
   state: State,
