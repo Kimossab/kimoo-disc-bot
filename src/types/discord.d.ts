@@ -32,8 +32,8 @@ declare namespace discord {
   declare interface payload<T = unknown> {
     op: constants.opcodes;
     d?: T;
-    s: ?number;
-    t: ?string;
+    s: null | number;
+    t: null | string;
   }
 
   declare interface hello {
@@ -49,12 +49,12 @@ declare namespace discord {
   declare interface activity {
     name: string;
     type: 0 | 1 | 2 | 4 | 5;
-    url?: ?string;
+    url?: null | string;
   }
 
   declare interface update_status {
-    since: ?number;
-    activities: ?activity[];
+    since: null | number;
+    activities: null | activity[];
     status:
       | "online"
       | "dnd"
@@ -100,13 +100,13 @@ declare namespace discord {
     id: snowflake;
     username: string;
     discriminator: string;
-    avatar: ?string;
+    avatar: null | string;
     bot?: boolean;
     system?: boolean;
     mfa_enabled?: boolean;
     locale?: string;
     verified?: boolean;
-    email?: ?string;
+    email?: null | string;
     flags?: number;
     premium_type?: number;
     public_flags?: number;
@@ -131,8 +131,8 @@ declare namespace discord {
   }
 
   declare interface emoji {
-    id: ?snowflake;
-    name: ?string;
+    id: null | snowflake;
+    name: null | string;
     roles?: role[];
     user?: user;
     require_colons?: boolean;
@@ -143,10 +143,10 @@ declare namespace discord {
 
   declare interface guild_member {
     user?: user;
-    nick: ?string;
+    nick: null | string;
     roles: snowflake[];
     joined_at: string;
-    premium_since?: ?string;
+    premium_since?: null | string;
     deaf: boolean;
     mute: boolean;
     pending?: boolean;
@@ -154,7 +154,7 @@ declare namespace discord {
 
   declare interface voice_state {
     guild_id?: snowflake;
-    channel_id: ?snowflake;
+    channel_id: null | snowflake;
     user_id: snowflake;
     member?: guild_member;
     session_id: string;
@@ -181,18 +181,18 @@ declare namespace discord {
     position?: number;
     permission_overwrites?: overwrite[];
     name?: string;
-    topic?: ?string;
+    topic?: null | string;
     nsfw?: boolean;
-    last_message_id?: ?snowflake;
+    last_message_id?: null | snowflake;
     bitrate?: number;
     user_limit?: number;
     rate_limit_per_user?: number;
     recipients?: user[];
-    icon?: ?string;
+    icon?: null | string;
     owner_id?: snowflake;
     application_id?: snowflake;
-    parent_id?: ?snowflake;
-    last_pin_timestamp?: ?string;
+    parent_id?: null | snowflake;
+    last_pin_timestamp?: null | string;
   }
 
   declare interface client_status {
@@ -212,18 +212,18 @@ declare namespace discord {
   declare interface guild {
     id: snowflake;
     name: string;
-    icon: ?string;
-    icon_hash?: ?string;
-    splash: ?string;
-    discovery_splash: ?string;
+    icon: null | string;
+    icon_hash?: null | string;
+    splash: null | string;
+    discovery_splash: null | string;
     owner?: boolean;
     owner_id: snowflake;
     permissions?: string;
     region: string;
-    afk_channel_id: ?snowflake;
+    afk_channel_id: null | snowflake;
     afk_timeout: number;
     widget_enabled?: boolean;
-    widget_channel_id?: ?snowflake;
+    widget_channel_id?: null | snowflake;
     verification_level: number;
     default_message_notifications: number;
     explicit_content_filter: number;
@@ -231,8 +231,8 @@ declare namespace discord {
     emojis: emoji[];
     features: string[];
     mfa_level: number;
-    application_id: ?snowflake;
-    system_channel_id: ?snowflake;
+    application_id: null | snowflake;
+    system_channel_id: null | snowflake;
     system_channel_flags: number;
     joined_at?: string;
     large?: boolean;
@@ -242,15 +242,15 @@ declare namespace discord {
     members?: guild_member[];
     channels?: channel[];
     presences?: presence_update[];
-    max_presences?: ?number;
+    max_presences?: null | number;
     max_members?: number;
-    vanity_url_code: ?string;
-    description: ?string;
-    banner: ?string;
+    vanity_url_code: null | string;
+    description: null | string;
+    banner: null | string;
     premium_tier: number;
     premium_subscription_count?: number;
     preferred_locale: string;
-    public_updates_channel_id: ?snowflake;
+    public_updates_channel_id: null | snowflake;
     max_video_channel_users?: number;
     approximate_member_count: number;
     approximate_presence_count: number;
@@ -269,7 +269,7 @@ declare namespace discord {
   }
 
   declare interface team {
-    icon: ?string;
+    icon: null | string;
     id: snowflake;
     members: team_member[];
     owner_user_id: snowflake;
@@ -278,7 +278,7 @@ declare namespace discord {
   declare interface application_object {
     id: snowflake;
     name: string;
-    icon: ?string;
+    icon: null | string;
     description: string;
     rpc_origins?: string[];
     bot_public: boolean;
@@ -286,7 +286,7 @@ declare namespace discord {
     owner: user;
     summary: string;
     verify_key: string;
-    team: ?team;
+    team: null | team;
     guild_id?: snowflake;
     primary_sku_id?: snowflake;
     slug?: string;
@@ -401,8 +401,8 @@ declare namespace discord {
     size: number; // size of file in bytes
     url: string; // source url of file
     proxy_url: string; // a proxied url of file
-    height: ?number; // height of file (if image)
-    width: ?number; // width of file (if image)
+    height: null | number; // height of file (if image)
+    width: null | number; // width of file (if image)
   }
 
   declare interface reaction {
@@ -420,7 +420,7 @@ declare namespace discord {
     id: snowflake; // id of the application
     cover_image?: string; // id of the embed's image asset
     description: string; // application's description
-    icon: ?string; // id of the application's icon
+    icon: null | string; // id of the application's icon
     name: string; // name of the application
   }
 
@@ -438,7 +438,7 @@ declare namespace discord {
     description: string; // description of the sticker
     tags?: string; // a comma-separated list of tags for the sticker
     asset: string; // sticker asset hash
-    preview_asset: ?string; // sticker preview asset hash
+    preview_asset: null | string; // sticker preview asset hash
     format_type: 1 | 2 | 3; // type of sticker format
   }
 
@@ -450,7 +450,7 @@ declare namespace discord {
     member?: guild_member; // member properties for this message's author
     content: string; // contents of the message
     timestamp: number; // when this message was sent
-    edited_timestamp: ?number; // when this message was edited (or null if never)
+    edited_timestamp: null | number; // when this message was edited (or null if never)
     tts: boolean; // whether this was a TTS message
     mention_everyone: boolean; // whether this message mentions everyone
     mentions: (user & member)[]; // users specifically mentioned in the message
@@ -468,7 +468,7 @@ declare namespace discord {
     message_reference?: message_reference; // reference data sent with crossposted messages and replies
     flags?: integer; // message flags combined as a bitfield
     stickers?: sticker[]; // the stickers sent with the message (bots currently can only receive messages with stickers, not send)
-    referenced_message?: ?message; // the message associated with the message_reference
+    referenced_message?: null | message; // the message associated with the message_reference
   }
 
   declare interface message_reaction_add {

@@ -186,7 +186,7 @@ export default class BirthdayModule extends BaseModule {
 
     this.logger.log(`next check in ${time} milliseconds`);
     this.checkTimeout = setTimeout(
-      this.checkBirthdays,
+      () => this.checkBirthdays(),
       time
     );
   }

@@ -14,7 +14,6 @@ import {
 } from "../state/actions";
 import {
   addSubscription,
-  deleteAllSubscriptionsForId,
   getAllAnimeNotifications,
   getAllSubscriptionsForAnime,
   getNextAiring,
@@ -25,7 +24,7 @@ import {
   searchByQuery,
   searchByQueryAndType,
   searchForAiringSchedule,
-  searchForAiringScheduleById,
+  searchByScheduleId,
   searchForUser,
 } from "./graphql";
 import { mapMediaAiringToEmbed } from "./mappers/mapMediaAiringToEmbed";
@@ -34,7 +33,6 @@ import { mapMediaToEmbed } from "./mappers/mapMediaToEmbed";
 import { mapSubListToEmbed } from "./mappers/mapSubListToEmbed";
 import {
   MediaForAiring,
-  MediaResponse,
   MediaSubbedInfo,
   MediaType,
 } from "./types/graphql";
@@ -75,21 +73,21 @@ export default class AnilistModule extends BaseModule {
   }
 
   private notifyNewEpisode = async (
-    animeInfo: MediaResponse<MediaForAiring>,
+    animeInfo: MediaForAiring,
     episode: number
   ): Promise<void> => {
     this.logger.log(
       "Notifying for new episode",
-      animeInfo.Media.title,
+      animeInfo.title,
       episode
     );
 
     const embed = mapMediaAiringToNewEpisodeEmbed(
-      animeInfo.Media,
+      animeInfo,
       episode
     );
     const subs = await getAllSubscriptionsForAnime(
-      animeInfo.Media.id
+      animeInfo.id
     );
 
     const servers = subs.map((s) => s.server);
@@ -113,39 +111,43 @@ export default class AnilistModule extends BaseModule {
 
     const nextAiring = await getNextAiring(id);
     if (!nextAiring) {
-      this.logger.log("deleteAllSubscriptionsForId", id);
-      await deleteAllSubscriptionsForId(id);
-      return;
-    }
-    const animeInfo = await searchForAiringScheduleById(id);
-
-    const nextAiringInfo =
-      animeInfo.Media.airingSchedule?.edges.find(
-        (e) => e.node.id === nextAiring.nextAiring
-      );
-
-    if (!nextAiringInfo) {
       this.logger.log(
-        "deleteAllSubscriptionsForId",
-        nextAiringInfo,
-        animeInfo.Media.airingSchedule?.edges,
-        nextAiring.nextAiring,
+        "Nothing found on databse - deleteAllSubscriptionsForId",
         id
       );
-      await deleteAllSubscriptionsForId(id);
+      // await deleteAllSubscriptionsForId(id);
       return;
     }
 
-    if (nextAiringInfo.node.timeUntilAiring <= 0) {
+    const scheduleInfo = await searchByScheduleId(
+      nextAiring.nextAiring
+    );
+
+    if (!scheduleInfo) {
+      this.logger.log(
+        "No info found for that id - deleteAllSubscriptionsForId",
+        scheduleInfo,
+        nextAiring,
+        id
+      );
+      // await deleteAllSubscriptionsForId(id);
+      return;
+    }
+
+    if (scheduleInfo.AiringSchedule.timeUntilAiring <= 0) {
       this.notifyNewEpisode(
-        animeInfo,
-        nextAiringInfo.node.episode
+        scheduleInfo.AiringSchedule.media,
+        scheduleInfo.AiringSchedule.episode
       );
 
-      if (animeInfo.Media.nextAiringEpisode) {
+      if (
+        scheduleInfo.AiringSchedule.media.nextAiringEpisode
+      ) {
         await setNextAiring(
           id,
-          animeInfo.Media.nextAiringEpisode.id!
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          scheduleInfo.AiringSchedule.media
+            .nextAiringEpisode.id!
         );
 
         if (this.animeNotificationTimer[id]) {
@@ -154,18 +156,21 @@ export default class AnilistModule extends BaseModule {
 
         this.logger.log(
           `Set timeout for ${id} with ${
-            animeInfo.Media.nextAiringEpisode
-              ?.timeUntilAiring * 1000
+            scheduleInfo.AiringSchedule.media
+              .nextAiringEpisode?.timeUntilAiring * 1000
           }`
         );
         this.animeNotificationTimer[id] = setTimeout(
           () => this.checkNotification(id),
-          animeInfo.Media.nextAiringEpisode
-            ?.timeUntilAiring * 1000
+          scheduleInfo.AiringSchedule.media
+            .nextAiringEpisode?.timeUntilAiring * 1000
         );
       } else {
-        this.logger.log("deleteAllSubscriptionsForId", id);
-        await deleteAllSubscriptionsForId(id);
+        this.logger.log(
+          "No Next Episode - deleteAllSubscriptionsForId",
+          id
+        );
+        // await deleteAllSubscriptionsForId(id);
       }
     } else {
       if (this.animeNotificationTimer[id]) {
@@ -173,12 +178,12 @@ export default class AnilistModule extends BaseModule {
       }
       this.logger.log(
         `Set timeout for ${id} with ${
-          nextAiringInfo.node.timeUntilAiring * 1000
+          scheduleInfo.AiringSchedule.timeUntilAiring * 1000
         }`
       );
       this.animeNotificationTimer[id] = setTimeout(
         () => this.checkNotification(id),
-        nextAiringInfo.node.timeUntilAiring * 1000
+        scheduleInfo.AiringSchedule.timeUntilAiring * 1000
       );
     }
   };

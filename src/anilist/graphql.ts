@@ -6,12 +6,13 @@ import {
   MediaResponse,
   MediaForAiring,
   MediaSubbed,
+  AiringScheduleResponse,
 } from "./types/graphql";
 import { searchByTypeGraphql } from "./queries/searchByTypeGraphql";
 import axios, { AxiosResponse } from "axios";
 import { searchGraphql } from "./queries/searchGraphql";
 import { searchForAiringScheduleGraphql } from "./queries/searchForAiringScheduleGraphql";
-import { searchForAiringScheduleByIdGraphql } from "./queries/searchForAiringScheduleByIdGraphql";
+import { searchByScheduleIdGraphql } from "./queries/searchByScheduleIdGraphql";
 import { searchByIdsGraphql } from "./queries/searchByIdsGraphql";
 
 const ANILIST_GRAPHQL = "https://graphql.anilist.co";
@@ -70,11 +71,11 @@ export const searchForAiringSchedule = async (
   );
 };
 
-export const searchForAiringScheduleById = async (
+export const searchByScheduleId = async (
   id: number
-): Promise<MediaResponse<MediaForAiring>> => {
-  return request<MediaResponse<MediaForAiring>>(
-    searchForAiringScheduleByIdGraphql,
+): Promise<AiringScheduleResponse> => {
+  return request<AiringScheduleResponse>(
+    searchByScheduleIdGraphql,
     {
       id,
     }

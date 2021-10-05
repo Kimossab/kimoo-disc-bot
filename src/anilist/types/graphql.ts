@@ -172,7 +172,6 @@ export interface MediaForAiring {
   title: MediaTitle;
   isAdult: boolean;
   nextAiringEpisode: NextEpisode | null;
-  airingSchedule?: Edges<NextEpisode> | null;
   coverImage: MediaCoverImage;
   siteUrl: string;
 }
@@ -190,8 +189,21 @@ export interface PageResponse<T> {
   Page: Page<T>;
 }
 
+export interface AiringSchedule {
+  id: number;
+  airingAt: number;
+  timeUntilAiring: number;
+  episode: number;
+  mediaId: number;
+  media: MediaForAiring;
+}
+
 export interface MediaResponse<T> {
   Media: Page<T>;
+}
+
+export interface AiringScheduleResponse {
+  AiringSchedule: AiringSchedule;
 }
 
 export interface Response<T> {

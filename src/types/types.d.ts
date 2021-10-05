@@ -217,17 +217,17 @@ declare namespace TraceMoe {
     synonyms: string[];
     synonyms_chinese: string[];
     title: {
-      native: ?string;
-      romaji: ?string;
-      english: ?string;
-      chinese: ?string;
+      native: null | string;
+      romaji: null | string;
+      english: null | string;
+      chinese: null | string;
     };
   }
 
   declare interface resultData {
     anilist: anilistData;
     filename: string;
-    episode: ?number;
+    episode: null | number;
     from: number;
     to: number;
     similarity: number;
