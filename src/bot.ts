@@ -249,6 +249,10 @@ const main = async (): Promise<void> => {
   }
 
   if (gateway.session_start_limit.remaining === 0) {
+    _logger.log(
+      `SESSION START LIMIT REACHED (is 0). RESTARTING IN ${gateway.session_start_limit.reset_after}ms`,
+      gateway
+    );
     setTimeout(
       main,
       gateway.session_start_limit.reset_after

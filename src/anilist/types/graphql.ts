@@ -67,7 +67,7 @@ interface ExternalLinks {
   site: string;
 }
 
-interface NextEpisode {
+export interface NextEpisode {
   id?: number;
   airingAt: number;
   timeUntilAiring: number;
@@ -167,6 +167,9 @@ type Page<T> = {
   pageInfo: PageInfo;
 } & T;
 
+export interface NextAiring {
+  nextAiringEpisode: NextEpisode | null;
+}
 export interface MediaForAiring {
   id: number;
   title: MediaTitle;
@@ -199,7 +202,7 @@ export interface AiringSchedule {
 }
 
 export interface MediaResponse<T> {
-  Media: Page<T>;
+  Media: T;
 }
 
 export interface AiringScheduleResponse {

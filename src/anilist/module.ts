@@ -26,6 +26,7 @@ import {
   searchForAiringSchedule,
   searchByScheduleId,
   searchForUser,
+  getNextAiringEpisode,
 } from "./graphql";
 import { mapMediaAiringToEmbed } from "./mappers/mapMediaAiringToEmbed";
 import { mapMediaAiringToNewEpisodeEmbed } from "./mappers/mapMediaAiringToNewEpisodeEmbed";
@@ -35,6 +36,7 @@ import {
   MediaForAiring,
   MediaSubbedInfo,
   MediaType,
+  NextEpisode,
 } from "./types/graphql";
 
 interface SearchCommandOptions {
@@ -106,31 +108,82 @@ export default class AnilistModule extends BaseModule {
     }
   };
 
-  private checkNotification = async (id: number) => {
-    this.logger.log("Checking for new episode", id);
+  private setCheckNotificationTimer = (
+    id: number,
+    nextEpisode: NextEpisode
+  ) => {
+    if (this.animeNotificationTimer[id]) {
+      clearTimeout(this.animeNotificationTimer[id]);
+    }
+    const timeToAir =
+      nextEpisode.timeUntilAiring * 1000 > 2000000000
+        ? 2000000000
+        : nextEpisode.timeUntilAiring * 1000;
+    this.logger.log(
+      `Set timeout for ${id} with ${timeToAir}`
+    );
+    this.animeNotificationTimer[id] = setTimeout(
+      () => this.checkNotification(id),
+      timeToAir
+    );
+  };
 
-    const nextAiring = await getNextAiring(id);
-    if (!nextAiring) {
+  private setNextEpisodeOrDelete = async (id: number) => {
+    const nextEpisode = await getNextAiringEpisode(id);
+    if (
+      !nextEpisode ||
+      !nextEpisode?.Media.nextAiringEpisode
+    ) {
       this.logger.log(
-        "Nothing found on databse - deleteAllSubscriptionsForId",
+        "Nothing found on database - deleteAllSubscriptionsForId",
         id
       );
+      // TODO: get next airing info from anilist
       // await deleteAllSubscriptionsForId(id);
       return;
     }
 
+    this.logger.log(
+      "Setting next episode in the database",
+      id,
+      nextEpisode
+    );
+    await setNextAiring(
+      id,
+      nextEpisode?.Media.nextAiringEpisode.id || -1
+    );
+    this.setCheckNotificationTimer(
+      id,
+      nextEpisode?.Media.nextAiringEpisode
+    );
+    return;
+  };
+
+  private checkNotification = async (id: number) => {
+    this.logger.log("Checking for new episode", id);
+
+    // get database info
+    const nextAiring = await getNextAiring(id);
+
+    // if there's no info in the database then I can't know if it's a new episode
+    if (!nextAiring) {
+      this.setNextEpisodeOrDelete(id);
+      return;
+    }
+
     const scheduleInfo = await searchByScheduleId(
-      nextAiring.nextAiring
+      nextAiring.nextAiring,
+      this.logger
     );
 
     if (!scheduleInfo) {
       this.logger.log(
-        "No info found for that id - deleteAllSubscriptionsForId",
-        scheduleInfo,
+        "No info found for that id",
         nextAiring,
         id
       );
-      // await deleteAllSubscriptionsForId(id);
+
+      await this.setNextEpisodeOrDelete(id);
       return;
     }
 
@@ -153,17 +206,21 @@ export default class AnilistModule extends BaseModule {
         if (this.animeNotificationTimer[id]) {
           clearTimeout(this.animeNotificationTimer[id]);
         }
+        const timeToAir =
+          scheduleInfo.AiringSchedule.media
+            .nextAiringEpisode?.timeUntilAiring *
+            1000 >
+          2000000000
+            ? 2000000000
+            : scheduleInfo.AiringSchedule.media
+                .nextAiringEpisode?.timeUntilAiring * 1000;
 
         this.logger.log(
-          `Set timeout for ${id} with ${
-            scheduleInfo.AiringSchedule.media
-              .nextAiringEpisode?.timeUntilAiring * 1000
-          }`
+          `Set timeout for ${id} with ${timeToAir}`
         );
         this.animeNotificationTimer[id] = setTimeout(
           () => this.checkNotification(id),
-          scheduleInfo.AiringSchedule.media
-            .nextAiringEpisode?.timeUntilAiring * 1000
+          timeToAir
         );
       } else {
         this.logger.log(
@@ -173,17 +230,9 @@ export default class AnilistModule extends BaseModule {
         // await deleteAllSubscriptionsForId(id);
       }
     } else {
-      if (this.animeNotificationTimer[id]) {
-        clearTimeout(this.animeNotificationTimer[id]);
-      }
-      this.logger.log(
-        `Set timeout for ${id} with ${
-          scheduleInfo.AiringSchedule.timeUntilAiring * 1000
-        }`
-      );
-      this.animeNotificationTimer[id] = setTimeout(
-        () => this.checkNotification(id),
-        scheduleInfo.AiringSchedule.timeUntilAiring * 1000
+      this.setCheckNotificationTimer(
+        id,
+        scheduleInfo.AiringSchedule
       );
     }
   };
@@ -216,8 +265,19 @@ export default class AnilistModule extends BaseModule {
         );
 
       const allData = await (type
-        ? searchByQueryAndType(query, type)
-        : searchByQuery(query));
+        ? searchByQueryAndType(query, type, this.logger)
+        : searchByQuery(query, this.logger));
+
+      if (!allData) {
+        await editOriginalInteractionResponse(
+          app.id,
+          data.token,
+          {
+            content: messageList.anilist.not_found,
+          }
+        );
+        return;
+      }
 
       const embedList = mapMediaToEmbed(allData);
 
@@ -285,7 +345,8 @@ export default class AnilistModule extends BaseModule {
         );
 
       const animeInfo = await searchForAiringSchedule(
-        anime
+        anime,
+        this.logger
       );
 
       if (
@@ -306,16 +367,18 @@ export default class AnilistModule extends BaseModule {
       if (
         !this.animeNotificationTimer[animeInfo.Media.id]
       ) {
+        const timeToAir =
+          nextAiring.timeUntilAiring * 1000 > 2000000000
+            ? 2000000000
+            : nextAiring.timeUntilAiring * 1000;
         this.logger.log(
-          `Set timeout for ${animeInfo.Media.id} with ${
-            nextAiring.timeUntilAiring * 1000
-          }`
+          `Set timeout for ${animeInfo.Media.id} with ${timeToAir}`
         );
         this.animeNotificationTimer[animeInfo.Media.id] =
           setTimeout(
             () =>
               this.checkNotification(animeInfo.Media.id),
-            nextAiring.timeUntilAiring * 1000
+            timeToAir
           );
       }
 
@@ -365,9 +428,10 @@ export default class AnilistModule extends BaseModule {
       }
 
       const animeInfo = await searchForUser(
-        subs.map((s) => s.id)
+        subs.map((s) => s.id),
+        this.logger
       );
-      if (animeInfo.Page.media.length === 0) {
+      if (!animeInfo || animeInfo.Page.media.length === 0) {
         await editOriginalInteractionResponse(
           app.id,
           data.token,
