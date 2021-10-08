@@ -2,7 +2,8 @@ import { MediaForAiring } from "../types/graphql";
 
 export const mapMediaAiringToNewEpisodeEmbed = (
   data: MediaForAiring,
-  episode: number
+  episode: number,
+  airingAt: number
 ): discord.embed => {
   const fields: discord.embed_field[] = [];
   fields.push({
@@ -25,7 +26,7 @@ export const mapMediaAiringToNewEpisodeEmbed = (
         data.title.romaji ||
         data.title.native) +
       `#${episode}`,
-    description: "New episode just aired",
+    description: `New episode just aired <t:${airingAt}:R>`,
     url: data.siteUrl,
     color: parseInt(
       data.coverImage.color?.substr(1) || "FFFFFF",

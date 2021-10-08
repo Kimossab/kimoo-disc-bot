@@ -169,6 +169,7 @@ type Page<T> = {
 
 export interface NextAiring {
   nextAiringEpisode: NextEpisode | null;
+  airingSchedule: Nodes<NextEpisode>;
 }
 export interface MediaForAiring {
   id: number;

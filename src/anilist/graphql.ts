@@ -10,7 +10,7 @@ import {
   NextAiring,
 } from "./types/graphql";
 import { searchByTypeGraphql } from "./queries/searchByTypeGraphql";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { searchGraphql } from "./queries/searchGraphql";
 import { searchForAiringScheduleGraphql } from "./queries/searchForAiringScheduleGraphql";
 import { searchByScheduleIdGraphql } from "./queries/searchByScheduleIdGraphql";

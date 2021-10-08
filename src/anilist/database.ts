@@ -39,7 +39,7 @@ export const getNextAiring = async (
 
 export const setNextAiring = async (
   animeId: number,
-  nextAiring: number
+  nextAiring: number | null
 ): Promise<void> => {
   const info = await getNextAiring(animeId);
 
