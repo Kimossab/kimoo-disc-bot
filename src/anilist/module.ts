@@ -1,10 +1,16 @@
 import BaseModule from "../base-module";
-import { getServerAnimeChannel } from "../bot/database";
+import {
+  getServerAnimeChannel,
+  setServerAnimeChannel,
+} from "../bot/database";
 import {
   editOriginalInteractionResponse,
   sendMessage,
 } from "../discord/rest";
-import { chunkArray } from "../helper/common";
+import {
+  chunkArray,
+  stringReplacer,
+} from "../helper/common";
 import messageList from "../helper/messages";
 import { getOption } from "../helper/modules.helper";
 import Pagination from "../helper/pagination";
@@ -58,6 +64,9 @@ interface SearchCommandOptions {
 interface SubAddCommandOptions {
   anime: string;
 }
+interface ChannelCommandOptions {
+  channel: string;
+}
 
 export default class AnilistModule extends BaseModule {
   private animeNotificationTimer: string_object<NodeJS.Timeout> =
@@ -75,6 +84,10 @@ export default class AnilistModule extends BaseModule {
       },
       schedule: {
         handler: this.handleScheduleCommand,
+      },
+      channel: {
+        isAdmin: true,
+        handler: this.handleChannelCommand,
       },
     };
   }
@@ -388,6 +401,59 @@ export default class AnilistModule extends BaseModule {
           embeds: [embed],
         }
       );
+    }
+  };
+
+  private handleChannelCommand: CommandHandler = async (
+    data,
+    option
+  ) => {
+    const app = getApplication();
+    if (app) {
+      const { channel } =
+        this.getOptions<ChannelCommandOptions>(
+          ["channel"],
+          option.options
+        );
+
+      if (channel) {
+        await setServerAnimeChannel(data.guild_id, channel);
+        await editOriginalInteractionResponse(
+          app.id,
+          data.token,
+          {
+            content: stringReplacer(
+              messageList.anilist.channel_set_success,
+              {
+                channel: `<#${channel}>`,
+              }
+            ),
+          }
+        );
+        this.logger.log(
+          `Set Anime channel to ${channel} in ${data.guild_id} by ` +
+            `${data.member.user?.username}#${data.member.user?.discriminator}`
+        );
+      } else {
+        const ch = await getServerAnimeChannel(
+          data.guild_id
+        );
+        await editOriginalInteractionResponse(
+          app.id,
+          data.token,
+          {
+            content: stringReplacer(
+              messageList.anilist.server_channel,
+              {
+                channel: `<#${ch}>`,
+              }
+            ),
+          }
+        );
+        this.logger.log(
+          `Get anime channel in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        );
+      }
     }
   };
 

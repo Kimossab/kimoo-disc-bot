@@ -225,9 +225,8 @@ export default class BirthdayModule extends BaseModule {
             `${data.member.user?.username}#${data.member.user?.discriminator}`
         );
       } else {
-        const ch = await getServerAnimeChannel(
-          data.guild_id
-        );
+        const ch = await getServersBirthdayChannel();
+        const channel = ch[data.guild_id];
         await editOriginalInteractionResponse(
           app.id,
           data.token,
@@ -235,7 +234,7 @@ export default class BirthdayModule extends BaseModule {
             content: stringReplacer(
               messageList.birthday.servers_channel,
               {
-                channel: `<#${ch}>`,
+                channel: `<#${channel}>`,
               }
             ),
           }

@@ -28,32 +28,6 @@ const messageList = {
   fandom: {
     invalid_slug: "Invalid fandom slug",
   },
-  livechart: {
-    list: "<user> subscription list",
-    list_not_found: "No subscriptions found",
-    new_episode: "New episode",
-    date: "Date",
-    sub_exists: "Subscription for <link> already exists",
-    sub_doesnt_exists:
-      "Subscription for <link> doesn't exist",
-    channel_set_success:
-      "Anime channel set successfully to <channel>",
-    sub_success:
-      "Subscription for <link> addedd successfully",
-    unsub_success:
-      "Subscription for <link> removed successfully",
-    anime_not_found: "Anime with ID <id> not found",
-  },
-  mal: {
-    type: "Type: <type>",
-    score: "Score",
-    status: "Status",
-    favorites: "Favorites",
-    related_works: "Related works",
-    alternative_names: "Alternative names",
-    birthday: "Birthday",
-    not_found: "No content found for that query",
-  },
   misc: {
     group: "Group <index>",
   },
@@ -100,6 +74,9 @@ const messageList = {
   },
   anilist: {
     not_found: "No data found for the given query",
+    channel_set_success:
+      "Anime channel set successfully to <channel>",
+    server_channel: "Server's anime channel: <channel>",
   },
 };
 export default messageList;

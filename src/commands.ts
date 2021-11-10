@@ -1,7 +1,7 @@
 import { MediaType } from "./anilist/types/graphql";
 import { application_command_option_type } from "./helper/constants";
 
-export const version = "1.4.3";
+export const version = "1.4.4";
 
 export const list: discord.application_command[] = [
   {
@@ -73,6 +73,21 @@ export const list: discord.application_command[] = [
             description: "Query to search for",
             type: application_command_option_type.STRING,
             required: true,
+          },
+        ],
+      },
+      {
+        name: "channel",
+        description:
+          "Sets the channel where the anime notification messages are sent to",
+        type: application_command_option_type.SUB_COMMAND,
+        options: [
+          {
+            name: "channel",
+            description:
+              "The channel where the anime notification messages are sent to",
+            type: application_command_option_type.CHANNEL,
+            required: false,
           },
         ],
       },
