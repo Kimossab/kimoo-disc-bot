@@ -1,7 +1,7 @@
 import { MediaType } from "./anilist/types/graphql";
 import { application_command_option_type } from "./helper/constants";
 
-export const version = "1.4.1";
+export const version = "1.4.3";
 
 export const list: discord.application_command[] = [
   {
@@ -63,6 +63,19 @@ export const list: discord.application_command[] = [
           },
         ],
       },
+      {
+        name: "schedule",
+        description: "Search for an anime airing schedule",
+        type: application_command_option_type.SUB_COMMAND,
+        options: [
+          {
+            name: "query",
+            description: "Query to search for",
+            type: application_command_option_type.STRING,
+            required: true,
+          },
+        ],
+      },
     ],
   },
   {
@@ -86,26 +99,18 @@ export const list: discord.application_command[] = [
       },
       {
         name: "add",
-        description:
-          "Adds someone's birthday to the database",
+        description: "Adds your birthday to the database",
         type: application_command_option_type.SUB_COMMAND,
         options: [
           {
-            name: "user",
-            description:
-              "The user whose birthday you're setting",
-            type: application_command_option_type.USER,
-            required: true,
-          },
-          {
             name: "day",
-            description: "The day when they were born",
+            description: "The day when you were born",
             type: application_command_option_type.INTEGER,
             required: true,
           },
           {
             name: "month",
-            description: "The month when they were born",
+            description: "The month when you were born",
             type: application_command_option_type.INTEGER,
             required: true,
           },

@@ -28,7 +28,9 @@ import {
   searchByScheduleId,
   searchForUser,
   getNextAiringEpisode,
+  getAiringSchedule,
 } from "./graphql";
+import { mapAiringScheduleToEmbed } from "./mappers/mapAiringScheduleToEmbed";
 import { mapMediaAiringToEmbed } from "./mappers/mapMediaAiringToEmbed";
 import { mapMediaAiringToNewEpisodeEmbed } from "./mappers/mapMediaAiringToNewEpisodeEmbed";
 import { mapMediaToEmbed } from "./mappers/mapMediaToEmbed";
@@ -45,6 +47,10 @@ const DEFAULT_TIMER = 24 * 60 * 60; // 1 day in seconds
 const MAX_TIMER = 2147483647; // +- 23 days
 const MIN_TIME_TO_NOTIFY = -60 * 60; //  1 hour in seconds
 
+interface ScheduleCommandOptions {
+  query: string;
+  type: MediaType;
+}
 interface SearchCommandOptions {
   query: string;
   type: MediaType;
@@ -66,6 +72,9 @@ export default class AnilistModule extends BaseModule {
       },
       sub: {
         handler: this.handleSubCommand,
+      },
+      schedule: {
+        handler: this.handleScheduleCommand,
       },
     };
   }
@@ -328,6 +337,57 @@ export default class AnilistModule extends BaseModule {
       if (cmdData) {
         return await subCommands[cmd](data, cmdData);
       }
+    }
+  };
+
+  private handleScheduleCommand: CommandHandler = async (
+    data,
+    option
+  ) => {
+    const app = getApplication();
+    if (app) {
+      const { query } =
+        this.getOptions<ScheduleCommandOptions>(
+          ["query"],
+          option.options
+        );
+
+      const allData = await getAiringSchedule(
+        query,
+        this.logger
+      );
+
+      if (!allData) {
+        await editOriginalInteractionResponse(
+          app.id,
+          data.token,
+          {
+            content: messageList.anilist.not_found,
+          }
+        );
+        return;
+      }
+
+      if (!allData.Media) {
+        await editOriginalInteractionResponse(
+          app.id,
+          data.token,
+          {
+            content: messageList.anilist.not_found,
+          }
+        );
+        return;
+      }
+
+      const embed = mapAiringScheduleToEmbed(allData.Media);
+      await editOriginalInteractionResponse(
+        app.id,
+        data.token,
+        {
+          content: "",
+          embeds: [embed],
+        }
+      );
     }
   };
 

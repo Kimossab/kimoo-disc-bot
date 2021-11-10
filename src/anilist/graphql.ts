@@ -8,6 +8,7 @@ import {
   MediaSubbed,
   AiringScheduleResponse,
   NextAiring,
+  NextAiringWithTitle,
 } from "./types/graphql";
 import { searchByTypeGraphql } from "./queries/searchByTypeGraphql";
 import axios, { AxiosResponse } from "axios";
@@ -17,6 +18,7 @@ import { searchByScheduleIdGraphql } from "./queries/searchByScheduleIdGraphql";
 import { searchByIdsGraphql } from "./queries/searchByIdsGraphql";
 import Logger from "../helper/logger";
 import { getNextAiringGraphql } from "./queries/getNextAiringGraphql";
+import { getAiringScheduleGraphql } from "./queries/getAiringScheduleGraphql";
 
 const ANILIST_GRAPHQL = "https://graphql.anilist.co";
 
@@ -195,6 +197,32 @@ export const getNextAiringEpisode = async (
     logger?.error(
       "getNextAiring",
       id,
+      `StatusCode: ${
+        axios.isAxiosError(e)
+          ? e.response?.status
+          : "unknown"
+      }`,
+      (e as Error).message
+    );
+    return null;
+  }
+};
+
+export const getAiringSchedule = async (
+  search: string,
+  logger?: Logger
+): Promise<MediaResponse<NextAiringWithTitle> | null> => {
+  try {
+    const data = await request<
+      MediaResponse<NextAiringWithTitle>
+    >(getAiringScheduleGraphql, {
+      search,
+    });
+    return data;
+  } catch (e) {
+    logger?.error(
+      "getAiringSchedule",
+      search,
       `StatusCode: ${
         axios.isAxiosError(e)
           ? e.response?.status
