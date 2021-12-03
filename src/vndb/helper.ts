@@ -10,6 +10,7 @@ import { stringReplacer } from "../helper/common";
 import { editOriginalInteractionResponse } from "../discord/rest";
 import { getApplication } from "../state/actions";
 import messageList from "../helper/messages";
+import { Embed } from "../types/discord";
 
 const codeReplaces = [
   {
@@ -84,8 +85,8 @@ export const vndbSearchEmbed = (
   item: vndb_get_vn,
   page: number,
   total: number
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: `${item.title}`,
     url: `https://vndb.org/v${item.id}`,
     color: 3035554,
