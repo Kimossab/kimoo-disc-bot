@@ -23,9 +23,7 @@ const TOKEN = "TOKEN";
 const GUILD_ID = "GUILD_ID";
 const USER_ID = "USER_ID";
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("../state/actions");
@@ -53,9 +51,7 @@ jest.mock("../helper/common", () => ({
 (
   setCommandExecutedCallback as jest.Mock
 ).mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -73,7 +69,7 @@ const baseCommand = {
   data: {
     name: MODULE_NAME,
   },
-} as discord.interaction;
+} as Interaction;
 
 const searchCommandOptions = {
   name: "query",
@@ -108,7 +104,7 @@ describe("Anilist module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(searchByQuery).toHaveBeenCalled();
     });
@@ -135,7 +131,7 @@ describe("Anilist module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(searchByQueryAndType).toHaveBeenCalled();
       expect(
@@ -171,7 +167,7 @@ describe("Anilist module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(Pagination).toHaveBeenCalled();
       expect(addPagination).toHaveBeenCalled();
@@ -202,7 +198,7 @@ describe("Anilist module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse

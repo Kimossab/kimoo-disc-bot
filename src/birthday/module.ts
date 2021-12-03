@@ -359,8 +359,8 @@ export default class BirthdayModule extends BaseModule {
   };
 
   private async handleGetMonthCommand(
-    data: discord.interaction,
-    app: discord.application_object,
+    data: Interaction,
+    app: Application,
     month: number
   ): Promise<void> {
     const bd = await getBirthdaysByMonth(

@@ -257,7 +257,7 @@ describe("Badges helper", () => {
         2,
         4,
         TOKEN,
-        MEMBER as discord.guild_member
+        MEMBER as GuildMember
       );
 
       expect(
@@ -275,7 +275,7 @@ describe("Badges helper", () => {
         2,
         4,
         TOKEN,
-        MEMBER as discord.guild_member
+        MEMBER as GuildMember
       );
 
       expect(

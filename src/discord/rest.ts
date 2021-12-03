@@ -24,8 +24,8 @@ export const getGatewayBot =
 export const sendMessage = (
   channel: string,
   content: string,
-  embed: discord.embed | null = null
-): Promise<discord.message | null> => {
+  embed: Embed | null = null
+): Promise<Message | null> => {
   const message: discord.message_request = { content };
   if (embed) {
     message.embed = embed;
@@ -49,8 +49,8 @@ export const editMessage = (
   channel: string,
   message: string,
   content: string,
-  embed: discord.embed | null = null
-): Promise<discord.message | null> => {
+  embed: Embed | null = null
+): Promise<Message | null> => {
   const messageData: discord.message_request = { content };
   if (embed) {
     messageData.embed = embed;
@@ -133,7 +133,7 @@ export const createCommand = (
 export const createInteractionResponse = (
   interaction: string,
   token: string,
-  data: discord.interaction_response
+  data: Interaction_response
 ): Promise<void | null> =>
   rateLimiter.request<void>(
     "POST",
@@ -146,7 +146,7 @@ export const editOriginalInteractionResponse = (
   token: string,
   data: discord.edit_webhook_message_request,
   image?: string
-): Promise<discord.message | null> => {
+): Promise<Message | null> => {
   if (image) {
     const formData = new FormData();
     const file = fs.createReadStream(image);

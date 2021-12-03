@@ -7,6 +7,11 @@ import {
   addPagination,
   getApplication,
 } from "../../state/actions";
+import {
+  Interaction,
+  Application,
+  Embed,
+} from "../../types/discord";
 import { mapSauceNaoResultToData } from "./mapper";
 import { requestSauceNao } from "./request";
 
@@ -14,8 +19,8 @@ const sauceNaoEmbed = (
   item: SauceNao.data,
   page: number,
   total: number
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: item.name,
     description: item.site,
     color: 3035554,
@@ -83,9 +88,9 @@ const sauceNaoUpdatePage = async (
 };
 
 const handleSauceNao = async (
-  data: discord.interaction,
+  data: Interaction,
   image: string,
-  app: discord.application_object,
+  app: Application,
   logger: Logger
 ): Promise<void> => {
   const saucenao = await requestSauceNao(image, logger);
@@ -157,7 +162,7 @@ const handleSauceNao = async (
       ],
     }
   );
-  if (message) {
+  if (message && data.channel_id) {
     const pagination = new Pagination<SauceNao.data>(
       data.channel_id,
       message.id,

@@ -1,16 +1,24 @@
 import Pagination from "../helper/pagination";
+import {
+  Application,
+  Guild,
+  Interaction,
+  MessageReactionAdd,
+  MessageReactionRemove,
+  User,
+} from "../types/discord";
 import { State } from "./types";
 
 export const SET_USER = (
   state: State,
-  user: discord.user
+  user: User
 ): State => ({
   ...state,
   user,
 });
 export const ADD_GUILD = (
   state: State,
-  guild: discord.guild
+  guild: Guild
 ): State => {
   state.guilds = state.guilds.filter(
     (g) => g.id !== guild.id
@@ -18,24 +26,10 @@ export const ADD_GUILD = (
   state.guilds.push(guild);
   return state;
 };
-// export const ADD_GUILD_MEMBERS = (
-//   state: State,
-//   guild: string,
-//   clean: boolean,
-//   members: discord.guild_member[]
-// ): State => {
-//   const gs = state.guilds.filter((g) => g.id === guild);
-//   if (gs.length) {
-//     if (!gs[0].members || clean) {
-//       gs[0].members = [];
-//     }
-//     gs[0].members = [...gs[0].members!, ...members];
-//   }
-//   return state;
-// };
+
 export const SET_APPLICATION = (
   state: State,
-  application: discord.application_object
+  application: Application
 ): State => ({
   ...state,
   ready: true,
@@ -50,7 +44,7 @@ export const SET_READY_CALLBACK = (
 });
 export const SET_COMMAND_EXECUTED_CALLBACK = (
   state: State,
-  callback: (data: discord.interaction) => void
+  callback: (data: Interaction) => void
 ): State => {
   state.commandExecutedCallback.push(callback);
   return state;
@@ -59,9 +53,7 @@ export const SET_COMMAND_EXECUTED_CALLBACK = (
 export const SET_REACTION_CALLBACK = (
   state: State,
   callback: (
-    data:
-      | discord.message_reaction_add
-      | discord.message_reaction_remove,
+    data: MessageReactionAdd | MessageReactionRemove,
     remove: boolean
   ) => void
 ): State => {

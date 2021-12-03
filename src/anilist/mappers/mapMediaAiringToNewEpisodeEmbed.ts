@@ -4,8 +4,8 @@ export const mapMediaAiringToNewEpisodeEmbed = (
   data: MediaForAiring,
   episode: number,
   airingAt: number
-): discord.embed => {
-  const fields: discord.embed_field[] = [];
+): Embed => {
+  const fields: Embed_field[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
@@ -19,7 +19,7 @@ export const mapMediaAiringToNewEpisodeEmbed = (
     });
   }
 
-  const embed: discord.embed = {
+  const embed: Embed = {
     title:
       (data.isAdult ? "[**NSFW**] " : "") +
       (data.title.english ||

@@ -2,8 +2,8 @@ import { MediaForAiring } from "../types/graphql";
 
 export const mapMediaAiringToEmbed = (
   data: MediaForAiring
-): discord.embed => {
-  const fields: discord.embed_field[] = [];
+): Embed => {
+  const fields: Embed_field[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
@@ -17,7 +17,7 @@ export const mapMediaAiringToEmbed = (
     });
   }
 
-  const embed: discord.embed = {
+  const embed: Embed = {
     title:
       (data.isAdult ? "[**NSFW**] " : "") +
       "Subscription added successfully",

@@ -8,6 +8,10 @@ import {
 } from "../../state/actions";
 import { requestTraceMoe } from "./request";
 import { traceMoeEmbed } from "./mapper";
+import {
+  Application,
+  Interaction,
+} from "../../types/discord";
 
 const traceMoeUpdatePage = async (
   data: TraceMoe.resultData,
@@ -25,9 +29,9 @@ const traceMoeUpdatePage = async (
 };
 
 const handleTraceMoe = async (
-  data: discord.interaction,
+  data: Interaction,
   image: string,
-  app: discord.application_object,
+  app: Application,
   logger: Logger
 ): Promise<void> => {
   // https://soruly.github.io/trace.moe/#/
@@ -59,7 +63,7 @@ const handleTraceMoe = async (
     }
   );
 
-  if (message) {
+  if (message && data.channel_id) {
     const pagination = new Pagination<TraceMoe.resultData>(
       data.channel_id,
       message.id,

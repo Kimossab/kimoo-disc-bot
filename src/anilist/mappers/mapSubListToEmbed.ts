@@ -6,8 +6,8 @@ export const mapSubListToEmbed = (
   data: MediaSubbedInfo[],
   page: number,
   total: number
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: "Sub list",
     description: data
       .map(

@@ -259,7 +259,7 @@ export default class AnilistModule extends BaseModule {
   };
 
   private pageUpdate = async (
-    data: discord.embed,
+    data: Embed,
     _page: number,
     _total: number,
     token: string
@@ -322,7 +322,7 @@ export default class AnilistModule extends BaseModule {
       );
 
       if (message && embedList.length > 1) {
-        const pagination = new Pagination<discord.embed>(
+        const pagination = new Pagination<Embed>(
           data.channel_id,
           message.id,
           embedList,

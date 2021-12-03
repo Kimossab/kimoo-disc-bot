@@ -12,8 +12,8 @@ export const createUserAchievementsEmbed = (
   data: IUserAchievement[],
   page: number,
   total: number
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: messageList.achievements.user_achievements,
     color: 3035554,
     description: `<@${data[0].user}>\n`,
@@ -66,8 +66,8 @@ export const createServerAchievementsEmbed = (
   data: IAchievement[],
   page: number,
   total: number
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: messageList.achievements.server_achievements,
     color: 3035554,
     description: "",
@@ -120,8 +120,8 @@ export const createServerAchievementRanksEmbed = (
   data: IAchievementRank[],
   page: number,
   total: number
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title:
       messageList.achievements.server_achievement_ranks,
     color: 3035554,
@@ -170,8 +170,8 @@ export const createServerLeaderboardEmbed = (
   data: achievement.serverLeaderboard[],
   page: number,
   total: number
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: messageList.achievements.serverLeaderboard,
     color: 3035554,
     fields: [

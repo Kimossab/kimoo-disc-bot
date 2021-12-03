@@ -683,15 +683,15 @@ export interface Button {
 
 /** [Button Styles](https://discord.com/developers/docs/interactions/message-components#button-object-button-styles) */
 export enum ButtonStyle {
-  /** blurple	custom_id */
+  /** blurple */
   Primary = 1,
-  /** grey	custom_id */
+  /** grey */
   Secondary = 2,
-  /** green	custom_id */
+  /** green  */
   Success = 3,
-  /** red	custom_id */
+  /** red */
   Danger = 4,
-  /** grey, navigates to a URL	url */
+  /** grey, navigates to a URL */
   Link = 5,
 }
 
@@ -897,9 +897,9 @@ export interface CommandInteractionDataOption {
   /** the name of the parameter */
   name: string;
   /** value of [application command option type](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type) */
-  type: integer;
+  type: ApplicationCommandOptionType;
   /** the value of the pair */
-  value?: ApplicationCommandOptionType;
+  value?: boolean | string | number;
   /** present if this option is a group or subcommand */
   options?: CommandInteractionDataOption[];
   /** true if this option is the currently focused option for autocomplete */
@@ -958,4 +958,500 @@ export interface MessageReactionRemove {
   guild_id?: snowflake;
   /** the emoji used to react - [example](https://discord.com/developers/docs/resources/emoji#emoji-object-gateway-reaction-standard-emoji-example) */
   emoji: Partial<Emoji>;
+}
+
+/** [Guild Structure](https://discord.com/developers/docs/resources/guild#guild-object) */
+export interface Guild {
+  /** guild id */
+  id: snowflake;
+  /** guild name (2-100 characters, excluding trailing and leading whitespace) */
+  name: string;
+  /** [icon hash](https://discord.com/developers/docs/reference#image-formatting) */
+  icon: string | null;
+  /** [icon hash](https://discord.com/developers/docs/reference#image-formatting), returned when in the template object */
+  icon_hash?: string | null;
+  /** [splash hash](https://discord.com/developers/docs/reference#image-formatting) */
+  splash: string | null;
+  /** [discovery splash hash](https://discord.com/developers/docs/reference#image-formatting); only present for guilds with the "DISCOVERABLE" feature */
+  discovery_splash: string | null;
+  /** true if [the user](https://discord.com/developers/docs/resources/user#get-current-user-guilds) is the owner of the guild */
+  owner?: boolean;
+  /** id of owner */
+  owner_id: snowflake;
+  /** total permissions for [the user](https://discord.com/developers/docs/resources/user#get-current-user-guilds) in the guild (excludes overwrites) */
+  permissions?: string;
+  /** @deprecated voice region id for the guild (deprecated) */
+  region?: VoiceRegion | null;
+  /** id of afk channel */
+  afk_channel_id: snowflake | null;
+  /** afk timeout in seconds */
+  afk_timeout: integer;
+  /** true if the server widget is enabled */
+  widget_enabled?: boolean;
+  /** the channel id that the widget will generate an invite to, or null if set to no invite */
+  widget_channel_id?: snowflake | null;
+  /** [verification level](https://discord.com/developers/docs/resources/guild#guild-object-verification-level) required for the guild */
+  verification_level: VerificationLevel;
+  /** default [message notifications level](https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level) */
+  default_message_notifications: NotificationLevel;
+  /** [explicit content filter level](https://discord.com/developers/docs/resources/guild#guild-object-explicit-content-filter-level) */
+  explicit_content_filter: ExplicitContentFilterLevel;
+  /** roles in the guild */
+  roles: Role[];
+  /** custom guild emojis */
+  emojis: Emoji[];
+  /** enabled guild features */
+  features: GuildFeature[];
+  /** required MFA level for the guild */
+  mfa_level: MfaLevel;
+  /** application id of the guild creator if it is bot-created */
+  application_id: snowflake | null;
+  /** the id of the channel where guild notices such as welcome messages and boost events are posted */
+  system_channel_id: snowflake | null;
+  /** system channel flags */
+  system_channel_flags: integer;
+  /** the id of the channel where Community guilds can display rules and/or guidelines */
+  rules_channel_id: snowflake | null;
+  /** when this guild was joined at */
+  joined_at?: string;
+  /** true if this is considered a large guild */
+  large?: boolean;
+  /** true if this guild is unavailable due to an outage */
+  unavailable?: boolean;
+  /** total number of members in this guild */
+  member_count?: integer;
+  /** states of members currently in voice channels; lacks the guild_id key */
+  voice_states?: Partial<VoiceState>[];
+  /** users in the guild */
+  members?: GuildMember[];
+  /** channels in the guild */
+  channels?: Channel[];
+  /** all active threads in the guild that current user has permission to view */
+  threads?: Channel[];
+  /** presences of the members in the guild, will only include non-offline members if the size is greater than large threshold */
+  presences?: Partial<PresenceUpdate>[];
+  /** the maximum number of presences for the guild (null is always returned, apart from the largest of guilds) */
+  max_presences?: integer | null;
+  /** the maximum number of members for the guild */
+  max_members?: integer;
+  /** the vanity url code for the guild */
+  vanity_url_code: string | null;
+  /** the description of a Community guild */
+  description: string | null;
+  /** [banner hash](https://discord.com/developers/docs/reference#image-formatting) */
+  banner: string | null;
+  /** premium tier (Server Boost level) */
+  premium_tier: PremiumTier;
+  /** the number of boosts this guild currently has */
+  premium_subscription_count?: integer;
+  /** the preferred locale of a Community guild; used in server discovery and notices from Discord; defaults to "en-US" */
+  preferred_locale: string;
+  /** the id of the channel where admins and moderators of Community guilds receive notices from Discord */
+  public_updates_channel_id: snowflake | null;
+  /** the maximum amount of users in a video channel */
+  max_video_channel_users?: integer;
+  /** approximate number of members in this guild, returned from the GET /guilds/<id> endpoint when with_counts is true */
+  approximate_member_count?: integer;
+  /** approximate number of non-offline members in this guild, returned from the GET /guilds/<id> endpoint when with_counts is true */
+  approximate_presence_count?: integer;
+  /** the welcome screen of a Community guild, shown to new members, returned in an Invite's guild object */
+  welcome_screen?: WelcomeScreen;
+  /** guild NSFW level */
+  nsfw_level: NsfwLevel;
+  /** Stage instances in the guild */
+  stage_instances?: StageInstance[];
+  /** custom guild stickers */
+  stickers?: Sticker[];
+  /** the scheduled events in the guild */
+  guild_scheduled_events?: ScheduledEvent[];
+  /** whether the guild has the boost progress bar enabled */
+  premium_progress_bar_enabled: boolean;
+}
+
+/** [Verification Level](https://discord.com/developers/docs/resources/guild#guild-object-verification-level) */
+export enum VerificationLevel {
+  /** unrestricted */
+  NONE = 0,
+  /** must have verified email on account */
+  LOW = 1,
+  /** must be registered on Discord for longer than 5 minutes */
+  MEDIUM = 2,
+  /** must be a member of the server for longer than 10 minutes */
+  HIGH = 3,
+  /** must have a verified phone number */
+  VERY_HIGH = 4,
+}
+
+/** [Notification Level](https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level) */
+export enum NotificationLevel {
+  /** members will receive notifications for all messages by default */
+  ALL_MESSAGES = 0,
+  /** members will receive notifications only for messages that @mention them by default */
+  ONLY_MENTIONS = 1,
+}
+
+/** [Explicit Content Filter Level](https://discord.com/developers/docs/resources/guild#guild-object-explicit-content-filter-level) */
+export enum ExplicitContentFilterLevel {
+  /** media content will not be scanned */
+  DISABLED = 0,
+  /** media content sent by members without roles will be scanned */
+  MEMBERS_WITHOUT_ROLES = 1,
+  /** media content sent by all members will be scanned */
+  ALL_MEMBERS = 2,
+}
+
+/** [Guild Feature](https://discord.com/developers/docs/resources/guild#guild-object-features) */
+export enum GuildFeature {
+  /** guild has access to set an animated guild icon */
+  ANIMATED_ICON = "ANIMATED_ICON",
+  /** guild has access to set a guild banner image */
+  BANNER = "BANNER",
+  /** guild has access to use commerce features (i.e. create store channels) */
+  COMMERCE = "COMMERCE",
+  /** guild can enable welcome screen, Membership Screening, stage channels and discovery, and receives community updates */
+  COMMUNITY = "COMMUNITY",
+  /** guild is able to be discovered in the directory */
+  DISCOVERABLE = "DISCOVERABLE",
+  /** guild is able to be featured in the directory */
+  FEATURABLE = "FEATURABLE",
+  /** guild has access to set an invite splash background */
+  INVITE_SPLASH = "INVITE_SPLASH",
+  /** guild has enabled [Membership Screening](https://discord.com/developers/docs/resources/guild#membership-screening-object) */
+  MEMBER_VERIFICATION_GATE_ENABLED = "MEMBER_VERIFICATION_GATE_ENABLED",
+  /** guild has enabled monetization */
+  MONETIZATION_ENABLED = "MONETIZATION_ENABLED",
+  /** guild has increased custom sticker slots */
+  MORE_STICKERS = "MORE_STICKERS",
+  /** guild has access to create news channels */
+  NEWS = "NEWS",
+  /** guild is partnered */
+  PARTNERED = "PARTNERED",
+  /** guild can be previewed before joining via Membership Screening or the directory */
+  PREVIEW_ENABLED = "PREVIEW_ENABLED",
+  /** guild has access to create private threads */
+  PRIVATE_THREADS = "PRIVATE_THREADS",
+  /** guild is able to set role icons */
+  ROLE_ICONS = "ROLE_ICONS",
+  /** guild has access to the seven day archive time for threads */
+  SEVEN_DAY_THREAD_ARCHIVE = "SEVEN_DAY_THREAD_ARCHIVE",
+  /** guild has access to the three day archive time for threads */
+  THREE_DAY_THREAD_ARCHIVE = "THREE_DAY_THREAD_ARCHIVE",
+  /** guild has enabled ticketed events */
+  TICKETED_EVENTS_ENABLED = "TICKETED_EVENTS_ENABLED",
+  /** guild has access to set a vanity URL */
+  VANITY_URL = "VANITY_URL",
+  /** guild is verified */
+  VERIFIED = "VERIFIED",
+  /** guild has access to set 384kbps bitrate in voice (previously VIP voice servers) */
+  VIP_REGIONS = "VIP_REGIONS",
+  /** guild has enabled the welcome screen */
+  WELCOME_SCREEN_ENABLED = "WELCOME_SCREEN_ENABLED",
+}
+
+/** [Guild MFA Level](https://discord.com/developers/docs/resources/guild#guild-object-mfa-level) */
+export enum MfaLevel {
+  /** guild has no MFA/2FA requirement for moderation actions */
+  NONE = 0,
+  /** guild has a 2FA requirement for moderation actions */
+  ELEVATED = 1,
+}
+
+/** [System Channel Flags](https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags) */
+export enum SystemChannelFlags {
+  /** Suppress member join notifications */
+  SUPPRESS_JOIN_NOTIFICATIONS = 1 << 0,
+  /** Suppress server boost notifications */
+  SUPPRESS_PREMIUM_SUBSCRIPTIONS = 1 << 1,
+  /** Suppress server setup tips */
+  SUPPRESS_GUILD_REMINDER_NOTIFICATIONS = 1 << 2,
+  /** Hide member join sticker reply buttons */
+  SUPPRESS_JOIN_NOTIFICATION_REPLIES = 1 << 3,
+}
+
+/** [Voice State Structure](https://discord.com/developers/docs/resources/voice#voice-state-object) */
+export interface VoiceState {
+  /** the guild id this voice state is for */
+  guild_id?: snowflake;
+  /** the channel id this user is connected to */
+  channel_id: snowflake | null;
+  /** the user id this voice state is for */
+  user_id: snowflake;
+  /** the guild member this voice state is for */
+  member?: GuildMember;
+  /** the session id for this voice state */
+  session_id: string;
+  /** whether this user is deafened by the server */
+  deaf: boolean;
+  /** whether this user is muted by the server */
+  mute: boolean;
+  /** whether this user is locally deafened */
+  self_deaf: boolean;
+  /** whether this user is locally muted */
+  self_mute: boolean;
+  /** whether this user is streaming using "Go Live" */
+  self_stream?: boolean;
+  /** whether this user's camera is enabled */
+  self_video: boolean;
+  /** whether this user is muted by the current user */
+  suppress: boolean;
+  /** the time at which the user requested to speak */
+  request_to_speak_timestamp: string | null;
+}
+
+/** [Presence Update Structure](https://discord.com/developers/docs/topics/gateway#presence-update) */
+export interface PresenceUpdate {
+  /** the user presence is being updated for */
+  user: User;
+  /** id of the guild */
+  guild_id: snowflake;
+  /** either "idle", "dnd", "online", or "offline" */
+  status: string;
+  /** user's current activities */
+  activities: Activity[];
+  /** user's platform-dependent status */
+  client_status: ClientStatus;
+}
+
+/** [Activity Structure](https://discord.com/developers/docs/topics/gateway#activity-object) */
+export interface Activity {
+  /** the activity's name */
+  name: string;
+  /** activity type */
+  type: ActivityType;
+  /** stream url, is validated when type is 1 */
+  url?: string | null;
+  /** unix timestamp (in milliseconds) of when the activity was added to the user's session */
+  created_at: integer;
+  /** unix timestamps for start and/or end of the game */
+  timestamps?: ActivityTimestamps;
+  /** application id for the game */
+  application_id?: snowflake;
+  /** what the player is currently doing */
+  details?: string | null;
+  /** the user's current party status */
+  state?: string | null;
+  /** the emoji used for a custom status */
+  emoji?: Emoji | null;
+  /** information for the current party of the player */
+  party?: Party;
+  /** images for the presence and their hover texts */
+  assets?: Assets;
+  /** secrets for Rich Presence joining and spectating */
+  secrets?: Secrets;
+  /** whether or not the activity is an instanced game session */
+  instance?: boolean;
+  /** activity flags ORd together, describes what the payload includes */
+  flags?: integer;
+  /** the custom buttons shown in the Rich Presence (max 2) */
+  buttons?: ActivityButton[];
+}
+
+/** [Activity Type](https://discord.com/developers/docs/topics/gateway#activity-object-activity-type) */
+export enum ActivityType {
+  /** Playing {name} */
+  Game = 0,
+  /** Streaming {details} */
+  Streaming = 1,
+  /** Listening to {name} */
+  Listening = 2,
+  /** Watching {name} */
+  Watching = 3,
+  /** {emoji} {name} */
+  Custom = 4,
+  /** Competing in {name} */
+  Competing = 5,
+}
+
+/** [Activity Timestamps](https://discord.com/developers/docs/topics/gateway#activity-object-timestamps) */
+export interface ActivityTimestamps {
+  /** unix time (in milliseconds) of when the activity started */
+  start?: integer;
+  /** unix time (in milliseconds) of when the activity ends */
+  end?: integer;
+}
+
+/** [Party Structure](https://discord.com/developers/docs/topics/gateway#party-object) */
+export interface Party {
+  /** the id of the party */
+  id?: string;
+  /** used to show the party's current and maximum size */
+  size?: [current_size: integer, max_size: integer];
+}
+
+/** [Assets Structure](https://discord.com/developers/docs/topics/gateway#activity-object-assets) */
+export interface Assets {
+  /** the id for a large asset of the activity, usually a snowflake */
+  large_image?: string;
+  /** text displayed when hovering over the large image of the activity */
+  large_text?: string;
+  /** the id for a small asset of the activity, usually a snowflake */
+  small_image?: string;
+  /** text displayed when hovering over the small image of the activity */
+  small_text?: string;
+}
+
+/** [Secrets Structure](https://discord.com/developers/docs/topics/gateway#activity-object-secrets) */
+export interface Secrets {
+  /** the secret for joining a party */
+  join?: string;
+  /** the secret for spectating a game */
+  spectate?: string;
+  /** the secret for a specific instanced match */
+  match?: string;
+}
+
+/** [Activity Flags](https://discord.com/developers/docs/topics/gateway#activity-object-activity-flags) */
+export enum ActivityFlags {
+  INSTANCE = 1 << 0,
+  JOIN = 1 << 1,
+  SPECTATE = 1 << 2,
+  JOIN_REQUEST = 1 << 3,
+  SYNC = 1 << 4,
+  PLAY = 1 << 5,
+  PARTY_PRIVACY_FRIENDS = 1 << 6,
+  PARTY_PRIVACY_VOICE_CHANNEL = 1 << 7,
+  EMBEDDED = 1 << 8,
+}
+
+/** [Activity Button Structure](https://discord.com/developers/docs/topics/gateway#activity-object-activity-button) */
+export interface ActivityButton {
+  /** the text shown on the button (1-32 characters) */
+  label: string;
+  /** the url opened when clicking the button (1-512 characters) */
+  url: string;
+}
+
+/** [Client Status Structure](https://discord.com/developers/docs/topics/gateway#client-status-object) */
+export interface ClientStatus {
+  /** the user's status set for an active desktop (Windows, Linux, Mac) application session */
+  desktop?: string;
+  /** the user's status set for an active mobile (iOS, Android) application session */
+  mobile?: string;
+  /** the user's status set for an active web (browser, bot account) application session */
+  web?: string;
+}
+
+/** [Premium Tier](https://discord.com/developers/docs/resources/guild#guild-object-premium-tier) */
+export enum PremiumTier {
+  /** guild has not unlocked any Server Boost perks */
+  NONE = 0,
+  /** guild has unlocked Server Boost level 1 perks */
+  TIER_1 = 1,
+  /** guild has unlocked Server Boost level 2 perks */
+  TIER_2 = 2,
+  /** guild has unlocked Server Boost level 3 perks */
+  TIER_3 = 3,
+}
+
+/** [Welcome Screen Structure](https://discord.com/developers/docs/resources/guild#welcome-screen-object) */
+export interface WelcomeScreen {
+  /** the server description shown in the welcome screen */
+  description: string | null;
+  /** the channels shown in the welcome screen, up to 5 */
+  welcome_channels: WelcomeScreenChannel[];
+}
+
+/** [Welcome Screen Channel Structure](https://discord.com/developers/docs/resources/guild#welcome-screen-object-welcome-channel-object) */
+export interface WelcomeScreenChannel {
+  /** the channel's id */
+  channel_id: snowflake;
+  /** the description shown for the channel */
+  description: string;
+  /** the [emoji id](https://discord.com/developers/docs/reference#image-formatting), if the emoji is custom */
+  emoji_id: snowflake | null;
+  /** the emoji name if custom, the unicode character if standard, or null if no emoji is set */
+  emoji_name: string | null;
+}
+
+/** [NSFW Level](https://discord.com/developers/docs/resources/guild#guild-object-guild-nsfw-level) */
+export enum NsfwLevel {
+  DEFAULT = 0,
+  EXPLICIT = 1,
+  SAFE = 2,
+  AGE_RESTRICTED = 3,
+}
+
+/** [Stage Instance Structure](https://discord.com/developers/docs/resources/stage-instance#stage-instance-object) */
+export interface StageInstance {
+  /** The id of this Stage instance */
+  id: snowflake;
+  /** The guild id of the associated Stage channel */
+  guild_id: snowflake;
+  /** The id of the associated Stage channel */
+  channel_id: snowflake;
+  /** The topic of the Stage instance (1-120 characters) */
+  topic: string;
+  /** The privacy level of the Stage instance */
+  privacy_level: PrivacyLevel;
+  /** Whether or not Stage Discovery is disabled */
+  discoverable_disabled: boolean;
+}
+
+/** [Privacy Level](https://discord.com/developers/docs/resources/guild#guild-object-privacy-level) */
+export enum PrivacyLevel {
+  /** The Stage instance is visible publicly, such as on Stage Discovery. */
+  PUBLIC = 1,
+  /** The Stage instance is visible to only guild members. */
+  GUILD_ONLY = 2,
+}
+
+/** [Scheduled Event Structure](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object) */
+export interface ScheduledEvent {
+  /** the id of the scheduled event */
+  id: snowflake;
+  /** the guild id which the scheduled event belongs to */
+  guild_id: snowflake;
+  /** the channel id in which the scheduled event will be hosted, or null if scheduled entity type is EXTERNAL */
+  channel_id: snowflake | null;
+  /** the id of the user that created the scheduled event * */
+  creator_id: snowflake | null;
+  /** the name of the scheduled event (1-100 characters) */
+  name: string;
+  /** the description of the scheduled event (1-1000 characters) */
+  description?: string;
+  /** the time the scheduled event will start */
+  scheduled_start_time: string;
+  /** the time the scheduled event will end, required if entity_type is EXTERNAL */
+  scheduled_end_time: string | null;
+  /** the privacy level of the scheduled event */
+  privacy_level: EventPrivacyLevel;
+  /** the status of the scheduled event */
+  status: EventStatus;
+  /** the type of the scheduled event */
+  entity_type: ScheduledEntityType;
+  /** the id of an entity associated with a guild scheduled event */
+  entity_id: snowflake | null;
+  /** additional metadata for the guild scheduled event */
+  entity_metadata: EntityMetadata | null;
+  /** the user that created the scheduled event */
+  creator?: User;
+  /** the number of users subscribed to the scheduled event */
+  user_count?: integer;
+}
+
+/** [Event Privacy Level](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level) */
+export enum EventPrivacyLevel {
+  /** the scheduled event is only accessible to guild members */
+  GUILD_ONLY = 2,
+}
+
+/** [Event Status](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-status) */
+export enum EventStatus {
+  SCHEDULED = 1,
+  ACTIVE = 2,
+  COMPLETED = 3,
+  CANCELED = 4,
+}
+
+/** [Scheduled Entity Type](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-type) */
+export enum ScheduledEntityType {
+  STAGE_INSTANCE = 1,
+  VOICE = 2,
+  EXTERNAL = 3,
+}
+
+/** [Entity Metadata](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-entity-metadata) */
+export interface EntityMetadata {
+  /** location of the event (1-100 characters) */
+  location?: string;
 }

@@ -44,9 +44,9 @@ const cleanUpDescription = (
 
 export const mapMediaToEmbed = (
   data: PageResponse<MediaList>
-): discord.embed[] => {
+): Embed[] => {
   return data.Page.media.map((media, index) => {
-    const fields: discord.embed_field[] = [];
+    const fields: Embed_field[] = [];
     fields.push({
       name: "Other names",
       value: `• ${media.title.native}\n• ${media.title.romaji}`,
@@ -174,7 +174,7 @@ export const mapMediaToEmbed = (
       });
     }
 
-    const embed: discord.embed = {
+    const embed: Embed = {
       title:
         (media.isAdult ? "[**NSFW**] " : "") +
         (media.title.english ||

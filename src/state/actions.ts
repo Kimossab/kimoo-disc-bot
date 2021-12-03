@@ -14,6 +14,13 @@ import {
 import store from "./store";
 import Pagination from "../helper/pagination";
 import { DISCORD_TOKEN_TTL } from "../helper/constants";
+import {
+  Application,
+  Guild,
+  Interaction,
+  MessageReactionAdd,
+  MessageReactionRemove,
+} from "../types/discord";
 
 /**
  * Adds a callback for when discord says it's ready
@@ -60,7 +67,7 @@ export const setReadyData = (data: discord.ready): void => {
  * @param callback Callback function
  */
 export const setCommandExecutedCallback = (
-  callback: (data: discord.interaction) => void
+  callback: (data: Interaction) => void
 ): void => {
   store.dispatch({
     type: SET_COMMAND_EXECUTED_CALLBACK,
@@ -73,7 +80,7 @@ export const setCommandExecutedCallback = (
  * @param data Interaction data
  */
 export const commandExecuted = (
-  data: discord.interaction
+  data: Interaction
 ): void => {
   const callback = store.getState().commandExecutedCallback;
 
@@ -86,7 +93,7 @@ export const commandExecuted = (
  * Adds a new guild to the store
  * @param guild Guild information
  */
-export const addGuild = (guild: discord.guild): void => {
+export const addGuild = (guild: Guild): void => {
   store.dispatch({
     type: ADD_GUILD,
     guild,
@@ -96,38 +103,14 @@ export const addGuild = (guild: discord.guild): void => {
 /**
  * Get all guilds
  */
-export const getGuilds = (): discord.guild[] =>
+export const getGuilds = (): Guild[] =>
   store.getState().guilds;
-
-// export const addGuildMembers = (data: discord.guild_members_chunk): void => {
-//   store.dispatch({
-//     type: ADD_GUILD_MEMBERS,
-//     guild: data.guild_id,
-//     members: data.members,
-//     clean: data.chunk_index === 0,
-//   });
-// };
-
-// export const getUser = (): discord.user | null => {
-//   return store.getState().user;
-// };
-
-// export const getGuildMembers = (
-//   guild: string
-// ): discord.guild_member[] | null => {
-//   const gs = store.getState().guilds.filter((g) => g.id === guild);
-//   if (gs) {
-//     return gs[0].members ? gs[0].members : null;
-//   }
-//   return null;
-// };
 
 /**
  * Get application info
  */
-export const getApplication =
-  (): discord.application_object | null =>
-    store.getState().application;
+export const getApplication = (): Application | null =>
+  store.getState().application;
 
 /**
  * Add pagination to the store
@@ -166,9 +149,7 @@ export const getPagination = (
  */
 export const setReactionCallback = (
   callback: (
-    data:
-      | discord.message_reaction_add
-      | discord.message_reaction_remove,
+    data: MessageReactionAdd | MessageReactionRemove,
     remove: boolean
   ) => void
 ): void => {
@@ -184,9 +165,7 @@ export const setReactionCallback = (
  * @param remove If the reaction was removed or added
  */
 export const gotNewReaction = (
-  data:
-    | discord.message_reaction_add
-    | discord.message_reaction_remove,
+  data: MessageReactionAdd | MessageReactionRemove,
   remove: boolean
 ): void => {
   const callback = store.getState().messageReactionCallback;

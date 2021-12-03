@@ -2,6 +2,11 @@ import fs from "fs";
 import https from "https";
 import { getGuilds } from "../state/actions";
 import { getAdminRole } from "../bot/database";
+import {
+  GuildMember,
+  MessageReactionAdd,
+  MessageReactionRemove,
+} from "../types/discord";
 
 export enum string_constants {
   endpoint_wrong_response = "Wrong reply from `<endpoint>`",
@@ -32,17 +37,14 @@ export const stringReplacer = (
  * @param remove Is the reaction a removal
  */
 export const isValidReactionUser = (
-  data:
-    | discord.message_reaction_add
-    | discord.message_reaction_remove,
+  data: MessageReactionAdd | MessageReactionRemove,
   remove: boolean
 ): boolean => {
   if (remove) {
     return true;
   }
 
-  const d: discord.message_reaction_add =
-    data as discord.message_reaction_add;
+  const d: MessageReactionAdd = data as MessageReactionAdd;
   return !!(
     d.member &&
     d.member.user &&
@@ -91,7 +93,7 @@ export const randomNum = (
  */
 export const checkAdmin = async (
   server: string,
-  member: discord.guild_member
+  member: GuildMember
 ): Promise<boolean> => {
   const guild = getGuilds().find((g) => g.id === server);
 

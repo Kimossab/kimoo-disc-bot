@@ -5,11 +5,11 @@ interface string_object<T> {
 }
 
 type CommandHandler = (
-  data: discord.interaction,
-  option: discord.application_command_interaction_data_option
+  data: Interaction,
+  option: CommandInteractionDataOption
 ) => Promise<void>;
 type SingleCommandHandler = (
-  data: discord.interaction
+  data: Interaction
 ) => Promise<void>;
 
 declare interface command_list {
@@ -169,7 +169,7 @@ declare namespace SauceNao {
 
   interface message_list {
     message: string;
-    items: discord.embed[];
+    items: Embed[];
     currentPage: number;
   }
 }

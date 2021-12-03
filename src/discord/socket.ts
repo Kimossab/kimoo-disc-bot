@@ -20,6 +20,13 @@ import {
   opcodes,
 } from "../helper/constants";
 import { editMessage, sendMessage } from "./rest";
+import {
+  Guild,
+  Interaction,
+  Message,
+  MessageReactionAdd,
+  MessageReactionRemove,
+} from "../types/discord";
 
 class Socket {
   private logger = new Logger("socket");
@@ -182,32 +189,26 @@ class Socket {
         setReadyData(data as discord.ready);
         break;
       case gateway_events.guild_create:
-        addGuild(data as discord.guild);
+        addGuild(data as Guild);
 
         // this.requestGuildMembers(data);
 
         saveGuild(data.id);
         break;
       // case gateway_events.guild_members_chunk:
-      //   addGuildMembers(data as discord.guild_members_chunk);
+      //   addGuildMembers(data as GuildMembers_chunk);
       //   break;
       case gateway_events.interaction_create:
-        commandExecuted(data as discord.interaction);
+        commandExecuted(data as Interaction);
         break;
       case gateway_events.message_reaction_add:
-        gotNewReaction(
-          data as discord.message_reaction_add,
-          false
-        );
+        gotNewReaction(data as MessageReactionAdd, false);
         break;
       case gateway_events.message_reaction_remove:
-        gotNewReaction(
-          data as discord.message_reaction_remove,
-          true
-        );
+        gotNewReaction(data as MessageReactionRemove, true);
         break;
       case gateway_events.message_create:
-        const messageData = data as discord.message;
+        const messageData = data as Message;
         if (messageData.attachments.length > 0) {
           setChannelLastAttachment(
             messageData.channel_id,
@@ -332,9 +333,7 @@ class Socket {
     }
   }
 
-  private async handleDM(
-    data: discord.message
-  ): Promise<void> {
+  private async handleDM(data: Message): Promise<void> {
     if (data.author.id === "108208089987051520") {
       const sendMessageRegex =
         /^sudo\smessage\s(?<channel>\d*)\s(?<content>(.|\n)*)/gm;

@@ -83,8 +83,8 @@ export const createdBadgeEmbed = (
   name: string,
   image: string,
   color: IFastAverageColorResult
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: "Badge created successfully",
     description: name,
     color: parseInt(color.hex.substr(1), 16),
@@ -101,8 +101,8 @@ export const giveBadgeEmbed = (
   image: string,
   user: string,
   color: IFastAverageColorResult
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: "Badge given successfully",
     description: `Badge \`${name}\` given to <@${user}> successfully.`,
     color: parseInt(color.hex.substr(1), 16),
@@ -118,8 +118,8 @@ export const createBadgeListEmbed = async (
   fileName: string,
   page: number,
   total: number
-): Promise<discord.embed> => {
-  const embed: discord.embed = {
+): Promise<Embed> => {
+  const embed: Embed = {
     title: "Server Badges",
     color: 3035554,
     image: {
@@ -144,8 +144,8 @@ export const userBadgeListEmbed = async (
   fileName: string,
   page: number,
   total: number
-): Promise<discord.embed> => {
-  const embed: discord.embed = {
+): Promise<Embed> => {
+  const embed: Embed = {
     title: "User Badges",
     description: `<@${user}>`,
     color: 3035554,
@@ -196,7 +196,7 @@ export const updateUserListBadgesPage = async (
   page: number,
   total: number,
   token: string,
-  userInfo?: Nullable<discord.guild_member>
+  userInfo?: Nullable<GuildMember>
 ): Promise<void> => {
   const app = getApplication();
   if (app) {

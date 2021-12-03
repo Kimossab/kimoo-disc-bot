@@ -17,9 +17,7 @@ const APPLICATION_ID = "APPLICATION_ID";
 const COMMAND_ID = "COMMAND_ID";
 const TOKEN = "TOKEN";
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 //mocks
 jest.mock("./state/actions");
@@ -30,9 +28,7 @@ mockGetApplication.mockReturnValue({
   id: APPLICATION_ID,
 });
 mockSetCommandExecutedCallback.mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -71,7 +67,7 @@ describe("Base Module", () => {
         data: {
           name: "invalid_module",
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(mockGetApplication).not.toHaveBeenCalled();
       expect(
@@ -88,7 +84,7 @@ describe("Base Module", () => {
         data: {
           name: MODULE_NAME,
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(mockGetApplication).toHaveBeenCalled();
       expect(
@@ -106,7 +102,7 @@ describe("Base Module", () => {
           name: MODULE_NAME,
           options: [{ name: "invalid_command" }],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockCreateInteractionResponse
@@ -166,7 +162,7 @@ describe("Base Module", () => {
           name: "test",
           options: [{ name: "admin" }],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(noAdminHandler).not.toHaveBeenCalled();
       expect(adminHandler).not.toHaveBeenCalled();
@@ -187,7 +183,7 @@ describe("Base Module", () => {
           name: "test",
           options: [{ name: "admin" }],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(mockCheckAdmin).toHaveBeenCalled();
       expect(adminHandler).toHaveBeenCalled();
@@ -202,7 +198,7 @@ describe("Base Module", () => {
           name: "test",
           options: [{ name: "noAdmin" }],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(adminHandler).not.toHaveBeenCalled();
       expect(noAdminHandler).toHaveBeenCalled();

@@ -51,9 +51,7 @@ const DELETE_ACHIEVEMENT_VALUES = {
   name: "test_user",
 };
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("axios");
@@ -87,9 +85,7 @@ jest.mock("../helper/common", () => ({
 (
   setCommandExecutedCallback as jest.Mock
 ).mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -134,7 +130,7 @@ const baseCommand = {
   data: {
     name: MODULE_NAME,
   },
-} as discord.interaction;
+} as Interaction;
 
 const createCommandOptions = [
   { name: "name", value: CREATE_ACHIEVEMENT_VALUES.name },
@@ -178,7 +174,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -201,7 +197,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -229,7 +225,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(downloadImage).toHaveBeenLastCalledWith(
         LAST_ATTACHMENT,
@@ -254,7 +250,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -282,7 +278,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(deleteFile).toHaveBeenCalled();
       expect(
@@ -312,7 +308,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(deleteFile).not.toHaveBeenCalled();
       expect(moveFile).toHaveBeenCalled();
@@ -342,7 +338,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(deleteFile).toHaveBeenCalled();
       expect(
@@ -385,7 +381,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(Pagination).toHaveBeenCalled();
       expect(addPagination).toHaveBeenCalled();
@@ -407,7 +403,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -432,7 +428,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -454,7 +450,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -475,7 +471,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -503,7 +499,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(getAllUserBadges).toHaveBeenCalledWith(
         baseCommand.member.user?.id,
@@ -527,7 +523,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -548,7 +544,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -596,7 +592,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(Pagination).toHaveBeenCalled();
       expect(addPagination).toHaveBeenCalled();
@@ -618,7 +614,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -639,7 +635,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(deleteFile).toHaveBeenCalled();
       expect(

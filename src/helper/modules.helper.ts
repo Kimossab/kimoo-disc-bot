@@ -1,7 +1,9 @@
-export const getOptionValue = <T>(
-  options:
-    | discord.application_command_interaction_data_option[]
-    | undefined,
+import { CommandInteractionDataOption } from "../types/discord";
+
+export const getOptionValue = <
+  T extends CommandInteractionDataOption["value"]
+>(
+  options: CommandInteractionDataOption[] | undefined,
   name: string
 ): T | null => {
   const opt = options?.find((o) => o.name === name);
@@ -9,11 +11,9 @@ export const getOptionValue = <T>(
   return opt ? (opt.value as T) : null;
 };
 export const getOption = (
-  options:
-    | discord.application_command_interaction_data_option[]
-    | undefined,
+  options: CommandInteractionDataOption[] | undefined,
   name: string
-): discord.application_command_interaction_data_option | null => {
+): CommandInteractionDataOption | null => {
   const opt = options?.find((o) => o.name === name);
 
   return opt || null;

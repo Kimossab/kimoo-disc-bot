@@ -1,12 +1,13 @@
 import { createReaction } from "../discord/rest";
 import { isReady } from "../state/actions";
+import { GuildMember } from "../types/discord";
 
 declare type pagination_callback<T> = (
   data: T,
   page: number,
   total: number,
   token: string,
-  userInfo?: Nullable<discord.guild_member>
+  userInfo?: Nullable<GuildMember>
 ) => void;
 
 class Pagination<T> {
@@ -22,7 +23,7 @@ class Pagination<T> {
 
   private _token: string;
 
-  private _user: Nullable<discord.guild_member>;
+  private _user: Nullable<GuildMember>;
 
   constructor(
     channel: string,
@@ -30,7 +31,7 @@ class Pagination<T> {
     data: T[],
     callback: pagination_callback<T>,
     token: string,
-    userInfo?: discord.guild_member
+    userInfo?: GuildMember
   ) {
     this._channel = channel;
     this._message = message;

@@ -48,9 +48,7 @@ const _logger = new Logger("bot");
 
 // default command executer
 // this is necessary mainly for ping/pong
-const commandExecuted = async (
-  data: discord.interaction
-) => {
+const commandExecuted = async (data: Interaction) => {
   if (data && data.type === 1) {
     await createInteractionResponse(data.id, data.token, {
       type: interaction_response_type.pong,
@@ -134,7 +132,7 @@ const commandExecuted = async (
 
 const reactionAdded = async (
   data:
-    | discord.message_reaction_add
+    | MessageReactionAdd
     | discord.message_reaction_remove,
   remove: boolean
 ): Promise<void> => {

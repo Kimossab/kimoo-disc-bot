@@ -14,6 +14,7 @@ import {
   getOptionValue,
 } from "./helper/modules.helper";
 import { checkAdmin } from "./helper/common";
+import { Interaction } from "./types/discord";
 
 interface CommandInfo {
   handler: CommandHandler;
@@ -38,7 +39,7 @@ export default class BaseModule {
 
   protected getOptions = <T>(
     optionKeys: (keyof T)[],
-    options?: discord.application_command_interaction_data_option[]
+    options?: CommandInteractionDataOption[]
   ): T => {
     const response: T = {} as T;
     for (const key of optionKeys) {
@@ -52,7 +53,7 @@ export default class BaseModule {
   };
 
   private commandExecuted = async (
-    data: discord.interaction
+    data: Interaction
   ): Promise<void> => {
     if (data.data && data.data.name === this.name) {
       const app = getApplication();

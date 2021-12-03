@@ -104,8 +104,8 @@ export default class AchievementModule extends BaseModule {
   }
 
   private handleCreateCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -164,8 +164,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleEditCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -225,8 +225,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleDeleteCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -261,8 +261,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleListCommand = (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const server = getOption(option.options, "server");
     const user = getOption(option.options, "user");
@@ -275,8 +275,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const subCommands: string_object<CommandHandler> = {
       list: this.handleRankListCommand,
@@ -296,8 +296,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleGiveCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -399,7 +399,7 @@ export default class AchievementModule extends BaseModule {
 
   //sub commands
   private handleListServerCommand = async (
-    data: discord.interaction
+    data: Interaction
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -455,8 +455,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleListUserCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option | null
+    data: Interaction,
+    option: CommandInteractionDataOption | null
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -522,7 +522,7 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankListCommand = async (
-    data: discord.interaction
+    data: Interaction
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -580,8 +580,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankUserCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -649,7 +649,7 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankLeaderboardCommand = async (
-    data: discord.interaction
+    data: Interaction
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -697,8 +697,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankCreateCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
@@ -791,8 +791,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankDeleteCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
     if (app) {
