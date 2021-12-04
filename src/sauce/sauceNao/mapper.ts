@@ -253,7 +253,25 @@ export const mapSauceNaoResultToData = (
         };
         break;
       }
+      case 371: {
+        // some manga list
+        const nameSplit = data.header.index_name.split(" ");
+        const page =
+          nameSplit[nameSplit.length - 1].split(".")[0];
+        parsed.name = data.data.source! + data.data.part!;
+        parsed.site = "MangaDex";
+        parsed.url = [
+          data.data.ext_urls[0] + page,
+          ...data.data.ext_urls,
+        ];
+        parsed.authorData = {
+          authorName: data.data.author!,
+          authorUrl: "",
+        };
+        break;
+      }
       default: {
+        logger?.log("fallback", data);
         parsed.fallback = JSON.stringify(data);
       }
     }
