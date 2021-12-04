@@ -9,6 +9,7 @@ import { getApplication } from "../state/actions";
 import { IBadge } from "./models/badges.model";
 import messageList from "../helper/messages";
 import { Embed, GuildMember } from "../types/discord";
+import { CreatePageCallback } from "../helper/interaction-pagination";
 
 export interface IFastAverageColorResult {
   rgb: string;
@@ -167,58 +168,47 @@ export const userBadgeListEmbed = async (
   return embed;
 };
 
-export const updateListBadgesPage = async (
-  badges: IBadge[],
-  page: number,
-  total: number,
-  token: string
-): Promise<void> => {
-  const app = getApplication();
-  if (app && app.id) {
-    const fileName = await createGrid(badges);
-    await editOriginalInteractionResponse(
-      app.id,
-      token,
-      {
-        content: "",
-        embeds: [
-          await createBadgeListEmbed(fileName, page, total),
-        ],
-        attachments: [],
-      },
-      `trash/${fileName}`
-    );
+export const updateListBadgesPage: CreatePageCallback<
+  IBadge[]
+> = async (page, total, badges) => {
+  const fileName = await createGrid(badges);
+  setTimeout(async () => {
     await deleteFile(`trash/${fileName}`);
-  }
+  }, 10 * 1000);
+
+  return {
+    data: {
+      content: "",
+      embeds: [
+        await createBadgeListEmbed(fileName, page, total),
+      ],
+      attachments: [],
+    },
+    file: `trash/${fileName}`,
+  };
 };
 
-export const updateUserListBadgesPage = async (
-  badges: IBadge[],
-  page: number,
-  total: number,
-  token: string,
-  userInfo?: Nullable<GuildMember>
-): Promise<void> => {
-  const app = getApplication();
-  if (app && app.id) {
-    const fileName = await createGrid(badges);
-    await editOriginalInteractionResponse(
-      app.id,
-      token,
-      {
-        content: "",
-        embeds: [
-          await userBadgeListEmbed(
-            userInfo!.user?.id,
-            fileName,
-            page,
-            total
-          ),
-        ],
-        attachments: [],
-      },
-      `trash/${fileName}`
-    );
+export const updateUserListBadgesPage: CreatePageCallback<
+  IBadge[]
+> = async (page, total, badges, extraInfo) => {
+  const fileName = await createGrid(badges);
+  setTimeout(async () => {
     await deleteFile(`trash/${fileName}`);
-  }
+  }, 10 * 1000);
+
+  return {
+    data: {
+      content: "",
+      embeds: [
+        await userBadgeListEmbed(
+          extraInfo as string,
+          fileName,
+          page,
+          total
+        ),
+      ],
+      attachments: [],
+    },
+    file: `trash/${fileName}`,
+  };
 };

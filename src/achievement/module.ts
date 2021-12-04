@@ -42,10 +42,6 @@ import {
 } from "./helper";
 import BaseModule from "../base-module";
 import {
-  createServerAchievementRanksEmbed,
-  createServerAchievementsEmbed,
-  createServerLeaderboardEmbed,
-  createUserAchievementsEmbed,
   updateServerAchievementRanksPage,
   updateServerAchievementsPage,
   updateServerLeaderboardPage,
@@ -55,6 +51,7 @@ import {
   CommandInteractionDataOption,
   Interaction,
 } from "../types/discord";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
 interface CreateCommandOptions {
   name: Nullable<string>;
@@ -426,29 +423,15 @@ export default class AchievementModule extends BaseModule {
         serverAchievements,
         10
       );
-      const embed = createServerAchievementsEmbed(
-        chunks[0],
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
+        chunks,
+        updateServerAchievementsPage
       );
-      if (message && chunks.length > 1) {
-        // const pagination = new Pagination<IAchievement[]>(
-        //   message.channel_id,
-        //   message.id,
-        //   chunks,
-        //   updateServerAchievementsPage,
-        //   data.token
-        // );
-        // addPagination(pagination);
-      }
+
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `List server achievements in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -490,31 +473,14 @@ export default class AchievementModule extends BaseModule {
         10
       );
 
-      const embed = createUserAchievementsEmbed(
-        chunks[0],
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
+        chunks,
+        updateUserAchievementsPage
       );
-      if (message && chunks.length > 1) {
-        // const pagination = new Pagination<
-        //   IUserAchievement[]
-        // >(
-        //   message.channel_id,
-        //   message.id,
-        //   chunks,
-        //   updateUserAchievementsPage,
-        //   data.token
-        // );
-        // addPagination(pagination);
-      }
+
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `List user ${userId} achievements in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -547,31 +513,14 @@ export default class AchievementModule extends BaseModule {
         10
       );
 
-      const embed = createServerAchievementRanksEmbed(
-        chunks[0],
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
+        chunks,
+        updateServerAchievementRanksPage
       );
-      if (message && chunks.length > 1) {
-        // const pagination = new Pagination<
-        //   IAchievementRank[]
-        // >(
-        //   message.channel_id,
-        //   message.id,
-        //   chunks,
-        //   updateServerAchievementRanksPage,
-        //   data.token
-        // );
-        // addPagination(pagination);
-      }
+
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `List achievement ranks in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -663,31 +612,14 @@ export default class AchievementModule extends BaseModule {
           10
         );
 
-      const embed = createServerLeaderboardEmbed(
-        chunks[0],
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
+        chunks,
+        updateServerLeaderboardPage
       );
-      if (message && chunks.length > 1) {
-        // const pagination = new Pagination<
-        //   achievement.serverLeaderboard[]
-        // >(
-        //   message.channel_id,
-        //   message.id,
-        //   chunks,
-        //   updateServerLeaderboardPage,
-        //   data.token
-        // );
-        // addPagination(pagination);
-      }
+
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `Get server rank leaderboard in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`

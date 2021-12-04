@@ -1,11 +1,10 @@
-import { editOriginalInteractionResponse } from "../discord/rest";
 import { stringReplacer } from "../helper/common";
-import { getApplication } from "../state/actions";
 import { IUserAchievement } from "./models/user-achievement.model";
 import messageList from "../helper/messages";
 import { IAchievementRank } from "./models/achievement-rank.model";
 import { IAchievement } from "./models/achievement.model";
 import { Embed } from "../types/discord";
+import { CreatePageCallback } from "../helper/interaction-pagination";
 
 // PAGINATION
 // user achievement
@@ -45,22 +44,15 @@ export const createUserAchievementsEmbed = (
   return embed;
 };
 
-export const updateUserAchievementsPage = async (
-  data: IUserAchievement[],
-  page: number,
-  total: number,
-  token: string
-): Promise<void> => {
-  const app = getApplication();
-  if (app && app.id) {
-    await editOriginalInteractionResponse(app.id, token, {
-      content: messageList.achievements.user_achievements,
-      embeds: [
-        createUserAchievementsEmbed(data, page, total),
-      ],
-    });
-  }
-};
+export const updateUserAchievementsPage: CreatePageCallback<
+  IUserAchievement[]
+> = async (page, total, data) => ({
+  data: {
+    embeds: [
+      createUserAchievementsEmbed(data, page, total),
+    ],
+  },
+});
 
 // server achievements
 export const createServerAchievementsEmbed = (
@@ -99,23 +91,15 @@ export const createServerAchievementsEmbed = (
   return embed;
 };
 
-export const updateServerAchievementsPage = async (
-  data: IAchievement[],
-  page: number,
-  total: number,
-  token: string
-): Promise<void> => {
-  const app = getApplication();
-  if (app && app.id) {
-    await editOriginalInteractionResponse(app.id, token, {
-      content: "",
-      embeds: [
-        createServerAchievementsEmbed(data, page, total),
-      ],
-    });
-  }
-};
-
+export const updateServerAchievementsPage: CreatePageCallback<
+  IAchievement[]
+> = async (page, total, data) => ({
+  data: {
+    embeds: [
+      createServerAchievementsEmbed(data, page, total),
+    ],
+  },
+});
 // server ranks
 export const createServerAchievementRanksEmbed = (
   data: IAchievementRank[],
@@ -145,26 +129,15 @@ export const createServerAchievementRanksEmbed = (
   return embed;
 };
 
-export const updateServerAchievementRanksPage = async (
-  data: IAchievementRank[],
-  page: number,
-  total: number,
-  token: string
-): Promise<void> => {
-  const app = getApplication();
-  if (app && app.id) {
-    await editOriginalInteractionResponse(app.id, token, {
-      content: "",
-      embeds: [
-        createServerAchievementRanksEmbed(
-          data,
-          page,
-          total
-        ),
-      ],
-    });
-  }
-};
+export const updateServerAchievementRanksPage: CreatePageCallback<
+  IAchievementRank[]
+> = async (page, total, data) => ({
+  data: {
+    embeds: [
+      createServerAchievementRanksEmbed(data, page, total),
+    ],
+  },
+});
 
 // leaderboard
 export const createServerLeaderboardEmbed = (
@@ -205,19 +178,12 @@ export const createServerLeaderboardEmbed = (
   return embed;
 };
 
-export const updateServerLeaderboardPage = async (
-  data: achievement.serverLeaderboard[],
-  page: number,
-  total: number,
-  token: string
-): Promise<void> => {
-  const app = getApplication();
-  if (app && app.id) {
-    await editOriginalInteractionResponse(app.id, token, {
-      content: "",
-      embeds: [
-        createServerLeaderboardEmbed(data, page, total),
-      ],
-    });
-  }
-};
+export const updateServerLeaderboardPage: CreatePageCallback<
+  achievement.serverLeaderboard[]
+> = async (page, total, data) => ({
+  data: {
+    embeds: [
+      createServerLeaderboardEmbed(data, page, total),
+    ],
+  },
+});

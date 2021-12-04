@@ -24,15 +24,13 @@ import {
 import { downloadImage } from "../helper/images";
 import { IBadge } from "./models/badges.model";
 import {
-  createBadgeListEmbed,
   createdBadgeEmbed,
-  createGrid,
   giveBadgeEmbed,
   updateListBadgesPage,
   updateUserListBadgesPage,
-  userBadgeListEmbed,
 } from "./helper";
 import BaseModule from "../base-module";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
 interface NameOption {
   name: string;
@@ -194,37 +192,14 @@ export default class BadgesModule extends BaseModule {
 
       const chunks = chunkArray<IBadge>(badges, 9);
 
-      const fileName = await createGrid(chunks[0]);
-
-      const embed = await createBadgeListEmbed(
-        fileName,
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-          attachments: [],
-        },
-        `trash/${fileName}`
+        chunks,
+        updateListBadgesPage
       );
 
-      if (message && chunks.length > 1) {
-        // const pagination = new Pagination<IBadge[]>(
-        //   data.channel_id,
-        //   message.id,
-        //   chunks,
-        //   updateListBadgesPage,
-        //   data.token,
-        //   data.member
-        // );
-        // addPagination(pagination);
-      }
-
-      await deleteFile(`trash/${fileName}`);
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `List badges in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -363,37 +338,15 @@ export default class BadgesModule extends BaseModule {
         9
       );
 
-      const fileName = await createGrid(chunks[0]);
-
-      const embed = await userBadgeListEmbed(
-        userId,
-        fileName,
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-          attachments: [],
-        },
-        `trash/${fileName}`
+        chunks,
+        updateUserListBadgesPage,
+        userId
       );
 
-      if (message && chunks.length > 1) {
-        // const pagination = new Pagination<IBadge[]>(
-        //   data.channel_id,
-        //   message.id,
-        //   chunks,
-        //   updateUserListBadgesPage,
-        //   data.token
-        // );
-        // addPagination(pagination);
-      }
-
-      await deleteFile(`trash/${fileName}`);
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `List badges for user ${userId} by ${data.member.user?.id} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`

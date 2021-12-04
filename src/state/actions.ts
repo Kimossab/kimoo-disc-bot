@@ -17,6 +17,7 @@ import {
   Application,
   Guild,
   Interaction,
+  InteractionType,
   MessageReactionAdd,
   MessageReactionRemove,
   Ready,
@@ -83,11 +84,36 @@ export const setCommandExecutedCallback = (
 export const commandExecuted = (
   data: Interaction
 ): void => {
-  const callback = store.getState().commandExecutedCallback;
+  if (data.type === InteractionType.APPLICATION_COMMAND) {
+    const callback =
+      store.getState().commandExecutedCallback;
 
-  for (const cb of callback) {
-    cb(data);
+    for (const cb of callback) {
+      cb(data);
+    }
+    return;
   }
+
+  if (data.type === InteractionType.MESSAGE_COMPONENT) {
+    if (
+      data.message &&
+      data.data?.custom_id?.startsWith("pagination.")
+    ) {
+      const pagination = getPagination(data.message.id);
+      if (pagination) {
+        pagination.handlePage(
+          data.id,
+          data.token,
+          data.data
+        );
+      }
+    } else {
+      throw new Error("Unexpected component interaction");
+    }
+    return;
+  }
+
+  throw new Error("Unknown interaction type");
 };
 
 /**

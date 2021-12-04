@@ -19,13 +19,18 @@ import {
 export type CreatePageCallback<T> = (
   page: number,
   total: number,
-  data: T
-) => EditWebhookMessage | InteractionCallbackData;
+  data: T,
+  extraInfo?: unknown
+) => Promise<{
+  data: EditWebhookMessage | InteractionCallbackData;
+  file?: string;
+}>;
 
 export class InteractionPagination<T> {
   private readonly appId: string;
   private readonly data: T[];
   private readonly createPage: CreatePageCallback<T>;
+  private readonly extraInfo: unknown;
 
   private currentPage = 0;
   private get totalPages() {
@@ -40,67 +45,75 @@ export class InteractionPagination<T> {
   constructor(
     appId: string,
     data: T[],
-    createPage: CreatePageCallback<T>
+    createPage: CreatePageCallback<T>,
+    extraInfo?: unknown
   ) {
     this.appId = appId;
     this.data = data;
     this.createPage = createPage;
+    this.extraInfo = extraInfo;
   }
 
-  private buildPageData() {
-    const pageData = this.createPage(
+  private async buildPageData() {
+    const { data: pageData, file } = await this.createPage(
       this.currentPage + 1,
       this.totalPages,
-      this.data[this.currentPage]
+      this.data[this.currentPage],
+      this.extraInfo
     );
 
-    const buttonLeft: Button = {
-      type: ComponentType.Button,
-      style: ButtonStyle.Primary,
-      custom_id: "pagination.previous",
-      label: "◀",
-    };
-    const pageSelector: Component = {
-      type: ComponentType.SelectMenu,
-      custom_id: "pagination.select",
-      options: Array.from(Array(this.data.length)).map(
-        (value, index) => {
-          return {
-            label: `Page ${index + 1}`,
-            value: index.toString(),
-            default: index === this.currentPage,
-          };
-        }
-      ),
-    };
-    const buttonRight: Button = {
-      type: ComponentType.Button,
-      style: ButtonStyle.Primary,
-      custom_id: "pagination.next",
-      label: "▶",
-    };
-    const actionRow: ActionRow = {
-      type: ComponentType.ActionRow,
-      components: [buttonLeft, buttonRight],
-    };
-    pageData.components = [
-      ...(pageData.components ?? []),
-      {
+    if (this.totalPages > 0) {
+      const buttonLeft: Button = {
+        type: ComponentType.Button,
+        style: ButtonStyle.Primary,
+        custom_id: "pagination.previous",
+        label: "◀",
+      };
+      const pageSelector: Component = {
+        type: ComponentType.SelectMenu,
+        custom_id: "pagination.select",
+        options: Array.from(Array(this.data.length)).map(
+          (_value, index) => {
+            return {
+              label: `Page ${index + 1}`,
+              value: index.toString(),
+              default: index === this.currentPage,
+            };
+          }
+        ),
+      };
+      const buttonRight: Button = {
+        type: ComponentType.Button,
+        style: ButtonStyle.Primary,
+        custom_id: "pagination.next",
+        label: "▶",
+      };
+      const actionRow: ActionRow = {
         type: ComponentType.ActionRow,
-        components: [pageSelector],
-      },
-      actionRow,
-    ];
-    return pageData;
+        components: [buttonLeft, buttonRight],
+      };
+      pageData.components = [
+        ...(pageData.components ?? []),
+        {
+          type: ComponentType.ActionRow,
+          components: [pageSelector],
+        },
+        actionRow,
+      ];
+    }
+
+    return { pageData, file };
   }
 
   public async create(
     token: string
   ): Promise<Message | null> {
+    const { pageData, file } = await this.buildPageData();
     this.message = await editOriginalInteractionResponse(
       this.appId,
       token,
-      this.buildPageData()
+      pageData,
+      file
     );
 
     return this.message;
@@ -128,9 +141,15 @@ export class InteractionPagination<T> {
       this.currentPage = 0;
     }
 
-    await createInteractionResponse(id, token, {
-      type: InteractionCallbackType.UPDATE_MESSAGE,
-      data: this.buildPageData() as InteractionCallbackData,
-    });
+    const { pageData, file } = await this.buildPageData();
+    await createInteractionResponse(
+      id,
+      token,
+      {
+        type: InteractionCallbackType.UPDATE_MESSAGE,
+        data: pageData as InteractionCallbackData,
+      },
+      file
+    );
   }
 }

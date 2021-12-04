@@ -7,7 +7,6 @@ import {
   commandExecuted,
   getDiscordLastS,
   getDiscordSession,
-  gotNewReaction,
   setChannelLastAttachment,
   setDiscordLastS,
   setDiscordSession,
@@ -20,16 +19,11 @@ import {
   DispatchPayload,
   GatewayEvent,
   GatewayIntents,
-  Guild,
   Hello,
   IdentifyPayload,
-  Interaction,
   Message,
-  MessageReactionAdd,
-  MessageReactionRemove,
   OpCode,
   Payload,
-  PresenceUpdate,
   Status,
 } from "../types/discord";
 
@@ -192,7 +186,14 @@ class Socket {
         saveGuild(event.d.id);
         break;
       case GatewayEvent.InteractionCreate:
-        commandExecuted(event.d);
+        try {
+          commandExecuted(event.d);
+        } catch (e) {
+          this.logger.error(
+            "Failed to handle interaction",
+            e
+          );
+        }
         break;
       case GatewayEvent.MessageCreate:
         if (event.d.attachments.length > 0) {

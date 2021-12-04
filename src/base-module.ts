@@ -5,7 +5,6 @@ import {
 import Logger from "./helper/logger";
 import {
   getApplication,
-  getPagination,
   setCommandExecutedCallback,
 } from "./state/actions";
 import messageList from "./helper/messages";
@@ -18,7 +17,6 @@ import {
   CommandInteractionDataOption,
   Interaction,
   InteractionCallbackType,
-  InteractionType,
 } from "./types/discord";
 
 interface CommandInfo {
@@ -57,7 +55,7 @@ export default class BaseModule {
     return response;
   };
 
-  private commandExecuted = async (
+  private interactionExecuted = async (
     data: Interaction
   ): Promise<void> => {
     if (
@@ -132,37 +130,6 @@ export default class BaseModule {
           }
         );
       }
-    }
-  };
-
-  private componentInteraction = async (
-    data: Interaction
-  ): Promise<void> => {
-    if (data.message?.interaction?.name === this.name) {
-      if (data.data?.custom_id?.startsWith("pagination.")) {
-        const pagination = getPagination(data.message.id);
-        if (pagination) {
-          this.logger.log("PAGINATION", data.data);
-          pagination.handlePage(
-            data.id,
-            data.token,
-            data.data
-          );
-          return;
-        }
-      }
-    }
-  };
-
-  private interactionExecuted = async (
-    data: Interaction
-  ): Promise<void> => {
-    if (data.type === InteractionType.APPLICATION_COMMAND) {
-      this.commandExecuted(data);
-    } else if (
-      data.type === InteractionType.MESSAGE_COMPONENT
-    ) {
-      this.componentInteraction(data);
     }
   };
 

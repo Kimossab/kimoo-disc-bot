@@ -262,15 +262,15 @@ export default class AnilistModule extends BaseModule {
     }
   };
 
-  private pageUpdate: CreatePageCallback<Embed> = (
+  private pageUpdate: CreatePageCallback<Embed> = async (
     _page,
     _total,
     data
-  ) => {
-    return {
+  ) => ({
+    data: {
       embeds: [data],
-    };
-  };
+    },
+  });
 
   private handleSearchCommand: CommandHandler = async (
     data,
@@ -574,9 +574,11 @@ export default class AnilistModule extends BaseModule {
 
   private updateUserSubListEmbed: CreatePageCallback<
     MediaSubbedInfo[]
-  > = (page, total, data) => {
+  > = async (page, total, data) => {
     return {
-      embeds: [mapSubListToEmbed(data, page, total)],
+      data: {
+        embeds: [mapSubListToEmbed(data, page, total)],
+      },
     };
   };
 }

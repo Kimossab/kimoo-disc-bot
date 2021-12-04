@@ -11,6 +11,7 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import { getApplication } from "../state/actions";
 import messageList from "../helper/messages";
 import { Embed } from "../types/discord";
+import { CreatePageCallback } from "../helper/interaction-pagination";
 
 const codeReplaces = [
   {
@@ -164,17 +165,7 @@ export const vndbSearchEmbed = (
   return embed;
 };
 
-export const vndbSearchUpdatePage = async (
-  data: vndb_get_vn,
-  page: number,
-  total: number,
-  token: string
-): Promise<void> => {
-  const app = getApplication();
-  if (app && app.id) {
-    await editOriginalInteractionResponse(app.id, token, {
-      content: "",
-      embeds: [vndbSearchEmbed(data, page, total)],
-    });
-  }
-};
+export const vndbSearchUpdatePage: CreatePageCallback<vndb_get_vn> =
+  async (page, total, data) => ({
+    data: { embeds: [vndbSearchEmbed(data, page, total)] },
+  });

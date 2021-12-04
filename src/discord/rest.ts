@@ -142,13 +142,28 @@ export const createCommand = (
 export const createInteractionResponse = (
   interaction: string,
   token: string,
-  data: InteractionResponse
-): Promise<void | null> =>
-  rateLimiter.request<void>(
+  data: InteractionResponse,
+  image?: string
+): Promise<void | null> => {
+  if (image) {
+    const formData = new FormData();
+    const file = fs.createReadStream(image);
+    formData.append("file", file);
+    formData.append("payload_json", JSON.stringify(data));
+
+    return rateLimiter.request<void>(
+      "POST",
+      `/interactions/${interaction}/${token}/callback`,
+      formData,
+      formData.getHeaders()
+    );
+  }
+  return rateLimiter.request<void>(
     "POST",
     `/interactions/${interaction}/${token}/callback`,
     data
   );
+};
 
 export const editOriginalInteractionResponse = (
   applicationId: string,

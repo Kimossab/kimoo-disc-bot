@@ -1,5 +1,6 @@
 import { editOriginalInteractionResponse } from "../discord/rest";
 import { checkAdmin } from "../helper/common";
+import { InteractionPagination } from "../helper/interaction-pagination";
 import Logger from "../helper/logger";
 import messageList from "../helper/messages";
 import {
@@ -29,7 +30,7 @@ let commandCallback: (data: Interaction) => Promise<void>;
 jest.mock("../state/actions");
 jest.mock("../discord/rest");
 jest.mock("../helper/logger");
-jest.mock("../helper/pagination");
+jest.mock("../helper/interaction-pagination");
 jest.mock("../helper/common", () => ({
   ...jest.requireActual("../helper/common"),
   checkAdmin: jest.fn().mockReturnValue(true),
@@ -169,7 +170,7 @@ describe("Anilist module", () => {
         },
       } as Interaction);
 
-      // expect(Pagination).toHaveBeenCalled();
+      expect(InteractionPagination).toHaveBeenCalled();
       expect(addPagination).toHaveBeenCalled();
     });
 
@@ -203,7 +204,7 @@ describe("Anilist module", () => {
       expect(
         editOriginalInteractionResponse
       ).toHaveBeenCalled();
-      // expect(Pagination).not.toHaveBeenCalled();
+      expect(InteractionPagination).not.toHaveBeenCalled();
       expect(addPagination).not.toHaveBeenCalled();
     });
   });

@@ -7,6 +7,10 @@ import { FANDOM_LINKS } from "../helper/constants";
 import messageList from "../helper/messages";
 import BaseModule from "../base-module";
 import { requestFandom } from "./request";
+import {
+  CreatePageCallback,
+  InteractionPagination,
+} from "../helper/interaction-pagination";
 
 interface CommandOptions {
   fandom: string;
@@ -51,25 +55,15 @@ export default class FandomModule extends BaseModule {
       const links = await requestFandom(fandomSlug, query);
 
       if (links) {
-        const message =
-          await editOriginalInteractionResponse(
-            app.id,
-            data.token,
-            {
-              content: links[0],
-            }
-          );
+        this.logger.log("links", links);
+        const pagination = new InteractionPagination(
+          app.id,
+          links,
+          this.updatePage
+        );
 
-        if (message) {
-          // const pagination = new Pagination<string>(
-          //   data.channel_id,
-          //   message.id,
-          //   links,
-          //   this.updatePage,
-          //   data.token
-          // );
-          // addPagination(pagination);
-        }
+        await pagination.create(data.token);
+        addPagination(pagination);
       } else {
         await editOriginalInteractionResponse(
           app.id,
@@ -87,17 +81,13 @@ export default class FandomModule extends BaseModule {
     }
   };
 
-  private async updatePage(
-    data: string,
+  private updatePage: CreatePageCallback<string> = async (
     _page: number,
     _total: number,
-    token: string
-  ): Promise<void> {
-    const app = getApplication();
-    if (app && app.id) {
-      await editOriginalInteractionResponse(app.id, token, {
-        content: data,
-      });
-    }
-  }
+    data: string
+  ) => ({
+    data: {
+      content: data,
+    },
+  });
 }
