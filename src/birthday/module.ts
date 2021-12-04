@@ -30,6 +30,7 @@ import {
 } from "../discord/rest";
 import { IBirthday } from "./models/birthday.model";
 import { no_mentions } from "../helper/constants";
+import { Application, Interaction } from "../types/discord";
 
 interface ChannelOption {
   channel: string;
@@ -196,7 +197,7 @@ export default class BirthdayModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { channel } =
         this.getOptions<ChannelCommandOptions>(
           ["channel"],
@@ -251,7 +252,7 @@ export default class BirthdayModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { day, month, year } =
         this.getOptions<AddCommandOptions>(
           ["day", "month", "year"],
@@ -310,7 +311,7 @@ export default class BirthdayModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const isAdmin = await checkAdmin(
         data.guild_id,
         data.member
@@ -360,9 +361,13 @@ export default class BirthdayModule extends BaseModule {
 
   private async handleGetMonthCommand(
     data: Interaction,
-    app: Application,
+    app: Partial<Application>,
     month: number
   ): Promise<void> {
+    if (!data.guild_id) {
+      return Promise.resolve();
+    }
+
     const bd = await getBirthdaysByMonth(
       data.guild_id,
       month
@@ -389,7 +394,7 @@ export default class BirthdayModule extends BaseModule {
     }
 
     await editOriginalInteractionResponse(
-      app.id,
+      app.id || "",
       data.token,
       {
         content: message,
@@ -399,7 +404,7 @@ export default class BirthdayModule extends BaseModule {
 
     this.logger.log(
       `Birthday for month ${month} requested in ${data.guild_id} by ` +
-        `${data.member.user?.username}#${data.member.user?.discriminator}`
+        `${data.member?.user?.username}#${data.member?.user?.discriminator}`
     );
   }
 
@@ -408,7 +413,7 @@ export default class BirthdayModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { user, month } =
         this.getOptions<GetCommandOptions>(
           ["user", "month"],
@@ -464,7 +469,7 @@ export default class BirthdayModule extends BaseModule {
     data
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const serverDate = snowflakeToDate(data.guild_id);
       const birthdayString = `${serverDate.getDate()}/${
         serverDate.getMonth() + 1

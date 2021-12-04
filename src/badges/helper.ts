@@ -8,6 +8,7 @@ import {
 import { getApplication } from "../state/actions";
 import { IBadge } from "./models/badges.model";
 import messageList from "../helper/messages";
+import { Embed, GuildMember } from "../types/discord";
 
 export interface IFastAverageColorResult {
   rgb: string;
@@ -173,7 +174,7 @@ export const updateListBadgesPage = async (
   token: string
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     const fileName = await createGrid(badges);
     await editOriginalInteractionResponse(
       app.id,
@@ -199,7 +200,7 @@ export const updateUserListBadgesPage = async (
   userInfo?: Nullable<GuildMember>
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     const fileName = await createGrid(badges);
     await editOriginalInteractionResponse(
       app.id,

@@ -39,7 +39,7 @@ export default class MiscModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { groups, values } =
         this.getOptions<GroupCommandOptions>(
           ["groups", "values"],
@@ -87,7 +87,7 @@ export default class MiscModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { a, b } = this.getOptions<DonutCommandOptions>(
         ["a", "b"],
         option.options

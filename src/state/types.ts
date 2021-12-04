@@ -28,7 +28,7 @@ export const REMOVE_PAGINATION = "REMOVE_PAGINATION";
 export interface State {
   ready: boolean;
   user: User | null;
-  application: Application | null;
+  application: Partial<Application> | null;
   guilds: Guild[];
   allPaginations: Pagination<unknown>[];
   channelLastAttachment: string_object<string>;
@@ -50,7 +50,7 @@ export interface SetUser {
 
 export interface SetApplication {
   type: typeof SET_APPLICATION;
-  application: Application;
+  application: Partial<Application>;
 }
 
 export interface SetReadyCallback {

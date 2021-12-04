@@ -27,7 +27,7 @@ export default class FandomModule extends BaseModule {
     data
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { fandom, query } =
         this.getOptions<CommandOptions>(
           ["fandom", "query"],
@@ -96,7 +96,7 @@ export default class FandomModule extends BaseModule {
     token: string
   ): Promise<void> {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       await editOriginalInteractionResponse(app.id, token, {
         content: data,
       });

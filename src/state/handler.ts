@@ -29,7 +29,7 @@ export const ADD_GUILD = (
 
 export const SET_APPLICATION = (
   state: State,
-  application: Application
+  application: Partial<Application>
 ): State => ({
   ...state,
   ready: true,

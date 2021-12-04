@@ -13,6 +13,7 @@ import {
   statusMapper,
   typeMapper,
 } from "./enumMapper";
+import { Embed, EmbedField } from "../../types/discord";
 
 const dateToString = (date: Date): string => {
   return `${date.year}-${date.month}-${date.day}`;
@@ -46,7 +47,7 @@ export const mapMediaToEmbed = (
   data: PageResponse<MediaList>
 ): Embed[] => {
   return data.Page.media.map((media, index) => {
-    const fields: Embed_field[] = [];
+    const fields: EmbedField[] = [];
     fields.push({
       name: "Other names",
       value: `• ${media.title.native}\n• ${media.title.romaji}`,

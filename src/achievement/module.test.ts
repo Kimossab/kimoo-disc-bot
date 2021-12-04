@@ -37,6 +37,7 @@ import {
 } from "../helper/common";
 import { no_mentions } from "../helper/constants";
 import Pagination from "../helper/pagination";
+import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "achievement";
 const APPLICATION_ID = "APPLICATION_ID";
@@ -66,9 +67,7 @@ const GIVE_ACHIEVEMENT_VALUES = {
   achievement: 1,
 };
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 //mocks
 jest.mock("../helper/common", () => ({
@@ -85,9 +84,7 @@ mockGetApplication.mockReturnValue({
   id: APPLICATION_ID,
 });
 mockSetCommandExecutedCallback.mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -142,7 +139,7 @@ const baseCommand = {
   data: {
     name: MODULE_NAME,
   },
-} as discord.interaction;
+} as Interaction;
 
 const createCommandOptions = [
   { name: "name", value: CREATE_ACHIEVEMENT_VALUES.name },
@@ -204,7 +201,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as unknown as Interaction);
 
       expect(mockGetAchievement).not.toHaveBeenCalled();
     });
@@ -225,7 +222,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockEditOriginalInteractionResponse
@@ -246,7 +243,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockCreateAchievement
@@ -284,7 +281,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as unknown as Interaction);
 
       expect(mockUpdateAchievement).not.toHaveBeenCalled();
     });
@@ -303,7 +300,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockEditOriginalInteractionResponse
@@ -333,7 +330,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockUpdateAchievement
@@ -372,7 +369,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as unknown as Interaction);
 
       expect(mockDeleteAchievement).not.toHaveBeenCalled();
     });
@@ -389,7 +386,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockDeleteAchievement
@@ -427,7 +424,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -456,7 +453,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -491,7 +488,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -517,7 +514,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as unknown as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -537,7 +534,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -567,7 +564,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -605,7 +602,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -644,7 +641,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -674,7 +671,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -702,7 +699,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -737,7 +734,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -765,7 +762,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -796,7 +793,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -842,7 +839,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -882,7 +879,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -910,7 +907,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -942,7 +939,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -967,7 +964,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockCreateRank).not.toHaveBeenCalled();
       });
@@ -996,7 +993,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockCreateRank).not.toHaveBeenCalled();
 
@@ -1037,7 +1034,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockCreateRank).not.toHaveBeenCalled();
 
@@ -1077,7 +1074,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockCreateRank).toHaveBeenLastCalledWith(
           GUILD_ID,
@@ -1120,7 +1117,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -1145,7 +1142,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockDeleteRank).not.toHaveBeenCalled();
       });
@@ -1169,7 +1166,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockDeleteRank).toHaveBeenLastCalledWith(
           GUILD_ID,
@@ -1198,7 +1195,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as unknown as Interaction);
 
       expect(mockGetAchievementById).not.toHaveBeenCalled();
     });
@@ -1217,7 +1214,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockEditOriginalInteractionResponse
@@ -1250,7 +1247,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockCreateUserAchievement
@@ -1292,7 +1289,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockCreateUserAchievement

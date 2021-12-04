@@ -1,9 +1,10 @@
+import { Embed, EmbedField } from "../../types/discord";
 import { MediaForAiring } from "../types/graphql";
 
 export const mapMediaAiringToEmbed = (
   data: MediaForAiring
 ): Embed => {
-  const fields: Embed_field[] = [];
+  const fields: EmbedField[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,

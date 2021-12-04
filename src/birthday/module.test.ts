@@ -23,6 +23,7 @@ import { birthdayFixtureOne } from "./fixtures";
 import BirthdayModule from "./module";
 import messageList from "../helper/messages";
 import { no_mentions } from "../helper/constants";
+import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "birthday";
 const APPLICATION_ID = "APPLICATION_ID";

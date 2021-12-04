@@ -5,6 +5,7 @@ import { IUserAchievement } from "./models/user-achievement.model";
 import messageList from "../helper/messages";
 import { IAchievementRank } from "./models/achievement-rank.model";
 import { IAchievement } from "./models/achievement.model";
+import { Embed } from "../types/discord";
 
 // PAGINATION
 // user achievement
@@ -51,7 +52,7 @@ export const updateUserAchievementsPage = async (
   token: string
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     await editOriginalInteractionResponse(app.id, token, {
       content: messageList.achievements.user_achievements,
       embeds: [
@@ -105,7 +106,7 @@ export const updateServerAchievementsPage = async (
   token: string
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     await editOriginalInteractionResponse(app.id, token, {
       content: "",
       embeds: [
@@ -151,7 +152,7 @@ export const updateServerAchievementRanksPage = async (
   token: string
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     await editOriginalInteractionResponse(app.id, token, {
       content: "",
       embeds: [
@@ -211,7 +212,7 @@ export const updateServerLeaderboardPage = async (
   token: string
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     await editOriginalInteractionResponse(app.id, token, {
       content: "",
       embeds: [

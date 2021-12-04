@@ -1,9 +1,10 @@
+import { Embed, EmbedField } from "../../types/discord";
 import { NextAiringWithTitle } from "../types/graphql";
 
 export const mapAiringScheduleToEmbed = (
   data: NextAiringWithTitle
 ): Embed => {
-  const fields: Embed_field[] = [];
+  const fields: EmbedField[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,

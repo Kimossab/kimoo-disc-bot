@@ -1,5 +1,16 @@
 import FormData from "form-data";
 import fs from "fs";
+import {
+  ApplicationCommand,
+  CreateGlobalApplicationCommand,
+  CreateMessage,
+  EditMessage,
+  EditWebhookMessage,
+  Embed,
+  GatewayBot,
+  InteractionResponse,
+  Message,
+} from "../types/discord";
 import RestRateLimitHandler from "./rest-rate-limit-handler";
 
 const rateLimiter = new RestRateLimitHandler();
@@ -8,11 +19,8 @@ const rateLimiter = new RestRateLimitHandler();
  * Request the gateway bot from discord
  */
 export const getGatewayBot =
-  (): Promise<discord.gateway_bot | null> =>
-    rateLimiter.request<discord.gateway_bot>(
-      "GET",
-      "/gateway/bot"
-    );
+  (): Promise<GatewayBot | null> =>
+    rateLimiter.request<GatewayBot>("GET", "/gateway/bot");
 
 // messages
 /**
@@ -23,15 +31,16 @@ export const getGatewayBot =
  */
 export const sendMessage = (
   channel: string,
-  content: string,
-  embed: Embed | null = null
+  content?: string,
+  embeds?: Embed[]
 ): Promise<Message | null> => {
-  const message: discord.message_request = { content };
-  if (embed) {
-    message.embed = embed;
+  if (!content && !embeds) {
+    throw new Error("No content or embed provided");
   }
 
-  return rateLimiter.request<discord.message>(
+  const message: CreateMessage = { content, embeds };
+
+  return rateLimiter.request<Message>(
     "POST",
     `/channels/${channel}/messages`,
     message
@@ -49,14 +58,14 @@ export const editMessage = (
   channel: string,
   message: string,
   content: string,
-  embed: Embed | null = null
+  embed: Embed[] | null = null
 ): Promise<Message | null> => {
-  const messageData: discord.message_request = { content };
+  const messageData: EditMessage = { content };
   if (embed) {
-    messageData.embed = embed;
+    messageData.embeds = embed;
   }
 
-  return rateLimiter.request<discord.message>(
+  return rateLimiter.request<Message>(
     "PATCH",
     `/channels/${channel}/messages/${message}`,
     messageData
@@ -89,8 +98,8 @@ export const createReaction = (
  */
 export const getCommands = (
   application: string
-): Promise<discord.application_command[] | null> =>
-  rateLimiter.request<discord.application_command[]>(
+): Promise<ApplicationCommand[] | null> =>
+  rateLimiter.request<ApplicationCommand[]>(
     "GET",
     `/applications/${application}/commands`
   );
@@ -116,9 +125,9 @@ export const deleteCommand = (
  */
 export const createCommand = (
   application: string,
-  command: discord.application_command
-): Promise<discord.application_command | null> =>
-  rateLimiter.request<discord.application_command>(
+  command: CreateGlobalApplicationCommand
+): Promise<ApplicationCommand | null> =>
+  rateLimiter.request<ApplicationCommand>(
     "POST",
     `/applications/${application}/commands`,
     command
@@ -133,7 +142,7 @@ export const createCommand = (
 export const createInteractionResponse = (
   interaction: string,
   token: string,
-  data: Interaction_response
+  data: InteractionResponse
 ): Promise<void | null> =>
   rateLimiter.request<void>(
     "POST",
@@ -144,7 +153,7 @@ export const createInteractionResponse = (
 export const editOriginalInteractionResponse = (
   applicationId: string,
   token: string,
-  data: discord.edit_webhook_message_request,
+  data: EditWebhookMessage,
   image?: string
 ): Promise<Message | null> => {
   if (image) {
@@ -153,14 +162,14 @@ export const editOriginalInteractionResponse = (
     formData.append("file", file);
     formData.append("payload_json", JSON.stringify(data));
 
-    return rateLimiter.request<discord.message>(
+    return rateLimiter.request<Message>(
       "PATCH",
       `/webhooks/${applicationId}/${token}/messages/@original`,
       formData,
       formData.getHeaders()
     );
   }
-  return rateLimiter.request<discord.message>(
+  return rateLimiter.request<Message>(
     "PATCH",
     `/webhooks/${applicationId}/${token}/messages/@original`,
     data

@@ -20,7 +20,7 @@ const traceMoeUpdatePage = async (
   token: string
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     await editOriginalInteractionResponse(app.id, token, {
       content: "",
       embeds: [traceMoeEmbed(data, page, total)],
@@ -31,7 +31,7 @@ const traceMoeUpdatePage = async (
 const handleTraceMoe = async (
   data: Interaction,
   image: string,
-  app: Application,
+  app: Partial<Application>,
   logger: Logger
 ): Promise<void> => {
   // https://soruly.github.io/trace.moe/#/
@@ -39,7 +39,7 @@ const handleTraceMoe = async (
 
   if (!traceMoe || traceMoe.result.length === 0) {
     await editOriginalInteractionResponse(
-      app.id,
+      app.id || "",
       data.token,
       {
         content: messageList.sauce.not_found,
@@ -49,7 +49,7 @@ const handleTraceMoe = async (
   }
 
   const message = await editOriginalInteractionResponse(
-    app.id,
+    app.id || "",
     data.token,
     {
       content: "",

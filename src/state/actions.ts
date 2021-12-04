@@ -20,6 +20,7 @@ import {
   Interaction,
   MessageReactionAdd,
   MessageReactionRemove,
+  Ready,
 } from "../types/discord";
 
 /**
@@ -45,7 +46,7 @@ export const isReady = (): boolean =>
  * Sets all store variables and calls the callback when discord says it's ready
  * @param data Discord ready data
  */
-export const setReadyData = (data: discord.ready): void => {
+export const setReadyData = (data: Ready): void => {
   store.dispatch({
     type: SET_USER,
     user: data.user,
@@ -109,8 +110,9 @@ export const getGuilds = (): Guild[] =>
 /**
  * Get application info
  */
-export const getApplication = (): Application | null =>
-  store.getState().application;
+export const getApplication =
+  (): Partial<Application> | null =>
+    store.getState().application;
 
 /**
  * Add pagination to the store

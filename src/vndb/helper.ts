@@ -171,7 +171,7 @@ export const vndbSearchUpdatePage = async (
   token: string
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     await editOriginalInteractionResponse(app.id, token, {
       content: "",
       embeds: [vndbSearchEmbed(data, page, total)],

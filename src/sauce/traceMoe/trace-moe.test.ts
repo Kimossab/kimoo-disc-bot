@@ -6,6 +6,10 @@ import messageList from "../../helper/messages";
 import Pagination from "../../helper/pagination";
 import { addPagination } from "../../state/actions";
 import { traceMoeEmbed } from "./mapper";
+import {
+  Application,
+  Interaction,
+} from "../../types/discord";
 
 const MODULE_NAME = "wiki";
 const COMMAND_ID = "COMMAND_ID";
@@ -15,7 +19,7 @@ const USER_ID = "USER_ID";
 const IMAGE = "SOME_IMAGE";
 const APPLICATION_DATA = {
   id: "APPLICATION_ID",
-} as discord.application_object;
+} as Application;
 
 jest.mock("axios");
 jest.mock("./mapper");
@@ -37,7 +41,7 @@ const baseCommand = {
   data: {
     name: MODULE_NAME,
   },
-} as discord.interaction;
+} as Interaction;
 
 describe("Trace moe module", () => {
   afterEach(() => {

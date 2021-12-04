@@ -18,6 +18,7 @@ import {
 import { IBadge } from "./models/badges.model";
 import { getApplication } from "../state/actions";
 import { editOriginalInteractionResponse } from "../discord/rest";
+import { GuildMember } from "../types/discord";
 
 jest.mock("fs");
 const mockWriteFileSync = writeFileSync as jest.Mock;

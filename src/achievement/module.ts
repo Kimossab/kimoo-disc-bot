@@ -52,6 +52,10 @@ import {
   updateServerLeaderboardPage,
   updateUserAchievementsPage,
 } from "./pagination";
+import {
+  CommandInteractionDataOption,
+  Interaction,
+} from "../types/discord";
 
 interface CreateCommandOptions {
   name: Nullable<string>;
@@ -108,7 +112,7 @@ export default class AchievementModule extends BaseModule {
     option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const { name, image, description, points } =
         this.getOptions<CreateCommandOptions>(
           ["name", "image", "description", "points"],
@@ -168,7 +172,7 @@ export default class AchievementModule extends BaseModule {
     option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const { id, name, description, points, image } =
         this.getOptions<EditCommandOptions>(
           ["id", "name", "description", "points", "image"],
@@ -229,7 +233,7 @@ export default class AchievementModule extends BaseModule {
     option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const id = getOptionValue<number>(
         option.options,
         "id"
@@ -300,7 +304,7 @@ export default class AchievementModule extends BaseModule {
     option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const { user, achievement } =
         this.getOptions<GiveCommandOptions>(
           ["user", "achievement"],
@@ -402,7 +406,7 @@ export default class AchievementModule extends BaseModule {
     data: Interaction
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const serverAchievements =
         await getServerAchievements(data.guild_id);
 
@@ -438,7 +442,7 @@ export default class AchievementModule extends BaseModule {
       );
       if (message && chunks.length > 1) {
         const pagination = new Pagination<IAchievement[]>(
-          data.channel_id,
+          message.channel_id,
           message.id,
           chunks,
           updateServerAchievementsPage,
@@ -459,7 +463,7 @@ export default class AchievementModule extends BaseModule {
     option: CommandInteractionDataOption | null
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const user = option
         ? getOptionValue<string>(option.options, "user")
         : null;
@@ -505,7 +509,7 @@ export default class AchievementModule extends BaseModule {
         const pagination = new Pagination<
           IUserAchievement[]
         >(
-          data.channel_id,
+          message.channel_id,
           message.id,
           chunks,
           updateUserAchievementsPage,
@@ -525,7 +529,7 @@ export default class AchievementModule extends BaseModule {
     data: Interaction
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const ranks = await getServerRanks(data.guild_id);
 
       if (ranks.length === 0) {
@@ -563,7 +567,7 @@ export default class AchievementModule extends BaseModule {
         const pagination = new Pagination<
           IAchievementRank[]
         >(
-          data.channel_id,
+          message.channel_id,
           message.id,
           chunks,
           updateServerAchievementRanksPage,
@@ -584,7 +588,7 @@ export default class AchievementModule extends BaseModule {
     option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const optUser = getOptionValue<string>(
         option.options,
         "user"
@@ -652,7 +656,7 @@ export default class AchievementModule extends BaseModule {
     data: Interaction
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const allAch = await getServerAchievementLeaderboard(
         data.guild_id
       );
@@ -680,7 +684,7 @@ export default class AchievementModule extends BaseModule {
         const pagination = new Pagination<
           achievement.serverLeaderboard[]
         >(
-          data.channel_id,
+          message.channel_id,
           message.id,
           chunks,
           updateServerLeaderboardPage,
@@ -701,7 +705,7 @@ export default class AchievementModule extends BaseModule {
     option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       if (!checkAdmin(data.guild_id, data.member)) {
         await editOriginalInteractionResponse(
           app.id,
@@ -785,7 +789,7 @@ export default class AchievementModule extends BaseModule {
       );
 
       this.logger.log(
-        `Create achievement rank ${name} with ${points} points in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `Create achievement rank ${name} with ${points} points in ${data.guild_id} by ${data.member?.user?.username}#${data.member?.user?.discriminator}`
       );
     }
   };
@@ -795,7 +799,7 @@ export default class AchievementModule extends BaseModule {
     option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       if (!checkAdmin(data.guild_id, data.member)) {
         await editOriginalInteractionResponse(
           app.id,
@@ -827,7 +831,7 @@ export default class AchievementModule extends BaseModule {
       );
 
       this.logger.log(
-        `Delete rank ${name} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `Delete rank ${name} in ${data.guild_id} by ${data.member?.user?.username}#${data.member?.user?.discriminator}`
       );
     }
   };

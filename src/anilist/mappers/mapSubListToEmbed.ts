@@ -1,5 +1,6 @@
 import { stringReplacer } from "../../helper/common";
 import messageList from "../../helper/messages";
+import { Embed } from "../../types/discord";
 import { MediaSubbedInfo } from "../types/graphql";
 
 export const mapSubListToEmbed = (

@@ -8,6 +8,7 @@ import {
   getApplication,
   setCommandExecutedCallback,
 } from "../state/actions";
+import { Interaction } from "../types/discord";
 import {
   searchByQuery,
   searchByQueryAndType,

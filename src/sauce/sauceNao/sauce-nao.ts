@@ -79,25 +79,29 @@ const sauceNaoUpdatePage = async (
   token: string
 ): Promise<void> => {
   const app = getApplication();
-  if (app) {
-    await editOriginalInteractionResponse(app.id, token, {
-      content: "",
-      embeds: [sauceNaoEmbed(data, page, total)],
-    });
+  if (app && app.id) {
+    await editOriginalInteractionResponse(
+      app.id || "",
+      token,
+      {
+        content: "",
+        embeds: [sauceNaoEmbed(data, page, total)],
+      }
+    );
   }
 };
 
 const handleSauceNao = async (
   data: Interaction,
   image: string,
-  app: Application,
+  app: Partial<Application>,
   logger: Logger
 ): Promise<void> => {
   const saucenao = await requestSauceNao(image, logger);
 
   if (!saucenao) {
     await editOriginalInteractionResponse(
-      app.id,
+      app.id || "",
       data.token,
       {
         content: messageList.sauce.not_found,
@@ -109,7 +113,7 @@ const handleSauceNao = async (
   if (saucenao.header.status > 0) {
     logger.error("SauceNao - Ext error", saucenao);
     await editOriginalInteractionResponse(
-      app.id,
+      app.id || "",
       data.token,
       {
         content: messageList.sauce.not_found,
@@ -121,7 +125,7 @@ const handleSauceNao = async (
   if (saucenao.header.status < 0) {
     logger.error("SauceNao - Int error", saucenao);
     await editOriginalInteractionResponse(
-      app.id,
+      app.id || "",
       data.token,
       {
         content: messageList.sauce.not_found,
@@ -143,7 +147,7 @@ const handleSauceNao = async (
 
   if (resData.length === 0) {
     await editOriginalInteractionResponse(
-      app.id,
+      app.id || "",
       data.token,
       {
         content: messageList.sauce.not_found,
@@ -153,7 +157,7 @@ const handleSauceNao = async (
   }
 
   const message = await editOriginalInteractionResponse(
-    app.id,
+    app.id || "",
     data.token,
     {
       content: "",

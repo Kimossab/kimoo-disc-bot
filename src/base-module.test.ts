@@ -6,11 +6,14 @@ import {
   getApplication,
   setCommandExecutedCallback,
 } from "./state/actions";
-import { interaction_response_type } from "./helper/constants";
 import messageList from "./helper/messages";
 import BaseModule from "./base-module";
 import Logger from "./helper/logger";
 import { checkAdmin } from "./helper/common";
+import {
+  Interaction,
+  InteractionCallbackType,
+} from "./types/discord";
 
 const MODULE_NAME = "MODULE_NAME";
 const APPLICATION_ID = "APPLICATION_ID";
@@ -107,7 +110,7 @@ describe("Base Module", () => {
       expect(
         mockCreateInteractionResponse
       ).toHaveBeenCalledWith(COMMAND_ID, TOKEN, {
-        type: interaction_response_type.acknowledge_with_source,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
       });
 
       expect(mockError).toHaveBeenCalledWith(

@@ -87,7 +87,7 @@ export default class BadgesModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { name, image } =
         this.getOptions<CreateCommandOptions>(
           ["name", "image"],
@@ -190,7 +190,7 @@ export default class BadgesModule extends BaseModule {
   ) => {
     const app = getApplication();
 
-    if (app) {
+    if (app && app.id) {
       const badges = await getAllBadges(data.guild_id);
 
       const chunks = chunkArray<IBadge>(badges, 9);
@@ -239,7 +239,7 @@ export default class BadgesModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { user, name } =
         this.getOptions<GiveCommandOptions>(
           ["user", "name"],
@@ -334,7 +334,7 @@ export default class BadgesModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { user } = this.getOptions<UserOption>(
         ["user"],
         option.options
@@ -409,7 +409,7 @@ export default class BadgesModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { name } = this.getOptions<NameOption>(
         ["name"],
         option.options

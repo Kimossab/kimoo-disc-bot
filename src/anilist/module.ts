@@ -18,6 +18,7 @@ import {
   addPagination,
   getApplication,
 } from "../state/actions";
+import { Embed } from "../types/discord";
 import {
   addSubscription,
   deleteAllSubscriptionsForId,
@@ -146,7 +147,7 @@ export default class AnilistModule extends BaseModule {
           .map((s) => `<@${s.user}>`)
           .join("\n");
 
-        await sendMessage(channel, userMentions, embed);
+        await sendMessage(channel, userMentions, [embed]);
       }
     }
   };
@@ -265,7 +266,7 @@ export default class AnilistModule extends BaseModule {
     token: string
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       await editOriginalInteractionResponse(app.id, token, {
         content: "",
         embeds: [data],
@@ -278,7 +279,7 @@ export default class AnilistModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { query, type } =
         this.getOptions<SearchCommandOptions>(
           ["query", "type"],
@@ -358,7 +359,7 @@ export default class AnilistModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { query } =
         this.getOptions<ScheduleCommandOptions>(
           ["query"],
@@ -409,7 +410,7 @@ export default class AnilistModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { channel } =
         this.getOptions<ChannelCommandOptions>(
           ["channel"],
@@ -462,7 +463,7 @@ export default class AnilistModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { anime } =
         this.getOptions<SubAddCommandOptions>(
           ["anime"],
@@ -519,7 +520,7 @@ export default class AnilistModule extends BaseModule {
 
   private handleSubList: CommandHandler = async (data) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const subs = await getUserSubs(
         data.guild_id,
         data.member.user?.id || ""
@@ -605,7 +606,7 @@ export default class AnilistModule extends BaseModule {
     token: string
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       await editOriginalInteractionResponse(app.id, token, {
         content: "",
         embeds: [mapSubListToEmbed(data, page, total)],

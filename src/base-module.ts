@@ -2,7 +2,6 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "./discord/rest";
-import { interaction_response_type } from "./helper/constants";
 import Logger from "./helper/logger";
 import {
   getApplication,
@@ -14,7 +13,11 @@ import {
   getOptionValue,
 } from "./helper/modules.helper";
 import { checkAdmin } from "./helper/common";
-import { Interaction } from "./types/discord";
+import {
+  CommandInteractionDataOption,
+  Interaction,
+  InteractionCallbackType,
+} from "./types/discord";
 
 interface CommandInfo {
   handler: CommandHandler;
@@ -46,7 +49,7 @@ export default class BaseModule {
       response[key] = getOptionValue(
         options,
         key as string
-      ) as T[keyof T];
+      ) as unknown as T[keyof T];
     }
 
     return response;
@@ -55,14 +58,19 @@ export default class BaseModule {
   private commandExecuted = async (
     data: Interaction
   ): Promise<void> => {
-    if (data.data && data.data.name === this.name) {
+    if (
+      data.data &&
+      data.data.name === this.name &&
+      data.guild_id &&
+      data.member
+    ) {
       const app = getApplication();
-      if (app) {
+      if (app && app.id) {
         await createInteractionResponse(
           data.id,
           data.token,
           {
-            type: interaction_response_type.acknowledge_with_source,
+            type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
           }
         );
 

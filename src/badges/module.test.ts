@@ -27,6 +27,7 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import { downloadImage } from "../helper/images";
 import Pagination from "../helper/pagination";
 import Logger from "../helper/logger";
+import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "badges";
 const APPLICATION_ID = "APPLICATION_ID";
@@ -502,7 +503,7 @@ describe("Badges module", () => {
       } as Interaction);
 
       expect(getAllUserBadges).toHaveBeenCalledWith(
-        baseCommand.member.user?.id,
+        baseCommand.member!.user?.id,
         baseCommand.guild_id
       );
     });

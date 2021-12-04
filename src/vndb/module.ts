@@ -26,7 +26,7 @@ export default class VNDBModule extends BaseModule {
   private handleSearchCommand: SingleCommandHandler =
     async (data) => {
       const app = getApplication();
-      if (app) {
+      if (app && app.id) {
         const { search } = this.getOptions<{
           search: string;
         }>(["search"], data.data?.options);

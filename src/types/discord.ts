@@ -1,7 +1,27 @@
 type snowflake = string;
 type integer = number;
 
-// Application
+/** [Get Gateway Bot](https://discord.com/developers/docs/topics/gateway#get-gateway-bot-json-response) */
+export interface GatewayBot {
+  /** The WSS URL that can be used for connecting to the gateway */
+  url: string;
+  /** The recommended number of shards to use when connecting */
+  shards: integer;
+  /** Information on the current session start limit */
+  session_start_limit: SessionStartLimit;
+}
+
+/** [Session Start Limit](https://discord.com/developers/docs/topics/gateway#session-start-limit-object) */
+export interface SessionStartLimit {
+  /** The total number of session starts the current user is allowed */
+  total: integer;
+  /** The remaining number of session starts the current user is allowed */
+  remaining: integer;
+  /** The number of milliseconds after which the limit resets */
+  reset_after: integer;
+  /** The number of identify requests allowed per 5 seconds */
+  max_concurrency: integer;
+}
 
 /** [Application Structure](https://discord.com/developers/docs/resources/application#application-object-application-structure) */
 export interface Application {
@@ -297,6 +317,74 @@ export interface ThreadMember {
   flags: integer;
 }
 
+/** [Edit Webhook Message](https://discord.com/developers/docs/resources/webhook#edit-webhook-message) */
+export interface EditWebhookMessage {
+  /** the message contents (up to 2000 characters) */
+  content?: string | null;
+  /** embedded rich content */
+  embeds?: Embed[] | null;
+  /** allowed mentions for the message */
+  allowed_mentions?: AllowedMentions | null;
+  /** the components to include with the message */
+  components?: Component[] | null;
+  /** attached files to keep and possible descriptions for new files */
+  attachments?: Partial<Attachment>[] | null;
+}
+
+export enum MessageFlags {
+  /** this message has been published to subscribed channels (via Channel Following) */
+  CROSSPOSTED = 1 << 0,
+  /** this message originated from a message in another channel (via Channel Following) */
+  IS_CROSSPOST = 1 << 1,
+  /** do not include any embeds when serializing this message */
+  SUPPRESS_EMBEDS = 1 << 2,
+  /** the source message for this crosspost has been deleted (via Channel Following) */
+  SOURCE_MESSAGE_DELETED = 1 << 3,
+  /** this message came from the urgent message system */
+  URGENT = 1 << 4,
+  /** this message has an associated thread, with the same id as the message */
+  HAS_THREAD = 1 << 5,
+  /** this message is only visible to the user who invoked the Interaction */
+  EPHEMERAL = 1 << 6,
+  /** this message is an Interaction Response and the bot is "thinking" */
+  LOADING = 1 << 7,
+}
+
+/** [Edit Message](https://discord.com/developers/docs/resources/channel#edit-message) */
+export interface EditMessage {
+  /** the message contents (up to 2000 characters) */
+  content?: string | null;
+  /** embedded rich content (up to 6000 characters) */
+  embeds?: Embed[] | null;
+  /** edit the flags of a message (only SUPPRESS_EMBEDS can currently be set/unset) */
+  flags?: integer | null;
+  /** allowed mentions for the message */
+  allowed_mentions?: AllowedMentions | null;
+  /** the components to include with the message */
+  components?: Component[] | null;
+  /** attached files to keep and possible descriptions for new files */
+  attachments?: Attachment[] | null;
+}
+
+/** [Create Message](https://discord.com/developers/docs/resources/channel#create-message) */
+export interface CreateMessage {
+  /** the message contents (up to 2000 characters) */
+  content?: string;
+  /** true if this is a TTS message */
+  tts?: boolean;
+  /** embedded rich content (up to 6000 characters) */
+  embeds?: Embed[] | null;
+  /** allowed mentions for the message */
+  allowed_mentions?: AllowedMentions | null;
+  /** include to make your message a reply */
+  message_reference?: MessageReference | null;
+  /** the components to include with the message */
+  components?: Component[] | null;
+  /** IDs of up to 3 stickers in the server to send in the message */
+  sticker_ids?: snowflake[] | null;
+  /** attachment objects with filename and description */
+  attachments?: Partial<Attachment> | null;
+}
 /** [Message Structure](https://discord.com/developers/docs/resources/channel#message-object) */
 export interface Message {
   /** id of the message */
@@ -810,6 +898,149 @@ export interface Interaction {
   message?: Message;
 }
 
+/** [Interaction Response](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object) */
+export interface InteractionResponse {
+  /** the type of response */
+  type: InteractionCallbackType;
+  /** an optional response message */
+  data?: InteractionCallbackData;
+}
+
+/** [Interaction Callback Type](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-interaction-callback-type) */
+export enum InteractionCallbackType {
+  /** ACK a Ping */
+  PONG = 1,
+  /** respond to an interaction with a message */
+  CHANNEL_MESSAGE_WITH_SOURCE = 4,
+  /** ACK an interaction and edit a response later, the user sees a loading state */
+  DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE = 5,
+  /** for components, ACK an interaction and edit the original message later; the user does not see a loading state */
+  DEFERRED_UPDATE_MESSAGE = 6,
+  /** for components, edit the message the component was attached to */
+  UPDATE_MESSAGE = 7,
+  /** respond to an autocomplete interaction with suggested choices */
+  APPLICATION_COMMAND_AUTOCOMPLETE_RESULT = 8,
+}
+
+export enum InteractionCallbackDataFlags {
+  /** only the user receiving the message can see it */
+  EPHEMERAL = 1 << 6,
+}
+
+/** [Interaction Callback Data](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data) */
+export interface InteractionCallbackData {
+  /** is the response TTS */
+  tts?: boolean;
+  /** message content */
+  content?: string;
+  /** supports up to 10 embeds */
+  embeds?: Embed[];
+  /** allowed mentions object */
+  allowed_mentions?: AllowedMentions;
+  /** interaction callback data flags */
+  flags?: integer;
+  /** message components */
+  components?: Component[];
+  /** attachment objects with filename and description */
+  attachments?: Partial<Attachment>[];
+}
+
+/** [Application Command Structure](https://discord.com/developers/docs/resources/application#application-command-object) */
+export interface ApplicationCommand {
+  /** unique id of the command */
+  id: snowflake;
+  /** the type of command, defaults 1 if not set */
+  type?: ApplicationCommandType;
+  /** unique id of the parent application */
+  application_id: snowflake;
+  /** guild id of the command, if not global */
+  guild_id?: snowflake;
+  /** 1-32 character name */
+  name: string;
+  /** 1-100 character description for CHAT_INPUT commands, empty string for USER and MESSAGE commands */
+  description: string;
+  /** the parameters for the command, max 25 */
+  options?: ApplicationCommandOption[];
+  /** whether the command is enabled by default when the app is added to a guild
+   * @defaultValue true
+   */
+  default_permission?: boolean;
+  /** autoincrementing version identifier updated during substantial record changes */
+  version: snowflake;
+}
+
+/** [Create Global Command](https://discord.com/developers/docs/interactions/application-commands#create-global-application-command) */
+export interface CreateGlobalApplicationCommand {
+  /** 1-32 character name */
+  name: string;
+  /** 1-100 character description */
+  description: string;
+  /** the parameters for the command */
+  options?: ApplicationCommandOption[];
+  /** whether the command is enabled by default when the app is added to a guild */
+  default_permission?: boolean;
+  /** the type of command, defaults 1 if not set */
+  type?: ApplicationCommandType;
+}
+
+/** [Application Command Option](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure) */
+export interface ApplicationCommandOption {
+  /** the type of option */
+  type: ApplicationCommandOptionType;
+  /** 1-32 character name */
+  name: string;
+  /** 1-100 character description */
+  description: string;
+  /** if the parameter is required or optional--default false */
+  required?: boolean;
+  /** choices for STRING, INTEGER, and NUMBER types for the user to pick from, max 25 */
+  choices?: ApplicationCommandOptionChoice[];
+  /** if the option is a subcommand or subcommand group type, these nested options will be the parameters */
+  options?: ApplicationCommandOption[];
+  /** if the option is a channel type, the channels shown will be restricted to these types */
+  channel_types?: ChannelType[];
+  /** if the option is an INTEGER or NUMBER type, the minimum value permitted */
+  min_value?: number;
+  /** if the option is an INTEGER or NUMBER type, the maximum value permitted */
+  max_value?: number;
+  /** enable autocomplete interactions for this option */
+  autocomplete?: boolean;
+}
+
+/** [Application Command Option Choice](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-choice-structure) */
+export interface ApplicationCommandOptionChoice {
+  /** 1-100 character choice name */
+  name: string;
+  /** value of the choice, up to 100 characters if string */
+  value: string | integer | boolean;
+}
+
+/** [Channel Types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) */
+export enum ChannelType {
+  /** a text channel within a server */
+  GUILD_TEXT = 0,
+  /** a direct message between users */
+  DM = 1,
+  /** a voice channel within a server */
+  GUILD_VOICE = 2,
+  /** a direct message between multiple users */
+  GROUP_DM = 3,
+  /** an organizational category that contains up to 50 channels */
+  GUILD_CATEGORY = 4,
+  /** a channel that users can follow and crosspost into their own server */
+  GUILD_NEWS = 5,
+  /** a channel in which game developers can sell their game on Discord */
+  GUILD_STORE = 6,
+  /** a temporary sub-channel within a GUILD_NEWS channel */
+  GUILD_NEWS_THREAD = 10,
+  /** a temporary sub-channel within a GUILD_TEXT channel */
+  GUILD_PUBLIC_THREAD = 11,
+  /** a temporary sub-channel within a GUILD_TEXT channel that is only viewable by those invited and those with the MANAGE_THREADS permission */
+  GUILD_PRIVATE_THREAD = 12,
+  /** a voice channel for hosting events with an audience */
+  GUILD_STAGE_VOICE = 13,
+}
+
 /** [Interaction Data Structure](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-data-structure) */
 export interface InteractionData {
   /** the [ID](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure) of the invoked command */
@@ -821,7 +1052,7 @@ export interface InteractionData {
   /** converted users + roles + channels */
   resolved?: ResolvedData;
   /** the params + values from the user */
-  options?: CommandInteractionDataOption;
+  options?: CommandInteractionDataOption[];
   /** the custom_id of the component */
   custom_id?: string;
   /** the type of the component */
@@ -1429,6 +1660,53 @@ export interface ScheduledEvent {
   user_count?: integer;
 }
 
+export enum IntegrationExpireBehavior {
+  RemoveRole = 0,
+  Kick = 1,
+}
+
+/** [Account Structure](https://discord.com/developers/docs/resources/guild#integration-account-object) */
+export interface IntegrationAccount {
+  /** id of the account */
+  id: string;
+  /** name of the account */
+  name: string;
+}
+
+/** [Integration Structure](https://discord.com/developers/docs/resources/guild#integration-object) */
+export interface Integration {
+  /** integration id */
+  id: snowflake;
+  /** integration name */
+  name: string;
+  /** integration type (twitch, youtube, or discord) */
+  type: string;
+  /** is this integration enabled */
+  enabled: boolean;
+  /** is this integration syncing */
+  syncing?: boolean;
+  /** id that this integration uses for "subscribers" */
+  role_id?: snowflake;
+  /** whether emoticons should be synced for this integration (twitch only currently) */
+  enable_emoticons?: boolean;
+  /** the behavior of expiring subscribers */
+  expire_behavior?: IntegrationExpireBehavior;
+  /** the grace period (in days) before expiring subscribers */
+  expire_grace_period?: integer;
+  /** user for this integration */
+  user?: User;
+  /** integration account information */
+  account: IntegrationAccount;
+  /** when this integration was last synced */
+  synced_at?: string;
+  /** how many subscribers this integration has */
+  subscriber_count?: integer;
+  /** has this integration been revoked */
+  revoked?: boolean;
+  /** The bot/OAuth2 application for discord integrations */
+  application?: Application;
+}
+
 /** [Event Privacy Level](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level) */
 export enum EventPrivacyLevel {
   /** the scheduled event is only accessible to guild members */
@@ -1454,4 +1732,891 @@ export enum ScheduledEntityType {
 export interface EntityMetadata {
   /** location of the event (1-100 characters) */
   location?: string;
+}
+
+interface UnavailableGuild {
+  id: snowflake;
+  unavailable: true;
+}
+
+/** [Gateway Events](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events) */
+export enum GatewayEvent {
+  /** contains the initial state information */
+  Ready = "READY",
+  /** response to Resume */
+  Resumed = "RESUMED",
+  /** server is going away, client should reconnect to gateway and resume */
+  Reconnect = "RECONNECT",
+  /** failure response to Identify or Resume or invalid active session */
+  InvalidSession = "INVALID_SESSION",
+  /** new guild channel created */
+  ChannelCreate = "CHANNEL_CREATE",
+  /** channel was updated */
+  ChannelUpdate = "CHANNEL_UPDATE",
+  /** channel was deleted */
+  ChannelDelete = "CHANNEL_DELETE",
+  /** message was pinned or unpinned */
+  ChannelPinsUpdate = "CHANNEL_PINS_UPDATE",
+  /** thread created, also sent when being added to a private thread */
+  ThreadCreate = "THREAD_CREATE",
+  /** thread was updated */
+  ThreadUpdate = "THREAD_UPDATE",
+  /** thread was deleted */
+  ThreadDelete = "THREAD_DELETE",
+  /** sent when gaining access to a channel, contains all active threads in that channel */
+  ThreadListSync = "THREAD_LIST_SYNC",
+  /** thread member for the current user was updated */
+  ThreadMemberUpdate = "THREAD_MEMBER_UPDATE",
+  /** some user(s) were added to or removed from a thread */
+  ThreadMembersUpdate = "THREAD_MEMBERS_UPDATE",
+  /** lazy-load for unavailable guild, guild became available, or user joined a new guild */
+  GuildCreate = "GUILD_CREATE",
+  /** guild was updated */
+  GuildUpdate = "GUILD_UPDATE",
+  /** guild became unavailable, or user left/was removed from a guild */
+  GuildDelete = "GUILD_DELETE",
+  /** user was banned from a guild */
+  GuildBanAdd = "GUILD_BAN_ADD",
+  /** user was unbanned from a guild */
+  GuildBanRemove = "GUILD_BAN_REMOVE",
+  /** guild emojis were updated */
+  GuildEmojisUpdate = "GUILD_EMOJIS_UPDATE",
+  /** guild stickers were updated */
+  GuildStickersUpdate = "Guild_Stickers_Update",
+  /** guild integration was updated */
+  GuildIntegrationsUpdate = "GUILD_INTEGRATIONS_UPDATE",
+  /** new user joined a guild */
+  GuildMemberAdd = "GUILD_MEMBER_ADD",
+  /** user was removed from a guild */
+  GuildMemberRemove = "GUILD_MEMBER_REMOVE",
+  /** guild member was updated */
+  GuildMemberUpdate = "GUILD_MEMBER_UPDATE",
+  /** response to Request GuildMembers */
+  GuildMembersChunk = "GUILD_MEMBERS_CHUNK",
+  /** guild role was created */
+  GuildRoleCreate = "GUILD_ROLE_CREATE",
+  /** guild role was updated */
+  GuildRoleUpdate = "GUILD_ROLE_UPDATE",
+  /** guild role was deleted */
+  GuildRoleDelete = "GUILD_ROLE_DELETE",
+  /** guild scheduled event was created */
+  GuildScheduledEventCreate = "GUILD_SCHEDULED_EVENT_CREATE",
+  /** guild scheduled event was updated */
+  GuildScheduledEventUpdate = "GUILD_SCHEDULED_EVENT_UPDATE",
+  /** guild scheduled event was deleted */
+  GuildScheduledEventDelete = "GUILD_SCHEDULED_EVENT_DELETE",
+  /** user subscribed to a guild scheduled event */
+  GuildScheduledEventUserAdd = "GUILD_SCHEDULED_EVENT_USER_ADD",
+  /** user unsubscribed from a guild scheduled event */
+  GuildScheduledEventUserRemove = "GUILD_SCHEDULED_EVENT_USER_REMOVE",
+  /** guild integration was created */
+  IntegrationCreate = "INTEGRATION_CREATE",
+  /** guild integration was updated */
+  IntegrationUpdate = "INTEGRATION_UPDATE",
+  /** guild integration was deleted */
+  IntegrationDelete = "INTEGRATION_DELETE",
+  /** user used an interaction, such as an Application Command */
+  InteractionCreate = "INTERACTION_CREATE",
+  /** invite to a channel was created */
+  InviteCreate = "INVITE_CREATE",
+  /** invite to a channel was deleted */
+  InviteDelete = "INVITE_DELETE",
+  /** message was created */
+  MessageCreate = "MESSAGE_CREATE",
+  /** message was edited */
+  MessageUpdate = "MESSAGE_UPDATE",
+  /** message was deleted */
+  MessageDelete = "MESSAGE_DELETE",
+  /** multiple messages were deleted at once */
+  MessageDeleteBulk = "MESSAGE_DELETE_BULK",
+  /** user reacted to a message */
+  MessageReactionAdd = "MESSAGE_REACTION_ADD",
+  /** user removed a reaction from a message */
+  MessageReactionRemove = "MESSAGE_REACTION_REMOVE",
+  /** all reactions were explicitly removed from a message */
+  MessageReactionRemoveAll = "MESSAGE_REACTION_REMOVE_ALL",
+  /** all reactions for a given emoji were explicitly removed from a message */
+  MessageReactionRemoveEmoji = "MESSAGE_REACTION_REMOVE_EMOJI",
+  /** user was updated */
+  PresenceUpdate = "PRESENCE_UPDATE",
+  /** stage instance was created */
+  StageInstanceCreate = "STAGE_INSTANCE_CREATE",
+  /** stage instance was deleted or closed */
+  StageInstanceDelete = "STAGE_INSTANCE_DELETE",
+  /** stage instance was updated */
+  StageInstanceUpdate = "STAGE_INSTANCE_UPDATE",
+  /** user started typing in a channel */
+  TypingStart = "TYPING_START",
+  /** properties about the user changed */
+  UserUpdate = "USER_UPDATE",
+  /** someone joined, left, or moved a voice channel */
+  VoiceStateUpdate = "VOICE_STATE_UPDATE",
+  /** guild's voice server was updated */
+  VoiceServerUpdate = "VOICE_SERVER_UPDATE",
+  /** guild channel webhook was created, update, or deleted */
+  WebhooksUpdate = "WEBHOOKS_UPDATE",
+}
+
+/** [Ready Structure](https://discord.com/developers/docs/topics/gateway#ready) */
+export interface Ready {
+  /** [gateway version](https://discord.com/developers/docs/topics/gateway#gateways-gateway-versions) */
+  v: integer;
+  /** information about the user including email */
+  user: User;
+  /** the guilds the user is in */
+  guilds: UnavailableGuild[];
+  /** used for resuming connections */
+  session_id: string;
+  /** the [shard information](https://discord.com/developers/docs/topics/gateway#sharding) associated with this session, if sent when identifying */
+  shard?: [shard_id: integer, num_shards: integer];
+  /** contains id and flags */
+  application: Partial<Application>;
+}
+
+/** [Channel Pins Update Structure](https://discord.com/developers/docs/topics/gateway#channel-pins-update) */
+export interface ChannelPinsUpdate {
+  /** the id of the guild */
+  guild_id?: snowflake;
+  /** the id of the channel */
+  channel_id: snowflake;
+  /** the time at which the most recent pinned message was pinned */
+  last_pin_timestamp?: string | null;
+}
+
+/** [Thread List Sync Structure](https://discord.com/developers/docs/topics/gateway#thread-list-sync) */
+export interface ThreadListSync {
+  /** the id of the guild */
+  guild_id: snowflake;
+  /** the parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data. */
+  channel_ids?: snowflake[];
+  /** all active threads in the given channels that the current user can access */
+  threads: Channel[];
+  /** all thread member objects from the synced threads for the current user, indicating which threads the current user has been added to */
+  members: ThreadMember[];
+}
+
+/** [Guild Ban Add Structure](https://discord.com/developers/docs/topics/gateway#guild-ban-add) */
+export interface GuildBanAdd {
+  /** id of the guild */
+  guild_id: snowflake;
+  /** the banned user */
+  user: User;
+}
+
+/** [Guild Ban Remove Structure](https://discord.com/developers/docs/topics/gateway#guild-ban-remove) */
+export interface GuildBanRemove {
+  /** id of the guild */
+  guild_id: snowflake;
+  /** the unbanned user */
+  user: User;
+}
+
+/** [Guild Emojis Update Structure](https://discord.com/developers/docs/topics/gateway#guild-emojis-update) */
+export interface GuildEmojisUpdate {
+  /** id of the guild */
+  guild_id: snowflake;
+  /** array of emojis */
+  emojis: Emoji[];
+}
+
+/** [Guild Stickers Update Structure](https://discord.com/developers/docs/topics/gateway#guild-stickers-update) */
+export interface GuildStickersUpdate {
+  /** id of the guild */
+  guild_id: snowflake;
+  /** array of stickers */
+  stickers: Sticker[];
+}
+
+/** [Guild Integrations Structure](https://discord.com/developers/docs/topics/gateway#guild-integrations-update) */
+export interface GuildIntegrationsUpdate {
+  /** id of the guild whose integrations were updated */
+  guild_id: snowflake;
+}
+
+/** [Guild Member Remove Structure](https://discord.com/developers/docs/topics/gateway#guild-member-remove) */
+export interface GuildMemberRemove {
+  /** the id of the guild */
+  guild_id: snowflake;
+  /** the user who was removed */
+  user: User;
+}
+
+/** [Guild Member Update Structure](https://discord.com/developers/docs/topics/gateway#guild-member-update) */
+export interface GuildMemberUpdate {
+  /** the id of the guild */
+  guild_id: snowflake;
+  /** user role ids */
+  roles: snowflake[];
+  /** the user */
+  user: User;
+  /** nickname of the user in the guild */
+  nick?: string | null;
+  /** the member's guild avatar hash */
+  avatar: string | null;
+  /** when the user joined the guild */
+  joined_at: string | null;
+  /** when the user starting [boosting](https://support.discord.com/hc/en-us/articles/360028038352-Server-Boosting-) the guild */
+  premium_since?: string | null;
+  /** whether the user is deafened in voice channels */
+  deaf?: boolean;
+  /** whether the user is muted in voice channels */
+  mute?: boolean;
+  /** whether the user has not yet passed the guild's [Membership Screening](https://discord.com/developers/docs/resources/guild#membership-screening-object) requirements */
+  pending?: boolean;
+}
+
+/** [Guild Members Chunk Structure](https://discord.com/developers/docs/topics/gateway#guild-members-chunk) */
+export interface GuildMembersChunk {
+  /** the id of the guild */
+  guild_id: snowflake;
+  /** set of guild members */
+  members: GuildMember[];
+  /** the chunk index in the expected chunks for this response (0 <= chunk_index < chunk_count) */
+  chunk_index: integer;
+  /** the total number of expected chunks for this response */
+  chunk_count: integer;
+  /** if passing an invalid id to REQUEST_GUILD_MEMBERS, it will be returned here */
+  not_found?: string[];
+  /** if passing true to REQUEST_GUILD_MEMBERS, presences of the returned members will be here */
+  presences?: PresenceUpdate[];
+  /** the nonce used in the [Guild Members Request](https://discord.com/developers/docs/topics/gateway#request-guild-members) */
+  nonce?: string;
+}
+
+/** [Guild Role Create Structure](https://discord.com/developers/docs/topics/gateway#guild-role-create) */
+export interface GuildRoleCreate {
+  /** the id of the guild */
+  guild_id: snowflake;
+  role: Role;
+}
+
+/** [Guild Role Update Structure](https://discord.com/developers/docs/topics/gateway#guild-role-update) */
+export interface GuildRoleUpdate {
+  /** the id of the guild */
+  guild_id: snowflake;
+  /** the role updated */
+  role: Role;
+}
+
+/** [Guild Role Delete Structure](https://discord.com/developers/docs/topics/gateway#guild-role-delete) */
+export interface GuildRoleDelete {
+  /** the id of the guild */
+  guild_id: snowflake;
+  /** id of the role */
+  role_id: snowflake;
+}
+
+/** [Guild Scheduled Event User Add Structure](https://discord.com/developers/docs/topics/gateway#guild-scheduled-event-user-add) */
+export interface GuildScheduledEventUserAdd {
+  /** id of the guild scheduled event */
+  guild_scheduled_event_id: snowflake;
+  /** id of the user */
+  user_id: snowflake;
+  /** id of the guild */
+  guild_id: snowflake;
+}
+/** [Guild Scheduled Event User Remove Structure](https://discord.com/developers/docs/topics/gateway#guild-scheduled-event-user-remove) */
+export interface GuildScheduledEventUserRemove {
+  /** id of the guild scheduled event */
+  guild_scheduled_event_id: snowflake;
+  /** id of the user */
+  user_id: snowflake;
+  /** id of the guild */
+  guild_id: snowflake;
+}
+
+/** [Integration Delete Structure](https://discord.com/developers/docs/topics/gateway#integration-delete) */
+export interface IntegrationDelete {
+  /** integration id */
+  id: snowflake;
+  /** id of the guild */
+  guild_id: snowflake;
+  /** id of the bot/OAuth2 application for this discord integration */
+  application_id?: snowflake;
+}
+
+enum InviteTarget {
+  STREAM = 1,
+  EMBEDDED_APPLICATION = 2,
+}
+
+/** [Invite Create Structure](https://discord.com/developers/docs/topics/gateway#invite-create) */
+export interface InviteCreate {
+  /** the channel the invite is for */
+  channel_id: snowflake;
+  /** the unique invite [code](https://discord.com/developers/docs/resources/invite#invite-object) */
+  code: string;
+  /** the time at which the invite was created */
+  created_at: string;
+  /** the guild of the invite */
+  guild_id?: snowflake;
+  /** the user that created the invite */
+  inviter?: User;
+  /** how long the invite is valid for (in seconds) */
+  max_age: integer;
+  /** the maximum number of times the invite can be used */
+  max_uses: integer;
+  /** the type of target for this voice channel invite */
+  target_type?: InviteTarget;
+  /** the user whose stream to display for this voice channel stream invite */
+  target_user?: User;
+  /** the embedded application to open for this voice channel embedded application invite */
+  target_application?: Partial<Application>;
+  /** whether or not the invite is temporary (invited users will be kicked on disconnect unless they're assigned a role) */
+  temporary: boolean;
+  /** how many times the invite has been used (always will be 0) */
+  uses: 0;
+}
+
+/** [Invite Delete Structure](https://discord.com/developers/docs/topics/gateway#invite-delete) */
+export interface InviteDelete {
+  /** the channel of the invite */
+  channel_id: snowflake;
+  /** the guild of the invite */
+  guild_id?: snowflake;
+  /** the unique invite code */
+  code: string;
+}
+
+/** [Message Delete Structure](https://discord.com/developers/docs/topics/gateway#message-delete) */
+export interface MessageDelete {
+  /** the id of the message */
+  id: snowflake;
+  /** the id of the channel */
+  channel_id: snowflake;
+  /** the id of the guild */
+  guild_id?: snowflake;
+}
+
+/** [Message Delete Bulk Structure](https://discord.com/developers/docs/topics/gateway#message-delete-bulk) */
+export interface MessageDeleteBulk {
+  /** the ids of the messages */
+  ids: snowflake[];
+  /** the id of the channel */
+  channel_id: snowflake;
+  /** the id of the guild */
+  guild_id?: snowflake;
+}
+
+/** [Message Reaction Remove All Structure](https://discord.com/developers/docs/topics/gateway#message-reaction-remove-all) */
+export interface MessageReactionRemoveAll {
+  /** the id of the channel */
+  channel_id: snowflake;
+  /** the id of the message */
+  message_id: snowflake;
+  /** the id of the guild */
+  guild_id?: snowflake;
+}
+
+/** [Message Reaction Remove Emoji](https://discord.com/developers/docs/topics/gateway#message-reaction-remove-emoji) */
+export interface MessageReactionRemoveEmoji {
+  /** the id of the channel */
+  channel_id: snowflake;
+  /** the id of the guild */
+  guild_id?: snowflake;
+  /** the id of the message */
+  message_id: snowflake;
+  /** the emoji that was removed */
+  emoji: Partial<Emoji>;
+}
+
+/** [Typing Start Structure](https://discord.com/developers/docs/topics/gateway#typing-start) */
+export interface TypingStart {
+  /** id of the channel */
+  channel_id: snowflake;
+  /** id of the guild */
+  guild_id?: snowflake;
+  /** id of the user */
+  user_id: snowflake;
+  /** unix time (in seconds) of when the user started typing */
+  timestamp: integer;
+  /** the member who started typing if this happened in a guild */
+  member?: GuildMember;
+}
+
+/** [Voice Server Update Structure](https://discord.com/developers/docs/topics/gateway#voice-state-update) */
+export interface VoiceServerUpdate {
+  /** voice connection token */
+  token: string;
+  /** the guild this voice server update is for */
+  guild_id: snowflake;
+  /** the voice server host */
+  endpoint: string | null;
+}
+
+/** [Webhooks Update Structure](https://discord.com/developers/docs/topics/gateway#webhooks-update) */
+export interface WebhooksUpdate {
+  /** id of the guild */
+  guild_id: snowflake;
+  /** id of the channel */
+  channel_id: snowflake;
+}
+
+/** [Allowed Mention Types](https://discord.com/developers/docs/resources/channel#allowed-mentions-object-allowed-mention-types) */
+export enum AllowedMentionTypes {
+  /** Controls role mentions */
+  RoleMentions = "roles",
+  /** Controls user mentions */
+  UserMentions = "users",
+  /** Controls @everyone and @here mentions */
+  EveryoneMentions = "everyone",
+}
+
+/** [Allowed Mentions Object](https://discord.com/developers/docs/resources/channel#allowed-mentions-object) */
+export interface AllowedMentions {
+  /** An array of allowed mention types to parse from the content. */
+  parse: AllowedMentionTypes[];
+  /** Array of role_ids to mention (Max size of 100) */
+  roles: snowflake[];
+  /** Array of user_ids to mention (Max size of 100) */
+  users: snowflake[];
+  /** For replies, whether to mention the author of the message being replied to (default false) */
+  replied_user: boolean;
+}
+
+/** [Payload Structure](https://discord.com/developers/docs/topics/gateway#payloads) */
+export type Payload =
+  | DispatchPayload
+  | HeartbeatPayload
+  | IdentifyPayload
+  | HelloPayload
+  | ResumePayload
+  | RequestGuildMembersPayload
+  | UpdateVoiceStatePayload
+  | UpdatePresencePayload
+  | HeartbeatACKPayload
+  | InvalidSessionPayload
+  | ReconnectPayload;
+
+interface DispatchPayloadBase<
+  T extends GatewayEvent,
+  D extends unknown
+> {
+  /** opcode for the payload */
+  op: OpCode.Dispatch;
+  /** sequence number, used for resuming sessions and heartbeats */
+  s: integer;
+  t: T;
+  d: D;
+}
+
+export type DispatchPayload =
+  | DispatchPayloadBase<GatewayEvent.Ready, Ready>
+  | DispatchPayloadBase<GatewayEvent.Resumed, unknown>
+  | DispatchPayloadBase<GatewayEvent.Reconnect, unknown>
+  | DispatchPayloadBase<
+      GatewayEvent.InvalidSession,
+      boolean
+    >
+  | DispatchPayloadBase<GatewayEvent.ChannelCreate, Channel>
+  | DispatchPayloadBase<GatewayEvent.ChannelUpdate, Channel>
+  | DispatchPayloadBase<GatewayEvent.ChannelDelete, Channel>
+  | DispatchPayloadBase<
+      GatewayEvent.ChannelPinsUpdate,
+      ChannelPinsUpdate
+    >
+  | DispatchPayloadBase<GatewayEvent.ThreadCreate, Channel>
+  | DispatchPayloadBase<GatewayEvent.ThreadUpdate, Channel>
+  | DispatchPayloadBase<
+      GatewayEvent.ThreadDelete,
+      Pick<
+        Channel,
+        "id" | "guild_id" | "parent_id" | "type"
+      >
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.ThreadListSync,
+      ThreadListSync
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.ThreadMemberUpdate,
+      ThreadMember
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.ThreadMembersUpdate,
+      ThreadMember[]
+    >
+  | DispatchPayloadBase<GatewayEvent.GuildCreate, Guild>
+  | DispatchPayloadBase<GatewayEvent.GuildUpdate, Guild>
+  | DispatchPayloadBase<
+      GatewayEvent.GuildDelete,
+      UnavailableGuild
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildBanAdd,
+      GuildBanAdd
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildBanRemove,
+      GuildBanRemove
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildEmojisUpdate,
+      GuildEmojisUpdate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildStickersUpdate,
+      GuildStickersUpdate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildIntegrationsUpdate,
+      GuildIntegrationsUpdate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildMemberAdd,
+      GuildMember & { guild_id: snowflake }
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildMemberRemove,
+      GuildMemberRemove
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildMemberRemove,
+      GuildMemberUpdate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildMembersChunk,
+      GuildMembersChunk
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildRoleCreate,
+      GuildRoleCreate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildRoleUpdate,
+      GuildRoleUpdate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildRoleDelete,
+      GuildRoleDelete
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildScheduledEventCreate,
+      ScheduledEvent
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildScheduledEventUpdate,
+      ScheduledEvent
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildScheduledEventDelete,
+      ScheduledEvent
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildScheduledEventUserAdd,
+      GuildScheduledEventUserAdd
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.GuildScheduledEventUserRemove,
+      GuildScheduledEventUserRemove
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.IntegrationCreate,
+      Integration & { guild_id: snowflake }
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.IntegrationUpdate,
+      Integration & { guild_id: snowflake }
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.IntegrationDelete,
+      IntegrationDelete
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.InteractionCreate,
+      Interaction
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.InviteCreate,
+      InviteCreate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.InviteDelete,
+      InviteDelete
+    >
+  | DispatchPayloadBase<GatewayEvent.MessageCreate, Message>
+  | DispatchPayloadBase<
+      GatewayEvent.MessageUpdate,
+      Partial<Message>
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.MessageDelete,
+      MessageDelete
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.MessageDeleteBulk,
+      MessageDeleteBulk
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.MessageReactionAdd,
+      MessageReactionAdd
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.MessageReactionRemove,
+      MessageReactionRemove
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.MessageReactionRemoveAll,
+      MessageReactionRemoveAll
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.MessageReactionRemoveEmoji,
+      MessageReactionRemoveEmoji
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.PresenceUpdate,
+      PresenceUpdate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.StageInstanceCreate,
+      StageInstance
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.StageInstanceUpdate,
+      StageInstance
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.StageInstanceDelete,
+      StageInstance
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.TypingStart,
+      TypingStart
+    >
+  | DispatchPayloadBase<GatewayEvent.UserUpdate, User>
+  | DispatchPayloadBase<
+      GatewayEvent.VoiceServerUpdate,
+      VoiceServerUpdate
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.VoiceStateUpdate,
+      VoiceState
+    >
+  | DispatchPayloadBase<
+      GatewayEvent.WebhooksUpdate,
+      WebhooksUpdate
+    >;
+
+interface HeartbeatPayload {
+  op: OpCode.Heartbeat;
+  d: integer;
+}
+
+export interface IdentifyPayload {
+  op: OpCode.Identify;
+  d: Identify;
+}
+
+interface HelloPayload {
+  op: OpCode.Hello;
+  d: Hello;
+  s: integer;
+  t: string;
+}
+
+interface ResumePayload {
+  op: OpCode.Resume;
+  d: Resume;
+}
+
+interface RequestGuildMembersPayload {
+  op: OpCode.RequestGuildMembers;
+  d: RequestGuildMembers;
+}
+
+interface UpdateVoiceStatePayload {
+  op: OpCode.VoiceStateUpdate;
+  d: UpdateVoiceState;
+}
+
+interface UpdatePresencePayload {
+  op: OpCode.PresenceUpdate;
+  d: UpdatePresence;
+}
+
+interface HeartbeatACKPayload {
+  op: OpCode.HeartbeatACK;
+}
+
+interface InvalidSessionPayload {
+  op: OpCode.InvalidSession;
+  /** The inner d key is a boolean that indicates whether the session may be resumable. See Connecting and Resuming for more information. */
+  d: boolean;
+}
+
+interface ReconnectPayload {
+  op: OpCode.Reconnect;
+  d: GatewayCloseEventCode;
+}
+
+/** [Resume Structure] */
+export interface Resume {
+  /** string */
+  token: string;
+  /** string */
+  session_id: string;
+  /** integer */
+  seq: integer;
+}
+
+/** [Gateway Close Event Codes](https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-opcodes) */
+export enum GatewayCloseEventCode {
+  /** We're not sure what went wrong. Try reconnecting? */
+  UnknownError = 4000,
+  /** You sent an invalid Gateway opcode or an invalid payload for an opcode. Don't do that! */
+  UnknownOpcode = 4001,
+  /** You sent an invalid payload to us. Don't do that! */
+  DecodeError = 4002,
+  /** You sent us a payload prior to identifying. */
+  NotAuthenticated = 4003,
+  /** The account token sent with your identify payload is incorrect. */
+  AuthenticationFailed = 4004,
+  /** You sent more than one identify payload. Don't do that! */
+  AlreadyAuthenticated = 4005,
+  /** The sequence sent when resuming the session was invalid. Reconnect and start a new session. */
+  InvalidSeq = 4007,
+  /** Woah nelly! You're sending payloads to us too quickly. Slow it down! You will be disconnected on receiving this. */
+  RateLimited = 4008,
+  /** Your session timed out. Reconnect and start a new one. */
+  SessionTimedOut = 4009,
+  /** You sent us an invalid shard when identifying. */
+  InvalidShard = 4010,
+  /** The session would have handled too many guilds - you are required to shard your connection in order to connect. */
+  ShardingRequired = 4011,
+  /** You sent an invalid version for the gateway. */
+  InvalidAPIVersion = 4012,
+  /** You sent an invalid intent for a Gateway Intent. You may have incorrectly calculated the bitwise value. */
+  InvalidIntents = 4013,
+  /** You sent a disallowed intent for a Gateway Intent. You may have tried to specify an intent that you have not enabled or are not approved for. */
+  DisallowedIntents = 4014,
+}
+
+/** [Request Guild Members Structure](https://discord.com/developers/docs/topics/gateway#request-guild-members) */
+export interface RequestGuildMembers {
+  /** id of the guild to get members for */
+  guild_id: snowflake;
+  /** string that username starts with, or an empty string to return all members */
+  query?: string;
+  /** maximum number of members to send matching the query; a limit of 0 can be used with an empty string query to return all members */
+  limit: integer;
+  /** used to specify if we want the presences of the matched members */
+  presences?: boolean;
+  /** used to specify which users you wish to fetch */
+  user_ids?: snowflake | snowflake[];
+  /** nonce to identify the [Guild Members Chunk](https://discord.com/developers/docs/topics/gateway#guild-members-chunk) response */
+  nonce?: string;
+}
+
+/** [Update Voice State Structure](https://discord.com/developers/docs/topics/gateway#update-voice-state) */
+export interface UpdateVoiceState {
+  /** id of the guild */
+  guild_id: snowflake;
+  /** id of the voice channel client wants to join (null if disconnecting) */
+  channel_id: snowflake | null;
+  /** is the client muted */
+  self_mute: boolean;
+  /** is the client deafened */
+  self_deaf: boolean;
+}
+
+export enum OpCode {
+  /** Receive - An event was dispatched. */
+  Dispatch = 0,
+  /** Send/Receive - Fired periodically by the client to keep the connection alive. */
+  Heartbeat = 1,
+  /** Send - Starts a new session during the initial handshake. */
+  Identify = 2,
+  /** Send - Update the client's presence. */
+  PresenceUpdate = 3,
+  /** Send - Used to join/leave or move between voice channels. */
+  VoiceStateUpdate = 4,
+  /** Send - Resume a previous session that was disconnected. */
+  Resume = 6,
+  /** Receive - You should attempt to reconnect and resume immediately. */
+  Reconnect = 7,
+  /** Send - Request information about offline guild members in a large guild. */
+  RequestGuildMembers = 8,
+  /** Receive - The session has been invalidated. You should reconnect and identify/resume accordingly. */
+  InvalidSession = 9,
+  /** Receive - Sent immediately after connecting, contains the heartbeat_interval to use. */
+  Hello = 10,
+  /** Receive - Sent in response to receiving a heartbeat to acknowledge that it has been received. */
+  HeartbeatACK = 11,
+}
+
+/** [Hello Structure](https://discord.com/developers/docs/topics/gateway#hello) */
+export interface Hello {
+  /** the interval (in milliseconds) the client should heartbeat with */
+  heartbeat_interval: integer;
+}
+
+/** [Identify Structure](https://discord.com/developers/docs/topics/gateway#identify) */
+export interface Identify {
+  /** authentication token */
+  token: string;
+  /** connection properties */
+  properties: ConnectionProperties;
+  /** whether this connection supports compression of packets
+   * @defaultValue = false */
+  compress?: boolean;
+  /** value between 50 and 250, total number of members where the gateway will stop sending offline members in the guild member list
+   * @defaultValue 50 */
+  large_threshold?: integer;
+  /** used for [Guild Sharding](https://discord.com/developers/docs/topics/gateway#sharding) */
+  shard?: [shard_id: integer, shard_count: integer];
+  /** presence structure for initial presence information */
+  presence?: UpdatePresence;
+  /** the Gateway Intents you wish to receive */
+  intents: integer;
+}
+
+/** [Connection Properties Structure](https://discord.com/developers/docs/topics/gateway#connection-properties) */
+export interface ConnectionProperties {
+  /** your operating system */
+  $os: string;
+  /** your library name */
+  $browser: string;
+  /** your library name */
+  $device: string;
+}
+
+/** [Update Presence Structure](https://discord.com/developers/docs/topics/gateway#update-presence) */
+export interface UpdatePresence {
+  /** unix time (in milliseconds) of when the client went idle, or null if the client is not idle */
+  since: integer | null;
+  /** the user's activities */
+  activities: Activity[];
+  /** the user's new status */
+  status: Status;
+  /** whether or not the client is afk */
+  afk: boolean;
+}
+
+/** [Status Types](https://discord.com/developers/docs/topics/gateway#update-presence-status-types) */
+export enum Status {
+  Online = "online",
+  DoNotDisturb = "dnd",
+  AFK = "idle",
+  Invisible = "invisible",
+  Offline = "offline",
+}
+
+/** [Gateway Intents](https://discord.com/developers/docs/topics/gateway#gateway-intents) */
+export enum GatewayIntents {
+  GUILDS = 1 << 0,
+  GUILD_MEMBERS = 1 << 1,
+  GUILD_BANS = 1 << 2,
+  GUILD_EMOJIS = 1 << 3,
+  GUILD_INTEGRATIONS = 1 << 4,
+  GUILD_WEBHOOKS = 1 << 5,
+  GUILD_INVITES = 1 << 6,
+  GUILD_VOICE_STATES = 1 << 7,
+  GUILD_PRESENCES = 1 << 8,
+  GUILD_MESSAGES = 1 << 9,
+  GUILD_MESSAGE_REACTIONS = 1 << 10,
+  GUILD_MESSAGE_TYPING = 1 << 11,
+  DIRECT_MESSAGES = 1 << 12,
+  DIRECT_MESSAGE_REACTIONS = 1 << 13,
+  DIRECT_MESSAGE_TYPING = 1 << 14,
+  GUILD_SCHEDULED_EVENTS = 1 << 16,
 }
