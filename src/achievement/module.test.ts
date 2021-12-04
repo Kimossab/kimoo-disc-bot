@@ -36,7 +36,6 @@ import {
   stringReplacer,
 } from "../helper/common";
 import { no_mentions } from "../helper/constants";
-import Pagination from "../helper/pagination";
 import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "achievement";
@@ -100,8 +99,8 @@ jest.mock("../helper/logger");
   log: mockLog,
   error: mockError,
 }));
-jest.mock("../helper/pagination");
-const mockPagination = Pagination as jest.Mock;
+// jest.mock("../helper/pagination");
+// // const mockPagination = Pagination as jest.Mock;
 
 jest.mock("./database");
 const mockGetAchievement = getAchievement as jest.Mock;
@@ -461,7 +460,7 @@ describe("Achievement Module", () => {
           content: "",
           embeds: [expect.any(Object)],
         });
-        expect(mockPagination).not.toHaveBeenCalled();
+        // // expect(mockPagination).not.toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -496,7 +495,7 @@ describe("Achievement Module", () => {
           content: "",
           embeds: [expect.any(Object)],
         });
-        expect(mockPagination).toHaveBeenCalled();
+        // // expect(mockPagination).toHaveBeenCalled();
         expect(mockAddPagination).toHaveBeenCalled();
       });
     });
@@ -610,7 +609,7 @@ describe("Achievement Module", () => {
           content: "",
           embeds: [expect.any(Object)],
         });
-        expect(mockPagination).not.toHaveBeenCalled();
+        // expect(mockPagination).not.toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -649,7 +648,7 @@ describe("Achievement Module", () => {
           content: "",
           embeds: [expect.any(Object)],
         });
-        expect(mockPagination).toHaveBeenCalled();
+        // expect(mockPagination).toHaveBeenCalled();
         expect(mockAddPagination).toHaveBeenCalled();
       });
     });
@@ -707,7 +706,7 @@ describe("Achievement Module", () => {
           content: "",
           embeds: [expect.any(Object)],
         });
-        expect(mockPagination).not.toHaveBeenCalled();
+        // expect(mockPagination).not.toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -742,7 +741,7 @@ describe("Achievement Module", () => {
           content: "",
           embeds: [expect.any(Object)],
         });
-        expect(mockPagination).toHaveBeenCalled();
+        // expect(mockPagination).toHaveBeenCalled();
         expect(mockAddPagination).toHaveBeenCalled();
       });
     });

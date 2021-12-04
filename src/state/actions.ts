@@ -12,7 +12,6 @@ import {
   REMOVE_PAGINATION,
 } from "./types";
 import store from "./store";
-import Pagination from "../helper/pagination";
 import { DISCORD_TOKEN_TTL } from "../helper/constants";
 import {
   Application,
@@ -22,6 +21,7 @@ import {
   MessageReactionRemove,
   Ready,
 } from "../types/discord";
+import { InteractionPagination } from "../helper/pagination";
 
 /**
  * Adds a callback for when discord says it's ready
@@ -118,8 +118,8 @@ export const getApplication =
  * Add pagination to the store
  * @param data Pagination data
  */
-export const addPagination = (
-  data: Pagination<any>
+export const addPagination = <T>(
+  data: InteractionPagination<T>
 ): void => {
   store.dispatch({
     type: ADD_PAGINATION,
@@ -134,16 +134,14 @@ export const addPagination = (
   }, DISCORD_TOKEN_TTL);
 };
 
-/**
- * Get pagination by message id
- * @param message Message id to find
- */
 export const getPagination = (
-  message: string
-): Pagination<any> | undefined =>
-  store
-    .getState()
-    .allPaginations.find((f) => f.message === message);
+  messageId: string
+): InteractionPagination<unknown> | undefined => {
+  const state = store.getState();
+  return state.allPaginations.find(
+    (p) => p.messageId === messageId
+  );
+};
 
 /**
  * Adds a callback for new reactions

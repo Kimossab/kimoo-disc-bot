@@ -32,7 +32,6 @@ import {
   updateUserListBadgesPage,
   userBadgeListEmbed,
 } from "./helper";
-import Pagination from "../helper/pagination";
 import BaseModule from "../base-module";
 
 interface NameOption {
@@ -214,16 +213,15 @@ export default class BadgesModule extends BaseModule {
       );
 
       if (message && chunks.length > 1) {
-        const pagination = new Pagination<IBadge[]>(
-          data.channel_id,
-          message.id,
-          chunks,
-          updateListBadgesPage,
-          data.token,
-          data.member
-        );
-
-        addPagination(pagination);
+        // const pagination = new Pagination<IBadge[]>(
+        //   data.channel_id,
+        //   message.id,
+        //   chunks,
+        //   updateListBadgesPage,
+        //   data.token,
+        //   data.member
+        // );
+        // addPagination(pagination);
       }
 
       await deleteFile(`trash/${fileName}`);
@@ -385,15 +383,14 @@ export default class BadgesModule extends BaseModule {
       );
 
       if (message && chunks.length > 1) {
-        const pagination = new Pagination<IBadge[]>(
-          data.channel_id,
-          message.id,
-          chunks,
-          updateUserListBadgesPage,
-          data.token
-        );
-
-        addPagination(pagination);
+        // const pagination = new Pagination<IBadge[]>(
+        //   data.channel_id,
+        //   message.id,
+        //   chunks,
+        //   updateUserListBadgesPage,
+        //   data.token
+        // );
+        // addPagination(pagination);
       }
 
       await deleteFile(`trash/${fileName}`);

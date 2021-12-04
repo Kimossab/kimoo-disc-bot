@@ -28,7 +28,6 @@ import {
   updateAchievement,
 } from "./database";
 import { IAchievement } from "./models/achievement.model";
-import Pagination from "../helper/pagination";
 import { IAchievementRank } from "./models/achievement-rank.model";
 import { IUserAchievement } from "./models/user-achievement.model";
 import {
@@ -441,15 +440,14 @@ export default class AchievementModule extends BaseModule {
         }
       );
       if (message && chunks.length > 1) {
-        const pagination = new Pagination<IAchievement[]>(
-          message.channel_id,
-          message.id,
-          chunks,
-          updateServerAchievementsPage,
-          data.token
-        );
-
-        addPagination(pagination);
+        // const pagination = new Pagination<IAchievement[]>(
+        //   message.channel_id,
+        //   message.id,
+        //   chunks,
+        //   updateServerAchievementsPage,
+        //   data.token
+        // );
+        // addPagination(pagination);
       }
 
       this.logger.log(
@@ -506,17 +504,16 @@ export default class AchievementModule extends BaseModule {
         }
       );
       if (message && chunks.length > 1) {
-        const pagination = new Pagination<
-          IUserAchievement[]
-        >(
-          message.channel_id,
-          message.id,
-          chunks,
-          updateUserAchievementsPage,
-          data.token
-        );
-
-        addPagination(pagination);
+        // const pagination = new Pagination<
+        //   IUserAchievement[]
+        // >(
+        //   message.channel_id,
+        //   message.id,
+        //   chunks,
+        //   updateUserAchievementsPage,
+        //   data.token
+        // );
+        // addPagination(pagination);
       }
 
       this.logger.log(
@@ -564,17 +561,16 @@ export default class AchievementModule extends BaseModule {
         }
       );
       if (message && chunks.length > 1) {
-        const pagination = new Pagination<
-          IAchievementRank[]
-        >(
-          message.channel_id,
-          message.id,
-          chunks,
-          updateServerAchievementRanksPage,
-          data.token
-        );
-
-        addPagination(pagination);
+        // const pagination = new Pagination<
+        //   IAchievementRank[]
+        // >(
+        //   message.channel_id,
+        //   message.id,
+        //   chunks,
+        //   updateServerAchievementRanksPage,
+        //   data.token
+        // );
+        // addPagination(pagination);
       }
 
       this.logger.log(
@@ -681,17 +677,16 @@ export default class AchievementModule extends BaseModule {
         }
       );
       if (message && chunks.length > 1) {
-        const pagination = new Pagination<
-          achievement.serverLeaderboard[]
-        >(
-          message.channel_id,
-          message.id,
-          chunks,
-          updateServerLeaderboardPage,
-          data.token
-        );
-
-        addPagination(pagination);
+        // const pagination = new Pagination<
+        //   achievement.serverLeaderboard[]
+        // >(
+        //   message.channel_id,
+        //   message.id,
+        //   chunks,
+        //   updateServerLeaderboardPage,
+        //   data.token
+        // );
+        // addPagination(pagination);
       }
 
       this.logger.log(

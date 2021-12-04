@@ -4,7 +4,6 @@ import handleSauceNao from "./sauce-nao";
 import messageList from "../../helper/messages";
 import { requestSauceNao } from "./request";
 import { sauceNaoDataFixtures } from "./fixtures";
-import Pagination from "../../helper/pagination";
 import { addPagination } from "../../state/actions";
 import {
   Application,
@@ -103,7 +102,7 @@ describe("Sauce nao module", () => {
       new Logger(MODULE_NAME)
     );
 
-    expect(Pagination).toHaveBeenCalled();
+    // expect(Pagination).toHaveBeenCalled();
     expect(addPagination).toHaveBeenCalled();
   });
 

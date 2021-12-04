@@ -1,4 +1,3 @@
-import Pagination from "../../helper/pagination";
 import messageList from "../../helper/messages";
 import { editOriginalInteractionResponse } from "../../discord/rest";
 import Logger from "../../helper/logger";
@@ -64,15 +63,14 @@ const handleTraceMoe = async (
   );
 
   if (message && data.channel_id) {
-    const pagination = new Pagination<TraceMoe.resultData>(
-      data.channel_id,
-      message.id,
-      traceMoe.result,
-      traceMoeUpdatePage,
-      data.token
-    );
-
-    addPagination(pagination);
+    // const pagination = new Pagination<TraceMoe.resultData>(
+    //   data.channel_id,
+    //   message.id,
+    //   traceMoe.result,
+    //   traceMoeUpdatePage,
+    //   data.token
+    // );
+    // addPagination(pagination);
   }
 };
 

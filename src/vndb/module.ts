@@ -1,5 +1,4 @@
 import { editOriginalInteractionResponse } from "../discord/rest";
-import Pagination from "../helper/pagination";
 import {
   addPagination,
   getApplication,
@@ -61,15 +60,14 @@ export default class VNDBModule extends BaseModule {
           );
 
         if (message) {
-          const pagination = new Pagination<vndb_get_vn>(
-            data.channel_id,
-            message.id,
-            result,
-            vndbSearchUpdatePage,
-            data.token
-          );
-
-          addPagination(pagination);
+          // const pagination = new Pagination<vndb_get_vn>(
+          //   data.channel_id,
+          //   message.id,
+          //   result,
+          //   vndbSearchUpdatePage,
+          //   data.token
+          // );
+          // addPagination(pagination);
         }
       }
     };

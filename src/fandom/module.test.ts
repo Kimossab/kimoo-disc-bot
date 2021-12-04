@@ -10,7 +10,6 @@ import FandomModule from "./module";
 import { requestFandom } from "./request";
 import messageList from "../helper/messages";
 import { FANDOM_LINKS } from "../helper/constants";
-import Pagination from "../helper/pagination";
 import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "wiki";
@@ -172,7 +171,7 @@ describe("Fandom Module", () => {
     ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
       content: "link1",
     });
-    expect(Pagination).toHaveBeenCalled();
+    // expect(Pagination).toHaveBeenCalled();
     expect(addPagination).toHaveBeenCalled();
   });
 });

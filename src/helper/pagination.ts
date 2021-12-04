@@ -1,90 +1,132 @@
-import { createReaction } from "../discord/rest";
-import { isReady } from "../state/actions";
-import { GuildMember } from "../types/discord";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "../discord/rest";
+import {
+  ActionRow,
+  Button,
+  ButtonStyle,
+  Component,
+  ComponentType,
+  EditWebhookMessage,
+  InteractionCallbackData,
+  InteractionCallbackType,
+  InteractionData,
+  Message,
+  SelectOption,
+  snowflake,
+} from "../types/discord";
 
-declare type pagination_callback<T> = (
-  data: T,
+export type CreatePageCallback<T> = (
   page: number,
   total: number,
-  token: string,
-  userInfo?: Nullable<GuildMember>
-) => void;
+  data: T
+) => EditWebhookMessage | InteractionCallbackData;
 
-class Pagination<T> {
-  private _channel: string;
+export class InteractionPagination<T> {
+  private readonly appId: string;
+  private readonly data: T[];
+  private readonly createPage: CreatePageCallback<T>;
 
-  private _message: string;
+  private currentPage = 0;
+  private get totalPages() {
+    return this.data.length;
+  }
+  private message: Nullable<Message> = null;
 
-  private _data: T[];
-
-  private _callback: pagination_callback<T>;
-
-  private _page = 1;
-
-  private _token: string;
-
-  private _user: Nullable<GuildMember>;
+  public get messageId(): snowflake | undefined {
+    return this.message?.id;
+  }
 
   constructor(
-    channel: string,
-    message: string,
+    appId: string,
     data: T[],
-    callback: pagination_callback<T>,
-    token: string,
-    userInfo?: GuildMember
+    createPage: CreatePageCallback<T>
   ) {
-    this._channel = channel;
-    this._message = message;
-    this._data = data;
-    this._callback = callback;
-    this._token = token;
-    this._user = userInfo;
-
-    if (isReady()) {
-      const channel = this._channel;
-      const message = this._message;
-      (async () => {
-        await createReaction(channel, message, "◀");
-        setTimeout(() => {
-          createReaction(channel, message, "▶");
-        }, 250);
-      })();
-    }
+    this.appId = appId;
+    this.data = data;
+    this.createPage = createPage;
   }
 
-  private emitCallback() {
-    this._callback(
-      this._data[this._page - 1],
-      this._page,
-      this._data.length,
-      this._token,
-      this._user
+  private buildPageData() {
+    const pageData = this.createPage(
+      this.currentPage + 1,
+      this.totalPages,
+      this.data[this.currentPage]
     );
+
+    const buttonLeft: Button = {
+      type: ComponentType.Button,
+      style: ButtonStyle.Primary,
+      custom_id: "pagination.previous",
+      label: "◀",
+    };
+    const pageSelector: Component = {
+      type: ComponentType.SelectMenu,
+      custom_id: "pagination.select",
+      options: Array.from(Array(10)).map((value, index) => {
+        return {
+          label: `Page ${index + 1}`,
+          value: index.toString(),
+          default: index === this.currentPage,
+        };
+      }),
+    };
+    const buttonRight: Button = {
+      type: ComponentType.Button,
+      style: ButtonStyle.Primary,
+      custom_id: "pagination.next",
+      label: "▶",
+    };
+    const actionRow: ActionRow = {
+      type: ComponentType.ActionRow,
+      components: [buttonLeft, buttonRight],
+    };
+    pageData.components = [
+      ...(pageData.components ?? []),
+      {
+        type: ComponentType.ActionRow,
+        components: [pageSelector],
+      },
+      actionRow,
+    ];
+    return pageData;
   }
 
-  public get message(): string {
-    return this._message;
+  public async create(
+    token: string
+  ): Promise<Message | null> {
+    this.message = await editOriginalInteractionResponse(
+      this.appId,
+      token,
+      this.buildPageData()
+    );
+
+    return this.message;
   }
 
-  public next(): void {
-    this._page++;
-
-    if (this._page > this._data.length) {
-      this._page = 1;
+  public async handlePage(
+    id: string,
+    token: string,
+    data: InteractionData
+  ): Promise<void> {
+    const move = data.custom_id?.split(".")[1];
+    if (move === "next") {
+      this.currentPage++;
+    } else if (move === "previous") {
+      this.currentPage--;
+    } else if (move === "select") {
+      this.currentPage = Number(data.values![0]);
+    }
+    if (this.currentPage < 0) {
+      this.currentPage = this.data.length - 1;
+    } else if (this.currentPage >= this.data.length) {
+      this.currentPage = 0;
     }
 
-    this.emitCallback();
-  }
-
-  public previous(): void {
-    this._page--;
-
-    if (this._page < 1) {
-      this._page = this._data.length;
-    }
-
-    this.emitCallback();
+    await createInteractionResponse(id, token, {
+      type: InteractionCallbackType.UPDATE_MESSAGE,
+      data: this.buildPageData() as InteractionCallbackData,
+    });
   }
 }
-
-export default Pagination;

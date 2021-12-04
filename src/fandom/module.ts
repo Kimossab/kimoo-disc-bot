@@ -1,5 +1,4 @@
 import { editOriginalInteractionResponse } from "../discord/rest";
-import Pagination from "../helper/pagination";
 import {
   addPagination,
   getApplication,
@@ -62,15 +61,14 @@ export default class FandomModule extends BaseModule {
           );
 
         if (message) {
-          const pagination = new Pagination<string>(
-            data.channel_id,
-            message.id,
-            links,
-            this.updatePage,
-            data.token
-          );
-
-          addPagination(pagination);
+          // const pagination = new Pagination<string>(
+          //   data.channel_id,
+          //   message.id,
+          //   links,
+          //   this.updatePage,
+          //   data.token
+          // );
+          // addPagination(pagination);
         }
       } else {
         await editOriginalInteractionResponse(

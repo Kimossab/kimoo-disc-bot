@@ -2,7 +2,6 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import { checkAdmin } from "../helper/common";
 import Logger from "../helper/logger";
 import messageList from "../helper/messages";
-import Pagination from "../helper/pagination";
 import {
   addPagination,
   getApplication,
@@ -170,7 +169,7 @@ describe("Anilist module", () => {
         },
       } as Interaction);
 
-      expect(Pagination).toHaveBeenCalled();
+      // expect(Pagination).toHaveBeenCalled();
       expect(addPagination).toHaveBeenCalled();
     });
 
@@ -204,7 +203,7 @@ describe("Anilist module", () => {
       expect(
         editOriginalInteractionResponse
       ).toHaveBeenCalled();
-      expect(Pagination).not.toHaveBeenCalled();
+      // expect(Pagination).not.toHaveBeenCalled();
       expect(addPagination).not.toHaveBeenCalled();
     });
   });

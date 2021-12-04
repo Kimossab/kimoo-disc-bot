@@ -25,7 +25,6 @@ import { badgeListFixture } from "./fixtures";
 import { getAverageColor } from "fast-average-color-node";
 import { editOriginalInteractionResponse } from "../discord/rest";
 import { downloadImage } from "../helper/images";
-import Pagination from "../helper/pagination";
 import Logger from "../helper/logger";
 import { Interaction } from "../types/discord";
 
@@ -384,7 +383,7 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(Pagination).toHaveBeenCalled();
+      // expect(Pagination).toHaveBeenCalled();
       expect(addPagination).toHaveBeenCalled();
     });
   });
@@ -595,7 +594,7 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(Pagination).toHaveBeenCalled();
+      // expect(Pagination).toHaveBeenCalled();
       expect(addPagination).toHaveBeenCalled();
     });
   });

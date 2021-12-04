@@ -3,7 +3,6 @@ import Logger from "../../helper/logger";
 import { requestTraceMoe } from "./request";
 import handleTraceMoe from "./trace-moe";
 import messageList from "../../helper/messages";
-import Pagination from "../../helper/pagination";
 import { addPagination } from "../../state/actions";
 import { traceMoeEmbed } from "./mapper";
 import {
@@ -85,7 +84,7 @@ describe("Trace moe module", () => {
       editOriginalInteractionResponse as jest.Mock
     ).mockResolvedValueOnce({});
 
-    expect(Pagination).toHaveBeenCalled();
+    // expect(Pagination).toHaveBeenCalled();
     expect(addPagination).toHaveBeenCalled();
   });
 });

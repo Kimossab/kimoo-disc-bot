@@ -2,7 +2,6 @@ import { editOriginalInteractionResponse } from "../../discord/rest";
 import { stringReplacer } from "../../helper/common";
 import Logger from "../../helper/logger";
 import messageList from "../../helper/messages";
-import Pagination from "../../helper/pagination";
 import {
   addPagination,
   getApplication,
@@ -167,15 +166,14 @@ const handleSauceNao = async (
     }
   );
   if (message && data.channel_id) {
-    const pagination = new Pagination<SauceNao.data>(
-      data.channel_id,
-      message.id,
-      resData,
-      sauceNaoUpdatePage,
-      data.token
-    );
-
-    addPagination(pagination);
+    // const pagination = new Pagination<SauceNao.data>(
+    //   data.channel_id,
+    //   message.id,
+    //   resData,
+    //   sauceNaoUpdatePage,
+    //   data.token
+    // );
+    // addPagination(pagination);
   }
 };
 

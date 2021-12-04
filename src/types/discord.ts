@@ -1,4 +1,4 @@
-type snowflake = string;
+export type snowflake = string;
 type integer = number;
 
 /** [Get Gateway Bot](https://discord.com/developers/docs/topics/gateway#get-gateway-bot-json-response) */
@@ -760,7 +760,7 @@ export interface Button {
   /** text that appears on the button, max 80 characters */
   label?: string;
   /** name, id, and animated */
-  emoji?: Partial<Emoji>;
+  emoji?: Emoji;
   /** a developer-defined identifier for the button, max 100 characters */
   custom_id?: string;
   /** a url for link-style buttons */
@@ -927,7 +927,7 @@ export enum InteractionCallbackDataFlags {
   EPHEMERAL = 1 << 6,
 }
 
-/** [Interaction Callback Data](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data) */
+/** [Interaction Callback Data](https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction) */
 export interface InteractionCallbackData {
   /** is the response TTS */
   tts?: boolean;

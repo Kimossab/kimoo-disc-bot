@@ -13,7 +13,10 @@ import {
 } from "../helper/common";
 import messageList from "../helper/messages";
 import { getOption } from "../helper/modules.helper";
-import Pagination from "../helper/pagination";
+import {
+  CreatePageCallback,
+  InteractionPagination,
+} from "../helper/pagination";
 import {
   addPagination,
   getApplication,
@@ -259,19 +262,14 @@ export default class AnilistModule extends BaseModule {
     }
   };
 
-  private pageUpdate = async (
-    data: Embed,
-    _page: number,
-    _total: number,
-    token: string
-  ): Promise<void> => {
-    const app = getApplication();
-    if (app && app.id) {
-      await editOriginalInteractionResponse(app.id, token, {
-        content: "",
-        embeds: [data],
-      });
-    }
+  private pageUpdate: CreatePageCallback<Embed> = (
+    _page,
+    _total,
+    data
+  ) => {
+    return {
+      embeds: [data],
+    };
   };
 
   private handleSearchCommand: CommandHandler = async (
@@ -313,26 +311,17 @@ export default class AnilistModule extends BaseModule {
         );
         return;
       }
-      const message = await editOriginalInteractionResponse(
+
+      this.logger.log("Embed in index 5", embedList[5]);
+
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embedList[0]],
-        }
+        embedList,
+        this.pageUpdate
       );
 
-      if (message && embedList.length > 1) {
-        const pagination = new Pagination<Embed>(
-          data.channel_id,
-          message.id,
-          embedList,
-          this.pageUpdate,
-          data.token
-        );
-
-        addPagination(pagination);
-      }
+      await pagination.create(data.token);
+      addPagination(pagination);
     }
   };
 
@@ -572,45 +561,22 @@ export default class AnilistModule extends BaseModule {
         25
       );
 
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [
-            mapSubListToEmbed(chunks[0], 1, chunks.length),
-          ],
-        }
+        chunks,
+        this.updateUserSubListEmbed
       );
 
-      if (message && chunks.length > 1) {
-        const pagination = new Pagination<
-          MediaSubbedInfo[]
-        >(
-          data.channel_id,
-          message.id,
-          chunks,
-          this.updateUserSubListEmbed,
-          data.token
-        );
-
-        addPagination(pagination);
-      }
+      await pagination.create(data.token);
+      addPagination(pagination);
     }
   };
 
-  private updateUserSubListEmbed = async (
-    data: MediaSubbedInfo[],
-    page: number,
-    total: number,
-    token: string
-  ): Promise<void> => {
-    const app = getApplication();
-    if (app && app.id) {
-      await editOriginalInteractionResponse(app.id, token, {
-        content: "",
-        embeds: [mapSubListToEmbed(data, page, total)],
-      });
-    }
+  private updateUserSubListEmbed: CreatePageCallback<
+    MediaSubbedInfo[]
+  > = (page, total, data) => {
+    return {
+      embeds: [mapSubListToEmbed(data, page, total)],
+    };
   };
 }
