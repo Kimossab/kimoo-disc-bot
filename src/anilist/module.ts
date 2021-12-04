@@ -12,11 +12,11 @@ import {
   stringReplacer,
 } from "../helper/common";
 import messageList from "../helper/messages";
-import { getOption } from "../helper/modules.helper";
+import { getOption } from "../helper/modules";
 import {
   CreatePageCallback,
   InteractionPagination,
-} from "../helper/pagination";
+} from "../helper/interaction-pagination";
 import {
   addPagination,
   getApplication,

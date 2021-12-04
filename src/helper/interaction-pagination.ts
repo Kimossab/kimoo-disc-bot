@@ -13,7 +13,6 @@ import {
   InteractionCallbackType,
   InteractionData,
   Message,
-  SelectOption,
   snowflake,
 } from "../types/discord";
 
@@ -64,13 +63,15 @@ export class InteractionPagination<T> {
     const pageSelector: Component = {
       type: ComponentType.SelectMenu,
       custom_id: "pagination.select",
-      options: Array.from(Array(10)).map((value, index) => {
-        return {
-          label: `Page ${index + 1}`,
-          value: index.toString(),
-          default: index === this.currentPage,
-        };
-      }),
+      options: Array.from(Array(this.data.length)).map(
+        (value, index) => {
+          return {
+            label: `Page ${index + 1}`,
+            value: index.toString(),
+            default: index === this.currentPage,
+          };
+        }
+      ),
     };
     const buttonRight: Button = {
       type: ComponentType.Button,
@@ -117,7 +118,10 @@ export class InteractionPagination<T> {
       this.currentPage--;
     } else if (move === "select") {
       this.currentPage = Number(data.values![0]);
+    } else {
+      throw new Error("Unknown interaction");
     }
+
     if (this.currentPage < 0) {
       this.currentPage = this.data.length - 1;
     } else if (this.currentPage >= this.data.length) {

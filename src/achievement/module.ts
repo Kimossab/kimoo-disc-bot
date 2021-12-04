@@ -33,7 +33,7 @@ import { IUserAchievement } from "./models/user-achievement.model";
 import {
   getOption,
   getOptionValue,
-} from "../helper/modules.helper";
+} from "../helper/modules";
 import {
   getTotalPoints,
   getCurrentAndNextRank,

@@ -12,7 +12,7 @@ import messageList from "./helper/messages";
 import {
   getOption,
   getOptionValue,
-} from "./helper/modules.helper";
+} from "./helper/modules";
 import { checkAdmin } from "./helper/common";
 import {
   CommandInteractionDataOption,

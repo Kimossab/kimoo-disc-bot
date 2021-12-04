@@ -21,7 +21,7 @@ import {
   MessageReactionRemove,
   Ready,
 } from "../types/discord";
-import { InteractionPagination } from "../helper/pagination";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
 /**
  * Adds a callback for when discord says it's ready

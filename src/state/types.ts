@@ -1,4 +1,4 @@
-import { InteractionPagination } from "../helper/pagination";
+import { InteractionPagination } from "../helper/interaction-pagination";
 import {
   Application,
   Guild,
