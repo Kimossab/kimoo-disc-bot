@@ -37,8 +37,9 @@ import {
 } from "../helper/common";
 import { no_mentions } from "../helper/constants";
 import { Interaction } from "../types/discord";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
-const MODULE_NAME = "achievement";
+const MODULE_NAME = "achievements";
 const APPLICATION_ID = "APPLICATION_ID";
 const COMMAND_ID = "COMMAND_ID";
 const TOKEN = "TOKEN";
@@ -99,8 +100,7 @@ jest.mock("../helper/logger");
   log: mockLog,
   error: mockError,
 }));
-// jest.mock("../helper/pagination");
-// // const mockPagination = Pagination as jest.Mock;
+jest.mock("../helper/interaction-pagination");
 
 jest.mock("./database");
 const mockGetAchievement = getAchievement as jest.Mock;
@@ -454,13 +454,12 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        // // expect(mockPagination).not.toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          [achievementListFixtures],
+          expect.any(Function)
+        );
+        expect(addPagination).toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -489,13 +488,7 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        // // expect(mockPagination).toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalled();
         expect(mockAddPagination).toHaveBeenCalled();
       });
     });
@@ -581,11 +574,12 @@ describe("Achievement Module", () => {
       });
 
       it("should show a list of achievements", async () => {
+        const data = achievementListFixtures.map((ach) => ({
+          achievement: ach,
+          awardDate: new Date(),
+        }));
         mockGetAllUserAchievements.mockReturnValueOnce(
-          achievementListFixtures.map((ach) => ({
-            achievement: ach,
-            awardDate: new Date(),
-          }))
+          data
         );
         mockEditOriginalInteractionResponse.mockReturnValueOnce(
           { id: "some_id" }
@@ -603,13 +597,12 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        // expect(mockPagination).not.toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          [data],
+          expect.any(Function)
+        );
+        expect(addPagination).toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -642,13 +635,7 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        // expect(mockPagination).toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalled();
         expect(mockAddPagination).toHaveBeenCalled();
       });
     });
@@ -700,13 +687,12 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        // expect(mockPagination).not.toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          [rankListFixtures],
+          expect.any(Function)
+        );
+        expect(addPagination).toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -735,18 +721,55 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
+        expect(InteractionPagination).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          expect.any(Array),
+          expect.any(Function)
+        );
+        expect(mockAddPagination).toHaveBeenCalled();
+      });
+    });
+
+    describe("User command", () => {
+      it("should show the user's rank", async () => {
+        mockGetAllUserAchievements.mockReturnValueOnce(
+          achievementListFixtures.map((ach) => ({
+            achievement: ach,
+            awardDate: new Date(),
+          }))
+        );
+        mockGetServerRanks.mockReturnValueOnce(
+          rankListFixtures
+        );
+        mockEditOriginalInteractionResponse.mockReturnValueOnce(
+          { id: "some_id" }
+        );
+
+        await commandCallback({
+          ...baseCommand,
+          data: {
+            ...baseCommand.data,
+            options: [
+              {
+                name: "rank",
+                options: [
+                  {
+                    name: "user",
+                  },
+                ],
+              },
+            ],
+          },
+        } as Interaction);
+
         expect(
           mockEditOriginalInteractionResponse
         ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
           content: "",
           embeds: [expect.any(Object)],
         });
-        // expect(mockPagination).toHaveBeenCalled();
-        expect(mockAddPagination).toHaveBeenCalled();
       });
-    });
 
-    describe("User command", () => {
       it("should use by default the id of the user requesting the command", async () => {
         mockGetAllUserAchievements.mockReturnValueOnce([]);
         mockGetServerRanks.mockReturnValueOnce([]);
@@ -817,6 +840,7 @@ describe("Achievement Module", () => {
           }))
         );
         mockGetServerRanks.mockReturnValueOnce([]);
+
         await commandCallback({
           ...baseCommand,
           data: {
@@ -853,40 +877,6 @@ describe("Achievement Module", () => {
           content: messageList.achievements.server_no_ranks,
         });
       });
-
-      it("should show the user's rank", async () => {
-        mockGetAllUserAchievements.mockReturnValueOnce(
-          achievementListFixtures.map((ach) => ({
-            achievement: ach,
-            awardDate: new Date(),
-          }))
-        );
-        mockGetServerRanks.mockReturnValueOnce(
-          rankListFixtures
-        );
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
-
-        await commandCallback({
-          ...baseCommand,
-          data: {
-            ...baseCommand.data,
-            options: [
-              {
-                name: "list",
-              },
-            ],
-          },
-        } as Interaction);
-
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-      });
     });
 
     describe("Leaderboard command", () => {
@@ -909,11 +899,13 @@ describe("Achievement Module", () => {
         } as Interaction);
 
         expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
+          InteractionPagination
+        ).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          [serverLeaderboardFixture],
+          expect.any(Function)
+        );
+        expect(addPagination).toHaveBeenCalled();
       });
     });
 
