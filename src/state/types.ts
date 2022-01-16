@@ -1,4 +1,4 @@
-import Pagination from "../helper/pagination";
+import { InteractionPagination } from "../helper/interaction-pagination";
 import {
   Application,
   Guild,
@@ -30,7 +30,7 @@ export interface State {
   user: User | null;
   application: Partial<Application> | null;
   guilds: Guild[];
-  allPaginations: Pagination<unknown>[];
+  allPaginations: InteractionPagination<any>[];
   channelLastAttachment: string_object<string>;
   discordSessionId: string | null;
   discordLastS: number | null;
@@ -70,14 +70,14 @@ export interface AddGuildMembers {
   clean: boolean;
 }
 
-export interface AddPagination {
+export interface AddPagination<T> {
   type: typeof ADD_PAGINATION;
-  data: Pagination<unknown>;
+  data: InteractionPagination<T>;
 }
 
-export interface RemovePagination {
+export interface RemovePagination<T> {
   type: typeof REMOVE_PAGINATION;
-  data: Pagination<unknown>;
+  data: InteractionPagination<T>;
 }
 
 export interface SetCommandExecutedCallback {
@@ -120,5 +120,5 @@ export type Actions =
   | SetDiscordLastS
   | AddGuild
   | AddGuildMembers
-  | AddPagination
-  | RemovePagination;
+  | AddPagination<any>
+  | RemovePagination<any>;

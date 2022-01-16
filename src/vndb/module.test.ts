@@ -2,7 +2,6 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import { checkAdmin } from "../helper/common";
 import { downloadImage } from "../helper/images";
 import Logger from "../helper/logger";
-import Pagination from "../helper/pagination";
 import {
   addPagination,
   getApplication,
@@ -132,7 +131,7 @@ describe("VNDB module", () => {
       },
     } as Interaction);
 
-    expect(Pagination).toHaveBeenCalled();
+    // expect(Pagination).toHaveBeenCalled();
     expect(addPagination).toHaveBeenCalled();
   });
 });

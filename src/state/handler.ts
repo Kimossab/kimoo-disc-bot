@@ -1,4 +1,4 @@
-import Pagination from "../helper/pagination";
+import { InteractionPagination } from "../helper/interaction-pagination";
 import {
   Application,
   Guild,
@@ -61,9 +61,9 @@ export const SET_REACTION_CALLBACK = (
   return state;
 };
 
-export const ADD_PAGINATION = (
+export const ADD_PAGINATION = <T>(
   state: State,
-  data: Pagination<any>
+  data: InteractionPagination<T>
 ): State => {
   state.allPaginations.push(data);
   return state;
@@ -94,12 +94,12 @@ export const SET_DISCORD_LAST_S = (
   discordLastS: lastS,
 });
 
-export const REMOVE_PAGINATION = (
+export const REMOVE_PAGINATION = <T>(
   state: State,
-  data: Pagination<any>
+  data: InteractionPagination<T>
 ): State => {
   const filtered = state.allPaginations.filter(
-    (p) => p.message !== data.message
+    (p) => p.messageId !== data.messageId
   );
 
   return {

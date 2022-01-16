@@ -1,12 +1,12 @@
 import { editOriginalInteractionResponse } from "../../discord/rest";
 import { stringReplacer } from "../../helper/common";
+import {
+  CreatePageCallback,
+  InteractionPagination,
+} from "../../helper/interaction-pagination";
 import Logger from "../../helper/logger";
 import messageList from "../../helper/messages";
-import Pagination from "../../helper/pagination";
-import {
-  addPagination,
-  getApplication,
-} from "../../state/actions";
+import { addPagination } from "../../state/actions";
 import {
   Interaction,
   Application,
@@ -72,24 +72,12 @@ const sauceNaoEmbed = (
   return embed;
 };
 
-const sauceNaoUpdatePage = async (
-  data: SauceNao.data,
-  page: number,
-  total: number,
-  token: string
-): Promise<void> => {
-  const app = getApplication();
-  if (app && app.id) {
-    await editOriginalInteractionResponse(
-      app.id || "",
-      token,
-      {
-        content: "",
-        embeds: [sauceNaoEmbed(data, page, total)],
-      }
-    );
-  }
-};
+const sauceNaoUpdatePage: CreatePageCallback<SauceNao.data> =
+  async (page, total, data) => ({
+    data: {
+      embeds: [sauceNaoEmbed(data, page, total)],
+    },
+  });
 
 const handleSauceNao = async (
   data: Interaction,
@@ -156,27 +144,14 @@ const handleSauceNao = async (
     return;
   }
 
-  const message = await editOriginalInteractionResponse(
+  const pagination = new InteractionPagination(
     app.id || "",
-    data.token,
-    {
-      content: "",
-      embeds: [
-        sauceNaoEmbed(resData[0], 1, resData.length),
-      ],
-    }
+    resData,
+    sauceNaoUpdatePage
   );
-  if (message && data.channel_id) {
-    const pagination = new Pagination<SauceNao.data>(
-      data.channel_id,
-      message.id,
-      resData,
-      sauceNaoUpdatePage,
-      data.token
-    );
 
-    addPagination(pagination);
-  }
+  await pagination.create(data.token);
+  addPagination(pagination);
 };
 
 export default handleSauceNao;

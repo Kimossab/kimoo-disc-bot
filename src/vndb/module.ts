@@ -1,5 +1,4 @@
 import { editOriginalInteractionResponse } from "../discord/rest";
-import Pagination from "../helper/pagination";
 import {
   addPagination,
   getApplication,
@@ -10,6 +9,7 @@ import {
   vndbSearchEmbed,
   vndbSearchUpdatePage,
 } from "./helper";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
 export default class VNDBModule extends BaseModule {
   private vndbApi;
@@ -44,33 +44,14 @@ export default class VNDBModule extends BaseModule {
           return;
         }
 
-        const message =
-          await editOriginalInteractionResponse(
-            app.id,
-            data.token,
-            {
-              content: "",
-              embeds: [
-                vndbSearchEmbed(
-                  result[0],
-                  1,
-                  result.length
-                ),
-              ],
-            }
-          );
+        const pagination = new InteractionPagination(
+          app.id,
+          result,
+          vndbSearchUpdatePage
+        );
 
-        if (message) {
-          const pagination = new Pagination<vndb_get_vn>(
-            data.channel_id,
-            message.id,
-            result,
-            vndbSearchUpdatePage,
-            data.token
-          );
-
-          addPagination(pagination);
-        }
+        await pagination.create(data.token);
+        addPagination(pagination);
       }
     };
 }

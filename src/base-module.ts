@@ -11,7 +11,7 @@ import messageList from "./helper/messages";
 import {
   getOption,
   getOptionValue,
-} from "./helper/modules.helper";
+} from "./helper/modules";
 import { checkAdmin } from "./helper/common";
 import {
   CommandInteractionDataOption,
@@ -55,7 +55,7 @@ export default class BaseModule {
     return response;
   };
 
-  private commandExecuted = async (
+  private interactionExecuted = async (
     data: Interaction
   ): Promise<void> => {
     if (
@@ -135,7 +135,7 @@ export default class BaseModule {
 
   public setUp(): void {
     if (!this.isSetup) {
-      setCommandExecutedCallback(this.commandExecuted);
+      setCommandExecutedCallback(this.interactionExecuted);
       this.isSetup = true;
     }
   }

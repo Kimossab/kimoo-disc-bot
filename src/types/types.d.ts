@@ -139,6 +139,12 @@ declare namespace SauceNao {
     tweet_id?: string;
     twitter_user_id?: string;
     twitter_user_handle?: string;
+    md_id?: string;
+    mu_id?: number;
+    mal_id?: string;
+    part?: string;
+    artist?: string;
+    author?: string;
   }
 
   interface result {

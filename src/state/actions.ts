@@ -12,16 +12,17 @@ import {
   REMOVE_PAGINATION,
 } from "./types";
 import store from "./store";
-import Pagination from "../helper/pagination";
 import { DISCORD_TOKEN_TTL } from "../helper/constants";
 import {
   Application,
   Guild,
   Interaction,
+  InteractionType,
   MessageReactionAdd,
   MessageReactionRemove,
   Ready,
 } from "../types/discord";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
 /**
  * Adds a callback for when discord says it's ready
@@ -83,11 +84,36 @@ export const setCommandExecutedCallback = (
 export const commandExecuted = (
   data: Interaction
 ): void => {
-  const callback = store.getState().commandExecutedCallback;
+  if (data.type === InteractionType.APPLICATION_COMMAND) {
+    const callback =
+      store.getState().commandExecutedCallback;
 
-  for (const cb of callback) {
-    cb(data);
+    for (const cb of callback) {
+      cb(data);
+    }
+    return;
   }
+
+  if (data.type === InteractionType.MESSAGE_COMPONENT) {
+    if (
+      data.message &&
+      data.data?.custom_id?.startsWith("pagination.")
+    ) {
+      const pagination = getPagination(data.message.id);
+      if (pagination) {
+        pagination.handlePage(
+          data.id,
+          data.token,
+          data.data
+        );
+      }
+    } else {
+      throw new Error("Unexpected component interaction");
+    }
+    return;
+  }
+
+  throw new Error("Unknown interaction type");
 };
 
 /**
@@ -118,8 +144,8 @@ export const getApplication =
  * Add pagination to the store
  * @param data Pagination data
  */
-export const addPagination = (
-  data: Pagination<any>
+export const addPagination = <T>(
+  data: InteractionPagination<T>
 ): void => {
   store.dispatch({
     type: ADD_PAGINATION,
@@ -134,16 +160,14 @@ export const addPagination = (
   }, DISCORD_TOKEN_TTL);
 };
 
-/**
- * Get pagination by message id
- * @param message Message id to find
- */
 export const getPagination = (
-  message: string
-): Pagination<any> | undefined =>
-  store
-    .getState()
-    .allPaginations.find((f) => f.message === message);
+  messageId: string
+): InteractionPagination<unknown> | undefined => {
+  const state = store.getState();
+  return state.allPaginations.find(
+    (p) => p.messageId === messageId
+  );
+};
 
 /**
  * Adds a callback for new reactions
