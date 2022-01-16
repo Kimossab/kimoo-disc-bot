@@ -7,19 +7,25 @@ import {
   commandExecuted,
   getDiscordLastS,
   getDiscordSession,
-  gotNewReaction,
   setChannelLastAttachment,
   setDiscordLastS,
   setDiscordSession,
   setReadyData,
 } from "../state/actions";
-import {
-  PRESENCE_STRINGS,
-  gateway_events,
-  intents,
-  opcodes,
-} from "../helper/constants";
+import { PRESENCE_STRINGS } from "../helper/constants";
 import { editMessage, sendMessage } from "./rest";
+import {
+  ActivityType,
+  DispatchPayload,
+  GatewayEvent,
+  GatewayIntents,
+  Hello,
+  IdentifyPayload,
+  Message,
+  OpCode,
+  Payload,
+  Status,
+} from "../types/discord";
 
 class Socket {
   private logger = new Logger("socket");
@@ -90,24 +96,21 @@ class Socket {
   }
 
   private onMessage(d: string): void {
-    const data: discord.payload = JSON.parse(d);
-
-    if (data.s) {
-      setDiscordLastS(data.s);
-    }
+    const data: Payload = JSON.parse(d);
 
     switch (data.op) {
-      case opcodes.dispatch:
-        this.onEvent(data.t!, data.d);
+      case OpCode.Dispatch:
+        setDiscordLastS(data.s);
+        this.onEvent(data);
         break;
-      case opcodes.heartbeat:
+      case OpCode.Heartbeat:
         this.sendHeartbeat();
         break;
-      case opcodes.reconnect:
+      case OpCode.Reconnect:
         this.logger.log('Received "reconnect"', data.d);
-        this.client!.close();
+        this.client?.close();
         break;
-      case opcodes.invalid_session:
+      case OpCode.InvalidSession:
         if (!data.d) {
           setDiscordSession(null);
           setDiscordLastS(null);
@@ -118,12 +121,12 @@ class Socket {
           data.d
         );
 
-        this.client!.close();
+        this.client?.close();
         break;
-      case opcodes.hello:
-        this.onHello(data.d as discord.hello);
+      case OpCode.Hello:
+        this.onHello(data.d);
         break;
-      case opcodes.heartbeat_ack:
+      case OpCode.HeartbeatACK:
         this.hbAck = true;
         break;
       default:
@@ -133,7 +136,7 @@ class Socket {
   }
 
   // DISCORD EVENTS
-  private onHello(data: discord.hello): void {
+  private onHello(data: Hello): void {
     this.logger.log("Received Hello");
 
     if (this.hbInterval) {
@@ -150,16 +153,14 @@ class Socket {
     if (sessionId) {
       this.logger.log("Invoking resume");
 
-      this.send(
-        JSON.stringify({
-          op: opcodes.resume,
-          d: {
-            token: process.env.TOKEN!,
-            session_id: sessionId,
-            seq: lastS,
-          },
-        })
-      );
+      this.sendEvent({
+        op: OpCode.Resume,
+        d: {
+          token: process.env.TOKEN!,
+          session_id: sessionId,
+          seq: lastS || 0,
+        },
+      });
 
       setTimeout(() => {
         if (!this.resumed) {
@@ -172,61 +173,47 @@ class Socket {
     }
   }
 
-  private onEvent(event: string, data: any): void {
-    switch (event) {
-      case gateway_events.ready:
-        setDiscordSession(
-          (data as discord.ready).session_id
-        );
+  private onEvent(event: DispatchPayload): void {
+    switch (event.t) {
+      case GatewayEvent.Ready:
+        setDiscordSession(event.d.session_id);
 
-        setReadyData(data as discord.ready);
+        setReadyData(event.d);
         break;
-      case gateway_events.guild_create:
-        addGuild(data as discord.guild);
+      case GatewayEvent.GuildCreate:
+        addGuild(event.d);
 
-        // this.requestGuildMembers(data);
-
-        saveGuild(data.id);
+        saveGuild(event.d.id);
         break;
-      // case gateway_events.guild_members_chunk:
-      //   addGuildMembers(data as discord.guild_members_chunk);
-      //   break;
-      case gateway_events.interaction_create:
-        commandExecuted(data as discord.interaction);
+      case GatewayEvent.InteractionCreate:
+        try {
+          commandExecuted(event.d);
+        } catch (e) {
+          this.logger.error(
+            "Failed to handle interaction",
+            e
+          );
+        }
         break;
-      case gateway_events.message_reaction_add:
-        gotNewReaction(
-          data as discord.message_reaction_add,
-          false
-        );
-        break;
-      case gateway_events.message_reaction_remove:
-        gotNewReaction(
-          data as discord.message_reaction_remove,
-          true
-        );
-        break;
-      case gateway_events.message_create:
-        const messageData = data as discord.message;
-        if (messageData.attachments.length > 0) {
+      case GatewayEvent.MessageCreate:
+        if (event.d.attachments.length > 0) {
           setChannelLastAttachment(
-            messageData.channel_id,
-            data.attachments[data.attachments.length - 1]
-              .url
+            event.d.channel_id,
+            event.d.attachments[
+              event.d.attachments.length - 1
+            ].url
           );
         }
 
-        if (!messageData.guild_id) {
-          this.handleDM(messageData);
+        if (!event.d.guild_id) {
+          this.handleDM(event.d);
         }
 
         break;
-      case gateway_events.resumed:
+      case GatewayEvent.Resumed:
         this.resumed = true;
-        this.logger.log("resumed", event);
+        this.logger.log("resumed", event.d);
         break;
-      /* default:
-        this.logger.log("Not expected message", event); */
     }
   }
 
@@ -241,12 +228,10 @@ class Socket {
     if (!this.hbAck) {
       this.forceReconnect();
     } else {
-      this.send(
-        JSON.stringify({
-          op: opcodes.heartbeat,
-          d: getDiscordLastS(),
-        })
-      );
+      this.sendEvent({
+        op: OpCode.Heartbeat,
+        d: getDiscordLastS() || 0,
+      });
       this.hbAck = false;
     }
   }
@@ -259,22 +244,21 @@ class Socket {
     this.logger.log(
       `Updating bot presence to "${PRESENCE_STRINGS[randomPresence]}"`
     );
-    this.send(
-      JSON.stringify({
-        op: opcodes.presence_update,
-        d: {
-          since: +new Date(),
-          activities: [
-            {
-              name: PRESENCE_STRINGS[randomPresence],
-              type: 0,
-            },
-          ],
-          status: "online",
-          afk: false,
-        },
-      })
-    );
+    this.sendEvent({
+      op: OpCode.PresenceUpdate,
+      d: {
+        since: +new Date(),
+        activities: [
+          {
+            name: PRESENCE_STRINGS[randomPresence],
+            type: ActivityType.Custom,
+            created_at: +new Date(),
+          },
+        ],
+        status: Status.Online,
+        afk: false,
+      },
+    });
   }
 
   private identify(): void {
@@ -284,36 +268,35 @@ class Socket {
       PRESENCE_STRINGS.length
     );
 
-    const obj: discord.identify = {
-      token: process.env.TOKEN!,
-      properties: {
-        $browser: "Kimoo-bot",
-        $device: "Kimoo-bot",
-        $os: process.platform,
+    const payload: IdentifyPayload = {
+      op: OpCode.Identify,
+      d: {
+        token: process.env.TOKEN!,
+        properties: {
+          $browser: "Kimoo-bot",
+          $device: "Kimoo-bot",
+          $os: process.platform,
+        },
+        presence: {
+          since: +new Date(),
+          activities: [
+            {
+              name: PRESENCE_STRINGS[randomPresence],
+              type: ActivityType.Custom,
+              created_at: +new Date(),
+            },
+          ],
+          status: Status.Online,
+          afk: false,
+        },
+        intents:
+          GatewayIntents.GUILDS |
+          GatewayIntents.GUILD_MESSAGES |
+          GatewayIntents.DIRECT_MESSAGES,
       },
-      presence: {
-        since: +new Date(),
-        activities: [
-          {
-            name: PRESENCE_STRINGS[randomPresence],
-            type: 0,
-          },
-        ],
-        status: "online",
-        afk: false,
-      },
-      intents:
-        intents.guilds |
-        // intents.guild_members |
-        intents.guild_messages |
-        intents.guild_message_reactions |
-        intents.direct_messages |
-        intents.direct_message_reactions,
     };
 
-    this.send(
-      JSON.stringify({ op: opcodes.identify, d: obj })
-    );
+    this.send(JSON.stringify(payload));
   }
 
   // private requestGuildMembers(guild: discord.guild): void {
@@ -326,15 +309,17 @@ class Socket {
   //   this.send(JSON.stringify({ op: opcodes.request_guild_members, d: obj }));
   // }
 
+  private sendEvent(event: Payload): void {
+    this.send(JSON.stringify(event));
+  }
+
   private send(message: string): void {
     if (this.client) {
       this.client.send(message);
     }
   }
 
-  private async handleDM(
-    data: discord.message
-  ): Promise<void> {
+  private async handleDM(data: Message): Promise<void> {
     if (data.author.id === "108208089987051520") {
       const sendMessageRegex =
         /^sudo\smessage\s(?<channel>\d*)\s(?<content>(.|\n)*)/gm;

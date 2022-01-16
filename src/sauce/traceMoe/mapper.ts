@@ -3,12 +3,13 @@ import {
   stringReplacer,
 } from "../../helper/common";
 import messageList from "../../helper/messages";
+import { Embed } from "../../types/discord";
 
 export const traceMoeEmbed = (
   item: TraceMoe.resultData,
   page: number,
   total: number
-): discord.embed => {
+): Embed => {
   let title: string[] = [];
 
   if (item.anilist.title?.english) {
@@ -36,7 +37,7 @@ export const traceMoeEmbed = (
     `@${formatSecondsIntoMinutes(item.from)}`
   );
 
-  const embed: discord.embed = {
+  const embed: Embed = {
     title: title.length ? title.join(" - ") : "UNKNOWN",
     description: description.join(" "),
     color: 3035554,

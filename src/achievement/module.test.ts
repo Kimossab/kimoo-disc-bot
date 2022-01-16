@@ -36,9 +36,10 @@ import {
   stringReplacer,
 } from "../helper/common";
 import { no_mentions } from "../helper/constants";
-import Pagination from "../helper/pagination";
+import { Interaction } from "../types/discord";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
-const MODULE_NAME = "achievement";
+const MODULE_NAME = "achievements";
 const APPLICATION_ID = "APPLICATION_ID";
 const COMMAND_ID = "COMMAND_ID";
 const TOKEN = "TOKEN";
@@ -66,9 +67,7 @@ const GIVE_ACHIEVEMENT_VALUES = {
   achievement: 1,
 };
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 //mocks
 jest.mock("../helper/common", () => ({
@@ -85,9 +84,7 @@ mockGetApplication.mockReturnValue({
   id: APPLICATION_ID,
 });
 mockSetCommandExecutedCallback.mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -103,8 +100,7 @@ jest.mock("../helper/logger");
   log: mockLog,
   error: mockError,
 }));
-jest.mock("../helper/pagination");
-const mockPagination = Pagination as jest.Mock;
+jest.mock("../helper/interaction-pagination");
 
 jest.mock("./database");
 const mockGetAchievement = getAchievement as jest.Mock;
@@ -142,7 +138,7 @@ const baseCommand = {
   data: {
     name: MODULE_NAME,
   },
-} as discord.interaction;
+} as Interaction;
 
 const createCommandOptions = [
   { name: "name", value: CREATE_ACHIEVEMENT_VALUES.name },
@@ -204,7 +200,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as unknown as Interaction);
 
       expect(mockGetAchievement).not.toHaveBeenCalled();
     });
@@ -225,7 +221,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockEditOriginalInteractionResponse
@@ -246,7 +242,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockCreateAchievement
@@ -284,7 +280,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as unknown as Interaction);
 
       expect(mockUpdateAchievement).not.toHaveBeenCalled();
     });
@@ -303,7 +299,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockEditOriginalInteractionResponse
@@ -333,7 +329,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockUpdateAchievement
@@ -372,7 +368,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as unknown as Interaction);
 
       expect(mockDeleteAchievement).not.toHaveBeenCalled();
     });
@@ -389,7 +385,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockDeleteAchievement
@@ -427,7 +423,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -456,15 +452,14 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        expect(mockPagination).not.toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          [achievementListFixtures],
+          expect.any(Function)
+        );
+        expect(addPagination).toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -491,15 +486,9 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        expect(mockPagination).toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalled();
         expect(mockAddPagination).toHaveBeenCalled();
       });
     });
@@ -517,7 +506,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as unknown as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -537,7 +526,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -567,7 +556,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -585,11 +574,12 @@ describe("Achievement Module", () => {
       });
 
       it("should show a list of achievements", async () => {
+        const data = achievementListFixtures.map((ach) => ({
+          achievement: ach,
+          awardDate: new Date(),
+        }));
         mockGetAllUserAchievements.mockReturnValueOnce(
-          achievementListFixtures.map((ach) => ({
-            achievement: ach,
-            awardDate: new Date(),
-          }))
+          data
         );
         mockEditOriginalInteractionResponse.mockReturnValueOnce(
           { id: "some_id" }
@@ -605,15 +595,14 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        expect(mockPagination).not.toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          [data],
+          expect.any(Function)
+        );
+        expect(addPagination).toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -644,15 +633,9 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        expect(mockPagination).toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalled();
         expect(mockAddPagination).toHaveBeenCalled();
       });
     });
@@ -674,7 +657,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -702,15 +685,14 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
-        expect(mockPagination).not.toHaveBeenCalled();
+        expect(InteractionPagination).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          [rankListFixtures],
+          expect.any(Function)
+        );
+        expect(addPagination).toHaveBeenCalled();
       });
 
       it("should create a pagination", async () => {
@@ -737,7 +719,48 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
+
+        expect(InteractionPagination).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          expect.any(Array),
+          expect.any(Function)
+        );
+        expect(mockAddPagination).toHaveBeenCalled();
+      });
+    });
+
+    describe("User command", () => {
+      it("should show the user's rank", async () => {
+        mockGetAllUserAchievements.mockReturnValueOnce(
+          achievementListFixtures.map((ach) => ({
+            achievement: ach,
+            awardDate: new Date(),
+          }))
+        );
+        mockGetServerRanks.mockReturnValueOnce(
+          rankListFixtures
+        );
+        mockEditOriginalInteractionResponse.mockReturnValueOnce(
+          { id: "some_id" }
+        );
+
+        await commandCallback({
+          ...baseCommand,
+          data: {
+            ...baseCommand.data,
+            options: [
+              {
+                name: "rank",
+                options: [
+                  {
+                    name: "user",
+                  },
+                ],
+              },
+            ],
+          },
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -745,12 +768,8 @@ describe("Achievement Module", () => {
           content: "",
           embeds: [expect.any(Object)],
         });
-        expect(mockPagination).toHaveBeenCalled();
-        expect(mockAddPagination).toHaveBeenCalled();
       });
-    });
 
-    describe("User command", () => {
       it("should use by default the id of the user requesting the command", async () => {
         mockGetAllUserAchievements.mockReturnValueOnce([]);
         mockGetServerRanks.mockReturnValueOnce([]);
@@ -765,7 +784,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -796,7 +815,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -821,6 +840,7 @@ describe("Achievement Module", () => {
           }))
         );
         mockGetServerRanks.mockReturnValueOnce([]);
+
         await commandCallback({
           ...baseCommand,
           data: {
@@ -842,7 +862,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockGetAllUserAchievements
@@ -855,40 +875,6 @@ describe("Achievement Module", () => {
           mockEditOriginalInteractionResponse
         ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
           content: messageList.achievements.server_no_ranks,
-        });
-      });
-
-      it("should show the user's rank", async () => {
-        mockGetAllUserAchievements.mockReturnValueOnce(
-          achievementListFixtures.map((ach) => ({
-            achievement: ach,
-            awardDate: new Date(),
-          }))
-        );
-        mockGetServerRanks.mockReturnValueOnce(
-          rankListFixtures
-        );
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
-
-        await commandCallback({
-          ...baseCommand,
-          data: {
-            ...baseCommand.data,
-            options: [
-              {
-                name: "list",
-              },
-            ],
-          },
-        } as discord.interaction);
-
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
         });
       });
     });
@@ -910,14 +896,16 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
+          InteractionPagination
+        ).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          [serverLeaderboardFixture],
+          expect.any(Function)
+        );
+        expect(addPagination).toHaveBeenCalled();
       });
     });
 
@@ -942,7 +930,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -967,7 +955,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockCreateRank).not.toHaveBeenCalled();
       });
@@ -996,7 +984,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockCreateRank).not.toHaveBeenCalled();
 
@@ -1037,7 +1025,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockCreateRank).not.toHaveBeenCalled();
 
@@ -1077,7 +1065,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockCreateRank).toHaveBeenLastCalledWith(
           GUILD_ID,
@@ -1120,7 +1108,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(
           mockEditOriginalInteractionResponse
@@ -1145,7 +1133,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockDeleteRank).not.toHaveBeenCalled();
       });
@@ -1169,7 +1157,7 @@ describe("Achievement Module", () => {
               },
             ],
           },
-        } as discord.interaction);
+        } as Interaction);
 
         expect(mockDeleteRank).toHaveBeenLastCalledWith(
           GUILD_ID,
@@ -1198,7 +1186,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as unknown as Interaction);
 
       expect(mockGetAchievementById).not.toHaveBeenCalled();
     });
@@ -1217,7 +1205,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockEditOriginalInteractionResponse
@@ -1250,7 +1238,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockCreateUserAchievement
@@ -1292,7 +1280,7 @@ describe("Achievement Module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockCreateUserAchievement

@@ -39,13 +39,6 @@ const storeReducer = (
       return handler.SET_USER(state, action.user);
     case ADD_GUILD:
       return handler.ADD_GUILD(state, action.guild);
-    // case ADD_GUILD_MEMBERS:
-    //   return handler.ADD_GUILD_MEMBERS(
-    //     state,
-    //     action.guild,
-    //     action.clean,
-    //     action.members
-    //   );
     case SET_APPLICATION:
       return handler.SET_APPLICATION(
         state,

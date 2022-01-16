@@ -8,6 +8,8 @@ import {
 import { getApplication } from "../state/actions";
 import { IBadge } from "./models/badges.model";
 import messageList from "../helper/messages";
+import { Embed, GuildMember } from "../types/discord";
+import { CreatePageCallback } from "../helper/interaction-pagination";
 
 export interface IFastAverageColorResult {
   rgb: string;
@@ -83,8 +85,8 @@ export const createdBadgeEmbed = (
   name: string,
   image: string,
   color: IFastAverageColorResult
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: "Badge created successfully",
     description: name,
     color: parseInt(color.hex.substr(1), 16),
@@ -101,8 +103,8 @@ export const giveBadgeEmbed = (
   image: string,
   user: string,
   color: IFastAverageColorResult
-): discord.embed => {
-  const embed: discord.embed = {
+): Embed => {
+  const embed: Embed = {
     title: "Badge given successfully",
     description: `Badge \`${name}\` given to <@${user}> successfully.`,
     color: parseInt(color.hex.substr(1), 16),
@@ -118,8 +120,8 @@ export const createBadgeListEmbed = async (
   fileName: string,
   page: number,
   total: number
-): Promise<discord.embed> => {
-  const embed: discord.embed = {
+): Promise<Embed> => {
+  const embed: Embed = {
     title: "Server Badges",
     color: 3035554,
     image: {
@@ -144,8 +146,8 @@ export const userBadgeListEmbed = async (
   fileName: string,
   page: number,
   total: number
-): Promise<discord.embed> => {
-  const embed: discord.embed = {
+): Promise<Embed> => {
+  const embed: Embed = {
     title: "User Badges",
     description: `<@${user}>`,
     color: 3035554,
@@ -166,58 +168,47 @@ export const userBadgeListEmbed = async (
   return embed;
 };
 
-export const updateListBadgesPage = async (
-  badges: IBadge[],
-  page: number,
-  total: number,
-  token: string
-): Promise<void> => {
-  const app = getApplication();
-  if (app) {
-    const fileName = await createGrid(badges);
-    await editOriginalInteractionResponse(
-      app.id,
-      token,
-      {
-        content: "",
-        embeds: [
-          await createBadgeListEmbed(fileName, page, total),
-        ],
-        attachments: [],
-      },
-      `trash/${fileName}`
-    );
+export const updateListBadgesPage: CreatePageCallback<
+  IBadge[]
+> = async (page, total, badges) => {
+  const fileName = await createGrid(badges);
+  setTimeout(async () => {
     await deleteFile(`trash/${fileName}`);
-  }
+  }, 10 * 1000);
+
+  return {
+    data: {
+      content: "",
+      embeds: [
+        await createBadgeListEmbed(fileName, page, total),
+      ],
+      attachments: [],
+    },
+    file: `trash/${fileName}`,
+  };
 };
 
-export const updateUserListBadgesPage = async (
-  badges: IBadge[],
-  page: number,
-  total: number,
-  token: string,
-  userInfo?: Nullable<discord.guild_member>
-): Promise<void> => {
-  const app = getApplication();
-  if (app) {
-    const fileName = await createGrid(badges);
-    await editOriginalInteractionResponse(
-      app.id,
-      token,
-      {
-        content: "",
-        embeds: [
-          await userBadgeListEmbed(
-            userInfo!.user?.id,
-            fileName,
-            page,
-            total
-          ),
-        ],
-        attachments: [],
-      },
-      `trash/${fileName}`
-    );
+export const updateUserListBadgesPage: CreatePageCallback<
+  IBadge[]
+> = async (page, total, badges, extraInfo) => {
+  const fileName = await createGrid(badges);
+  setTimeout(async () => {
     await deleteFile(`trash/${fileName}`);
-  }
+  }, 10 * 1000);
+
+  return {
+    data: {
+      content: "",
+      embeds: [
+        await userBadgeListEmbed(
+          extraInfo as string,
+          fileName,
+          page,
+          total
+        ),
+      ],
+      attachments: [],
+    },
+    file: `trash/${fileName}`,
+  };
 };

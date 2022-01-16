@@ -10,6 +10,7 @@ import SauceModule from "./module";
 import messageList from "../helper/messages";
 import handleSauceNao from "./sauceNao/sauce-nao";
 import handleTraceMoe from "./traceMoe/trace-moe";
+import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "sauce";
 const APPLICATION_ID = "APPLICATION_ID";
@@ -19,9 +20,7 @@ const GUILD_ID = "GUILD_ID";
 const USER_ID = "USER_ID";
 const LAST_ATTACHMENT = "LAST_ATTACHMENT";
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("../state/actions");
@@ -51,9 +50,7 @@ jest.mock("../helper/common", () => ({
 (
   setCommandExecutedCallback as jest.Mock
 ).mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -71,7 +68,7 @@ const baseCommand = {
   data: {
     name: MODULE_NAME,
   },
-} as discord.interaction;
+} as Interaction;
 
 describe("Sauce Module", () => {
   let module: SauceModule;
@@ -94,7 +91,7 @@ describe("Sauce Module", () => {
       data: {
         ...baseCommand.data,
       },
-    } as discord.interaction);
+    } as Interaction);
 
     expect(
       editOriginalInteractionResponse
@@ -104,9 +101,7 @@ describe("Sauce Module", () => {
   });
 
   it("should default to last attachment and type art", async () => {
-    await commandCallback(
-      baseCommand as discord.interaction
-    );
+    await commandCallback(baseCommand as Interaction);
 
     expect(handleSauceNao).toHaveBeenLastCalledWith(
       baseCommand,
@@ -131,7 +126,7 @@ describe("Sauce Module", () => {
           { name: "type", value: "anime" },
         ],
       },
-    } as discord.interaction;
+    } as Interaction;
     await commandCallback(commandData);
 
     expect(handleTraceMoe).toHaveBeenLastCalledWith(
@@ -157,7 +152,7 @@ describe("Sauce Module", () => {
           { name: "type", value: "art" },
         ],
       },
-    } as discord.interaction;
+    } as Interaction;
     await commandCallback(commandData);
 
     expect(handleSauceNao).toHaveBeenLastCalledWith(

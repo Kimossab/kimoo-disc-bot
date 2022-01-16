@@ -7,6 +7,7 @@ import { getApplication } from "../state/actions";
 import messageList from "../helper/messages";
 import renderDonut from "./donut";
 import BaseModule from "../base-module";
+import { Embed } from "../types/discord";
 
 interface GroupCommandOptions {
   groups: number;
@@ -38,7 +39,7 @@ export default class MiscModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { groups, values } =
         this.getOptions<GroupCommandOptions>(
           ["groups", "values"],
@@ -86,7 +87,7 @@ export default class MiscModule extends BaseModule {
     option
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { a, b } = this.getOptions<DonutCommandOptions>(
         ["a", "b"],
         option.options
@@ -130,10 +131,8 @@ export default class MiscModule extends BaseModule {
     }
   };
 
-  private groupEmbed = (
-    groups: string[][]
-  ): discord.embed => {
-    const embed: discord.embed = { fields: [] };
+  private groupEmbed = (groups: string[][]): Embed => {
+    const embed: Embed = { fields: [] };
 
     for (const index in groups) {
       embed.fields!.push({

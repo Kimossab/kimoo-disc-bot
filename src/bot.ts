@@ -22,18 +22,14 @@ import Logger from "./helper/logger";
 import {
   checkAdmin,
   formatSecondsIntoMinutes,
-  isValidReactionUser,
   randomNum,
 } from "./helper/common";
 import {
   getApplication,
-  getPagination,
   setCommandExecutedCallback,
-  setReactionCallback,
   setReadyCallback,
 } from "./state/actions";
 import * as commandInfo from "./commands";
-import { interaction_response_type } from "./helper/constants";
 import AchievementModule from "./achievement/module";
 import BadgesModule from "./badges/module";
 import BirthdayModule from "./birthday/module";
@@ -43,28 +39,36 @@ import MiscModule from "./misc/module";
 import VNDBModule from "./vndb/module";
 import AnilistModule from "./anilist/module";
 import messageList from "./helper/messages";
+import {
+  Interaction,
+  InteractionCallbackType,
+  InteractionType,
+} from "./types/discord";
 
 const _logger = new Logger("bot");
 
 // default command executer
 // this is necessary mainly for ping/pong
-const commandExecuted = async (
-  data: discord.interaction
-) => {
-  if (data && data.type === 1) {
+const commandExecuted = async (data: Interaction) => {
+  if (data && data.type === InteractionType.PING) {
     await createInteractionResponse(data.id, data.token, {
-      type: interaction_response_type.pong,
+      type: InteractionCallbackType.PONG,
     });
     _logger.log("Got Ping");
   } else if (data && data.data?.name === "settings") {
     const option = data.data.options![0];
-    if (option.name === "admin_role") {
+
+    if (
+      option.name === "admin_role" &&
+      data.member &&
+      data.guild_id
+    ) {
       if (!checkAdmin(data.guild_id, data.member)) {
         await createInteractionResponse(
           data.id,
           data.token,
           {
-            type: interaction_response_type.channel_message_with_source,
+            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               content: messageList.common.no_permission,
             },
@@ -78,12 +82,15 @@ const commandExecuted = async (
         : null;
 
       if (role) {
-        await setAdminRole(data.guild_id, role.value);
+        await setAdminRole(
+          data.guild_id,
+          role.value as string
+        );
         await createInteractionResponse(
           data.id,
           data.token,
           {
-            type: interaction_response_type.channel_message_with_source,
+            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               content: `Admin role set to <@&${role.value}>`,
               allowed_mentions: {
@@ -102,7 +109,7 @@ const commandExecuted = async (
             data.id,
             data.token,
             {
-              type: interaction_response_type.channel_message_with_source,
+              type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
               data: {
                 content: `Admin role is <@&${role}>`,
                 allowed_mentions: {
@@ -119,7 +126,7 @@ const commandExecuted = async (
             data.id,
             data.token,
             {
-              type: interaction_response_type.channel_message_with_source,
+              type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
               data: {
                 content:
                   "This server doesn't have an admin role defined",
@@ -127,28 +134,6 @@ const commandExecuted = async (
             }
           );
         }
-      }
-    }
-  }
-};
-
-const reactionAdded = async (
-  data:
-    | discord.message_reaction_add
-    | discord.message_reaction_remove,
-  remove: boolean
-): Promise<void> => {
-  if (isValidReactionUser(data, remove)) {
-    const pag = getPagination(data.message_id);
-
-    if (pag) {
-      switch (data.emoji.name) {
-        case "◀":
-          pag.previous();
-          break;
-        case "▶":
-          pag.next();
-          break;
       }
     }
   }
@@ -176,7 +161,7 @@ const ready = async () => {
   anilistModule.setUp();
 
   const app = getApplication();
-  if (app) {
+  if (app && app.id) {
     let commandData = await getCommands(app.id);
     if (commandData === null) {
       return;
@@ -239,7 +224,6 @@ const updateBotPresence = () => {
 const main = async (): Promise<void> => {
   setReadyCallback(ready);
   setCommandExecutedCallback(commandExecuted);
-  setReactionCallback(reactionAdded);
 
   connect(process.env.DATABASE_URL!);
 

@@ -28,13 +28,12 @@ import {
   updateAchievement,
 } from "./database";
 import { IAchievement } from "./models/achievement.model";
-import Pagination from "../helper/pagination";
 import { IAchievementRank } from "./models/achievement-rank.model";
 import { IUserAchievement } from "./models/user-achievement.model";
 import {
   getOption,
   getOptionValue,
-} from "../helper/modules.helper";
+} from "../helper/modules";
 import {
   getTotalPoints,
   getCurrentAndNextRank,
@@ -43,15 +42,16 @@ import {
 } from "./helper";
 import BaseModule from "../base-module";
 import {
-  createServerAchievementRanksEmbed,
-  createServerAchievementsEmbed,
-  createServerLeaderboardEmbed,
-  createUserAchievementsEmbed,
   updateServerAchievementRanksPage,
   updateServerAchievementsPage,
   updateServerLeaderboardPage,
   updateUserAchievementsPage,
 } from "./pagination";
+import {
+  CommandInteractionDataOption,
+  Interaction,
+} from "../types/discord";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
 interface CreateCommandOptions {
   name: Nullable<string>;
@@ -104,11 +104,11 @@ export default class AchievementModule extends BaseModule {
   }
 
   private handleCreateCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const { name, image, description, points } =
         this.getOptions<CreateCommandOptions>(
           ["name", "image", "description", "points"],
@@ -164,11 +164,11 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleEditCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const { id, name, description, points, image } =
         this.getOptions<EditCommandOptions>(
           ["id", "name", "description", "points", "image"],
@@ -225,11 +225,11 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleDeleteCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const id = getOptionValue<number>(
         option.options,
         "id"
@@ -261,8 +261,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleListCommand = (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const server = getOption(option.options, "server");
     const user = getOption(option.options, "user");
@@ -275,8 +275,8 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const subCommands: string_object<CommandHandler> = {
       list: this.handleRankListCommand,
@@ -296,11 +296,11 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleGiveCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const { user, achievement } =
         this.getOptions<GiveCommandOptions>(
           ["user", "achievement"],
@@ -399,10 +399,10 @@ export default class AchievementModule extends BaseModule {
 
   //sub commands
   private handleListServerCommand = async (
-    data: discord.interaction
+    data: Interaction
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const serverAchievements =
         await getServerAchievements(data.guild_id);
 
@@ -423,30 +423,15 @@ export default class AchievementModule extends BaseModule {
         serverAchievements,
         10
       );
-      const embed = createServerAchievementsEmbed(
-        chunks[0],
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
-        app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
-      );
-      if (message && chunks.length > 1) {
-        const pagination = new Pagination<IAchievement[]>(
-          data.channel_id,
-          message.id,
-          chunks,
-          updateServerAchievementsPage,
-          data.token
-        );
 
-        addPagination(pagination);
-      }
+      const pagination = new InteractionPagination(
+        app.id,
+        chunks,
+        updateServerAchievementsPage
+      );
+
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `List server achievements in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -455,11 +440,11 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleListUserCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option | null
+    data: Interaction,
+    option: CommandInteractionDataOption | null
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const user = option
         ? getOptionValue<string>(option.options, "user")
         : null;
@@ -488,32 +473,14 @@ export default class AchievementModule extends BaseModule {
         10
       );
 
-      const embed = createUserAchievementsEmbed(
-        chunks[0],
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
+        chunks,
+        updateUserAchievementsPage
       );
-      if (message && chunks.length > 1) {
-        const pagination = new Pagination<
-          IUserAchievement[]
-        >(
-          data.channel_id,
-          message.id,
-          chunks,
-          updateUserAchievementsPage,
-          data.token
-        );
 
-        addPagination(pagination);
-      }
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `List user ${userId} achievements in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -522,10 +489,10 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankListCommand = async (
-    data: discord.interaction
+    data: Interaction
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const ranks = await getServerRanks(data.guild_id);
 
       if (ranks.length === 0) {
@@ -546,32 +513,14 @@ export default class AchievementModule extends BaseModule {
         10
       );
 
-      const embed = createServerAchievementRanksEmbed(
-        chunks[0],
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
+        chunks,
+        updateServerAchievementRanksPage
       );
-      if (message && chunks.length > 1) {
-        const pagination = new Pagination<
-          IAchievementRank[]
-        >(
-          data.channel_id,
-          message.id,
-          chunks,
-          updateServerAchievementRanksPage,
-          data.token
-        );
 
-        addPagination(pagination);
-      }
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `List achievement ranks in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -580,11 +529,11 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankUserCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const optUser = getOptionValue<string>(
         option.options,
         "user"
@@ -649,10 +598,10 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankLeaderboardCommand = async (
-    data: discord.interaction
+    data: Interaction
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       const allAch = await getServerAchievementLeaderboard(
         data.guild_id
       );
@@ -663,32 +612,14 @@ export default class AchievementModule extends BaseModule {
           10
         );
 
-      const embed = createServerLeaderboardEmbed(
-        chunks[0],
-        1,
-        chunks.length
-      );
-      const message = await editOriginalInteractionResponse(
+      const pagination = new InteractionPagination(
         app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
+        chunks,
+        updateServerLeaderboardPage
       );
-      if (message && chunks.length > 1) {
-        const pagination = new Pagination<
-          achievement.serverLeaderboard[]
-        >(
-          data.channel_id,
-          message.id,
-          chunks,
-          updateServerLeaderboardPage,
-          data.token
-        );
 
-        addPagination(pagination);
-      }
+      await pagination.create(data.token);
+      addPagination(pagination);
 
       this.logger.log(
         `Get server rank leaderboard in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -697,11 +628,11 @@ export default class AchievementModule extends BaseModule {
   };
 
   private handleRankCreateCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       if (!checkAdmin(data.guild_id, data.member)) {
         await editOriginalInteractionResponse(
           app.id,
@@ -785,17 +716,17 @@ export default class AchievementModule extends BaseModule {
       );
 
       this.logger.log(
-        `Create achievement rank ${name} with ${points} points in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `Create achievement rank ${name} with ${points} points in ${data.guild_id} by ${data.member?.user?.username}#${data.member?.user?.discriminator}`
       );
     }
   };
 
   private handleRankDeleteCommand = async (
-    data: discord.interaction,
-    option: discord.application_command_interaction_data_option
+    data: Interaction,
+    option: CommandInteractionDataOption
   ): Promise<void> => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id && data.guild_id && data.member) {
       if (!checkAdmin(data.guild_id, data.member)) {
         await editOriginalInteractionResponse(
           app.id,
@@ -827,7 +758,7 @@ export default class AchievementModule extends BaseModule {
       );
 
       this.logger.log(
-        `Delete rank ${name} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `Delete rank ${name} in ${data.guild_id} by ${data.member?.user?.username}#${data.member?.user?.discriminator}`
       );
     }
   };

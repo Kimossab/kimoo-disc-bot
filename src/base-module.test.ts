@@ -6,20 +6,21 @@ import {
   getApplication,
   setCommandExecutedCallback,
 } from "./state/actions";
-import { interaction_response_type } from "./helper/constants";
 import messageList from "./helper/messages";
 import BaseModule from "./base-module";
 import Logger from "./helper/logger";
 import { checkAdmin } from "./helper/common";
+import {
+  Interaction,
+  InteractionCallbackType,
+} from "./types/discord";
 
 const MODULE_NAME = "MODULE_NAME";
 const APPLICATION_ID = "APPLICATION_ID";
 const COMMAND_ID = "COMMAND_ID";
 const TOKEN = "TOKEN";
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 //mocks
 jest.mock("./state/actions");
@@ -30,9 +31,7 @@ mockGetApplication.mockReturnValue({
   id: APPLICATION_ID,
 });
 mockSetCommandExecutedCallback.mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -71,7 +70,7 @@ describe("Base Module", () => {
         data: {
           name: "invalid_module",
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(mockGetApplication).not.toHaveBeenCalled();
       expect(
@@ -88,7 +87,7 @@ describe("Base Module", () => {
         data: {
           name: MODULE_NAME,
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(mockGetApplication).toHaveBeenCalled();
       expect(
@@ -106,12 +105,12 @@ describe("Base Module", () => {
           name: MODULE_NAME,
           options: [{ name: "invalid_command" }],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         mockCreateInteractionResponse
       ).toHaveBeenCalledWith(COMMAND_ID, TOKEN, {
-        type: interaction_response_type.acknowledge_with_source,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
       });
 
       expect(mockError).toHaveBeenCalledWith(
@@ -166,7 +165,7 @@ describe("Base Module", () => {
           name: "test",
           options: [{ name: "admin" }],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(noAdminHandler).not.toHaveBeenCalled();
       expect(adminHandler).not.toHaveBeenCalled();
@@ -187,7 +186,7 @@ describe("Base Module", () => {
           name: "test",
           options: [{ name: "admin" }],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(mockCheckAdmin).toHaveBeenCalled();
       expect(adminHandler).toHaveBeenCalled();
@@ -202,7 +201,7 @@ describe("Base Module", () => {
           name: "test",
           options: [{ name: "noAdmin" }],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(adminHandler).not.toHaveBeenCalled();
       expect(noAdminHandler).toHaveBeenCalled();

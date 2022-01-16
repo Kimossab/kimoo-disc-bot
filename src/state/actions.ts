@@ -12,8 +12,17 @@ import {
   REMOVE_PAGINATION,
 } from "./types";
 import store from "./store";
-import Pagination from "../helper/pagination";
 import { DISCORD_TOKEN_TTL } from "../helper/constants";
+import {
+  Application,
+  Guild,
+  Interaction,
+  InteractionType,
+  MessageReactionAdd,
+  MessageReactionRemove,
+  Ready,
+} from "../types/discord";
+import { InteractionPagination } from "../helper/interaction-pagination";
 
 /**
  * Adds a callback for when discord says it's ready
@@ -38,7 +47,7 @@ export const isReady = (): boolean =>
  * Sets all store variables and calls the callback when discord says it's ready
  * @param data Discord ready data
  */
-export const setReadyData = (data: discord.ready): void => {
+export const setReadyData = (data: Ready): void => {
   store.dispatch({
     type: SET_USER,
     user: data.user,
@@ -60,7 +69,7 @@ export const setReadyData = (data: discord.ready): void => {
  * @param callback Callback function
  */
 export const setCommandExecutedCallback = (
-  callback: (data: discord.interaction) => void
+  callback: (data: Interaction) => void
 ): void => {
   store.dispatch({
     type: SET_COMMAND_EXECUTED_CALLBACK,
@@ -73,20 +82,45 @@ export const setCommandExecutedCallback = (
  * @param data Interaction data
  */
 export const commandExecuted = (
-  data: discord.interaction
+  data: Interaction
 ): void => {
-  const callback = store.getState().commandExecutedCallback;
+  if (data.type === InteractionType.APPLICATION_COMMAND) {
+    const callback =
+      store.getState().commandExecutedCallback;
 
-  for (const cb of callback) {
-    cb(data);
+    for (const cb of callback) {
+      cb(data);
+    }
+    return;
   }
+
+  if (data.type === InteractionType.MESSAGE_COMPONENT) {
+    if (
+      data.message &&
+      data.data?.custom_id?.startsWith("pagination.")
+    ) {
+      const pagination = getPagination(data.message.id);
+      if (pagination) {
+        pagination.handlePage(
+          data.id,
+          data.token,
+          data.data
+        );
+      }
+    } else {
+      throw new Error("Unexpected component interaction");
+    }
+    return;
+  }
+
+  throw new Error("Unknown interaction type");
 };
 
 /**
  * Adds a new guild to the store
  * @param guild Guild information
  */
-export const addGuild = (guild: discord.guild): void => {
+export const addGuild = (guild: Guild): void => {
   store.dispatch({
     type: ADD_GUILD,
     guild,
@@ -96,45 +130,22 @@ export const addGuild = (guild: discord.guild): void => {
 /**
  * Get all guilds
  */
-export const getGuilds = (): discord.guild[] =>
+export const getGuilds = (): Guild[] =>
   store.getState().guilds;
-
-// export const addGuildMembers = (data: discord.guild_members_chunk): void => {
-//   store.dispatch({
-//     type: ADD_GUILD_MEMBERS,
-//     guild: data.guild_id,
-//     members: data.members,
-//     clean: data.chunk_index === 0,
-//   });
-// };
-
-// export const getUser = (): discord.user | null => {
-//   return store.getState().user;
-// };
-
-// export const getGuildMembers = (
-//   guild: string
-// ): discord.guild_member[] | null => {
-//   const gs = store.getState().guilds.filter((g) => g.id === guild);
-//   if (gs) {
-//     return gs[0].members ? gs[0].members : null;
-//   }
-//   return null;
-// };
 
 /**
  * Get application info
  */
 export const getApplication =
-  (): discord.application_object | null =>
+  (): Partial<Application> | null =>
     store.getState().application;
 
 /**
  * Add pagination to the store
  * @param data Pagination data
  */
-export const addPagination = (
-  data: Pagination<any>
+export const addPagination = <T>(
+  data: InteractionPagination<T>
 ): void => {
   store.dispatch({
     type: ADD_PAGINATION,
@@ -149,16 +160,14 @@ export const addPagination = (
   }, DISCORD_TOKEN_TTL);
 };
 
-/**
- * Get pagination by message id
- * @param message Message id to find
- */
 export const getPagination = (
-  message: string
-): Pagination<any> | undefined =>
-  store
-    .getState()
-    .allPaginations.find((f) => f.message === message);
+  messageId: string
+): InteractionPagination<unknown> | undefined => {
+  const state = store.getState();
+  return state.allPaginations.find(
+    (p) => p.messageId === messageId
+  );
+};
 
 /**
  * Adds a callback for new reactions
@@ -166,9 +175,7 @@ export const getPagination = (
  */
 export const setReactionCallback = (
   callback: (
-    data:
-      | discord.message_reaction_add
-      | discord.message_reaction_remove,
+    data: MessageReactionAdd | MessageReactionRemove,
     remove: boolean
   ) => void
 ): void => {
@@ -184,9 +191,7 @@ export const setReactionCallback = (
  * @param remove If the reaction was removed or added
  */
 export const gotNewReaction = (
-  data:
-    | discord.message_reaction_add
-    | discord.message_reaction_remove,
+  data: MessageReactionAdd | MessageReactionRemove,
   remove: boolean
 ): void => {
   const callback = store.getState().messageReactionCallback;

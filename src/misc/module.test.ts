@@ -6,6 +6,7 @@ import {
   getApplication,
   setCommandExecutedCallback,
 } from "../state/actions";
+import { Interaction } from "../types/discord";
 import MiscModule from "./module";
 
 const MODULE_NAME = "misc";
@@ -15,9 +16,7 @@ const TOKEN = "TOKEN";
 const GUILD_ID = "GUILD_ID";
 const USER_ID = "USER_ID";
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("axios");
@@ -48,9 +47,7 @@ jest.mock("../helper/common", () => ({
 (
   setCommandExecutedCallback as jest.Mock
 ).mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -65,7 +62,7 @@ const baseCommand = {
   data: {
     name: MODULE_NAME,
   },
-} as discord.interaction;
+} as Interaction;
 
 describe("Badges module", () => {
   let module: MiscModule;
@@ -100,7 +97,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -123,7 +120,7 @@ describe("Badges module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse

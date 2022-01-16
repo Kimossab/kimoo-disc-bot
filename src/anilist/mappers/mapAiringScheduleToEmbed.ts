@@ -1,9 +1,10 @@
+import { Embed, EmbedField } from "../../types/discord";
 import { NextAiringWithTitle } from "../types/graphql";
 
 export const mapAiringScheduleToEmbed = (
   data: NextAiringWithTitle
-): discord.embed => {
-  const fields: discord.embed_field[] = [];
+): Embed => {
+  const fields: EmbedField[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
@@ -22,7 +23,7 @@ export const mapAiringScheduleToEmbed = (
     });
   }
 
-  const embed: discord.embed = {
+  const embed: Embed = {
     title:
       (data.isAdult ? "[**NSFW**] " : "") +
       "Airing Schedule",

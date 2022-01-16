@@ -26,7 +26,7 @@ export default class SauceModule extends BaseModule {
     data
   ) => {
     const app = getApplication();
-    if (app) {
+    if (app && app.id) {
       const { type, image } =
         this.getOptions<CommandOptions>(
           ["type", "image"],

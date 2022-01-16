@@ -1,4 +1,13 @@
-import Pagination from "../helper/pagination";
+import { InteractionPagination } from "../helper/interaction-pagination";
+import {
+  Application,
+  Guild,
+  GuildMember,
+  Interaction,
+  MessageReactionAdd,
+  MessageReactionRemove,
+  User,
+} from "../types/discord";
 
 export const SET_USER = "SET_USER";
 export const SET_APPLICATION = "SET_APPLICATION";
@@ -18,34 +27,30 @@ export const REMOVE_PAGINATION = "REMOVE_PAGINATION";
 
 export interface State {
   ready: boolean;
-  user: discord.user | null;
-  application: discord.application_object | null;
-  guilds: discord.guild[];
-  allPaginations: Pagination<unknown>[];
+  user: User | null;
+  application: Partial<Application> | null;
+  guilds: Guild[];
+  allPaginations: InteractionPagination<any>[];
   channelLastAttachment: string_object<string>;
   discordSessionId: string | null;
   discordLastS: number | null;
 
   readyCallback: (() => void) | null;
-  commandExecutedCallback: ((
-    _: discord.interaction
-  ) => void)[];
+  commandExecutedCallback: ((_: Interaction) => void)[];
   messageReactionCallback: ((
-    _:
-      | discord.message_reaction_add
-      | discord.message_reaction_remove,
+    _: MessageReactionAdd | MessageReactionRemove,
     remove: boolean
   ) => void)[];
 }
 
 export interface SetUser {
   type: typeof SET_USER;
-  user: discord.user;
+  user: User;
 }
 
 export interface SetApplication {
   type: typeof SET_APPLICATION;
-  application: discord.application_object;
+  application: Partial<Application>;
 }
 
 export interface SetReadyCallback {
@@ -55,37 +60,35 @@ export interface SetReadyCallback {
 
 export interface AddGuild {
   type: typeof ADD_GUILD;
-  guild: discord.guild;
+  guild: Guild;
 }
 
 export interface AddGuildMembers {
   type: typeof ADD_GUILD_MEMBERS;
   guild: string;
-  members: discord.guild_member[];
+  members: GuildMember[];
   clean: boolean;
 }
 
-export interface AddPagination {
+export interface AddPagination<T> {
   type: typeof ADD_PAGINATION;
-  data: Pagination<unknown>;
+  data: InteractionPagination<T>;
 }
 
-export interface RemovePagination {
+export interface RemovePagination<T> {
   type: typeof REMOVE_PAGINATION;
-  data: Pagination<unknown>;
+  data: InteractionPagination<T>;
 }
 
 export interface SetCommandExecutedCallback {
   type: typeof SET_COMMAND_EXECUTED_CALLBACK;
-  callback: (data: discord.interaction) => void;
+  callback: (data: Interaction) => void;
 }
 
 export interface SetReactionCallback {
   type: typeof SET_REACTION_CALLBACK;
   callback: (
-    data:
-      | discord.message_reaction_add
-      | discord.message_reaction_remove,
+    data: MessageReactionAdd | MessageReactionRemove,
     remove: boolean
   ) => void;
 }
@@ -117,5 +120,5 @@ export type Actions =
   | SetDiscordLastS
   | AddGuild
   | AddGuildMembers
-  | AddPagination
-  | RemovePagination;
+  | AddPagination<any>
+  | RemovePagination<any>;

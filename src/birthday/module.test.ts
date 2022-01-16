@@ -23,6 +23,7 @@ import { birthdayFixtureOne } from "./fixtures";
 import BirthdayModule from "./module";
 import messageList from "../helper/messages";
 import { no_mentions } from "../helper/constants";
+import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "birthday";
 const APPLICATION_ID = "APPLICATION_ID";
@@ -49,9 +50,7 @@ const GET_MONTH_BIRTHDAY_VALUES = {
   month: 2,
 };
 
-let commandCallback: (
-  data: discord.interaction
-) => Promise<void>;
+let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("../state/actions");
@@ -80,9 +79,7 @@ jest.mock("../helper/common", () => ({
 (
   setCommandExecutedCallback as jest.Mock
 ).mockImplementation(
-  (
-    callback: (data: discord.interaction) => Promise<void>
-  ) => {
+  (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
 );
@@ -105,7 +102,7 @@ const baseCommand = {
   data: {
     name: MODULE_NAME,
   },
-} as discord.interaction;
+} as Interaction;
 
 const channelCommandOptions = [
   {
@@ -161,7 +158,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         setServerBirthdayChannel
@@ -188,7 +185,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         getServerAnimeChannel
@@ -213,7 +210,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(
         editOriginalInteractionResponse
@@ -238,7 +235,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(addBirthday).toHaveBeenLastCalledWith(
         GUILD_ID,
@@ -271,7 +268,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(getUserBirthday).toHaveBeenCalledWith(
         GUILD_ID,
@@ -303,7 +300,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(getUserBirthday).toHaveBeenCalledWith(
         GUILD_ID,
@@ -336,7 +333,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(getUserBirthday).toHaveBeenCalledWith(
         GUILD_ID,
@@ -367,7 +364,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(getUserBirthday).toHaveBeenCalledWith(
         GUILD_ID,
@@ -397,7 +394,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(getUserBirthday).toHaveBeenCalledWith(
         GUILD_ID,
@@ -425,7 +422,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(getBirthdaysByMonth).toHaveBeenCalled();
       expect(
@@ -454,7 +451,7 @@ describe("Birthday module", () => {
             },
           ],
         },
-      } as discord.interaction);
+      } as Interaction);
 
       expect(snowflakeToDate).toHaveBeenCalledWith(
         GUILD_ID

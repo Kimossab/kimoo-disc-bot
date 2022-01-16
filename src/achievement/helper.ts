@@ -3,6 +3,7 @@ import { IAchievementRank } from "./models/achievement-rank.model";
 import { IAchievement } from "./models/achievement.model";
 import { IUserAchievement } from "./models/user-achievement.model";
 import messageList from "../helper/messages";
+import { Embed } from "../types/discord";
 
 export const getTotalPoints = (
   data: IUserAchievement[]
@@ -63,7 +64,7 @@ export const createProgressBar = (
 
 export const createAchievementGivenEmbed = (
   achievement: IAchievement
-): discord.embed => {
+): Embed => {
   const descMessage = stringReplacer(
     messageList.achievements.new_achievement_awarded_desc,
     {
@@ -73,7 +74,7 @@ export const createAchievementGivenEmbed = (
     }
   );
 
-  const embed: discord.embed = {
+  const embed: Embed = {
     title: messageList.achievements.new_achievement_awarded,
     description: descMessage,
   };
@@ -92,7 +93,7 @@ export const createAchievementRankProgressEmbed = (
   points: number,
   currentRank: IAchievementRank | null,
   nextRank: IAchievementRank | null
-): discord.embed => {
+): Embed => {
   const curRankPoints = currentRank?.points || 0;
   const nextRankPoints = nextRank?.points || 0;
 
@@ -115,7 +116,7 @@ export const createAchievementRankProgressEmbed = (
 
   description += progBar;
 
-  const embed: discord.embed = {
+  const embed: Embed = {
     title: messageList.achievements.progress,
     description,
   };
