@@ -1,7 +1,6 @@
 import { MongoMemoryServer } from "mongodb-memory-server";
-import { getServerBirthdayChannel } from "../bot/database";
 import serverSettingsModel from "../bot/server-settings.model";
-import * as TestDB from "../helper/tests";
+import { TestDB } from "../helper/tests";
 import {
   addBirthday,
   getBirthdays,

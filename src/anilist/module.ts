@@ -52,6 +52,7 @@ import {
   MediaType,
   NextEpisode,
 } from "./types/graphql";
+import { AnilistRateLimit } from "./rate-limiter";
 
 const DEFAULT_TIMER = 24 * 60 * 60; // 1 day in seconds
 const MAX_TIMER = 2147483647; // +- 23 days
@@ -75,6 +76,7 @@ interface ChannelCommandOptions {
 export default class AnilistModule extends BaseModule {
   private animeNotificationTimer: string_object<NodeJS.Timeout> =
     {};
+  private rateLimited = new AnilistRateLimit();
 
   constructor() {
     super("anilist");
@@ -156,7 +158,10 @@ export default class AnilistModule extends BaseModule {
   };
 
   private setNextEpisodeOrDelete = async (id: number) => {
-    const animeInfo = await getNextAiringEpisode(id);
+    const animeInfo = await getNextAiringEpisode(
+      this.rateLimited,
+      id
+    );
 
     // this means the anime has ended, safe to delete
     if (!animeInfo) {
@@ -226,8 +231,8 @@ export default class AnilistModule extends BaseModule {
     }
 
     const scheduleInfo = await searchByScheduleId(
-      nextAiring.nextAiring,
-      this.logger
+      this.rateLimited,
+      nextAiring.nextAiring
     );
 
     // they deleted an id
@@ -285,8 +290,12 @@ export default class AnilistModule extends BaseModule {
         );
 
       const allData = await (type
-        ? searchByQueryAndType(query, type, this.logger)
-        : searchByQuery(query, this.logger));
+        ? searchByQueryAndType(
+            this.rateLimited,
+            query,
+            type
+          )
+        : searchByQuery(this.rateLimited, query));
 
       if (!allData) {
         await editOriginalInteractionResponse(
@@ -356,8 +365,8 @@ export default class AnilistModule extends BaseModule {
         );
 
       const allData = await getAiringSchedule(
-        query,
-        this.logger
+        this.rateLimited,
+        query
       );
 
       if (!allData) {
@@ -460,8 +469,8 @@ export default class AnilistModule extends BaseModule {
         );
 
       const animeInfo = await searchForAiringSchedule(
-        anime,
-        this.logger
+        this.rateLimited,
+        anime
       );
 
       if (!animeInfo) {
@@ -535,8 +544,8 @@ export default class AnilistModule extends BaseModule {
 
       for (const chunk of subsChunk) {
         const info = await searchForUser(
-          chunk.map((s) => s.id),
-          this.logger
+          this.rateLimited,
+          chunk.map((s) => s.id)
         );
 
         if (info && info.Page.media.length > 0) {

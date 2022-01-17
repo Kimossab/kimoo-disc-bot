@@ -1,25 +1,23 @@
 import { createCanvas, loadImage } from "canvas";
 import fs from "fs";
-import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   stringReplacer,
   deleteFile,
 } from "../helper/common";
-import { getApplication } from "../state/actions";
 import { IBadge } from "./models/badges.model";
 import messageList from "../helper/messages";
-import { Embed, GuildMember } from "../types/discord";
+import { Embed } from "../types/discord";
 import { CreatePageCallback } from "../helper/interaction-pagination";
 
-export interface IFastAverageColorResult {
+export interface FastAverageColorResult {
   rgb: string;
   rgba: string;
   hex: string;
   hexa: string;
+  value: [number, number, number, number];
   isDark: boolean;
   isLight: boolean;
-  value: number[];
-  error: Error;
+  error?: Error;
 }
 
 const SINGLE_WIDTH = 250;
@@ -84,7 +82,7 @@ export const createGrid = async (
 export const createdBadgeEmbed = (
   name: string,
   image: string,
-  color: IFastAverageColorResult
+  color: FastAverageColorResult
 ): Embed => {
   const embed: Embed = {
     title: "Badge created successfully",
@@ -102,7 +100,7 @@ export const giveBadgeEmbed = (
   name: string,
   image: string,
   user: string,
-  color: IFastAverageColorResult
+  color: FastAverageColorResult
 ): Embed => {
   const embed: Embed = {
     title: "Badge given successfully",

@@ -62,7 +62,7 @@ export class InteractionPagination<T> {
       this.extraInfo
     );
 
-    if (this.totalPages > 0) {
+    if (this.totalPages > 1) {
       const buttonLeft: Button = {
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
