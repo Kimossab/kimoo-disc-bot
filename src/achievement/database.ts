@@ -1,3 +1,4 @@
+import { PipelineStage } from "mongoose";
 import AchievementRank, {
   IAchievementRank,
 } from "./models/achievement-rank.model";
@@ -223,7 +224,7 @@ export const getServerAchievementLeaderboard = async (
         },
       },
     ],
-  ]);
+  ] as unknown as PipelineStage[]); // TODO: Fix this
 
 export const createUserAchievement = async (
   server: string,

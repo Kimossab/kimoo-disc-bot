@@ -19,217 +19,92 @@ import { searchByIdsGraphql } from "./queries/searchByIdsGraphql";
 import Logger from "../helper/logger";
 import { getNextAiringGraphql } from "./queries/getNextAiringGraphql";
 import { getAiringScheduleGraphql } from "./queries/getAiringScheduleGraphql";
-
-const ANILIST_GRAPHQL = "https://graphql.anilist.co";
-
-const request = async <T>(
-  graphql: string,
-  variables: string_object<unknown>
-): Promise<T> => {
-  const response = await axios.post<
-    string,
-    AxiosResponse<Response<T>>
-  >(
-    ANILIST_GRAPHQL,
-    JSON.stringify({
-      query: graphql,
-      variables,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-    }
-  );
-  return response.data.data;
-};
+import { AnilistRateLimit } from "./rate-limiter";
 
 export const searchByQueryAndType = async (
+  rateLimiter: AnilistRateLimit,
   search: string,
-  type?: MediaType,
-  logger?: Logger
+  type?: MediaType
 ): Promise<PageResponse<MediaList> | null> => {
-  try {
-    const data = await request<PageResponse<MediaList>>(
-      searchByTypeGraphql,
-      {
-        search,
-        type,
-      }
-    );
-    return data;
-  } catch (e) {
-    logger?.error(
-      "searchByQueryAndType",
+  return await rateLimiter.request<PageResponse<MediaList>>(
+    "searchByQueryAndType",
+    searchByTypeGraphql,
+    {
       search,
       type,
-      `StatusCode: ${
-        axios.isAxiosError(e)
-          ? e.response?.status
-          : "unknown"
-      }`,
-      (e as Error).message
-    );
-    return null;
-  }
+    }
+  );
 };
 export const searchByQuery = async (
-  search: string,
-  logger?: Logger
+  rateLimiter: AnilistRateLimit,
+  search: string
 ): Promise<PageResponse<MediaList> | null> => {
-  try {
-    const data = await request<PageResponse<MediaList>>(
-      searchGraphql,
-      {
-        search,
-      }
-    );
-    return data;
-  } catch (e) {
-    logger?.error(
-      "searchByQuery",
+  return await rateLimiter.request<PageResponse<MediaList>>(
+    "searchByQuery",
+    searchGraphql,
+    {
       search,
-      `StatusCode: ${
-        axios.isAxiosError(e)
-          ? e.response?.status
-          : "unknown"
-      }`,
-      (e as Error).message
-    );
-    return null;
-  }
+    }
+  );
 };
 
 export const searchForAiringSchedule = async (
-  search: string,
-  logger?: Logger
+  rateLimiter: AnilistRateLimit,
+  search: string
 ): Promise<MediaResponse<MediaForAiring> | null> => {
-  try {
-    const data = await request<
-      MediaResponse<MediaForAiring>
-    >(searchForAiringScheduleGraphql, {
+  return await rateLimiter.request<
+    MediaResponse<MediaForAiring>
+  >(
+    "searchForAiringSchedule",
+    searchForAiringScheduleGraphql,
+    {
       search,
-    });
-    return data;
-  } catch (e) {
-    logger?.error(
-      "searchForAiringSchedule",
-      search,
-      `StatusCode: ${
-        axios.isAxiosError(e)
-          ? e.response?.status
-          : "unknown"
-      }`,
-      (e as Error).message
-    );
-    return null;
-  }
+    }
+  );
 };
 
 export const searchByScheduleId = async (
-  id: number,
-  logger?: Logger
+  rateLimiter: AnilistRateLimit,
+  id: number
 ): Promise<AiringScheduleResponse | null> => {
-  try {
-    const data = await request<AiringScheduleResponse>(
-      searchByScheduleIdGraphql,
-      {
-        id,
-      }
-    );
-    return data;
-  } catch (e) {
-    logger?.error(
-      "searchByScheduleId",
+  return await rateLimiter.request<AiringScheduleResponse>(
+    "searchByScheduleId",
+    searchByScheduleIdGraphql,
+    {
       id,
-      `StatusCode: ${
-        axios.isAxiosError(e)
-          ? e.response?.status
-          : "unknown"
-      }`,
-      (e as Error).message
-    );
-    return null;
-  }
+    }
+  );
 };
 
 export const searchForUser = async (
-  ids: number[],
-  logger?: Logger
+  rateLimiter: AnilistRateLimit,
+  ids: number[]
 ): Promise<PageResponse<MediaSubbed> | null> => {
-  try {
-    const data = await request<PageResponse<MediaSubbed>>(
-      searchByIdsGraphql,
-      {
-        ids,
-      }
-    );
-    return data;
-  } catch (e) {
-    logger?.error(
-      "searchForUser",
-      ids,
-      `StatusCode: ${
-        axios.isAxiosError(e)
-          ? e.response?.status
-          : "unknown"
-      }`,
-      (e as Error).message
-    );
-    return null;
-  }
+  return await rateLimiter.request<
+    PageResponse<MediaSubbed>
+  >("searchForUser", searchByIdsGraphql, {
+    ids,
+  });
 };
 
 export const getNextAiringEpisode = async (
-  id: number,
-  logger?: Logger
+  rateLimiter: AnilistRateLimit,
+  id: number
 ): Promise<MediaResponse<NextAiring> | null> => {
-  try {
-    const data = await request<MediaResponse<NextAiring>>(
-      getNextAiringGraphql,
-      {
-        id,
-      }
-    );
-    return data;
-  } catch (e) {
-    logger?.error(
-      "getNextAiring",
-      id,
-      `StatusCode: ${
-        axios.isAxiosError(e)
-          ? e.response?.status
-          : "unknown"
-      }`,
-      (e as Error).message
-    );
-    return null;
-  }
+  return await rateLimiter.request<
+    MediaResponse<NextAiring>
+  >("getNextAiring", getNextAiringGraphql, {
+    id,
+  });
 };
 
 export const getAiringSchedule = async (
-  search: string,
-  logger?: Logger
+  rateLimiter: AnilistRateLimit,
+  search: string
 ): Promise<MediaResponse<NextAiringWithTitle> | null> => {
-  try {
-    const data = await request<
-      MediaResponse<NextAiringWithTitle>
-    >(getAiringScheduleGraphql, {
-      search,
-    });
-    return data;
-  } catch (e) {
-    logger?.error(
-      "getAiringSchedule",
-      search,
-      `StatusCode: ${
-        axios.isAxiosError(e)
-          ? e.response?.status
-          : "unknown"
-      }`,
-      (e as Error).message
-    );
-    return null;
-  }
+  return await rateLimiter.request<
+    MediaResponse<NextAiringWithTitle>
+  >("getAiringSchedule", getAiringScheduleGraphql, {
+    search,
+  });
 };
