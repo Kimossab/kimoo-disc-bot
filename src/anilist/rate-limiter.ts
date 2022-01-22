@@ -95,12 +95,12 @@ export class AnilistRateLimit {
 
         request.callback(null);
 
-        if (e.response?.status === 404) {
-          return;
+        if (e.response?.status !== 404) {
+          this.handleErrors(request.name, e);
         }
+      } else {
+        this.handleErrors(request.name, e);
       }
-
-      this.handleErrors(request.name, e);
     }
 
     setTimeout(() => {
