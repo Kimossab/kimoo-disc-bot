@@ -113,14 +113,12 @@ export class AnilistRateLimit {
     graphql: string,
     variables: string_object<unknown>
   ): Promise<T | null> {
-    return new Promise<T>((resolve, reject) => {
+    return new Promise<T>((resolve) => {
       this.queue.push({
         name: queryName,
         graphql,
         variables,
-        callback: (data) => {
-          resolve(data as T);
-        },
+        callback: (data) => resolve(data as T),
       });
     });
   }
