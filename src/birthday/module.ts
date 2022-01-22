@@ -1,8 +1,9 @@
 import BaseModule from "../base-module";
 import {
   getLastServerBirthdayWishes,
-  getServerAnimeChannel,
+  getServerBirthdayRole,
   setServerBirthdayChannel,
+  setServerBirthdayRole,
   updateServerLastWishes,
 } from "../bot/database";
 import {
@@ -19,13 +20,17 @@ import {
   addBirthday,
   getBirthdays,
   getBirthdaysByMonth,
-  getServersBirthdayChannel,
+  getOldBirthdayWithRole,
+  getServersBirthdayInfo,
   getUserBirthday,
+  setBirthdayWithRole,
   updateLastWishes,
 } from "./database";
 import messageList from "../helper/messages";
 import {
+  addRole,
   editOriginalInteractionResponse,
+  removeRole,
   sendMessage,
 } from "../discord/rest";
 import { IBirthday } from "./models/birthday.model";
@@ -47,6 +52,9 @@ interface MonthOption {
 interface YearOption {
   year: number;
 }
+interface RoleOption {
+  role: string;
+}
 
 type ChannelCommandOptions = ChannelOption;
 type AddCommandOptions = DayOption &
@@ -54,6 +62,7 @@ type AddCommandOptions = DayOption &
   YearOption;
 type RemoveCommandOptions = UserOption;
 type GetCommandOptions = UserOption & MonthOption;
+type RoleCommandOptions = RoleOption;
 
 export default class BirthdayModule extends BaseModule {
   private checkTimeout: NodeJS.Timeout | null = null;
@@ -80,6 +89,9 @@ export default class BirthdayModule extends BaseModule {
       server: {
         handler: this.handleServerCommand,
       },
+      role: {
+        handler: this.handleRoleCommand,
+      },
     };
   }
 
@@ -101,10 +113,9 @@ export default class BirthdayModule extends BaseModule {
     } = getDayInfo();
 
     const serversData = getGuilds();
-    const serverChannels =
-      await getServersBirthdayChannel();
+    const serverChannels = await getServersBirthdayInfo();
 
-    // Server birthdays
+    // Server birthday
     for (const s in serverChannels) {
       const serverDate = snowflakeToDate(s);
       if (
@@ -126,7 +137,10 @@ export default class BirthdayModule extends BaseModule {
                 )?.name || "",
             }
           );
-          await sendMessage(serverChannels[s], message);
+          await sendMessage(
+            serverChannels[s].channel,
+            message
+          );
           await updateServerLastWishes(s);
         }
       }
@@ -138,10 +152,34 @@ export default class BirthdayModule extends BaseModule {
       month,
       year
     );
+
+    const rolesToRemove = await getOldBirthdayWithRole(
+      day,
+      month
+    );
+
+    this.logger.log("Roles to Remove", rolesToRemove);
+
+    for (const toRemove of rolesToRemove) {
+      if (serverChannels[toRemove.server].role) {
+        for (const user of toRemove.users) {
+          await removeRole(
+            toRemove.server,
+            user,
+            serverChannels[toRemove.server].role,
+            "Birthday Over"
+          );
+        }
+      }
+      await toRemove.delete();
+    }
+
     if (todayBirthDays.length > 0) {
       this.logger.log("Today's birthdays", todayBirthDays);
-      const serverBirthdays: string_object<IBirthday[]> =
+
+      const serverBirthdays: Record<string, IBirthday[]> =
         {};
+
       for (const birthday of todayBirthDays) {
         if (!serverBirthdays[birthday.server]) {
           serverBirthdays[birthday.server] = [birthday];
@@ -149,6 +187,7 @@ export default class BirthdayModule extends BaseModule {
           serverBirthdays[birthday.server].push(birthday);
         }
       }
+
       for (const server in serverBirthdays) {
         if (serverChannels[server]) {
           const usersCongratulated: string[] = [];
@@ -156,19 +195,35 @@ export default class BirthdayModule extends BaseModule {
             serverBirthdays[server].length > 1
               ? messageList.birthday.today_bday_s
               : messageList.birthday.today_bday;
+
           for (const bd of serverBirthdays[server]) {
             usersCongratulated.push(bd.user);
             message += `\n - <@${bd.user}>`;
             if (bd.year) {
               message += ` (${year - bd.year})`;
             }
+
+            await addRole(
+              server,
+              bd.user,
+              serverChannels[server].role,
+              "Birthday"
+            );
           }
+
+          await setBirthdayWithRole(
+            day,
+            month,
+            usersCongratulated,
+            server
+          );
+
           await updateLastWishes(
             server,
             usersCongratulated
           );
           await sendMessage(
-            serverChannels[server],
+            serverChannels[server].channel,
             message
           );
         }
@@ -226,8 +281,8 @@ export default class BirthdayModule extends BaseModule {
             `${data.member.user?.username}#${data.member.user?.discriminator}`
         );
       } else {
-        const ch = await getServersBirthdayChannel();
-        const channel = ch[data.guild_id];
+        const ch = await getServersBirthdayInfo();
+        const { channel } = ch[data.guild_id];
         await editOriginalInteractionResponse(
           app.id,
           data.token,
@@ -490,6 +545,70 @@ export default class BirthdayModule extends BaseModule {
         `Get server birthday date in ${data.guild_id} by ` +
           `${data.member.user?.username}#${data.member.user?.discriminator}`
       );
+    }
+  };
+
+  private handleRoleCommand: CommandHandler = async (
+    data,
+    option
+  ) => {
+    const app = getApplication();
+    if (app && app.id) {
+      const { role } = this.getOptions<RoleCommandOptions>(
+        ["role"],
+        option.options
+      );
+
+      if (role) {
+        await setServerBirthdayRole(data.guild_id, role);
+        await editOriginalInteractionResponse(
+          app.id,
+          data.token,
+          {
+            content: stringReplacer(
+              messageList.birthday.set_role,
+              {
+                role: `<@&${role}>`,
+              }
+            ),
+            allowed_mentions: no_mentions,
+          }
+        );
+        this.logger.log(
+          `Set birthday role ${role} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        );
+      } else {
+        const role = await getServerBirthdayRole(
+          data.guild_id
+        );
+        if (role) {
+          await editOriginalInteractionResponse(
+            app.id,
+            data.token,
+            {
+              content: stringReplacer(
+                messageList.birthday.server_role,
+                {
+                  role: `<@&${role}>`,
+                }
+              ),
+              allowed_mentions: no_mentions,
+            }
+          );
+        } else {
+          await editOriginalInteractionResponse(
+            app.id,
+            data.token,
+            {
+              content: messageList.birthday.role_not_found,
+              allowed_mentions: no_mentions,
+            }
+          );
+        }
+        this.logger.log(
+          `Get birthday role in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        );
+      }
     }
   };
 

@@ -1,4 +1,8 @@
+import { Types } from "mongoose";
 import serverSettingsModel from "../bot/server-settings.model";
+import BirthdayWithRole, {
+  IBirthdayWithRole,
+} from "./models/birthday-with-role.model";
 import Birthday, {
   IBirthday,
 } from "./models/birthday.model";
@@ -99,17 +103,19 @@ export const updateLastWishes = async (
   );
 };
 
-/**
- * Gets all the servers with birthday channel defined
- * @returns Object with server id as key and the birthday channel as value
- */
-export const getServersBirthdayChannel = async (): Promise<
-  string_object<string>
+interface ServersBirthdayInfo {
+  channel: string;
+  role: string;
+}
+
+export const getServersBirthdayInfo = async (): Promise<
+  Record<string, ServersBirthdayInfo>
 > => {
   const serverChannels =
     await serverSettingsModel.aggregate<{
       server: string;
       channel: string;
+      role: string;
     }>([
       {
         $match: {
@@ -123,15 +129,43 @@ export const getServersBirthdayChannel = async (): Promise<
           _id: 0,
           server: "$serverId",
           channel: "$birthdayChannel",
+          role: "$birthdayRole",
         },
       },
     ]);
 
-  return serverChannels.reduce<string_object<string>>(
-    (accumulator, value) => {
-      accumulator[value.server] = value.channel;
-      return accumulator;
-    },
-    {}
-  );
+  return serverChannels.reduce<
+    Record<string, ServersBirthdayInfo>
+  >((accumulator, value) => {
+    accumulator[value.server] = {
+      channel: value.channel,
+      role: value.role,
+    };
+    return accumulator;
+  }, {});
+};
+
+export const setBirthdayWithRole = async (
+  day: number,
+  month: number,
+  users: string[],
+  server: string
+): Promise<void> => {
+  const bd = new BirthdayWithRole();
+  bd.server = server;
+  bd.users = users;
+  bd.day = day;
+  bd.month = month;
+
+  console.log(bd, users);
+  await bd.save();
+};
+
+export const getOldBirthdayWithRole = async (
+  day: number,
+  month: number
+): Promise<IBirthdayWithRole[]> => {
+  return await BirthdayWithRole.find({
+    $or: [{ day: { $ne: day } }, { month: { $ne: month } }],
+  });
 };

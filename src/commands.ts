@@ -5,7 +5,7 @@ import {
   CreateGlobalApplicationCommand,
 } from "./types/discord";
 
-export const version = "1.4.4";
+export const version = "1.4.5";
 
 export const list: CreateGlobalApplicationCommand[] = [
   {
@@ -183,6 +183,21 @@ export const list: CreateGlobalApplicationCommand[] = [
         description: "Shows the server's birthday",
         type: ApplicationCommandOptionType.SUB_COMMAND,
         options: [],
+      },
+      {
+        name: "role",
+        description:
+          "Sets the role to give to users on their birthday",
+        type: ApplicationCommandOptionType.SUB_COMMAND,
+        options: [
+          {
+            name: "role",
+            description:
+              "The role to give to users on their birthday",
+            type: ApplicationCommandOptionType.ROLE,
+            required: false,
+          },
+        ],
       },
     ],
   },
