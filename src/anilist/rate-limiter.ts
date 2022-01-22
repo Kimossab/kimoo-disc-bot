@@ -66,32 +66,40 @@ export class AnilistRateLimit {
 
       request.callback(response.data.data);
     } catch (e) {
-      if (
-        axios.isAxiosError(e) &&
-        e.response?.status === 429
-      ) {
-        const nextRequest =
-          +e.response.headers[X_RATELIMIT_RESET];
+      if (axios.isAxiosError(e)) {
+        if (e.response?.status === 429) {
+          const nextRequest =
+            +e.response.headers[X_RATELIMIT_RESET];
 
-        this.queue.unshift(request);
+          this.queue.unshift(request);
 
-        const now = +new Date();
+          const now = +new Date();
 
-        let timeoutTime = nextRequest - now;
-        if (nextRequest <= now) {
-          timeoutTime = TIMEOUT;
+          let timeoutTime = nextRequest - now;
+          if (nextRequest <= now) {
+            timeoutTime = TIMEOUT;
+          }
+
+          this._logger.error(
+            `[${request.name}] Rate limited. Next request in ${timeoutTime}ms`
+          );
+
+          setTimeout(() => {
+            this.checkQueue();
+          }, timeoutTime);
+
+          //no need to callback because we're going to request again
+
+          return;
         }
 
-        this._logger.error(
-          `[${request.name}] Rate limited. Next request in ${timeoutTime}ms`
-        );
+        request.callback(null);
 
-        setTimeout(() => {
-          this.checkQueue();
-        }, timeoutTime);
-
-        return;
+        if (e.response?.status === 404) {
+          return;
+        }
       }
+
       this.handleErrors(request.name, e);
     }
 
