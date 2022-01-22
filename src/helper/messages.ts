@@ -24,6 +24,11 @@ const messageList = {
     channel_set_success:
       "Birthday channel set successfully to <channel>",
     servers_channel: "Server's birthday channel: <channel>",
+    server_role: "Server's birthday role: <role>",
+    set_role:
+      "Server's birthday role set successfully to <role>",
+    role_not_found:
+      "This server doesn't have a birthday role.",
   },
   fandom: {
     invalid_slug: "Invalid fandom slug",

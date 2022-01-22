@@ -28,6 +28,7 @@ export const saveGuild = async (
       server.animeChannel = null;
       server.birthdayChannel = null;
       server.lastBirthdayWishes = null;
+      server.birthdayRole = null;
       await server.save();
     }
   } catch (e) {
@@ -134,6 +135,29 @@ export const getServerBirthdayChannel = async (
     });
 
   return server?.birthdayChannel;
+};
+
+export const setServerBirthdayRole = async (
+  server: string,
+  role: string
+): Promise<void> => {
+  await ServerSettings.updateOne(
+    {
+      serverId: server,
+    },
+    { birthdayRole: role }
+  );
+};
+
+export const getServerBirthdayRole = async (
+  id: string
+): Promise<Nullable<string>> => {
+  const server: Nullable<IServerSettings> =
+    await ServerSettings.findOne({
+      serverId: id,
+    });
+
+  return server?.birthdayRole;
 };
 
 /**

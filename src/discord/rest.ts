@@ -190,3 +190,49 @@ export const editOriginalInteractionResponse = (
     data
   );
 };
+
+export const addRole = (
+  guildId: string,
+  userId: string,
+  roleId: string,
+  reason?: string
+): Promise<null | undefined> => {
+  let headers: Record<string, string> | undefined =
+    undefined;
+
+  if (reason) {
+    headers = {
+      "X-Audit-Log-Reason": reason,
+    };
+  }
+
+  return rateLimiter.request(
+    "PUT",
+    `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
+    undefined,
+    headers
+  );
+};
+
+export const removeRole = (
+  guildId: string,
+  userId: string,
+  roleId: string,
+  reason?: string
+): Promise<null | undefined> => {
+  let headers: Record<string, string> | undefined =
+    undefined;
+
+  if (reason) {
+    headers = {
+      "X-Audit-Log-Reason": reason,
+    };
+  }
+
+  return rateLimiter.request(
+    "DELETE",
+    `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
+    undefined,
+    headers
+  );
+};

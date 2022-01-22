@@ -9,6 +9,7 @@ export interface IServerSettings extends Document {
   // birthdays
   birthdayChannel: string | null;
   lastBirthdayWishes: number | null;
+  birthdayRole: string | null;
 }
 
 const ServerSettingsSchema: Schema = new mongoose.Schema({
@@ -18,6 +19,7 @@ const ServerSettingsSchema: Schema = new mongoose.Schema({
   animeChannel: String,
   birthdayChannel: String,
   lastBirthdayWishes: Number,
+  birthdayRole: String,
 });
 
 export default mongoose.model<IServerSettings>(
