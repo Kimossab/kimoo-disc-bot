@@ -30,7 +30,7 @@ export interface State {
   user: User | null;
   application: Partial<Application> | null;
   guilds: Guild[];
-  allPaginations: InteractionPagination<unknown>[];
+  allPaginations: InteractionPagination[];
   channelLastAttachment: Record<string, string>;
   discordSessionId: string | null;
   discordLastS: number | null;

@@ -61,9 +61,9 @@ export const SET_REACTION_CALLBACK = (
   return state;
 };
 
-export const ADD_PAGINATION = <T>(
+export const ADD_PAGINATION = (
   state: State,
-  data: InteractionPagination<T>
+  data: InteractionPagination
 ): State => {
   state.allPaginations.push(data);
   return state;

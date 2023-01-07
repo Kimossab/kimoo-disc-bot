@@ -94,9 +94,13 @@ export class AnilistRateLimit {
       request.callback(response.data.data);
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        if (e.response?.status === 429) {
-          const nextRequest =
-            +e.response.headers[X_RATELIMIT_RESET];
+        if (
+          e.response?.status === 429 &&
+          !!e.response.headers[X_RATELIMIT_RESET]
+        ) {
+          const nextRequest = Number(
+            e.response.headers[X_RATELIMIT_RESET]
+          );
 
           this.queue.unshift(request);
 
@@ -126,7 +130,7 @@ export class AnilistRateLimit {
           this.handleErrors(request.name, e);
         }
       } else {
-        this.handleErrors(request.name, e);
+        this.handleErrors(request.name, e as ErrorType);
       }
     }
 

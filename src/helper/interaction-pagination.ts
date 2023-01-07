@@ -26,7 +26,7 @@ export type CreatePageCallback<T> = (
   file?: string;
 }>;
 
-export class InteractionPagination<T> {
+export class InteractionPagination<T = unknown> {
   private readonly appId: string;
   private readonly data: T[];
   private readonly createPage: CreatePageCallback<T>;

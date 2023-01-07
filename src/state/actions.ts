@@ -149,13 +149,13 @@ export const addPagination = <T>(
 ): void => {
   store.dispatch({
     type: ADD_PAGINATION,
-    data,
+    data: data as InteractionPagination<unknown>,
   });
 
   setTimeout(() => {
     store.dispatch({
       type: REMOVE_PAGINATION,
-      data,
+      data: data as InteractionPagination<unknown>,
     });
   }, DISCORD_TOKEN_TTL);
 };
