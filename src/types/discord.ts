@@ -224,6 +224,43 @@ export interface Channel {
   default_auto_archive_duration?: integer;
   /** computed permissions for the invoking user in the channel, including overwrites, only included when part of the resolved data received on a slash command interaction */
   permissions?: string;
+  /** channel flags combined as a bitfield*/
+  flags?: integer;
+  /** number of messages ever sent in a thread, it's similar to message_count on message creation, but will not decrement the number when a message is deleted*/
+  total_message_sent?: integer;
+  /** the set of tags that can be used in a GUILD_FORUM channel*/
+  available_tags?: Tag[];
+  /** the IDs of the set of tags that have been applied to a thread in a GUILD_FORUM channel*/
+  applied_tags?: snowflake[];
+  /**	the emoji to show in the add reaction button on a thread in a GUILD_FORUM channel*/
+  default_reaction_emoji?: DefaultReaction | null;
+  /** the initial rate_limit_per_user to set on newly created threads in a channel. this field is copied to the thread at creation time and does not live update.*/
+  default_thread_rate_limit_per_user?: integer;
+  /** the default sort order type used to order posts in GUILD_FORUM channels. Defaults to null, which indicates a preferred sort order hasn't been set by a channel admin*/
+  default_sort_order?: integer | null;
+  /** the default forum layout view used to display posts in GUILD_FORUM channels. Defaults to 0, which indicates a layout view has not been set by a channel admin*/
+  default_forum_layout?: integer;
+}
+
+/** [Forum Tag Object](https://discord.com/developers/docs/resources/channel#forum-tag-object) */
+export interface Tag {
+  /** the id of the tag */
+  id: snowflake;
+  /** the name of the tag (0-20 characters) */
+  name: string;
+  /** whether this tag can only be added to or removed from threads by a member with the MANAGE_THREADS permission */
+  moderated: boolean;
+  /** the id of a guild's custom emoji * */
+  emoji_id: snowflake;
+  /** the unicode character of the emoji * */
+  emoji_name: string | null;
+}
+
+export interface DefaultReaction {
+  /** the id of a guild's custom emoji */
+  emoji_id: snowflake | null;
+  /** the unicode character of the emoji */
+  emoji_name: string | null;
 }
 
 /** [Channel Types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) */
@@ -1452,7 +1489,7 @@ export interface Activity {
   /** stream url, is validated when type is 1 */
   url?: string | null;
   /** unix timestamp (in milliseconds) of when the activity was added to the user's session */
-  created_at: integer;
+  created_at?: integer;
   /** unix timestamps for start and/or end of the game */
   timestamps?: ActivityTimestamps;
   /** application id for the game */
@@ -1867,6 +1904,8 @@ export interface Ready {
   guilds: UnavailableGuild[];
   /** used for resuming connections */
   session_id: string;
+  /** Gateway URL for resuming connections */
+  resume_gateway_url: string;
   /** the [shard information](https://discord.com/developers/docs/topics/gateway#sharding) associated with this session, if sent when identifying */
   shard?: [shard_id: integer, num_shards: integer];
   /** contains id and flags */
@@ -2570,11 +2609,11 @@ export interface Identify {
 /** [Connection Properties Structure](https://discord.com/developers/docs/topics/gateway#connection-properties) */
 export interface ConnectionProperties {
   /** your operating system */
-  $os: string;
+  os: string;
   /** your library name */
-  $browser: string;
+  browser: string;
   /** your library name */
-  $device: string;
+  device: string;
 }
 
 /** [Update Presence Structure](https://discord.com/developers/docs/topics/gateway#update-presence) */

@@ -13,6 +13,7 @@ import {
   SET_DISCORD_SESSION,
   SET_DISCORD_LAST_S,
   REMOVE_PAGINATION,
+  SET_RESUME_GATEWAY,
 } from "./types";
 import * as handler from "./handler";
 
@@ -28,6 +29,7 @@ const initialState: State = {
   readyCallback: null,
   commandExecutedCallback: [],
   messageReactionCallback: [],
+  resumeGatewayUrl: "",
 };
 
 const storeReducer = (
@@ -43,6 +45,11 @@ const storeReducer = (
       return handler.SET_APPLICATION(
         state,
         action.application
+      );
+    case SET_RESUME_GATEWAY:
+      return handler.SET_RESUME_GATEWAY(
+        state,
+        action.resumeGateway
       );
     case SET_READY_CALLBACK:
       return handler.SET_READY_CALLBACK(

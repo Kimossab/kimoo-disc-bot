@@ -35,6 +35,14 @@ export const SET_APPLICATION = (
   ready: true,
   application,
 });
+export const SET_RESUME_GATEWAY = (
+  state: State,
+  resumeGateway: string
+): State => ({
+  ...state,
+  ready: true,
+  resumeGatewayUrl: resumeGateway,
+});
 export const SET_READY_CALLBACK = (
   state: State,
   callback: () => void

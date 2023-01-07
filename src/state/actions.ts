@@ -10,6 +10,7 @@ import {
   SET_DISCORD_SESSION,
   SET_DISCORD_LAST_S,
   REMOVE_PAGINATION,
+  SET_RESUME_GATEWAY,
 } from "./types";
 import store from "./store";
 import { DISCORD_TOKEN_TTL } from "../helper/constants";
@@ -56,6 +57,11 @@ export const setReadyData = (data: Ready): void => {
   store.dispatch({
     type: SET_APPLICATION,
     application: data.application,
+  });
+
+  store.dispatch({
+    type: SET_RESUME_GATEWAY,
+    resumeGateway: data.resume_gateway_url,
   });
 
   const callback = store.getState().readyCallback;
@@ -139,6 +145,12 @@ export const getGuilds = (): Guild[] =>
 export const getApplication =
   (): Partial<Application> | null =>
     store.getState().application;
+
+/**
+ * Get gateway resume URL to be used for any reconnections
+ */
+export const getResumeGateway = (): string =>
+  store.getState().resumeGatewayUrl;
 
 /**
  * Add pagination to the store

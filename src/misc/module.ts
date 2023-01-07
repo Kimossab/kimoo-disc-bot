@@ -21,8 +21,13 @@ const MAX_RANDOM_ANGLE = (1 * Math.PI) / 4;
 const MIN_RANDOM_ANGLE = (-1 * Math.PI) / 4;
 
 export default class MiscModule extends BaseModule {
-  constructor() {
-    super("misc");
+  constructor(isActive: boolean) {
+    super("misc", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.commandList = {
       group: {

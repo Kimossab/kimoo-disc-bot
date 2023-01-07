@@ -18,8 +18,14 @@ interface CommandOptions {
 }
 
 export default class FandomModule extends BaseModule {
-  constructor() {
-    super("wiki");
+  constructor(isActive: boolean) {
+    super("wiki", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
+
     this.singleCommand = {
       handler: this.commandHandler,
       isAdmin: false,

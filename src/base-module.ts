@@ -32,11 +32,12 @@ export default class BaseModule {
   protected logger: Logger;
   protected commandList: Record<string, CommandInfo> = {};
   protected singleCommand: SingleCommandInfo | null = null;
-  private name: string;
   private isSetup = false;
 
-  constructor(name: string) {
-    this.name = name;
+  constructor(
+    private name: string,
+    private isActive: boolean
+  ) {
     this.logger = new Logger(name);
   }
 
@@ -135,6 +136,9 @@ export default class BaseModule {
   };
 
   public setUp(): void {
+    if (!this.isActive) {
+      return;
+    }
     if (!this.isSetup) {
       setCommandExecutedCallback(this.interactionExecuted);
       this.isSetup = true;

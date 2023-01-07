@@ -11,6 +11,7 @@ import {
 
 export const SET_USER = "SET_USER";
 export const SET_APPLICATION = "SET_APPLICATION";
+export const SET_RESUME_GATEWAY = "SET_RESUME_GATEWAY";
 export const SET_READY_CALLBACK = "SET_READY_CALLBACK";
 export const SET_COMMAND_EXECUTED_CALLBACK =
   "SET_COMMAND_EXECUTED_CALLBACK";
@@ -34,6 +35,7 @@ export interface State {
   channelLastAttachment: Record<string, string>;
   discordSessionId: string | null;
   discordLastS: number | null;
+  resumeGatewayUrl: string;
 
   readyCallback: (() => void) | null;
   commandExecutedCallback: ((_: Interaction) => void)[];
@@ -51,6 +53,11 @@ export interface SetUser {
 export interface SetApplication {
   type: typeof SET_APPLICATION;
   application: Partial<Application>;
+}
+
+export interface SetResumeGateway {
+  type: typeof SET_RESUME_GATEWAY;
+  resumeGateway: string;
 }
 
 export interface SetReadyCallback {
@@ -112,6 +119,7 @@ export interface SetDiscordLastS {
 export type Actions =
   | SetUser
   | SetApplication
+  | SetResumeGateway
   | SetReadyCallback
   | SetCommandExecutedCallback
   | SetReactionCallback

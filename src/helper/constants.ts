@@ -1,23 +1,23 @@
 import { AllowedMentions } from "../types/discord";
 
 // common
-export const PRESENCE_STRINGS = [
-  "Doing witchy things",
-  "It's not that I know everything, I just know what I know",
-  "El Psy Kongroo",
-  "Tuturu",
-  "I'm working, I suppose",
-  "Shitsurei, kamimashita",
-  "01001000 01100101 01101100 01101100 01101111 00100000 01110111 01101111 01110010 01101100 01100100",
-  "Who's that cute witch flying in this summer sky? That's right, it's me, Elaina",
-  "EMT",
-  "Who's Rem?",
-  "As you like my pleasure",
-  "Sono me, dare no me?",
-  "Whose eyes are those?",
-  "NullPo... Gah!",
-  "Let us carry out the Singularity Project",
-  "As you like my pleasure",
+export const PRESENCE_STRINGS: `:${string}: ${string}`[] = [
+  ":thinking: Doing witchy things",
+  ":thinking: It's not that I know everything, I just know what I know",
+  ":thinking: El Psy Kongroo",
+  ":thinking: Tuturu",
+  ":thinking: I'm working, I suppose",
+  ":thinking: Shitsurei, kamimashita",
+  ":thinking: 01001000 01100101 01101100 01101100 01101111 00100000 01110111 01101111 01110010 01101100 01100100",
+  ":thinking: Who's that cute witch flying in this summer sky? That's right, it's me, Elaina",
+  ":thinking: EMT",
+  ":thinking: Who's Rem?",
+  ":thinking: As you like my pleasure",
+  ":thinking: Sono me, dare no me?",
+  ":thinking: Whose eyes are those?",
+  ":thinking: NullPo... Gah!",
+  ":thinking: Let us carry out the Singularity Project",
+  ":thinking: As you like my pleasure",
 ];
 
 enum colors {

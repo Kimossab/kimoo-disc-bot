@@ -17,9 +17,7 @@
   "license": "ISC",
   "devDependencies": {
     "@jagi/jest-transform-graphql": "^1.0.2",
-    "@types/axios": "^0.14.0",
     "@types/jest": "^29.2.5",
-    "@types/mongoose": "^5.11.97",
     "@types/request": "^2.48.7",
     "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
@@ -35,6 +33,7 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.1",
     "axios": "^1.2.2",
     "canvas": "^2.11.0",
     "dotenv": "^16.0.3",

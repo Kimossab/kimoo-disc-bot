@@ -7,6 +7,7 @@ import {
   commandExecuted,
   getDiscordLastS,
   getDiscordSession,
+  getResumeGateway,
   setChannelLastAttachment,
   setDiscordLastS,
   setDiscordSession,
@@ -29,9 +30,6 @@ import {
 
 class Socket {
   private logger = new Logger("socket");
-
-  private url: string | null = null;
-
   private hbInterval: NodeJS.Timeout | null = null;
 
   private hbAck = true;
@@ -44,9 +42,8 @@ class Socket {
     this.logger.log("starting connection");
 
     this.resumed = false;
-    this.url = gateway;
-    this.logger.log(this.url);
-    this.client = new WebSocket(this.url);
+    this.logger.log(`Gateway: ${gateway}`);
+    this.client = new WebSocket(gateway);
 
     this.client.on("connection", (e: unknown) => {
       this.onConnection(e);
@@ -86,9 +83,7 @@ class Socket {
     this.client = null;
 
     setTimeout(() => {
-      if (this.url) {
-        this.connect(this.url);
-      }
+      this.connect(getResumeGateway());
     }, 2000);
   }
 
@@ -254,7 +249,6 @@ class Socket {
           {
             name: PRESENCE_STRINGS[randomPresence],
             type: ActivityType.Custom,
-            created_at: +new Date(),
           },
         ],
         status: Status.Online,
@@ -275,9 +269,9 @@ class Socket {
       d: {
         token: process.env.TOKEN,
         properties: {
-          $browser: "Kimoo-bot",
-          $device: "Kimoo-bot",
-          $os: process.platform,
+          browser: "Kimoo-bot",
+          device: "Kimoo-bot",
+          os: process.platform,
         },
         presence: {
           since: +new Date(),
@@ -285,7 +279,6 @@ class Socket {
             {
               name: PRESENCE_STRINGS[randomPresence],
               type: ActivityType.Custom,
-              created_at: +new Date(),
             },
           ],
           status: Status.Online,

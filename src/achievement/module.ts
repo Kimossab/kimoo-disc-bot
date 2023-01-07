@@ -74,8 +74,13 @@ interface GiveCommandOptions {
 }
 
 export default class AchievementModule extends BaseModule {
-  constructor() {
-    super("achievements");
+  constructor(isActive: boolean) {
+    super("achievements", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.commandList = {
       create: {

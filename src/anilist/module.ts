@@ -80,8 +80,13 @@ export default class AnilistModule extends BaseModule {
   > = {};
   private rateLimited = new AnilistRateLimit();
 
-  constructor() {
-    super("anilist");
+  constructor(isActive: boolean) {
+    super("anilist", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.commandList = {
       search: {

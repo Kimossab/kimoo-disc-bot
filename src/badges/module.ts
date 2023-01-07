@@ -46,8 +46,13 @@ type CreateCommandOptions = NameOption & ImageOption;
 type GiveCommandOptions = NameOption & UserOption;
 
 export default class BadgesModule extends BaseModule {
-  constructor() {
-    super("badges");
+  constructor(isActive: boolean) {
+    super("badges", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.commandList = {
       create: {

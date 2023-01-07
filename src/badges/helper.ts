@@ -1,4 +1,3 @@
-import { createCanvas, loadImage } from "canvas";
 import fs from "fs";
 import {
   stringReplacer,
@@ -36,6 +35,9 @@ const FULL_HEIGHT =
 export const createGrid = async (
   badges: IBadge[]
 ): Promise<string> => {
+  const { createCanvas, loadImage } = await import(
+    "canvas"
+  );
   const fileName = `${+new Date()}.png`;
   const canvas = createCanvas(FULL_WIDTH, FULL_HEIGHT);
   const context = canvas.getContext("2d");

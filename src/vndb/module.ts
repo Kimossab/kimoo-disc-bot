@@ -10,8 +10,12 @@ import { InteractionPagination } from "../helper/interaction-pagination";
 
 export default class VNDBModule extends BaseModule {
   private vndbApi;
-  constructor() {
-    super("vn");
+  constructor(isActive: boolean) {
+    super("vn", isActive);
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.vndbApi = new VNDBApi();
 

@@ -67,8 +67,13 @@ type RoleCommandOptions = RoleOption;
 export default class BirthdayModule extends BaseModule {
   private checkTimeout: NodeJS.Timeout | null = null;
 
-  constructor() {
-    super("birthday");
+  constructor(isActive: boolean) {
+    super("birthday", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.checkBirthdays();
 
