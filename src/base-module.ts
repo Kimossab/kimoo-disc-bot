@@ -6,7 +6,7 @@ import Logger from "./helper/logger";
 import {
   getApplication,
   setCommandExecutedCallback,
-} from "./state/actions";
+} from "./state/store";
 import messageList from "./helper/messages";
 import {
   getOption,

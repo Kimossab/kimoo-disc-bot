@@ -28,7 +28,7 @@ import {
   getApplication,
   setCommandExecutedCallback,
   setReadyCallback,
-} from "./state/actions";
+} from "./state/store";
 import * as commandInfo from "./commands";
 import AchievementModule from "./achievement/module";
 import BadgesModule from "./badges/module";

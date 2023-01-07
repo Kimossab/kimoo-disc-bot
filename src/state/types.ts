@@ -6,6 +6,7 @@ import {
   Interaction,
   MessageReactionAdd,
   MessageReactionRemove,
+  Ready,
   User,
 } from "../types/discord";
 
@@ -23,34 +24,122 @@ export enum ActionName {
   AddGuildMembers = "ADD_GUILD_MEMBERS",
   AddPagination = "ADD_PAGINATION",
   RemovePagination = "REMOVE_PAGINATION",
+
+  SetReadyData = "SET_READY_DATA",
+  CommandExecuted = "COMMAND_EXECUTED",
+
+  GetApplication = "GET_APPLICATION",
+  GetChannelLastAttachment = "GET_CHANNEL_LAST_ATTACHMENT",
+  GetGuilds = "GET_GUILDS",
+  GetResumeGateway = "GET_RESUME_GATEWAY",
+  GetDiscordSession = "GET_DISCORD_SESSION",
+  GetDiscordLastS = "GET_DISCORD_LAST_S",
+  GetPagination = "GET_PAGINATION",
 }
 
-export interface ActionPayload {
-  [ActionName.SetUser]: User;
-  [ActionName.SetApplication]: Partial<Application>;
-  [ActionName.SetResumeGateway]: string;
-  [ActionName.SetReadyCallback]: () => void;
-  [ActionName.SetCommandExecutedCallback]: (
-    data: Interaction
-  ) => void;
-  [ActionName.SetReactionCallback]: (
-    data: MessageReactionAdd | MessageReactionRemove,
-    remove: boolean
-  ) => void;
+interface ActionData {
+  payload: unknown;
+  response: unknown;
+}
+
+export interface Actions
+  extends Record<string, ActionData> {
+  [ActionName.SetUser]: {
+    payload: User;
+    response: void;
+    test: "test";
+  };
+  [ActionName.SetApplication]: {
+    payload: Partial<Application>;
+    response: void;
+  };
+  [ActionName.SetResumeGateway]: {
+    payload: string;
+    response: void;
+  };
+  [ActionName.SetReadyCallback]: {
+    payload: () => void;
+    response: void;
+  };
+  [ActionName.SetCommandExecutedCallback]: {
+    payload: (data: Interaction) => void;
+    response: void;
+  };
+  [ActionName.SetReactionCallback]: {
+    payload: (
+      data: MessageReactionAdd | MessageReactionRemove,
+      remove: boolean
+    ) => void;
+    response: void;
+  };
   [ActionName.SetChannelLastAttachment]: {
-    channel: string;
-    attachment: string;
+    payload: {
+      channel: string;
+      attachment: string;
+    };
+    response: void;
   };
-  [ActionName.SetDiscordSession]: string | null;
-  [ActionName.SetDiscordLastS]: number | null;
-  [ActionName.AddGuild]: Guild;
+  [ActionName.SetDiscordSession]: {
+    payload: string | null;
+    response: void;
+  };
+  [ActionName.SetDiscordLastS]: {
+    payload: number | null;
+    response: void;
+  };
+  [ActionName.AddGuild]: { payload: Guild; response: void };
   [ActionName.AddGuildMembers]: {
-    guild: string;
-    members: GuildMember[];
-    clean: boolean;
+    payload: {
+      guild: string;
+      members: GuildMember[];
+      clean: boolean;
+    };
+    response: void;
   };
-  [ActionName.AddPagination]: InteractionPagination;
-  [ActionName.RemovePagination]: InteractionPagination;
+  [ActionName.AddPagination]: {
+    payload: InteractionPagination;
+    response: void;
+  };
+  [ActionName.RemovePagination]: {
+    payload: InteractionPagination;
+    response: void;
+  };
+  [ActionName.GetApplication]: {
+    payload: undefined;
+    response: State["application"];
+  };
+  [ActionName.GetChannelLastAttachment]: {
+    payload: string;
+    response: string;
+  };
+  [ActionName.GetGuilds]: {
+    payload: undefined;
+    response: State["guilds"];
+  };
+  [ActionName.GetResumeGateway]: {
+    payload: undefined;
+    response: State["resumeGatewayUrl"];
+  };
+  [ActionName.GetDiscordSession]: {
+    payload: undefined;
+    response: State["discordSessionId"];
+  };
+  [ActionName.GetDiscordLastS]: {
+    payload: undefined;
+    response: State["discordLastS"];
+  };
+  [ActionName.GetPagination]: {
+    payload: string;
+    response: InteractionPagination | undefined;
+  };
+  [ActionName.SetReadyData]: {
+    payload: Ready;
+    response: void;
+  };
+  [ActionName.CommandExecuted]: {
+    payload: Interaction;
+    response: void;
+  };
 }
 
 export interface State {

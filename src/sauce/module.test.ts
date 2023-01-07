@@ -5,7 +5,7 @@ import {
   getApplication,
   getChannelLastAttachment,
   setCommandExecutedCallback,
-} from "../state/actions";
+} from "../state/store";
 import SauceModule from "./module";
 import messageList from "../helper/messages";
 import handleSauceNao from "./sauceNao/sauce-nao";
@@ -23,7 +23,7 @@ const LAST_ATTACHMENT = "LAST_ATTACHMENT";
 let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
-jest.mock("../state/actions");
+jest.mock("../state/store");
 jest.mock("../discord/rest");
 jest.mock("../helper/images");
 jest.mock("../helper/logger");

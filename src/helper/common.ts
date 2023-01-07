@@ -1,6 +1,6 @@
 import fs from "fs";
 import https from "https";
-import { getGuilds } from "../state/actions";
+import { getGuilds } from "../state/store";
 import { getAdminRole } from "../bot/database";
 import {
   GuildMember,

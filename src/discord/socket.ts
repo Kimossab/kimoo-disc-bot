@@ -12,7 +12,7 @@ import {
   setDiscordLastS,
   setDiscordSession,
   setReadyData,
-} from "../state/actions";
+} from "../state/store";
 import { PRESENCE_STRINGS } from "../helper/constants";
 import { editMessage, sendMessage } from "./rest";
 import {
@@ -292,7 +292,8 @@ class Socket {
       },
     };
 
-    this.send(JSON.stringify(payload));
+    this.sendEvent(payload);
+    this.logger.log("payload", payload);
   }
 
   // private requestGuildMembers(guild: discord.guild): void {

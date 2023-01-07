@@ -12,10 +12,7 @@ import {
   snowflakeToDate,
   stringReplacer,
 } from "../helper/common";
-import {
-  getApplication,
-  getGuilds,
-} from "../state/actions";
+import { getApplication, getGuilds } from "../state/store";
 import {
   addBirthday,
   getBirthdays,

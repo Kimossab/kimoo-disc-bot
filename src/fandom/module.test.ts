@@ -5,7 +5,7 @@ import {
   addPagination,
   getApplication,
   setCommandExecutedCallback,
-} from "../state/actions";
+} from "../state/store";
 import FandomModule from "./module";
 import { requestFandom } from "./request";
 import messageList from "../helper/messages";
@@ -27,7 +27,7 @@ const FANDOM_VALUES = {
 let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
-jest.mock("../state/actions");
+jest.mock("../state/store");
 jest.mock("../discord/rest");
 jest.mock("../helper/images");
 jest.mock("../helper/logger");

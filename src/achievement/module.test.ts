@@ -3,7 +3,7 @@ import {
   addPagination,
   getApplication,
   setCommandExecutedCallback,
-} from "../state/actions";
+} from "../state/store";
 import AchievementModule from "./module";
 import messageList from "../helper/messages";
 import Logger from "../helper/logger";
@@ -75,7 +75,7 @@ jest.mock("../helper/common", () => ({
   checkAdmin: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("../state/actions");
+jest.mock("../state/store");
 const mockGetApplication = getApplication as jest.Mock;
 const mockSetCommandExecutedCallback =
   setCommandExecutedCallback as unknown as jest.Mock;

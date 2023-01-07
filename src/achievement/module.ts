@@ -8,7 +8,7 @@ import { no_mentions } from "../helper/constants";
 import {
   addPagination,
   getApplication,
-} from "../state/actions";
+} from "../state/store";
 import messageList from "../helper/messages";
 import {
   createAchievement,

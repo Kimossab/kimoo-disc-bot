@@ -20,7 +20,7 @@ import {
 import {
   addPagination,
   getApplication,
-} from "../state/actions";
+} from "../state/store";
 import { Embed } from "../types/discord";
 import {
   addSubscription,

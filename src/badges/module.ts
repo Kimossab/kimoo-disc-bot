@@ -9,7 +9,7 @@ import {
   addPagination,
   getApplication,
   getChannelLastAttachment,
-} from "../state/actions";
+} from "../state/store";
 import messageList from "../helper/messages";
 import {
   checkBadgeUser,

@@ -8,7 +8,7 @@ import {
   getApplication,
   getChannelLastAttachment,
   setCommandExecutedCallback,
-} from "../state/actions";
+} from "../state/store";
 import BadgesModule from "./module";
 import messageList from "../helper/messages";
 import {
@@ -55,7 +55,7 @@ let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("axios");
-jest.mock("../state/actions");
+jest.mock("../state/store");
 jest.mock("../discord/rest");
 jest.mock("../helper/images");
 jest.mock("../helper/logger");

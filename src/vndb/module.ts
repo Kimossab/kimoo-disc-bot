@@ -2,7 +2,7 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   addPagination,
   getApplication,
-} from "../state/actions";
+} from "../state/store";
 import { VNDBApi } from "./vndb-api";
 import BaseModule from "../base-module";
 import { vndbSearchUpdatePage } from "./helper";

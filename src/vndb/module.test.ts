@@ -6,7 +6,7 @@ import {
   addPagination,
   getApplication,
   setCommandExecutedCallback,
-} from "../state/actions";
+} from "../state/store";
 import { Interaction } from "../types/discord";
 import { vndbSearchEmbed } from "./helper";
 import VNDBModule from "./module";
@@ -30,7 +30,7 @@ let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("axios");
-jest.mock("../state/actions");
+jest.mock("../state/store");
 jest.mock("../discord/rest");
 jest.mock("../helper/images");
 jest.mock("../helper/logger");

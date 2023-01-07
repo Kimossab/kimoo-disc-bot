@@ -2,7 +2,7 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   addPagination,
   getApplication,
-} from "../state/actions";
+} from "../state/store";
 import { FANDOM_LINKS } from "../helper/constants";
 import messageList from "../helper/messages";
 import BaseModule from "../base-module";

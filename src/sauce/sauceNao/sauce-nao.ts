@@ -6,7 +6,7 @@ import {
 } from "../../helper/interaction-pagination";
 import Logger from "../../helper/logger";
 import messageList from "../../helper/messages";
-import { addPagination } from "../../state/actions";
+import { addPagination } from "../../state/store";
 import {
   Interaction,
   Application,

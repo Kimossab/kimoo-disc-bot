@@ -4,7 +4,7 @@ import handleSauceNao from "./sauce-nao";
 import messageList from "../../helper/messages";
 import { requestSauceNao } from "./request";
 import { sauceNaoDataFixtures } from "./fixtures";
-import { addPagination } from "../../state/actions";
+import { addPagination } from "../../state/store";
 import {
   Application,
   Interaction,
@@ -21,7 +21,7 @@ const APPLICATION_DATA = {
 } as Application;
 
 jest.mock("axios");
-jest.mock("../../state/actions");
+jest.mock("../../state/store");
 jest.mock("./request");
 jest.mock("../../discord/rest");
 jest.mock("../../helper/logger");

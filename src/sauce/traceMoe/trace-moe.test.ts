@@ -3,7 +3,7 @@ import Logger from "../../helper/logger";
 import { requestTraceMoe } from "./request";
 import handleTraceMoe from "./trace-moe";
 import messageList from "../../helper/messages";
-import { addPagination } from "../../state/actions";
+import { addPagination } from "../../state/store";
 import { traceMoeEmbed } from "./mapper";
 import {
   Application,
@@ -22,7 +22,7 @@ const APPLICATION_DATA = {
 
 jest.mock("axios");
 jest.mock("./mapper");
-jest.mock("../../state/actions");
+jest.mock("../../state/store");
 jest.mock("./request");
 jest.mock("../../discord/rest");
 jest.mock("../../helper/logger");

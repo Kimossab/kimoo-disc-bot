@@ -3,7 +3,7 @@ import {
   randomNum,
   stringReplacer,
 } from "../helper/common";
-import { getApplication } from "../state/actions";
+import { getApplication } from "../state/store";
 import messageList from "../helper/messages";
 import renderDonut from "./donut";
 import BaseModule from "../base-module";

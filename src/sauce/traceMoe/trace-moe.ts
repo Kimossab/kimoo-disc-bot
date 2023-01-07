@@ -1,7 +1,7 @@
 import messageList from "../../helper/messages";
 import { editOriginalInteractionResponse } from "../../discord/rest";
 import Logger from "../../helper/logger";
-import { addPagination } from "../../state/actions";
+import { addPagination } from "../../state/store";
 import { requestTraceMoe } from "./request";
 import { traceMoeEmbed } from "./mapper";
 import {

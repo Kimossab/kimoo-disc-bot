@@ -2,7 +2,7 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   getApplication,
   getChannelLastAttachment,
-} from "../state/actions";
+} from "../state/store";
 import messageList from "../helper/messages";
 import handleTraceMoe from "./traceMoe/trace-moe";
 import handleSauceNao from "./sauceNao/sauce-nao";
