@@ -215,7 +215,7 @@ export const mapMediaToEmbed = (
       ),
       url: media.siteUrl,
       color: parseInt(
-        media.coverImage.color?.substr(1) || "FFFFFF",
+        media.coverImage.color?.slice(1) || "FFFFFF",
         16
       ),
       description: createDescription(

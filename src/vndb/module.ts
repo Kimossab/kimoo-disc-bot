@@ -32,7 +32,7 @@ export default class VNDBModule extends BaseModule {
           search: string;
         }>(["search"], data.data?.options);
 
-        const result = await this.vndbApi.search(search);
+        const result = await this.vndbApi?.search(search);
 
         if (!result || result.length === 0) {
           await editOriginalInteractionResponse(
@@ -52,7 +52,7 @@ export default class VNDBModule extends BaseModule {
         );
 
         await pagination.create(data.token);
-        addPagination(pagination);
+        addPagination(pagination as InteractionPagination);
       }
     };
 }

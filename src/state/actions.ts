@@ -1,68 +1,76 @@
+import { createAction } from "@reduxjs/toolkit";
 import {
-  ADD_GUILD,
-  SET_APPLICATION,
-  SET_READY_CALLBACK,
-  SET_COMMAND_EXECUTED_CALLBACK,
-  SET_USER,
-  ADD_PAGINATION,
-  SET_REACTION_CALLBACK,
-  SET_CHANNEL_LAST_ATTACHMENT,
-  SET_DISCORD_SESSION,
-  SET_DISCORD_LAST_S,
-  REMOVE_PAGINATION,
-  SET_RESUME_GATEWAY,
-} from "./types";
-import store from "./store";
-import { DISCORD_TOKEN_TTL } from "../helper/constants";
-import {
-  Application,
-  Guild,
   Interaction,
   InteractionType,
-  MessageReactionAdd,
-  MessageReactionRemove,
   Ready,
 } from "../types/discord";
-import { InteractionPagination } from "../helper/interaction-pagination";
+import store from "./store";
+import { ActionName, ActionPayload } from "./types";
 
-/**
- * Adds a callback for when discord says it's ready
- * @param callback Callback function
- */
-export const setReadyCallback = (
-  callback: () => void
-): void => {
-  store.dispatch({
-    type: SET_READY_CALLBACK,
-    callback,
-  });
+const createStoreAction = <T extends ActionName>(name: T) =>
+  createAction<ActionPayload[T]>(name);
+
+export const setUser = createStoreAction(
+  ActionName.SetUser
+);
+export const addGuild = createStoreAction(
+  ActionName.AddGuild
+);
+export const setApplication = createStoreAction(
+  ActionName.SetApplication
+);
+export const setResumeGateway = createStoreAction(
+  ActionName.SetResumeGateway
+);
+export const setReadyCallback = createStoreAction(
+  ActionName.SetReadyCallback
+);
+export const setCommandExecutedCallback = createStoreAction(
+  ActionName.SetCommandExecutedCallback
+);
+export const setReactionCallback = createStoreAction(
+  ActionName.SetReactionCallback
+);
+export const addPagination = createStoreAction(
+  ActionName.AddPagination
+);
+export const setChannelLastAttachment = createStoreAction(
+  ActionName.SetChannelLastAttachment
+);
+export const setDiscordSession = createStoreAction(
+  ActionName.SetDiscordSession
+);
+export const setDiscordLastS = createStoreAction(
+  ActionName.SetDiscordLastS
+);
+export const removePagination = createStoreAction(
+  ActionName.RemovePagination
+);
+
+// Get data
+export const getApplication = () =>
+  store.getState().application;
+export const getChannelLastAttachment = (channel: string) =>
+  store.getState().channelLastAttachment[channel];
+export const getGuilds = () => store.getState().guilds;
+export const getResumeGateway = () =>
+  store.getState().resumeGatewayUrl;
+export const getDiscordSession = () =>
+  store.getState().discordSessionId;
+export const getPagination = (messageId: string) => {
+  const state = store.getState();
+  return state.allPaginations.find(
+    (p) => p.messageId === messageId
+  );
 };
+export const getDiscordLastS = () =>
+  store.getState().discordLastS;
 
-/**
- * Checks if the application is ready
- */
-export const isReady = (): boolean =>
-  store.getState().ready;
-
-/**
- * Sets all store variables and calls the callback when discord says it's ready
- * @param data Discord ready data
- */
-export const setReadyData = (data: Ready): void => {
-  store.dispatch({
-    type: SET_USER,
-    user: data.user,
-  });
-
-  store.dispatch({
-    type: SET_APPLICATION,
-    application: data.application,
-  });
-
-  store.dispatch({
-    type: SET_RESUME_GATEWAY,
-    resumeGateway: data.resume_gateway_url,
-  });
+// Actions that gets and updates multiple fields
+export const setReadyData = (data: Ready) => {
+  setUser(data.user);
+  setApplication(data.application);
+  setResumeGateway(data.resume_gateway_url);
 
   const callback = store.getState().readyCallback;
   if (callback) {
@@ -70,23 +78,6 @@ export const setReadyData = (data: Ready): void => {
   }
 };
 
-/**
- * Adds a callback for when discord receives a new command/interaction
- * @param callback Callback function
- */
-export const setCommandExecutedCallback = (
-  callback: (data: Interaction) => void
-): void => {
-  store.dispatch({
-    type: SET_COMMAND_EXECUTED_CALLBACK,
-    callback,
-  });
-};
-
-/**
- * Runs all callbacks for commands
- * @param data Interaction data
- */
 export const commandExecuted = (
   data: Interaction
 ): void => {
@@ -121,143 +112,3 @@ export const commandExecuted = (
 
   throw new Error("Unknown interaction type");
 };
-
-/**
- * Adds a new guild to the store
- * @param guild Guild information
- */
-export const addGuild = (guild: Guild): void => {
-  store.dispatch({
-    type: ADD_GUILD,
-    guild,
-  });
-};
-
-/**
- * Get all guilds
- */
-export const getGuilds = (): Guild[] =>
-  store.getState().guilds;
-
-/**
- * Get application info
- */
-export const getApplication =
-  (): Partial<Application> | null =>
-    store.getState().application;
-
-/**
- * Get gateway resume URL to be used for any reconnections
- */
-export const getResumeGateway = (): string =>
-  store.getState().resumeGatewayUrl;
-
-/**
- * Add pagination to the store
- * @param data Pagination data
- */
-export const addPagination = <T>(
-  data: InteractionPagination<T>
-): void => {
-  store.dispatch({
-    type: ADD_PAGINATION,
-    data: data as InteractionPagination<unknown>,
-  });
-
-  setTimeout(() => {
-    store.dispatch({
-      type: REMOVE_PAGINATION,
-      data: data as InteractionPagination<unknown>,
-    });
-  }, DISCORD_TOKEN_TTL);
-};
-
-export const getPagination = (
-  messageId: string
-): InteractionPagination<unknown> | undefined => {
-  const state = store.getState();
-  return state.allPaginations.find(
-    (p) => p.messageId === messageId
-  );
-};
-
-/**
- * Adds a callback for new reactions
- * @param callback Callback function
- */
-export const setReactionCallback = (
-  callback: (
-    data: MessageReactionAdd | MessageReactionRemove,
-    remove: boolean
-  ) => void
-): void => {
-  store.dispatch({
-    type: SET_REACTION_CALLBACK,
-    callback,
-  });
-};
-
-/**
- * Calls the reaction callbacks
- * @param data Reaction data
- * @param remove If the reaction was removed or added
- */
-export const gotNewReaction = (
-  data: MessageReactionAdd | MessageReactionRemove,
-  remove: boolean
-): void => {
-  const callback = store.getState().messageReactionCallback;
-
-  for (const cb of callback) {
-    cb(data, remove);
-  }
-};
-
-/**
- * Stores the last attachment send in a channel
- * @param channel Channel id
- * @param attachment Attachment URL
- */
-export const setChannelLastAttachment = (
-  channel: string,
-  attachment: string
-): void => {
-  store.dispatch({
-    type: SET_CHANNEL_LAST_ATTACHMENT,
-    channel,
-    attachment,
-  });
-};
-
-/**
- * Gets the last attachment sent to the channel
- * @param channel Channel id
- */
-export const getChannelLastAttachment = (
-  channel: string
-): string | undefined =>
-  store.getState().channelLastAttachment[channel];
-
-export const setDiscordSession = (
-  session: string | null
-): void => {
-  store.dispatch({
-    type: SET_DISCORD_SESSION,
-    session,
-  });
-};
-
-export const getDiscordSession = (): string | null =>
-  store.getState().discordSessionId;
-
-export const setDiscordLastS = (
-  lastS: number | null
-): void => {
-  store.dispatch({
-    type: SET_DISCORD_LAST_S,
-    lastS,
-  });
-};
-
-export const getDiscordLastS = (): number | null =>
-  store.getState().discordLastS;

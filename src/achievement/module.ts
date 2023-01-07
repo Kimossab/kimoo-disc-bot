@@ -436,7 +436,7 @@ export default class AchievementModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
 
       this.logger.log(
         `List server achievements in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -486,7 +486,7 @@ export default class AchievementModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
 
       this.logger.log(
         `List user ${userId} achievements in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -526,7 +526,7 @@ export default class AchievementModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
 
       this.logger.log(
         `List achievement ranks in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -626,7 +626,7 @@ export default class AchievementModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
 
       this.logger.log(
         `Get server rank leaderboard in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`

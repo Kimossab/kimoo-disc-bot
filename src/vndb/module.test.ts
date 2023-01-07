@@ -55,7 +55,7 @@ jest.mock("../helper/common", () => ({
   success: true,
 });
 (
-  setCommandExecutedCallback as jest.Mock
+  setCommandExecutedCallback as unknown as jest.Mock
 ).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
@@ -81,7 +81,7 @@ describe("VNDB module", () => {
   let module: VNDBModule;
 
   beforeAll(() => {
-    module = new VNDBModule();
+    module = new VNDBModule(true);
     module.setUp();
   });
 

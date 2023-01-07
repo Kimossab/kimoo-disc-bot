@@ -1,21 +1,22 @@
-import { createStore } from "redux";
 import {
-  Actions,
-  State,
-  SET_USER,
-  ADD_GUILD,
-  SET_APPLICATION,
-  SET_READY_CALLBACK,
-  SET_COMMAND_EXECUTED_CALLBACK,
-  ADD_PAGINATION,
-  SET_REACTION_CALLBACK,
-  SET_CHANNEL_LAST_ATTACHMENT,
-  SET_DISCORD_SESSION,
-  SET_DISCORD_LAST_S,
-  REMOVE_PAGINATION,
-  SET_RESUME_GATEWAY,
-} from "./types";
-import * as handler from "./handler";
+  configureStore,
+  createReducer,
+} from "@reduxjs/toolkit";
+import {
+  setUser,
+  addGuild,
+  setApplication,
+  setResumeGateway,
+  setReadyCallback,
+  setCommandExecutedCallback,
+  setReactionCallback,
+  addPagination,
+  setChannelLastAttachment,
+  setDiscordSession,
+  setDiscordLastS,
+  removePagination,
+} from "./actions";
+import { State } from "./types";
 
 const initialState: State = {
   ready: false,
@@ -32,65 +33,80 @@ const initialState: State = {
   resumeGatewayUrl: "",
 };
 
-const storeReducer = (
-  state: State = initialState,
-  action: Actions
-) => {
-  switch (action.type) {
-    case SET_USER:
-      return handler.SET_USER(state, action.user);
-    case ADD_GUILD:
-      return handler.ADD_GUILD(state, action.guild);
-    case SET_APPLICATION:
-      return handler.SET_APPLICATION(
-        state,
-        action.application
-      );
-    case SET_RESUME_GATEWAY:
-      return handler.SET_RESUME_GATEWAY(
-        state,
-        action.resumeGateway
-      );
-    case SET_READY_CALLBACK:
-      return handler.SET_READY_CALLBACK(
-        state,
-        action.callback
-      );
-    case SET_COMMAND_EXECUTED_CALLBACK:
-      return handler.SET_COMMAND_EXECUTED_CALLBACK(
-        state,
-        action.callback
-      );
-    case SET_REACTION_CALLBACK:
-      return handler.SET_REACTION_CALLBACK(
-        state,
-        action.callback
-      );
-    case ADD_PAGINATION:
-      return handler.ADD_PAGINATION(state, action.data);
-    case SET_CHANNEL_LAST_ATTACHMENT:
-      return handler.SET_CHANNEL_LAST_ATTACHMENT(
-        state,
-        action.channel,
-        action.attachment
-      );
-    case SET_DISCORD_SESSION:
-      return handler.SET_DISCORD_SESSION(
-        state,
-        action.session
-      );
-    case SET_DISCORD_LAST_S:
-      return handler.SET_DISCORD_LAST_S(
-        state,
-        action.lastS
-      );
-    case REMOVE_PAGINATION:
-      return handler.REMOVE_PAGINATION(state, action.data);
-    default:
-      return state;
-  }
-};
+const reducer = createReducer(initialState, (builder) => {
+  builder.addCase(setUser, (state, { payload }) => {
+    state.user = payload;
+  });
 
-const store = createStore(storeReducer);
+  builder.addCase(addGuild, (state, { payload }) => {
+    state.guilds.push(payload);
+  });
+
+  builder.addCase(setApplication, (state, { payload }) => {
+    state.ready = true;
+    state.application = payload;
+  });
+
+  builder.addCase(
+    setResumeGateway,
+    (state, { payload }) => {
+      state.resumeGatewayUrl = payload;
+    }
+  );
+
+  builder.addCase(
+    setReadyCallback,
+    (state, { payload }) => {
+      state.readyCallback = payload;
+    }
+  );
+
+  builder.addCase(
+    setCommandExecutedCallback,
+    (state, { payload }) => {
+      state.commandExecutedCallback.push(payload);
+    }
+  );
+
+  builder.addCase(
+    setReactionCallback,
+    (state, { payload }) => {
+      state.messageReactionCallback.push(payload);
+    }
+  );
+
+  builder.addCase(addPagination, (state, { payload }) => {
+    state.allPaginations.push(payload);
+  });
+
+  builder.addCase(
+    setChannelLastAttachment,
+    (state, { payload: { channel, attachment } }) => {
+      state.channelLastAttachment[channel] = attachment;
+    }
+  );
+  builder.addCase(
+    setDiscordSession,
+    (state, { payload }) => {
+      state.discordSessionId = payload;
+    }
+  );
+
+  builder.addCase(setDiscordLastS, (state, { payload }) => {
+    state.discordLastS = payload;
+  });
+
+  builder.addCase(
+    removePagination,
+    (state, { payload }) => {
+      state.allPaginations = state.allPaginations.filter(
+        (pagination) =>
+          pagination.messageId !== payload.messageId
+      );
+    }
+  );
+});
+
+const store = configureStore({ reducer: reducer });
 
 export default store;

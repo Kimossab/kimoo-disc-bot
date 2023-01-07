@@ -45,7 +45,7 @@ jest.mock("../helper/common", () => ({
   success: true,
 });
 (
-  setCommandExecutedCallback as jest.Mock
+  setCommandExecutedCallback as unknown as jest.Mock
 ).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
@@ -67,7 +67,7 @@ const baseCommand = {
 describe("Badges module", () => {
   let module: MiscModule;
   beforeAll(() => {
-    module = new MiscModule();
+    module = new MiscModule(true);
     module.setUp();
   });
 

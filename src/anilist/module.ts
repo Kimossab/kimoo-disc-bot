@@ -337,7 +337,7 @@ export default class AnilistModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
     }
   };
 
@@ -584,7 +584,7 @@ export default class AnilistModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
     }
   };
 

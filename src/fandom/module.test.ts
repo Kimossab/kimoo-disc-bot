@@ -51,7 +51,7 @@ jest.mock("../helper/common", () => ({
 (checkAdmin as jest.Mock).mockReturnValue(true);
 
 (
-  setCommandExecutedCallback as jest.Mock
+  setCommandExecutedCallback as unknown as jest.Mock
 ).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
@@ -87,7 +87,7 @@ const wikiCommandOptions = [
 describe("Fandom Module", () => {
   let module: FandomModule;
   beforeAll(() => {
-    module = new FandomModule();
+    module = new FandomModule(true);
     module.setUp();
   });
 

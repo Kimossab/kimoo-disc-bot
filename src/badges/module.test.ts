@@ -83,7 +83,7 @@ jest.mock("../helper/common", () => ({
   success: true,
 });
 (
-  setCommandExecutedCallback as jest.Mock
+  setCommandExecutedCallback as unknown as jest.Mock
 ).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
@@ -150,7 +150,7 @@ const deleteCommandOptions = [
 describe("Badges module", () => {
   let module: BadgesModule;
   beforeAll(() => {
-    module = new BadgesModule();
+    module = new BadgesModule(true);
     module.setUp();
   });
 

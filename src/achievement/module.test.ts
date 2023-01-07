@@ -78,8 +78,9 @@ jest.mock("../helper/common", () => ({
 jest.mock("../state/actions");
 const mockGetApplication = getApplication as jest.Mock;
 const mockSetCommandExecutedCallback =
-  setCommandExecutedCallback as jest.Mock;
-const mockAddPagination = addPagination as jest.Mock;
+  setCommandExecutedCallback as unknown as jest.Mock;
+const mockAddPagination =
+  addPagination as unknown as jest.Mock;
 mockGetApplication.mockReturnValue({
   id: APPLICATION_ID,
 });
@@ -179,7 +180,7 @@ const giveCommandOptions = [
 describe("Achievement Module", () => {
   let module: AchievementModule;
   beforeAll(() => {
-    module = new AchievementModule();
+    module = new AchievementModule(true);
     module.setUp();
   });
 

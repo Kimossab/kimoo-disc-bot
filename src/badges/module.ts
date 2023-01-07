@@ -204,7 +204,7 @@ export default class BadgesModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
 
       this.logger.log(
         `List badges in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
@@ -351,7 +351,7 @@ export default class BadgesModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
 
       this.logger.log(
         `List badges for user ${userId} by ${data.member.user?.id} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`

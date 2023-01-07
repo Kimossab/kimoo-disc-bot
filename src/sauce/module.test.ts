@@ -48,7 +48,7 @@ jest.mock("../helper/common", () => ({
 });
 (checkAdmin as jest.Mock).mockReturnValue(true);
 (
-  setCommandExecutedCallback as jest.Mock
+  setCommandExecutedCallback as unknown as jest.Mock
 ).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
@@ -73,7 +73,7 @@ const baseCommand = {
 describe("Sauce Module", () => {
   let module: SauceModule;
   beforeAll(() => {
-    module = new SauceModule();
+    module = new SauceModule(true);
     module.setUp();
   });
 
