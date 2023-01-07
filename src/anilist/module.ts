@@ -74,8 +74,10 @@ interface ChannelCommandOptions {
 }
 
 export default class AnilistModule extends BaseModule {
-  private animeNotificationTimer: string_object<NodeJS.Timeout> =
-    {};
+  private animeNotificationTimer: Record<
+    string,
+    NodeJS.Timeout
+  > = {};
   private rateLimited = new AnilistRateLimit();
 
   constructor() {
@@ -338,7 +340,7 @@ export default class AnilistModule extends BaseModule {
     data,
     option
   ) => {
-    const subCommands: string_object<CommandHandler> = {
+    const subCommands: Record<string, CommandHandler> = {
       add: this.handleSubAdd,
       list: this.handleSubList,
     };

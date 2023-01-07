@@ -7,8 +7,6 @@ import {
 import * as ReturnData from "./types/returnData";
 import { vndb_get_vn } from "./vndb-api";
 import { stringReplacer } from "../helper/common";
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { getApplication } from "../state/actions";
 import messageList from "../helper/messages";
 import { Embed } from "../types/discord";
 import { CreatePageCallback } from "../helper/interaction-pagination";
@@ -39,7 +37,7 @@ export const groupRelations = (
   relations: ReturnData.get_vn_single_relation[]
 ): string[] => {
   const returnValues: string[] = [];
-  const group: string_object<string[]> = {};
+  const group: Record<string, string[]> = {};
 
   for (const rel of relations) {
     if (group[rel.relation]) {
@@ -165,7 +163,8 @@ export const vndbSearchEmbed = (
   return embed;
 };
 
-export const vndbSearchUpdatePage: CreatePageCallback<vndb_get_vn> =
-  async (page, total, data) => ({
-    data: { embeds: [vndbSearchEmbed(data, page, total)] },
-  });
+export const vndbSearchUpdatePage: CreatePageCallback<
+  vndb_get_vn
+> = async (page, total, data) => ({
+  data: { embeds: [vndbSearchEmbed(data, page, total)] },
+});

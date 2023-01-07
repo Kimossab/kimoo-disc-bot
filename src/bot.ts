@@ -56,7 +56,10 @@ const commandExecuted = async (data: Interaction) => {
     });
     _logger.log("Got Ping");
   } else if (data && data.data?.name === "settings") {
-    const option = data.data.options![0];
+    if (!data.data.options) {
+      throw new Error("Missing options");
+    }
+    const option = data.data.options[0];
 
     if (
       option.name === "admin_role" &&
@@ -180,7 +183,7 @@ const ready = async () => {
     for (const cmd of commandsToRemove) {
       if (cmd.id) {
         _logger.log("Deleting command", cmd);
-        deleteCommand(app.id, cmd.id!);
+        deleteCommand(app.id, cmd.id);
       }
     }
 
@@ -225,7 +228,7 @@ const main = async (): Promise<void> => {
   setReadyCallback(ready);
   setCommandExecutedCallback(commandExecuted);
 
-  connect(process.env.DATABASE_URL!);
+  connect(process.env.DATABASE_URL);
 
   const gateway = await getGatewayBot();
   if (!gateway) {

@@ -2188,10 +2188,7 @@ export type Payload =
   | InvalidSessionPayload
   | ReconnectPayload;
 
-interface DispatchPayloadBase<
-  T extends GatewayEvent,
-  D extends unknown
-> {
+interface DispatchPayloadBase<T extends GatewayEvent, D> {
   /** opcode for the payload */
   op: OpCode.Dispatch;
   /** sequence number, used for resuming sessions and heartbeats */

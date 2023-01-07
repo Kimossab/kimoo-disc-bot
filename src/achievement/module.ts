@@ -138,10 +138,10 @@ export default class AchievementModule extends BaseModule {
 
       await createAchievement(
         data.guild_id,
-        name!,
+        name,
         image,
-        description!,
-        points!
+        description,
+        points
       );
 
       await editOriginalInteractionResponse(
@@ -278,7 +278,7 @@ export default class AchievementModule extends BaseModule {
     data: Interaction,
     option: CommandInteractionDataOption
   ): Promise<void> => {
-    const subCommands: string_object<CommandHandler> = {
+    const subCommands: Record<string, CommandHandler> = {
       list: this.handleRankListCommand,
       user: this.handleRankUserCommand,
       leaderboard: this.handleRankLeaderboardCommand,
@@ -448,7 +448,8 @@ export default class AchievementModule extends BaseModule {
       const user = option
         ? getOptionValue<string>(option.options, "user")
         : null;
-      const userId = user || data.member.user!.id;
+      const userId =
+        user || data.member.user?.id || "unknown-id";
 
       const userAchievements = await getAllUserAchievements(
         data.guild_id,
@@ -539,7 +540,8 @@ export default class AchievementModule extends BaseModule {
         "user"
       );
 
-      const user = optUser || data.member.user!.id;
+      const user =
+        optUser || data.member.user?.id || "unknown-id";
 
       const achievements = await getAllUserAchievements(
         data.guild_id,

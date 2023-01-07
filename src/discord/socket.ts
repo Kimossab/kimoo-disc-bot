@@ -48,13 +48,13 @@ class Socket {
     this.logger.log(this.url);
     this.client = new WebSocket(this.url);
 
-    this.client.on("connection", (e: any) => {
+    this.client.on("connection", (e: unknown) => {
       this.onConnection(e);
     });
     this.client.on("open", () => {
       this.onOpen();
     });
-    this.client.on("close", (e: any) => {
+    this.client.on("close", (e: unknown) => {
       this.onClose(e);
     });
     this.client.on("message", (e: string) => {
@@ -63,11 +63,11 @@ class Socket {
   }
 
   // EVENTS
-  private onConnection(e: any) {
+  private onConnection(e: unknown) {
     this.logger.log("Socket connected", e);
   }
 
-  private onClose(e: any) {
+  private onClose(e: unknown) {
     this.logger.log(
       "Socket closed - Restarting in 2 seconds",
       e
@@ -86,7 +86,9 @@ class Socket {
     this.client = null;
 
     setTimeout(() => {
-      this.connect(this.url!);
+      if (this.url) {
+        this.connect(this.url);
+      }
     }, 2000);
   }
 
@@ -156,7 +158,7 @@ class Socket {
       this.sendEvent({
         op: OpCode.Resume,
         d: {
-          token: process.env.TOKEN!,
+          token: process.env.TOKEN,
           session_id: sessionId,
           seq: lastS || 0,
         },
@@ -271,7 +273,7 @@ class Socket {
     const payload: IdentifyPayload = {
       op: OpCode.Identify,
       d: {
-        token: process.env.TOKEN!,
+        token: process.env.TOKEN,
         properties: {
           $browser: "Kimoo-bot",
           $device: "Kimoo-bot",

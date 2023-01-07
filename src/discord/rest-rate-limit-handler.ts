@@ -14,13 +14,32 @@ interface RateLimitObject {
   bucket: string;
 }
 
+interface ErrorData {
+  data: {
+    message: string;
+    code: string;
+    errors: unknown[];
+  };
+}
+
+type ErrorType = Error | ErrorData;
+
+const isErrorData = (
+  error: Error | ErrorData
+): error is ErrorData => {
+  return Object.prototype.hasOwnProperty.call(
+    error,
+    "data"
+  );
+};
+
 export default class RestRateLimitHandler {
   // class
   private _logger = new Logger("RestRateLimitHandler");
 
-  private routeBucket: string_object<string> = {};
+  private routeBucket: Record<string, string> = {};
 
-  private rateLimits: string_object<RateLimitObject> = {};
+  private rateLimits: Record<string, RateLimitObject> = {};
 
   private requester: AxiosInstance = axios.create({
     baseURL: `https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}`,
@@ -29,8 +48,11 @@ export default class RestRateLimitHandler {
     },
   });
 
-  private handleErrors = (place: string, e: any): void => {
-    if (e.data) {
+  private handleErrors = (
+    place: string,
+    e: ErrorType
+  ): void => {
+    if (isErrorData(e)) {
       this._logger.error(
         `[${place}] ${e.data.code} - ${e.data.message}`,
         e.data.errors
@@ -38,13 +60,13 @@ export default class RestRateLimitHandler {
     } else {
       this._logger.error(
         `[${place}] ${e.message}`,
-        e.toJSON()
+        JSON.stringify(e)
       );
     }
   };
 
   private handleHeaders(
-    headers: string_object<any>
+    headers: Record<string, string | string[] | undefined>
   ): RateLimitObject {
     return {
       limit: Number(headers["x-ratelimit-limit"]),
@@ -53,7 +75,7 @@ export default class RestRateLimitHandler {
       resetAfter: Number(
         headers["x-ratelimit-reset-after"]
       ),
-      bucket: headers["x-ratelimit-bucket"],
+      bucket: headers["x-ratelimit-bucket"] as string,
     };
   }
 
@@ -79,8 +101,8 @@ export default class RestRateLimitHandler {
   public async request<T>(
     method: Method,
     path: string,
-    data?: any,
-    headers?: string_object<string>
+    data?: unknown,
+    headers?: Record<string, string>
   ): Promise<T | null> {
     const bucket = this.routeBucket[path];
     const rateLimits = bucket
@@ -177,7 +199,7 @@ export default class RestRateLimitHandler {
           }, parsedHeaders.resetAfter);
         });
       }
-      this.handleErrors(path, e);
+      this.handleErrors(path, e as ErrorType);
     }
 
     return response ? response.data : null;

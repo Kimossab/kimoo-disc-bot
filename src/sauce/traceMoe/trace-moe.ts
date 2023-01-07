@@ -13,12 +13,13 @@ import {
   InteractionPagination,
 } from "../../helper/interaction-pagination";
 
-const traceMoeUpdatePage: CreatePageCallback<TraceMoe.resultData> =
-  async (page, total, data) => ({
-    data: {
-      embeds: [traceMoeEmbed(data, page, total)],
-    },
-  });
+const traceMoeUpdatePage: CreatePageCallback<
+  TraceMoe.resultData
+> = async (page, total, data) => ({
+  data: {
+    embeds: [traceMoeEmbed(data, page, total)],
+  },
+});
 
 const handleTraceMoe = async (
   data: Interaction,

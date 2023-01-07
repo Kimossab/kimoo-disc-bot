@@ -3,7 +3,7 @@ import { IUserAchievement } from "./models/user-achievement.model";
 import messageList from "../helper/messages";
 import { IAchievementRank } from "./models/achievement-rank.model";
 import { IAchievement } from "./models/achievement.model";
-import { Embed } from "../types/discord";
+import { Embed, EmbedField } from "../types/discord";
 import { CreatePageCallback } from "../helper/interaction-pagination";
 
 // PAGINATION
@@ -145,15 +145,17 @@ export const createServerLeaderboardEmbed = (
   page: number,
   total: number
 ): Embed => {
+  const fields: EmbedField[] = [
+    {
+      name: "• Positions",
+      value: "",
+    },
+  ];
+
   const embed: Embed = {
     title: messageList.achievements.serverLeaderboard,
     color: 3035554,
-    fields: [
-      {
-        name: "• Positions",
-        value: "",
-      },
-    ],
+    fields: fields,
   };
 
   if (total > 1) {
@@ -168,7 +170,7 @@ export const createServerLeaderboardEmbed = (
   for (let i = 0; i < data.length; i++) {
     const element = data[i];
 
-    embed.fields![0].value += `• \`${
+    fields[0].value += `• \`${
       (page - 1) * 10 + i + 1
     }\` • \`${element.rank} - ${element.points} Pts.\` <@${
       element.user

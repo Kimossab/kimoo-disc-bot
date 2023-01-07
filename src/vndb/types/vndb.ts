@@ -26,7 +26,7 @@ export type lowercase_char =
   | "y"
   | "z";
 
-export const LENGTH_TYPE: string_object<string> = {
+export const LENGTH_TYPE: Record<string, string> = {
   1: "Very short (< 2 hours)",
   2: "Short (2 - 10 hours)",
   3: "Medium (10 - 30 hours)",
@@ -34,7 +34,7 @@ export const LENGTH_TYPE: string_object<string> = {
   5: "Very long (> 50 hours)",
 };
 
-export const RELATION_TYPES: string_object<string> = {
+export const RELATION_TYPES: Record<string, string> = {
   ser: "Same series",
   preq: "Prequel",
   seq: "Sequel",

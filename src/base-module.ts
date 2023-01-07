@@ -30,7 +30,7 @@ interface SingleCommandInfo {
 
 export default class BaseModule {
   protected logger: Logger;
-  protected commandList: string_object<CommandInfo> = {};
+  protected commandList: Record<string, CommandInfo> = {};
   protected singleCommand: SingleCommandInfo | null = null;
   private name: string;
   private isSetup = false;
@@ -116,11 +116,12 @@ export default class BaseModule {
           }
         }
 
+        const options = data.data?.options?.[0];
         this.logger.error(
           "UNKNOWN COMMAND",
-          data.data!.options![0].name,
-          data.data!.options![0].options,
-          data.data!.options![0].value
+          options?.name,
+          options?.options,
+          options?.value
         );
         await editOriginalInteractionResponse(
           app.id,

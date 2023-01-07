@@ -38,46 +38,59 @@ const sauceNaoEmbed = (
     };
   }
 
-  embed.fields!.push({
-    name: "similarity",
-    value: item.similarity.toString(),
-  });
+  embed.fields = [
+    ...(embed.fields ?? []),
+    {
+      name: "similarity",
+      value: item.similarity.toString(),
+    },
+  ];
 
   if (item.url) {
     for (const st of item.url) {
-      embed.fields!.push({
-        name: "url",
-        value: st,
-      });
+      embed.fields = [
+        ...(embed.fields ?? []),
+        {
+          name: "url",
+          value: st,
+        },
+      ];
     }
   }
 
   if (item.authorData) {
-    embed.fields!.push({
-      name: item.authorData.authorName
-        ? item.authorData.authorName
-        : "-",
-      value: item.authorData.authorUrl
-        ? item.authorData.authorUrl
-        : "-",
-    });
+    embed.fields = [
+      ...(embed.fields ?? []),
+      {
+        name: item.authorData.authorName
+          ? item.authorData.authorName
+          : "-",
+        value: item.authorData.authorUrl
+          ? item.authorData.authorUrl
+          : "-",
+      },
+    ];
   }
   if (item.fallback) {
-    embed.fields!.push({
-      name: "unknown fallback",
-      value: item.fallback,
-    });
+    embed.fields = [
+      ...(embed.fields ?? []),
+      {
+        name: "unknown fallback",
+        value: item.fallback,
+      },
+    ];
   }
 
   return embed;
 };
 
-const sauceNaoUpdatePage: CreatePageCallback<SauceNao.data> =
-  async (page, total, data) => ({
-    data: {
-      embeds: [sauceNaoEmbed(data, page, total)],
-    },
-  });
+const sauceNaoUpdatePage: CreatePageCallback<
+  SauceNao.data
+> = async (page, total, data) => ({
+  data: {
+    embeds: [sauceNaoEmbed(data, page, total)],
+  },
+});
 
 const handleSauceNao = async (
   data: Interaction,

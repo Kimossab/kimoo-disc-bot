@@ -135,12 +135,15 @@ export default class MiscModule extends BaseModule {
     const embed: Embed = { fields: [] };
 
     for (const index in groups) {
-      embed.fields!.push({
-        name: stringReplacer(messageList.misc.group, {
-          index: Number(index) + 1,
-        }),
-        value: groups[index].join(" | "),
-      });
+      embed.fields = [
+        ...(embed.fields ?? []),
+        {
+          name: stringReplacer(messageList.misc.group, {
+            index: Number(index) + 1,
+          }),
+          value: groups[index].join(" | "),
+        },
+      ];
     }
 
     return embed;

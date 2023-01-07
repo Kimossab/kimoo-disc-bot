@@ -19,7 +19,7 @@ export enum string_constants {
  */
 export const stringReplacer = (
   str: string,
-  replace: string_object<string | number>
+  replace: Record<string, string | number>
 ): string => {
   let result = str;
   for (const s in replace) {

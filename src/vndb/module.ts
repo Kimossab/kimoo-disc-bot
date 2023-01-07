@@ -3,12 +3,9 @@ import {
   addPagination,
   getApplication,
 } from "../state/actions";
-import { VNDBApi, vndb_get_vn } from "./vndb-api";
+import { VNDBApi } from "./vndb-api";
 import BaseModule from "../base-module";
-import {
-  vndbSearchEmbed,
-  vndbSearchUpdatePage,
-} from "./helper";
+import { vndbSearchUpdatePage } from "./helper";
 import { InteractionPagination } from "../helper/interaction-pagination";
 
 export default class VNDBModule extends BaseModule {
@@ -31,7 +28,7 @@ export default class VNDBModule extends BaseModule {
           search: string;
         }>(["search"], data.data?.options);
 
-        const result = await this.vndbApi.search(search!);
+        const result = await this.vndbApi.search(search);
 
         if (!result || result.length === 0) {
           await editOriginalInteractionResponse(

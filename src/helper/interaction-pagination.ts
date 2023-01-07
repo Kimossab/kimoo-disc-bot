@@ -130,7 +130,10 @@ export class InteractionPagination<T> {
     } else if (move === "previous") {
       this.currentPage--;
     } else if (move === "select") {
-      this.currentPage = Number(data.values![0]);
+      if (!data.values) {
+        throw new Error("Missing values");
+      }
+      this.currentPage = Number(data.values[0]);
     } else {
       throw new Error("Unknown interaction");
     }

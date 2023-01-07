@@ -32,7 +32,7 @@ enum colors {
 }
 
 // fandom
-export const FANDOM_LINKS: string_object<string> = {
+export const FANDOM_LINKS: Record<string, string> = {
   // Sword Art Online
   sao: "swordartonline",
   // Accel World

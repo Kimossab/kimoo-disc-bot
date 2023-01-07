@@ -30,8 +30,8 @@ export interface State {
   user: User | null;
   application: Partial<Application> | null;
   guilds: Guild[];
-  allPaginations: InteractionPagination<any>[];
-  channelLastAttachment: string_object<string>;
+  allPaginations: InteractionPagination<unknown>[];
+  channelLastAttachment: Record<string, string>;
   discordSessionId: string | null;
   discordLastS: number | null;
 
@@ -120,5 +120,5 @@ export type Actions =
   | SetDiscordLastS
   | AddGuild
   | AddGuildMembers
-  | AddPagination<any>
-  | RemovePagination<any>;
+  | AddPagination<unknown>
+  | RemovePagination<unknown>;

@@ -1,7 +1,6 @@
 import {
   MediaType,
   PageResponse,
-  Response,
   MediaList,
   MediaResponse,
   MediaForAiring,
@@ -11,12 +10,10 @@ import {
   NextAiringWithTitle,
 } from "./types/graphql";
 import { searchByTypeGraphql } from "./queries/searchByTypeGraphql";
-import axios, { AxiosResponse } from "axios";
 import { searchGraphql } from "./queries/searchGraphql";
 import { searchForAiringScheduleGraphql } from "./queries/searchForAiringScheduleGraphql";
 import { searchByScheduleIdGraphql } from "./queries/searchByScheduleIdGraphql";
 import { searchByIdsGraphql } from "./queries/searchByIdsGraphql";
-import Logger from "../helper/logger";
 import { getNextAiringGraphql } from "./queries/getNextAiringGraphql";
 import { getAiringScheduleGraphql } from "./queries/getAiringScheduleGraphql";
 import { AnilistRateLimit } from "./rate-limiter";

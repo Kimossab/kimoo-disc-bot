@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import serverSettingsModel from "../bot/server-settings.model";
 import BirthdayWithRole, {
   IBirthdayWithRole,

@@ -502,7 +502,7 @@ describe("Badges module", () => {
       } as Interaction);
 
       expect(getAllUserBadges).toHaveBeenCalledWith(
-        baseCommand.member!.user?.id,
+        baseCommand.member?.user?.id,
         baseCommand.guild_id
       );
     });

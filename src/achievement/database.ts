@@ -34,7 +34,7 @@ export const createAchievement = async (
   server: string,
   name: string,
   image: Nullable<string>,
-  description: string,
+  description: Nullable<string>,
   points: number
 ): Promise<void> => {
   if (!(await getAchievement(server, name))) {
@@ -43,7 +43,7 @@ export const createAchievement = async (
     ach.server = server;
     ach.name = name;
     ach.image = image;
-    ach.description = description;
+    ach.description = description || "";
     ach.points = points;
 
     await ach.save();
