@@ -1,4 +1,3 @@
-import Logger from "../helper/logger";
 import { InteractionType } from "../types/discord";
 import { ActionName, Actions, State } from "./types";
 
@@ -16,8 +15,6 @@ const state: State = {
   messageReactionCallback: [],
   resumeGatewayUrl: "",
 };
-
-const logger = new Logger("store");
 
 type StateActions = {
   [key in ActionName]: Actions[key]["payload"] extends undefined
