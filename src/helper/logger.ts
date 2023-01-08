@@ -2,11 +2,17 @@ import util from "util";
 import { colors } from "./constants";
 
 let currentColor = 1;
-
+export interface ILogger {
+  log(
+    message: string | null | undefined,
+    ...data: unknown[]
+  ): void;
+  error(message: string, ...data: unknown[]): void;
+}
 /**
  * Class that handles logging of stuff
  */
-class Logger {
+class Logger implements ILogger {
   private _color = colors.white;
 
   private _module;

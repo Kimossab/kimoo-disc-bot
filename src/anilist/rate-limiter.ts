@@ -35,7 +35,15 @@ const isErrorData = (
   );
 };
 
-export class AnilistRateLimit {
+export interface IAnilistRateLimit {
+  request<T>(
+    queryName: string,
+    graphql: string,
+    variables: Record<string, unknown>
+  ): Promise<T | null>;
+}
+
+export class AnilistRateLimit implements IAnilistRateLimit {
   private _logger = new Logger("AnilistRateLimit");
   private queue: RequestData[] = [];
   private timerActive = false;

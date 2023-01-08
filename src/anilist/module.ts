@@ -3,10 +3,7 @@ import {
   getServerAnimeChannel,
   setServerAnimeChannel,
 } from "../bot/database";
-import {
-  editOriginalInteractionResponse,
-  sendMessage,
-} from "../discord/rest";
+import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   chunkArray,
   stringReplacer,
@@ -24,9 +21,7 @@ import {
 import { Embed } from "../types/discord";
 import {
   addSubscription,
-  deleteAllSubscriptionsForId,
   getAllAnimeNotifications,
-  getAllSubscriptionsForAnime,
   getUserSubs,
   setNextAiring,
 } from "./database";
@@ -34,29 +29,20 @@ import {
   searchByQuery,
   searchByQueryAndType,
   searchForAiringSchedule,
-  searchByScheduleId,
   searchForUser,
-  getNextAiringEpisode,
   getAiringSchedule,
 } from "./graphql";
 import { mapAiringScheduleToEmbed } from "./mappers/mapAiringScheduleToEmbed";
 import { mapMediaAiringToEmbed } from "./mappers/mapMediaAiringToEmbed";
-import { mapMediaAiringToNewEpisodeEmbed } from "./mappers/mapMediaAiringToNewEpisodeEmbed";
 import { mapMediaToEmbed } from "./mappers/mapMediaToEmbed";
 import { mapSubListToEmbed } from "./mappers/mapSubListToEmbed";
 import { IAnilistSubscription } from "./models/AnilistSubscription.model";
 import {
-  AiringSchedule,
   MediaSubbedInfo,
   MediaType,
 } from "./types/graphql";
 import { AnilistRateLimit } from "./rate-limiter";
-import Logger from "../helper/logger";
-import { IAnimeNotification } from "./models/animeNotification.model";
-
-const DEFAULT_TIMER = 24 * 60 * 60; // 1 day in seconds
-const MAX_TIMER = 2147483647; // +- 23 days
-const MIN_TIME_TO_NOTIFY = -60 * 60; //  1 hour in seconds
+import { AnimeManager } from "./anime-manager";
 
 interface ScheduleCommandOptions {
   query: string;
@@ -73,173 +59,9 @@ interface ChannelCommandOptions {
   channel: string;
 }
 
-class AnilistAnimeHandler {
-  private timer: NodeJS.Timeout | undefined;
-
-  public get id(): number {
-    return this.anime.id;
-  }
-
-  constructor(
-    private logger: Logger,
-    private rateLimiter: AnilistRateLimit,
-    private anime: IAnimeNotification,
-    private onDelete: (id: number) => void
-  ) {
-    this.checkNextEpisode();
-  }
-
-  private async checkNextEpisode() {
-    if (!this.anime.nextAiring) {
-      this.logger.log(
-        "Next airing episode not available in the database",
-        this.anime.id
-      );
-      this.setNextEpisodeOrDelete();
-      return;
-    }
-
-    const scheduleInfo = await searchByScheduleId(
-      this.rateLimiter,
-      this.anime.nextAiring
-    );
-
-    if (!scheduleInfo) {
-      this.logger.log(
-        "No info found for airing id from Anilist",
-        {
-          nextAiring: this.anime.nextAiring,
-          id: this.anime.id,
-        }
-      );
-      this.setNextEpisodeOrDelete();
-      return;
-    }
-
-    const { timeUntilAiring } = scheduleInfo.AiringSchedule;
-
-    if (timeUntilAiring <= 0) {
-      if (timeUntilAiring < MIN_TIME_TO_NOTIFY) {
-        this.logger.log(
-          "Next episode aired too long ago, not notifying",
-          scheduleInfo.AiringSchedule
-        );
-        this.setNextEpisodeOrDelete();
-      } else {
-        this.logger.log(
-          "Next episode aired already in the past",
-          scheduleInfo.AiringSchedule
-        );
-        this.notifyNewEpisode(scheduleInfo.AiringSchedule);
-
-        this.setNextEpisodeOrDelete();
-        // await setNextAiring(
-        //   this.anime.id,
-        //   media.nextAiringEpisode?.id || null
-        // );
-        // this.setTimer(
-        //   media.nextAiringEpisode?.timeUntilAiring
-        // );
-      }
-    } else {
-      this.setTimer(timeUntilAiring);
-    }
-  }
-
-  private notifyNewEpisode = async (
-    animeInfo: AiringSchedule
-  ): Promise<void> => {
-    this.logger.log("Notifying for new episode", animeInfo);
-
-    const embed = mapMediaAiringToNewEpisodeEmbed(
-      animeInfo.media,
-      animeInfo.episode,
-      animeInfo.airingAt
-    );
-    const subs = await getAllSubscriptionsForAnime(
-      animeInfo.media.id
-    );
-
-    const servers = subs.map((s) => s.server);
-    const uniqServers = [...new Set(servers)];
-
-    for (const server of uniqServers) {
-      const channel = await getServerAnimeChannel(server);
-      if (channel) {
-        const userMentions = subs
-          .filter((s) => s.server === server)
-          .map((s) => `<@${s.user}>`)
-          .join("\n");
-
-        await sendMessage(channel, userMentions, [embed]);
-      }
-    }
-  };
-
-  private setNextEpisodeOrDelete = async () => {
-    const animeInfo = await getNextAiringEpisode(
-      this.rateLimiter,
-      this.anime.id
-    );
-
-    // this means the anime has ended, safe to delete
-    if (!animeInfo) {
-      this.logger.log(
-        "No info about the anime found (either removed by anilist or finished airing) - deleting from database",
-        this.anime.id
-      );
-      await deleteAllSubscriptionsForId(this.anime.id);
-      this.onDelete(this.anime.id);
-      return;
-    }
-
-    if (!animeInfo.Media.nextAiringEpisode) {
-      await setNextAiring(this.anime.id, null);
-      this.logger.log(
-        "Next episode not found. Possibly not aired yet",
-        {
-          id: this.anime.id,
-          nextEpisode: animeInfo.Media,
-        }
-      );
-      return;
-    }
-
-    const nextEpisode = animeInfo.Media.nextAiringEpisode;
-
-    this.logger.log(
-      "Setting next episode in the database",
-      { id: this.anime.id, nextEpisode }
-    );
-    await setNextAiring(
-      this.anime.id,
-      nextEpisode?.id ?? null
-    );
-
-    this.setTimer(nextEpisode?.timeUntilAiring);
-    return;
-  };
-
-  private setTimer = (time: number = DEFAULT_TIMER) => {
-    const timeToAir = Math.min(time * 1000, MAX_TIMER);
-    this.logger.log(
-      `Set timeout for ${this.anime.id} with ${timeToAir}ms`
-    );
-
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    this.timer = setTimeout(
-      () => this.checkNextEpisode(),
-      timeToAir
-    );
-  };
-}
-
 export default class AnilistModule extends BaseModule {
   private rateLimited = new AnilistRateLimit();
-  private animeList: AnilistAnimeHandler[] = [];
+  private animeList: AnimeManager[] = [];
 
   constructor(isActive: boolean) {
     super("anilist", isActive);
@@ -276,14 +98,14 @@ export default class AnilistModule extends BaseModule {
 
     for (const anime of ani) {
       if (!this.animeList.find((a) => a.id === anime.id)) {
-        this.animeList.push(
-          new AnilistAnimeHandler(
-            this.logger,
-            this.rateLimited,
-            anime,
-            this.removeAnime
-          )
+        const animeManager = new AnimeManager(
+          this.logger,
+          this.rateLimited,
+          anime,
+          this.removeAnime
         );
+        animeManager.checkNextEpisode();
+        this.animeList.push(animeManager);
       }
     }
   }
@@ -528,14 +350,14 @@ export default class AnilistModule extends BaseModule {
           (anime) => anime.id === animeInfo.Media.id
         )
       ) {
-        this.animeList.push(
-          new AnilistAnimeHandler(
-            this.logger,
-            this.rateLimited,
-            nextAiringInfo,
-            this.removeAnime
-          )
+        const animeManager = new AnimeManager(
+          this.logger,
+          this.rateLimited,
+          nextAiringInfo,
+          this.removeAnime
         );
+        animeManager.checkNextEpisode();
+        this.animeList.push(animeManager);
       }
 
       await editOriginalInteractionResponse(

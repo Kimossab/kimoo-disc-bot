@@ -3,6 +3,7 @@ import AnilistSubscription, {
 } from "./models/AnilistSubscription.model";
 import AnimeNotification, {
   IAnimeNotification,
+  IAnimeNotificationDocument,
 } from "./models/animeNotification.model";
 
 const getSubscription = async (
@@ -32,7 +33,7 @@ export const addSubscription = async (
 
 export const getNextAiring = async (
   animeId: number
-): Promise<IAnimeNotification | null> =>
+): Promise<IAnimeNotificationDocument | null> =>
   AnimeNotification.findOne({
     id: animeId,
   });

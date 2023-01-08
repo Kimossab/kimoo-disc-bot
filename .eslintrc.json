@@ -30,17 +30,13 @@
     "deprecation/deprecation": "error",
     "no-case-declarations": "off",
     "linebreak-style": "off",
+    "prefer-const": "error",
     "no-multiple-empty-lines": [
       "error",
       {
         "max": 1
       }
     ],
-    "prettier/prettier": [
-      "error",
-      {
-        "endOfLine": "auto"
-      }
-    ]
+    "prettier/prettier": "error"
   }
 }
