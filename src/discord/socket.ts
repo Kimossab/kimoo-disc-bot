@@ -7,11 +7,12 @@ import {
   commandExecuted,
   getDiscordLastS,
   getDiscordSession,
+  getResumeGateway,
   setChannelLastAttachment,
   setDiscordLastS,
   setDiscordSession,
   setReadyData,
-} from "../state/actions";
+} from "../state/store";
 import { PRESENCE_STRINGS } from "../helper/constants";
 import { editMessage, sendMessage } from "./rest";
 import {
@@ -29,9 +30,6 @@ import {
 
 class Socket {
   private logger = new Logger("socket");
-
-  private url: string | null = null;
-
   private hbInterval: NodeJS.Timeout | null = null;
 
   private hbAck = true;
@@ -44,17 +42,16 @@ class Socket {
     this.logger.log("starting connection");
 
     this.resumed = false;
-    this.url = gateway;
-    this.logger.log(this.url);
-    this.client = new WebSocket(this.url);
+    this.logger.log(`Gateway: ${gateway}`);
+    this.client = new WebSocket(gateway);
 
-    this.client.on("connection", (e: any) => {
+    this.client.on("connection", (e: unknown) => {
       this.onConnection(e);
     });
     this.client.on("open", () => {
       this.onOpen();
     });
-    this.client.on("close", (e: any) => {
+    this.client.on("close", (e: unknown) => {
       this.onClose(e);
     });
     this.client.on("message", (e: string) => {
@@ -63,11 +60,11 @@ class Socket {
   }
 
   // EVENTS
-  private onConnection(e: any) {
+  private onConnection(e: unknown) {
     this.logger.log("Socket connected", e);
   }
 
-  private onClose(e: any) {
+  private onClose(e: unknown) {
     this.logger.log(
       "Socket closed - Restarting in 2 seconds",
       e
@@ -86,7 +83,7 @@ class Socket {
     this.client = null;
 
     setTimeout(() => {
-      this.connect(this.url!);
+      this.connect(getResumeGateway());
     }, 2000);
   }
 
@@ -156,7 +153,7 @@ class Socket {
       this.sendEvent({
         op: OpCode.Resume,
         d: {
-          token: process.env.TOKEN!,
+          token: process.env.TOKEN,
           session_id: sessionId,
           seq: lastS || 0,
         },
@@ -197,12 +194,13 @@ class Socket {
         break;
       case GatewayEvent.MessageCreate:
         if (event.d.attachments.length > 0) {
-          setChannelLastAttachment(
-            event.d.channel_id,
-            event.d.attachments[
-              event.d.attachments.length - 1
-            ].url
-          );
+          setChannelLastAttachment({
+            channel: event.d.channel_id,
+            attachment:
+              event.d.attachments[
+                event.d.attachments.length - 1
+              ].url,
+          });
         }
 
         if (!event.d.guild_id) {
@@ -252,7 +250,6 @@ class Socket {
           {
             name: PRESENCE_STRINGS[randomPresence],
             type: ActivityType.Custom,
-            created_at: +new Date(),
           },
         ],
         status: Status.Online,
@@ -271,11 +268,11 @@ class Socket {
     const payload: IdentifyPayload = {
       op: OpCode.Identify,
       d: {
-        token: process.env.TOKEN!,
+        token: process.env.TOKEN,
         properties: {
-          $browser: "Kimoo-bot",
-          $device: "Kimoo-bot",
-          $os: process.platform,
+          browser: "Kimoo-bot",
+          device: "Kimoo-bot",
+          os: process.platform,
         },
         presence: {
           since: +new Date(),
@@ -283,7 +280,6 @@ class Socket {
             {
               name: PRESENCE_STRINGS[randomPresence],
               type: ActivityType.Custom,
-              created_at: +new Date(),
             },
           ],
           status: Status.Online,
@@ -296,7 +292,8 @@ class Socket {
       },
     };
 
-    this.send(JSON.stringify(payload));
+    this.sendEvent(payload);
+    this.logger.log("payload", payload);
   }
 
   // private requestGuildMembers(guild: discord.guild): void {

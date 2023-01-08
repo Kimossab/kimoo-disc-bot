@@ -5,7 +5,7 @@ import {
   getApplication,
   getChannelLastAttachment,
   setCommandExecutedCallback,
-} from "../state/actions";
+} from "../state/store";
 import SauceModule from "./module";
 import messageList from "../helper/messages";
 import handleSauceNao from "./sauceNao/sauce-nao";
@@ -23,7 +23,7 @@ const LAST_ATTACHMENT = "LAST_ATTACHMENT";
 let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
-jest.mock("../state/actions");
+jest.mock("../state/store");
 jest.mock("../discord/rest");
 jest.mock("../helper/images");
 jest.mock("../helper/logger");
@@ -48,7 +48,7 @@ jest.mock("../helper/common", () => ({
 });
 (checkAdmin as jest.Mock).mockReturnValue(true);
 (
-  setCommandExecutedCallback as jest.Mock
+  setCommandExecutedCallback as unknown as jest.Mock
 ).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
@@ -73,7 +73,7 @@ const baseCommand = {
 describe("Sauce Module", () => {
   let module: SauceModule;
   beforeAll(() => {
-    module = new SauceModule();
+    module = new SauceModule(true);
     module.setUp();
   });
 

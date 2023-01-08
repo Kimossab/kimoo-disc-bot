@@ -2,19 +2,20 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   addPagination,
   getApplication,
-} from "../state/actions";
-import { VNDBApi, vndb_get_vn } from "./vndb-api";
+} from "../state/store";
+import { VNDBApi } from "./vndb-api";
 import BaseModule from "../base-module";
-import {
-  vndbSearchEmbed,
-  vndbSearchUpdatePage,
-} from "./helper";
+import { vndbSearchUpdatePage } from "./helper";
 import { InteractionPagination } from "../helper/interaction-pagination";
 
 export default class VNDBModule extends BaseModule {
   private vndbApi;
-  constructor() {
-    super("vn");
+  constructor(isActive: boolean) {
+    super("vn", isActive);
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.vndbApi = new VNDBApi();
 
@@ -31,7 +32,7 @@ export default class VNDBModule extends BaseModule {
           search: string;
         }>(["search"], data.data?.options);
 
-        const result = await this.vndbApi.search(search!);
+        const result = await this.vndbApi?.search(search);
 
         if (!result || result.length === 0) {
           await editOriginalInteractionResponse(
@@ -51,7 +52,7 @@ export default class VNDBModule extends BaseModule {
         );
 
         await pagination.create(data.token);
-        addPagination(pagination);
+        addPagination(pagination as InteractionPagination);
       }
     };
 }

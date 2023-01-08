@@ -1,8 +1,4 @@
-import mongoose, {
-  Schema,
-  Document,
-  Types,
-} from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IBirthdayWithRole extends Document {
   day: number;

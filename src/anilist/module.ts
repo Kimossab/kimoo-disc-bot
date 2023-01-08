@@ -20,7 +20,7 @@ import {
 import {
   addPagination,
   getApplication,
-} from "../state/actions";
+} from "../state/store";
 import { Embed } from "../types/discord";
 import {
   addSubscription,
@@ -74,12 +74,19 @@ interface ChannelCommandOptions {
 }
 
 export default class AnilistModule extends BaseModule {
-  private animeNotificationTimer: string_object<NodeJS.Timeout> =
-    {};
+  private animeNotificationTimer: Record<
+    string,
+    NodeJS.Timeout
+  > = {};
   private rateLimited = new AnilistRateLimit();
 
-  constructor() {
-    super("anilist");
+  constructor(isActive: boolean) {
+    super("anilist", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.commandList = {
       search: {
@@ -330,7 +337,7 @@ export default class AnilistModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
     }
   };
 
@@ -338,7 +345,7 @@ export default class AnilistModule extends BaseModule {
     data,
     option
   ) => {
-    const subCommands: string_object<CommandHandler> = {
+    const subCommands: Record<string, CommandHandler> = {
       add: this.handleSubAdd,
       list: this.handleSubList,
     };
@@ -577,7 +584,7 @@ export default class AnilistModule extends BaseModule {
       );
 
       await pagination.create(data.token);
-      addPagination(pagination);
+      addPagination(pagination as InteractionPagination);
     }
   };
 

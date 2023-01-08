@@ -8,7 +8,7 @@ import {
   getApplication,
   getChannelLastAttachment,
   setCommandExecutedCallback,
-} from "../state/actions";
+} from "../state/store";
 import BadgesModule from "./module";
 import messageList from "../helper/messages";
 import {
@@ -55,7 +55,7 @@ let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("axios");
-jest.mock("../state/actions");
+jest.mock("../state/store");
 jest.mock("../discord/rest");
 jest.mock("../helper/images");
 jest.mock("../helper/logger");
@@ -83,7 +83,7 @@ jest.mock("../helper/common", () => ({
   success: true,
 });
 (
-  setCommandExecutedCallback as jest.Mock
+  setCommandExecutedCallback as unknown as jest.Mock
 ).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
@@ -150,7 +150,7 @@ const deleteCommandOptions = [
 describe("Badges module", () => {
   let module: BadgesModule;
   beforeAll(() => {
-    module = new BadgesModule();
+    module = new BadgesModule(true);
     module.setUp();
   });
 
@@ -502,7 +502,7 @@ describe("Badges module", () => {
       } as Interaction);
 
       expect(getAllUserBadges).toHaveBeenCalledWith(
-        baseCommand.member!.user?.id,
+        baseCommand.member?.user?.id,
         baseCommand.guild_id
       );
     });

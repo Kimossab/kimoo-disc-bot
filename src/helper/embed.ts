@@ -2,7 +2,7 @@ import { EmbedField } from "../types/discord";
 
 const limitString = (str: string, limit: number) => {
   if (str.length > limit) {
-    return str.substr(0, limit - 6) + " (...)";
+    return str.slice(0, limit - 6) + " (...)";
   }
 
   return str;

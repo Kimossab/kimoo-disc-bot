@@ -29,7 +29,7 @@ export const mapAiringScheduleToEmbed = (
       "Airing Schedule",
     url: data.siteUrl,
     color: parseInt(
-      data.coverImage.color?.substr(1) || "FFFFFF",
+      data.coverImage.color?.slice(1) || "FFFFFF",
       16
     ),
     fields,

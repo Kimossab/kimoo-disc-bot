@@ -1,6 +1,6 @@
 import fs from "fs";
 import https from "https";
-import { getGuilds } from "../state/actions";
+import { getGuilds } from "../state/store";
 import { getAdminRole } from "../bot/database";
 import {
   GuildMember,
@@ -19,7 +19,7 @@ export enum string_constants {
  */
 export const stringReplacer = (
   str: string,
-  replace: string_object<string | number>
+  replace: Record<string, string | number>
 ): string => {
   let result = str;
   for (const s in replace) {

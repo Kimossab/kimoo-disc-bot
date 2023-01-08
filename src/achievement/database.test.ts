@@ -21,6 +21,7 @@ import {
   achievementListFixtures,
   rankListFixtures,
 } from "./fixtures";
+import { IAchievement } from "./models/achievement.model";
 
 let mongod: MongoMemoryServer;
 
@@ -93,17 +94,20 @@ describe("Achievement database", () => {
     );
 
     expect(achievement).not.toBeNull();
-    expect(achievement?.name).toEqual(
+    if (!achievement) {
+      throw new Error("achievement is null");
+    }
+    expect(achievement.name).toMatch(
       achievementListFixtures[0].name
     );
 
     const updatedAchievement = await updateAchievement(
       achievementListFixtures[0].server,
-      achievement!.id,
-      achievement!.name + " update",
+      achievement.id,
+      achievement.name + " update",
       "some image url",
-      achievement!.description + " updated",
-      achievement!.points + 5
+      achievement.description + " updated",
+      achievement.points + 5
     );
     expect(updatedAchievement).not.toBeNull();
     expect(updatedAchievement?.name).toEqual(
@@ -136,27 +140,25 @@ describe("Achievement database", () => {
   describe("User Achievements", () => {
     const USER_ID = "123";
 
+    let achievement: IAchievement;
+
     beforeEach(async () => {
-      const achievement = await getAchievementById(
+      achievement = (await getAchievementById(
         achievementListFixtures[0].server,
         1
-      );
+      )) as IAchievement;
       await createUserAchievement(
         achievementListFixtures[0].server,
         USER_ID,
-        achievement!
+        achievement
       );
     });
 
     it("should add an achievement to a user", async () => {
-      const achievement = await getAchievementById(
-        achievementListFixtures[0].server,
-        1
-      );
       const userAchievement = await getUserAchievement(
         achievementListFixtures[0].server,
         USER_ID,
-        achievement!
+        achievement
       );
 
       expect(userAchievement).not.toBeNull();
@@ -165,7 +167,7 @@ describe("Achievement database", () => {
         achievementListFixtures[0].server
       );
       expect(userAchievement?.achievement).toEqual(
-        achievement!._id
+        achievement._id
       );
     });
 

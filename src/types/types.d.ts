@@ -1,9 +1,5 @@
 declare module "puppeteer-bypass";
 
-interface string_object<T> {
-  [index: string]: T;
-}
-
 type CommandHandler = (
   data: Interaction,
   option: CommandInteractionDataOption
@@ -83,7 +79,7 @@ declare namespace SauceNao {
     short_remaining: number;
     status: number;
     results_requested: number;
-    index: string_object<index_response>;
+    index: Record<string, index_response>;
     search_depth: string;
     minimum_similarity: number;
     query_image_display: string;

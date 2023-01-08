@@ -2,7 +2,7 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   addPagination,
   getApplication,
-} from "../state/actions";
+} from "../state/store";
 import { FANDOM_LINKS } from "../helper/constants";
 import messageList from "../helper/messages";
 import BaseModule from "../base-module";
@@ -18,8 +18,14 @@ interface CommandOptions {
 }
 
 export default class FandomModule extends BaseModule {
-  constructor() {
-    super("wiki");
+  constructor(isActive: boolean) {
+    super("wiki", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
+
     this.singleCommand = {
       handler: this.commandHandler,
       isAdmin: false,
@@ -63,7 +69,7 @@ export default class FandomModule extends BaseModule {
         );
 
         await pagination.create(data.token);
-        addPagination(pagination);
+        addPagination(pagination as InteractionPagination);
       } else {
         await editOriginalInteractionResponse(
           app.id,

@@ -3,7 +3,7 @@ import {
   randomNum,
   stringReplacer,
 } from "../helper/common";
-import { getApplication } from "../state/actions";
+import { getApplication } from "../state/store";
 import messageList from "../helper/messages";
 import renderDonut from "./donut";
 import BaseModule from "../base-module";
@@ -21,8 +21,13 @@ const MAX_RANDOM_ANGLE = (1 * Math.PI) / 4;
 const MIN_RANDOM_ANGLE = (-1 * Math.PI) / 4;
 
 export default class MiscModule extends BaseModule {
-  constructor() {
-    super("misc");
+  constructor(isActive: boolean) {
+    super("misc", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.commandList = {
       group: {
@@ -135,12 +140,15 @@ export default class MiscModule extends BaseModule {
     const embed: Embed = { fields: [] };
 
     for (const index in groups) {
-      embed.fields!.push({
-        name: stringReplacer(messageList.misc.group, {
-          index: Number(index) + 1,
-        }),
-        value: groups[index].join(" | "),
-      });
+      embed.fields = [
+        ...(embed.fields ?? []),
+        {
+          name: stringReplacer(messageList.misc.group, {
+            index: Number(index) + 1,
+          }),
+          value: groups[index].join(" | "),
+        },
+      ];
     }
 
     return embed;

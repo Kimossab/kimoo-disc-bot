@@ -1,4 +1,3 @@
-import { createCanvas, loadImage } from "canvas";
 import fs from "fs";
 import {
   stringReplacer,
@@ -36,6 +35,9 @@ const FULL_HEIGHT =
 export const createGrid = async (
   badges: IBadge[]
 ): Promise<string> => {
+  const { createCanvas, loadImage } = await import(
+    "canvas"
+  );
   const fileName = `${+new Date()}.png`;
   const canvas = createCanvas(FULL_WIDTH, FULL_HEIGHT);
   const context = canvas.getContext("2d");
@@ -87,7 +89,7 @@ export const createdBadgeEmbed = (
   const embed: Embed = {
     title: "Badge created successfully",
     description: name,
-    color: parseInt(color.hex.substr(1), 16),
+    color: parseInt(color.hex.slice(1), 16),
     image: {
       url: `attachment://${image}`,
     },
@@ -105,7 +107,7 @@ export const giveBadgeEmbed = (
   const embed: Embed = {
     title: "Badge given successfully",
     description: `Badge \`${name}\` given to <@${user}> successfully.`,
-    color: parseInt(color.hex.substr(1), 16),
+    color: parseInt(color.hex.slice(1), 16),
     image: {
       url: `attachment://${image}`,
     },

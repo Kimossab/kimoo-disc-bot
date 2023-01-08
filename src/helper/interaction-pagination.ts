@@ -26,7 +26,7 @@ export type CreatePageCallback<T> = (
   file?: string;
 }>;
 
-export class InteractionPagination<T> {
+export class InteractionPagination<T = unknown> {
   private readonly appId: string;
   private readonly data: T[];
   private readonly createPage: CreatePageCallback<T>;
@@ -130,7 +130,10 @@ export class InteractionPagination<T> {
     } else if (move === "previous") {
       this.currentPage--;
     } else if (move === "select") {
-      this.currentPage = Number(data.values![0]);
+      if (!data.values) {
+        throw new Error("Missing values");
+      }
+      this.currentPage = Number(data.values[0]);
     } else {
       throw new Error("Unknown interaction");
     }

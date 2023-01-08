@@ -12,9 +12,28 @@ const TIMEOUT = 667; // 1 request per each 667ms max
 interface RequestData<T = unknown> {
   name: string;
   graphql: string;
-  variables: string_object<unknown>;
+  variables: Record<string, unknown>;
   callback: (data: T | null) => void;
 }
+
+interface ErrorData {
+  data: {
+    message: string;
+    code: string;
+    errors: unknown[];
+  };
+}
+
+type ErrorType = Error | ErrorData;
+
+const isErrorData = (
+  error: Error | ErrorData
+): error is ErrorData => {
+  return Object.prototype.hasOwnProperty.call(
+    error,
+    "data"
+  );
+};
 
 export class AnilistRateLimit {
   private _logger = new Logger("AnilistRateLimit");
@@ -24,8 +43,11 @@ export class AnilistRateLimit {
     this.checkQueue();
   }
 
-  private handleErrors(place: string, e: any): void {
-    if (e.data) {
+  private handleErrors = (
+    place: string,
+    e: ErrorType
+  ): void => {
+    if (isErrorData(e)) {
       this._logger.error(
         `[${place}] ${e.data.code} - ${e.data.message}`,
         e.data.errors
@@ -33,14 +55,14 @@ export class AnilistRateLimit {
     } else {
       this._logger.error(
         `[${place}] ${e.message}`,
-        e.toJSON()
+        JSON.stringify(e)
       );
     }
-  }
+  };
 
   private logSuccess(
     name: string,
-    headers: Record<string, string>
+    headers: AxiosResponse["headers"]
   ) {
     this._logger.log(
       `[${name}][${headers[X_RATELIMIT_REMAINING]} / ${headers[X_RATELIMIT_LIMIT]}] Success.`
@@ -55,7 +77,12 @@ export class AnilistRateLimit {
       return;
     }
 
-    const request = this.queue.shift()!;
+    const request = this.queue.shift();
+
+    if (!request) {
+      return;
+    }
+
     try {
       const response = await this.doRequest<unknown>(
         request.graphql,
@@ -67,9 +94,13 @@ export class AnilistRateLimit {
       request.callback(response.data.data);
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        if (e.response?.status === 429) {
-          const nextRequest =
-            +e.response.headers[X_RATELIMIT_RESET];
+        if (
+          e.response?.status === 429 &&
+          !!e.response.headers[X_RATELIMIT_RESET]
+        ) {
+          const nextRequest = Number(
+            e.response.headers[X_RATELIMIT_RESET]
+          );
 
           this.queue.unshift(request);
 
@@ -99,7 +130,7 @@ export class AnilistRateLimit {
           this.handleErrors(request.name, e);
         }
       } else {
-        this.handleErrors(request.name, e);
+        this.handleErrors(request.name, e as ErrorType);
       }
     }
 
@@ -111,7 +142,7 @@ export class AnilistRateLimit {
   public async request<T>(
     queryName: string,
     graphql: string,
-    variables: string_object<unknown>
+    variables: Record<string, unknown>
   ): Promise<T | null> {
     return new Promise<T>((resolve) => {
       this.queue.push({
@@ -125,7 +156,7 @@ export class AnilistRateLimit {
 
   private async doRequest<T>(
     graphql: string,
-    variables: string_object<unknown>
+    variables: Record<string, unknown>
   ): Promise<AxiosResponse<Response<T>>> {
     const response = await axios.post<
       string,

@@ -17,7 +17,7 @@ import {
   getGatewayBot,
 } from "./discord/rest";
 import socket from "./discord/socket";
-import connect from "./helper/database";
+import mongoConnect from "./helper/database";
 import Logger from "./helper/logger";
 import {
   checkAdmin,
@@ -28,7 +28,7 @@ import {
   getApplication,
   setCommandExecutedCallback,
   setReadyCallback,
-} from "./state/actions";
+} from "./state/store";
 import * as commandInfo from "./commands";
 import AchievementModule from "./achievement/module";
 import BadgesModule from "./badges/module";
@@ -56,7 +56,10 @@ const commandExecuted = async (data: Interaction) => {
     });
     _logger.log("Got Ping");
   } else if (data && data.data?.name === "settings") {
-    const option = data.data.options![0];
+    if (!data.data.options) {
+      throw new Error("Missing options");
+    }
+    const option = data.data.options[0];
 
     if (
       option.name === "admin_role" &&
@@ -139,18 +142,39 @@ const commandExecuted = async (data: Interaction) => {
   }
 };
 
-const birthdayModule = new BirthdayModule();
-const achievementModule = new AchievementModule();
-const badgesModule = new BadgesModule();
-const fandomModule = new FandomModule();
-const sauceModule = new SauceModule();
-const miscModule = new MiscModule();
-const vndbModule = new VNDBModule();
-const anilistModule = new AnilistModule();
+const toggles = {
+  BIRTHDAY_MODULE: process.env.BIRTHDAY_MODULE === "true",
+  ACHIEVEMENT_MODULE:
+    process.env.ACHIEVEMENT_MODULE === "true",
+  BADGES_MODULE: process.env.BADGES_MODULE === "true",
+  FANDOM_MODULE: process.env.FANDOM_MODULE === "true",
+  SAUCE_MODULE: process.env.SAUCE_MODULE === "true",
+  MISC_MODULE: process.env.MISC_MODULE === "true",
+  VNDB_MODULE: process.env.VNDB_MODULE === "true",
+  ANILIST_MODULE: process.env.ANILIST_MODULE === "true",
+};
+
+const birthdayModule = new BirthdayModule(
+  toggles.BIRTHDAY_MODULE
+);
+const achievementModule = new AchievementModule(
+  toggles.ACHIEVEMENT_MODULE
+);
+const badgesModule = new BadgesModule(
+  toggles.BADGES_MODULE
+);
+const fandomModule = new FandomModule(
+  toggles.FANDOM_MODULE
+);
+const sauceModule = new SauceModule(toggles.SAUCE_MODULE);
+const miscModule = new MiscModule(toggles.MISC_MODULE);
+const vndbModule = new VNDBModule(toggles.VNDB_MODULE);
+const anilistModule = new AnilistModule(
+  toggles.ANILIST_MODULE
+);
 
 const ready = async () => {
   _logger.log("Discord says Ready");
-
   birthdayModule.setUp();
   achievementModule.setUp();
   badgesModule.setUp();
@@ -180,7 +204,7 @@ const ready = async () => {
     for (const cmd of commandsToRemove) {
       if (cmd.id) {
         _logger.log("Deleting command", cmd);
-        deleteCommand(app.id, cmd.id!);
+        deleteCommand(app.id, cmd.id);
       }
     }
 
@@ -225,7 +249,7 @@ const main = async (): Promise<void> => {
   setReadyCallback(ready);
   setCommandExecutedCallback(commandExecuted);
 
-  connect(process.env.DATABASE_URL!);
+  await mongoConnect(process.env.DATABASE_URL);
 
   const gateway = await getGatewayBot();
   if (!gateway) {

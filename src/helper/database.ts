@@ -3,26 +3,23 @@ import achievementModel from "../achievement/models/achievement.model";
 import Logger from "./logger";
 
 const _logger = new Logger("database");
+mongoose.set("strictQuery", true);
 
 /**
- * Connects to a monog DB
+ * Connects to a mongo DB
  * @param url Database url
  */
-const connect = (url: string): void => {
-  mongoose.connect(url);
-
-  mongoose.connection.on("error", onError);
-  mongoose.connection.on("open", onOpen);
-
+const mongoConnect = async (url: string): Promise<void> => {
+  try {
+    await mongoose.connect(url);
+    _logger.log("Successfully connected to the database.");
+  } catch (e) {
+    _logger.error(
+      `Could not connect to the database (${url}).`,
+      e
+    );
+  }
   achievementModel.createCollection();
 };
 
-const onError = (e: unknown) => {
-  _logger.error("Could not connect to the database.", e);
-};
-
-const onOpen = () => {
-  _logger.log("Successfully connected to the database.");
-};
-
-export default connect;
+export default mongoConnect;

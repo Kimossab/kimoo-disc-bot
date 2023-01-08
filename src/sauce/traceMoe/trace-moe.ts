@@ -1,7 +1,7 @@
 import messageList from "../../helper/messages";
 import { editOriginalInteractionResponse } from "../../discord/rest";
 import Logger from "../../helper/logger";
-import { addPagination } from "../../state/actions";
+import { addPagination } from "../../state/store";
 import { requestTraceMoe } from "./request";
 import { traceMoeEmbed } from "./mapper";
 import {
@@ -13,12 +13,13 @@ import {
   InteractionPagination,
 } from "../../helper/interaction-pagination";
 
-const traceMoeUpdatePage: CreatePageCallback<TraceMoe.resultData> =
-  async (page, total, data) => ({
-    data: {
-      embeds: [traceMoeEmbed(data, page, total)],
-    },
-  });
+const traceMoeUpdatePage: CreatePageCallback<
+  TraceMoe.resultData
+> = async (page, total, data) => ({
+  data: {
+    embeds: [traceMoeEmbed(data, page, total)],
+  },
+});
 
 const handleTraceMoe = async (
   data: Interaction,
@@ -47,7 +48,7 @@ const handleTraceMoe = async (
   );
 
   await pagination.create(data.token);
-  addPagination(pagination);
+  addPagination(pagination as InteractionPagination);
 };
 
 export default handleTraceMoe;

@@ -6,7 +6,7 @@ import Logger from "./helper/logger";
 import {
   getApplication,
   setCommandExecutedCallback,
-} from "./state/actions";
+} from "./state/store";
 import messageList from "./helper/messages";
 import {
   getOption,
@@ -30,13 +30,14 @@ interface SingleCommandInfo {
 
 export default class BaseModule {
   protected logger: Logger;
-  protected commandList: string_object<CommandInfo> = {};
+  protected commandList: Record<string, CommandInfo> = {};
   protected singleCommand: SingleCommandInfo | null = null;
-  private name: string;
   private isSetup = false;
 
-  constructor(name: string) {
-    this.name = name;
+  constructor(
+    private name: string,
+    private isActive: boolean
+  ) {
     this.logger = new Logger(name);
   }
 
@@ -116,11 +117,12 @@ export default class BaseModule {
           }
         }
 
+        const options = data.data?.options?.[0];
         this.logger.error(
           "UNKNOWN COMMAND",
-          data.data!.options![0].name,
-          data.data!.options![0].options,
-          data.data!.options![0].value
+          options?.name,
+          options?.options,
+          options?.value
         );
         await editOriginalInteractionResponse(
           app.id,
@@ -134,6 +136,9 @@ export default class BaseModule {
   };
 
   public setUp(): void {
+    if (!this.isActive) {
+      return;
+    }
     if (!this.isSetup) {
       setCommandExecutedCallback(this.interactionExecuted);
       this.isSetup = true;

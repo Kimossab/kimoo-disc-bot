@@ -2,7 +2,7 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   getApplication,
   getChannelLastAttachment,
-} from "../state/actions";
+} from "../state/store";
 import messageList from "../helper/messages";
 import handleTraceMoe from "./traceMoe/trace-moe";
 import handleSauceNao from "./sauceNao/sauce-nao";
@@ -14,8 +14,13 @@ interface CommandOptions {
 }
 
 export default class SauceModule extends BaseModule {
-  constructor() {
-    super("sauce");
+  constructor(isActive: boolean) {
+    super("sauce", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
+      return;
+    }
 
     this.singleCommand = {
       handler: this.commandHandler,

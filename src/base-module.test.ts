@@ -5,7 +5,7 @@ import {
 import {
   getApplication,
   setCommandExecutedCallback,
-} from "./state/actions";
+} from "./state/store";
 import messageList from "./helper/messages";
 import BaseModule from "./base-module";
 import Logger from "./helper/logger";
@@ -23,10 +23,10 @@ const TOKEN = "TOKEN";
 let commandCallback: (data: Interaction) => Promise<void>;
 
 //mocks
-jest.mock("./state/actions");
+jest.mock("./state/store");
 const mockGetApplication = getApplication as jest.Mock;
 const mockSetCommandExecutedCallback =
-  setCommandExecutedCallback as jest.Mock;
+  setCommandExecutedCallback as unknown as jest.Mock;
 mockGetApplication.mockReturnValue({
   id: APPLICATION_ID,
 });
@@ -56,7 +56,7 @@ const mockCheckAdmin = checkAdmin as jest.Mock;
 describe("Base Module", () => {
   let module: BaseModule;
   beforeAll(() => {
-    module = new BaseModule(MODULE_NAME);
+    module = new BaseModule(MODULE_NAME, true);
     module.setUp();
   });
 
@@ -134,7 +134,7 @@ describe("Base Module", () => {
 
     class TestModuleClass extends BaseModule {
       constructor() {
-        super("test");
+        super("test", true);
         this.commandList = {
           admin: {
             handler: adminHandler,

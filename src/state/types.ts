@@ -6,34 +6,152 @@ import {
   Interaction,
   MessageReactionAdd,
   MessageReactionRemove,
+  Ready,
   User,
 } from "../types/discord";
 
-export const SET_USER = "SET_USER";
-export const SET_APPLICATION = "SET_APPLICATION";
-export const SET_READY_CALLBACK = "SET_READY_CALLBACK";
-export const SET_COMMAND_EXECUTED_CALLBACK =
-  "SET_COMMAND_EXECUTED_CALLBACK";
-export const SET_REACTION_CALLBACK =
-  "SET_REACTION_CALLBACK";
-export const SET_CHANNEL_LAST_ATTACHMENT =
-  "SET_CHANNEL_LAST_ATTACHMENT";
-export const SET_DISCORD_SESSION = "SET_DISCORD_SESSION";
-export const SET_DISCORD_LAST_S = "SET_DISCORD_LAST_S";
-export const ADD_GUILD = "ADD_GUILD";
-export const ADD_GUILD_MEMBERS = "ADD_GUILD_MEMBERS";
-export const ADD_PAGINATION = "ADD_PAGINATION";
-export const REMOVE_PAGINATION = "REMOVE_PAGINATION";
+export enum ActionName {
+  SetUser = "SET_USER",
+  SetApplication = "SET_APPLICATION",
+  SetResumeGateway = "SET_RESUME_GATEWAY",
+  SetReadyCallback = "SET_READY_CALLBACK",
+  SetCommandExecutedCallback = "SET_COMMAND_EXECUTED_CALLBACK",
+  SetReactionCallback = "SET_REACTION_CALLBACK",
+  SetChannelLastAttachment = "SET_CHANNEL_LAST_ATTACHMENT",
+  SetDiscordSession = "SET_DISCORD_SESSION",
+  SetDiscordLastS = "SET_DISCORD_LAST_S",
+  AddGuild = "ADD_GUILD",
+  AddGuildMembers = "ADD_GUILD_MEMBERS",
+  AddPagination = "ADD_PAGINATION",
+  RemovePagination = "REMOVE_PAGINATION",
+
+  SetReadyData = "SET_READY_DATA",
+  CommandExecuted = "COMMAND_EXECUTED",
+
+  GetApplication = "GET_APPLICATION",
+  GetChannelLastAttachment = "GET_CHANNEL_LAST_ATTACHMENT",
+  GetGuilds = "GET_GUILDS",
+  GetResumeGateway = "GET_RESUME_GATEWAY",
+  GetDiscordSession = "GET_DISCORD_SESSION",
+  GetDiscordLastS = "GET_DISCORD_LAST_S",
+  GetPagination = "GET_PAGINATION",
+}
+
+interface ActionData {
+  payload: unknown;
+  response: unknown;
+}
+
+export interface Actions
+  extends Record<string, ActionData> {
+  [ActionName.SetUser]: {
+    payload: User;
+    response: void;
+    test: "test";
+  };
+  [ActionName.SetApplication]: {
+    payload: Partial<Application>;
+    response: void;
+  };
+  [ActionName.SetResumeGateway]: {
+    payload: string;
+    response: void;
+  };
+  [ActionName.SetReadyCallback]: {
+    payload: () => void;
+    response: void;
+  };
+  [ActionName.SetCommandExecutedCallback]: {
+    payload: (data: Interaction) => void;
+    response: void;
+  };
+  [ActionName.SetReactionCallback]: {
+    payload: (
+      data: MessageReactionAdd | MessageReactionRemove,
+      remove: boolean
+    ) => void;
+    response: void;
+  };
+  [ActionName.SetChannelLastAttachment]: {
+    payload: {
+      channel: string;
+      attachment: string;
+    };
+    response: void;
+  };
+  [ActionName.SetDiscordSession]: {
+    payload: string | null;
+    response: void;
+  };
+  [ActionName.SetDiscordLastS]: {
+    payload: number | null;
+    response: void;
+  };
+  [ActionName.AddGuild]: { payload: Guild; response: void };
+  [ActionName.AddGuildMembers]: {
+    payload: {
+      guild: string;
+      members: GuildMember[];
+      clean: boolean;
+    };
+    response: void;
+  };
+  [ActionName.AddPagination]: {
+    payload: InteractionPagination;
+    response: void;
+  };
+  [ActionName.RemovePagination]: {
+    payload: InteractionPagination;
+    response: void;
+  };
+  [ActionName.GetApplication]: {
+    payload: undefined;
+    response: State["application"];
+  };
+  [ActionName.GetChannelLastAttachment]: {
+    payload: string;
+    response: string;
+  };
+  [ActionName.GetGuilds]: {
+    payload: undefined;
+    response: State["guilds"];
+  };
+  [ActionName.GetResumeGateway]: {
+    payload: undefined;
+    response: State["resumeGatewayUrl"];
+  };
+  [ActionName.GetDiscordSession]: {
+    payload: undefined;
+    response: State["discordSessionId"];
+  };
+  [ActionName.GetDiscordLastS]: {
+    payload: undefined;
+    response: State["discordLastS"];
+  };
+  [ActionName.GetPagination]: {
+    payload: string;
+    response: InteractionPagination | undefined;
+  };
+  [ActionName.SetReadyData]: {
+    payload: Ready;
+    response: void;
+  };
+  [ActionName.CommandExecuted]: {
+    payload: Interaction;
+    response: void;
+  };
+}
 
 export interface State {
   ready: boolean;
   user: User | null;
   application: Partial<Application> | null;
   guilds: Guild[];
-  allPaginations: InteractionPagination<any>[];
-  channelLastAttachment: string_object<string>;
+  allPaginations: InteractionPagination[];
+  channelLastAttachment: Record<string, string>;
   discordSessionId: string | null;
   discordLastS: number | null;
+  resumeGatewayUrl: string;
 
   readyCallback: (() => void) | null;
   commandExecutedCallback: ((_: Interaction) => void)[];
@@ -42,83 +160,3 @@ export interface State {
     remove: boolean
   ) => void)[];
 }
-
-export interface SetUser {
-  type: typeof SET_USER;
-  user: User;
-}
-
-export interface SetApplication {
-  type: typeof SET_APPLICATION;
-  application: Partial<Application>;
-}
-
-export interface SetReadyCallback {
-  type: typeof SET_READY_CALLBACK;
-  callback: () => void;
-}
-
-export interface AddGuild {
-  type: typeof ADD_GUILD;
-  guild: Guild;
-}
-
-export interface AddGuildMembers {
-  type: typeof ADD_GUILD_MEMBERS;
-  guild: string;
-  members: GuildMember[];
-  clean: boolean;
-}
-
-export interface AddPagination<T> {
-  type: typeof ADD_PAGINATION;
-  data: InteractionPagination<T>;
-}
-
-export interface RemovePagination<T> {
-  type: typeof REMOVE_PAGINATION;
-  data: InteractionPagination<T>;
-}
-
-export interface SetCommandExecutedCallback {
-  type: typeof SET_COMMAND_EXECUTED_CALLBACK;
-  callback: (data: Interaction) => void;
-}
-
-export interface SetReactionCallback {
-  type: typeof SET_REACTION_CALLBACK;
-  callback: (
-    data: MessageReactionAdd | MessageReactionRemove,
-    remove: boolean
-  ) => void;
-}
-
-export interface SetChannelLastAttachment {
-  type: typeof SET_CHANNEL_LAST_ATTACHMENT;
-  channel: string;
-  attachment: string;
-}
-
-export interface SetDiscordSession {
-  type: typeof SET_DISCORD_SESSION;
-  session: string | null;
-}
-
-export interface SetDiscordLastS {
-  type: typeof SET_DISCORD_LAST_S;
-  lastS: number | null;
-}
-
-export type Actions =
-  | SetUser
-  | SetApplication
-  | SetReadyCallback
-  | SetCommandExecutedCallback
-  | SetReactionCallback
-  | SetChannelLastAttachment
-  | SetDiscordSession
-  | SetDiscordLastS
-  | AddGuild
-  | AddGuildMembers
-  | AddPagination<any>
-  | RemovePagination<any>;
