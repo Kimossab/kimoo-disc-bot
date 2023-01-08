@@ -36,7 +36,7 @@ export default class BaseModule {
 
   constructor(
     private name: string,
-    private isActive: boolean
+    protected isActive: boolean
   ) {
     this.logger = new Logger(name);
   }

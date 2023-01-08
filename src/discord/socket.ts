@@ -245,11 +245,11 @@ class Socket {
     this.sendEvent({
       op: OpCode.PresenceUpdate,
       d: {
-        since: +new Date(),
+        since: null,
         activities: [
           {
             name: PRESENCE_STRINGS[randomPresence],
-            type: ActivityType.Custom,
+            type: ActivityType.Game,
           },
         ],
         status: Status.Online,
@@ -260,10 +260,6 @@ class Socket {
 
   private identify(): void {
     this.logger.log("Identifying...");
-    const randomPresence = randomNum(
-      0,
-      PRESENCE_STRINGS.length
-    );
 
     const payload: IdentifyPayload = {
       op: OpCode.Identify,
@@ -274,17 +270,6 @@ class Socket {
           device: "Kimoo-bot",
           os: process.platform,
         },
-        presence: {
-          since: +new Date(),
-          activities: [
-            {
-              name: PRESENCE_STRINGS[randomPresence],
-              type: ActivityType.Custom,
-            },
-          ],
-          status: Status.Online,
-          afk: false,
-        },
         intents:
           GatewayIntents.GUILDS |
           GatewayIntents.GUILD_MESSAGES |
@@ -293,18 +278,7 @@ class Socket {
     };
 
     this.sendEvent(payload);
-    this.logger.log("payload", payload);
   }
-
-  // private requestGuildMembers(guild: discord.guild): void {
-  //   const obj: discord.request_guild_members = {
-  //     guild_id: guild.id,
-  //     query: "",
-  //     limit: 0,
-  //   };
-
-  //   this.send(JSON.stringify({ op: opcodes.request_guild_members, d: obj }));
-  // }
 
   private sendEvent(event: Payload): void {
     this.send(JSON.stringify(event));

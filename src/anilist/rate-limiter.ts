@@ -38,9 +38,24 @@ const isErrorData = (
 export class AnilistRateLimit {
   private _logger = new Logger("AnilistRateLimit");
   private queue: RequestData[] = [];
+  private timerActive = false;
 
-  constructor() {
-    this.checkQueue();
+  public async request<T>(
+    queryName: string,
+    graphql: string,
+    variables: Record<string, unknown>
+  ): Promise<T | null> {
+    return new Promise<T>((resolve) => {
+      this.queue.push({
+        name: queryName,
+        graphql,
+        variables,
+        callback: (data) => resolve(data as T),
+      });
+      if (!this.timerActive) {
+        this.checkQueue();
+      }
+    });
   }
 
   private handleErrors = (
@@ -71,11 +86,10 @@ export class AnilistRateLimit {
 
   private async checkQueue() {
     if (this.queue.length === 0) {
-      setTimeout(() => {
-        this.checkQueue();
-      }, TIMEOUT);
+      this.timerActive = false;
       return;
     }
+    this.timerActive = true;
 
     const request = this.queue.shift();
 
@@ -137,21 +151,6 @@ export class AnilistRateLimit {
     setTimeout(() => {
       this.checkQueue();
     }, TIMEOUT);
-  }
-
-  public async request<T>(
-    queryName: string,
-    graphql: string,
-    variables: Record<string, unknown>
-  ): Promise<T | null> {
-    return new Promise<T>((resolve) => {
-      this.queue.push({
-        name: queryName,
-        graphql,
-        variables,
-        callback: (data) => resolve(data as T),
-      });
-    });
   }
 
   private async doRequest<T>(

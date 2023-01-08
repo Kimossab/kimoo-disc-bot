@@ -27,7 +27,6 @@ import {
   deleteAllSubscriptionsForId,
   getAllAnimeNotifications,
   getAllSubscriptionsForAnime,
-  getNextAiring,
   getUserSubs,
   setNextAiring,
 } from "./database";
@@ -50,9 +49,10 @@ import {
   AiringSchedule,
   MediaSubbedInfo,
   MediaType,
-  NextEpisode,
 } from "./types/graphql";
 import { AnilistRateLimit } from "./rate-limiter";
+import Logger from "../helper/logger";
+import { IAnimeNotification } from "./models/animeNotification.model";
 
 const DEFAULT_TIMER = 24 * 60 * 60; // 1 day in seconds
 const MAX_TIMER = 2147483647; // +- 23 days
@@ -73,66 +73,78 @@ interface ChannelCommandOptions {
   channel: string;
 }
 
-export default class AnilistModule extends BaseModule {
-  private animeNotificationTimer: Record<
-    string,
-    NodeJS.Timeout
-  > = {};
-  private rateLimited = new AnilistRateLimit();
+class AnilistAnimeHandler {
+  private timer: NodeJS.Timeout | undefined;
 
-  constructor(isActive: boolean) {
-    super("anilist", isActive);
+  public get id(): number {
+    return this.anime.id;
+  }
 
-    if (!isActive) {
-      this.logger.log("Module deactivated");
+  constructor(
+    private logger: Logger,
+    private rateLimiter: AnilistRateLimit,
+    private anime: IAnimeNotification,
+    private onDelete: (id: number) => void
+  ) {
+    this.checkNextEpisode();
+  }
+
+  private async checkNextEpisode() {
+    if (!this.anime.nextAiring) {
+      this.logger.log(
+        "Next airing episode not available in the database",
+        this.anime.id
+      );
+      this.setNextEpisodeOrDelete();
       return;
     }
 
-    this.commandList = {
-      search: {
-        handler: this.handleSearchCommand,
-      },
-      sub: {
-        handler: this.handleSubCommand,
-      },
-      schedule: {
-        handler: this.handleScheduleCommand,
-      },
-      channel: {
-        isAdmin: true,
-        handler: this.handleChannelCommand,
-      },
-    };
-  }
-
-  public async setUp(): Promise<void> {
-    super.setUp();
-
-    const ani = await getAllAnimeNotifications();
-
-    for (const a of ani) {
-      this.checkNotification(a.id);
-    }
-  }
-
-  private setTimer = (
-    id: number,
-    time: number = DEFAULT_TIMER
-  ) => {
-    const timeToAir = Math.min(time * 1000, MAX_TIMER);
-    this.logger.log(
-      `Set timeout for ${id} with ${timeToAir}ms`
+    const scheduleInfo = await searchByScheduleId(
+      this.rateLimiter,
+      this.anime.nextAiring
     );
 
-    if (this.animeNotificationTimer[id]) {
-      clearTimeout(this.animeNotificationTimer[id]);
+    if (!scheduleInfo) {
+      this.logger.log(
+        "No info found for airing id from Anilist",
+        {
+          nextAiring: this.anime.nextAiring,
+          id: this.anime.id,
+        }
+      );
+      this.setNextEpisodeOrDelete();
+      return;
     }
 
-    this.animeNotificationTimer[id] = setTimeout(
-      () => this.checkNotification(id),
-      timeToAir
-    );
-  };
+    const { timeUntilAiring } = scheduleInfo.AiringSchedule;
+
+    if (timeUntilAiring <= 0) {
+      if (timeUntilAiring < MIN_TIME_TO_NOTIFY) {
+        this.logger.log(
+          "Next episode aired too long ago, not notifying",
+          scheduleInfo.AiringSchedule
+        );
+        this.setNextEpisodeOrDelete();
+      } else {
+        this.logger.log(
+          "Next episode aired already in the past",
+          scheduleInfo.AiringSchedule
+        );
+        this.notifyNewEpisode(scheduleInfo.AiringSchedule);
+
+        this.setNextEpisodeOrDelete();
+        // await setNextAiring(
+        //   this.anime.id,
+        //   media.nextAiringEpisode?.id || null
+        // );
+        // this.setTimer(
+        //   media.nextAiringEpisode?.timeUntilAiring
+        // );
+      }
+    } else {
+      this.setTimer(timeUntilAiring);
+    }
+  }
 
   private notifyNewEpisode = async (
     animeInfo: AiringSchedule
@@ -164,114 +176,122 @@ export default class AnilistModule extends BaseModule {
     }
   };
 
-  private setNextEpisodeOrDelete = async (id: number) => {
+  private setNextEpisodeOrDelete = async () => {
     const animeInfo = await getNextAiringEpisode(
-      this.rateLimited,
-      id
+      this.rateLimiter,
+      this.anime.id
     );
 
     // this means the anime has ended, safe to delete
     if (!animeInfo) {
       this.logger.log(
         "No info about the anime found (either removed by anilist or finished airing) - deleting from database",
-        id
+        this.anime.id
       );
-      await deleteAllSubscriptionsForId(id);
+      await deleteAllSubscriptionsForId(this.anime.id);
+      this.onDelete(this.anime.id);
       return;
     }
 
-    const mostRecentEpisode =
-      animeInfo.Media.airingSchedule.nodes?.reduce<NextEpisode | null>(
-        (acc, cur) => {
-          if (!acc && cur.timeUntilAiring < 0) {
-            return cur;
-          }
-
-          return acc;
-        },
-        null
-      );
-
-    if (
-      !animeInfo.Media.nextAiringEpisode &&
-      (!mostRecentEpisode ||
-        mostRecentEpisode.timeUntilAiring <
-          MIN_TIME_TO_NOTIFY)
-    ) {
-      await setNextAiring(id, null);
-      this.setTimer(id);
+    if (!animeInfo.Media.nextAiringEpisode) {
+      await setNextAiring(this.anime.id, null);
       this.logger.log(
-        "Next episode not found and previous can't be notified",
+        "Next episode not found. Possibly not aired yet",
         {
-          id,
-          nextEpisode: animeInfo.Media.nextAiringEpisode,
-          mostRecentEpisode,
+          id: this.anime.id,
+          nextEpisode: animeInfo.Media,
         }
       );
       return;
     }
 
-    const nextEpisode =
-      animeInfo.Media.nextAiringEpisode ||
-      mostRecentEpisode;
+    const nextEpisode = animeInfo.Media.nextAiringEpisode;
 
     this.logger.log(
       "Setting next episode in the database",
-      { id, nextEpisode }
+      { id: this.anime.id, nextEpisode }
     );
-    await setNextAiring(id, nextEpisode?.id || null);
+    await setNextAiring(
+      this.anime.id,
+      nextEpisode?.id ?? null
+    );
 
-    this.setTimer(id, nextEpisode?.timeUntilAiring);
+    this.setTimer(nextEpisode?.timeUntilAiring);
     return;
   };
 
-  private checkNotification = async (id: number) => {
-    this.logger.log("Checking for new episode", id);
-
-    // get database info
-    const nextAiring = await getNextAiring(id);
-
-    // if there's no info in the database then I should ask for the next episode
-    if (!nextAiring || !nextAiring.nextAiring) {
-      await this.setNextEpisodeOrDelete(id);
-      return;
-    }
-
-    const scheduleInfo = await searchByScheduleId(
-      this.rateLimited,
-      nextAiring.nextAiring
+  private setTimer = (time: number = DEFAULT_TIMER) => {
+    const timeToAir = Math.min(time * 1000, MAX_TIMER);
+    this.logger.log(
+      `Set timeout for ${this.anime.id} with ${timeToAir}ms`
     );
 
-    // they deleted an id
-    if (!scheduleInfo) {
-      this.logger.log("No info found for airing id", {
-        nextAiring,
-        id,
-      });
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
 
-      await this.setNextEpisodeOrDelete(id);
+    this.timer = setTimeout(
+      () => this.checkNextEpisode(),
+      timeToAir
+    );
+  };
+}
+
+export default class AnilistModule extends BaseModule {
+  private rateLimited = new AnilistRateLimit();
+  private animeList: AnilistAnimeHandler[] = [];
+
+  constructor(isActive: boolean) {
+    super("anilist", isActive);
+
+    if (!isActive) {
+      this.logger.log("Module deactivated");
       return;
     }
 
-    if (scheduleInfo.AiringSchedule.timeUntilAiring <= 0) {
-      this.notifyNewEpisode(scheduleInfo.AiringSchedule);
+    this.commandList = {
+      search: {
+        handler: this.handleSearchCommand,
+      },
+      sub: {
+        handler: this.handleSubCommand,
+      },
+      schedule: {
+        handler: this.handleScheduleCommand,
+      },
+      channel: {
+        isAdmin: true,
+        handler: this.handleChannelCommand,
+      },
+    };
+  }
 
-      await setNextAiring(
-        id,
-        scheduleInfo.AiringSchedule.media.nextAiringEpisode
-          ?.id || null
-      );
-      this.setTimer(
-        id,
-        scheduleInfo.AiringSchedule.media.nextAiringEpisode
-          ?.timeUntilAiring
-      );
-    } else {
-      this.setTimer(
-        id,
-        scheduleInfo.AiringSchedule.timeUntilAiring
-      );
+  public async setUp(): Promise<void> {
+    super.setUp();
+    if (!this.isActive) {
+      return;
     }
+
+    const ani = await getAllAnimeNotifications();
+
+    for (const anime of ani) {
+      if (!this.animeList.find((a) => a.id === anime.id)) {
+        this.animeList.push(
+          new AnilistAnimeHandler(
+            this.logger,
+            this.rateLimited,
+            anime,
+            this.removeAnime
+          )
+        );
+      }
+    }
+  }
+
+  private removeAnime = (id: number) => {
+    this.animeList = this.animeList.filter(
+      (anime) => anime.id !== id
+    );
   };
 
   private pageUpdate: CreatePageCallback<Embed> = async (
@@ -491,26 +511,32 @@ export default class AnilistModule extends BaseModule {
         return;
       }
 
-      const nextAiring = animeInfo.Media.nextAiringEpisode;
-      if (
-        !this.animeNotificationTimer[animeInfo.Media.id]
-      ) {
-        this.setTimer(
-          animeInfo.Media.id,
-          nextAiring?.timeUntilAiring
-        );
-      }
-
       await addSubscription(
         data.guild_id,
         data.member.user?.id || "",
         animeInfo.Media.id
       );
 
-      await setNextAiring(
+      const nextAiring = animeInfo.Media.nextAiringEpisode;
+      const nextAiringInfo = await setNextAiring(
         animeInfo.Media.id,
         nextAiring?.id || null
       );
+
+      if (
+        !this.animeList.find(
+          (anime) => anime.id === animeInfo.Media.id
+        )
+      ) {
+        this.animeList.push(
+          new AnilistAnimeHandler(
+            this.logger,
+            this.rateLimited,
+            nextAiringInfo,
+            this.removeAnime
+          )
+        );
+      }
 
       await editOriginalInteractionResponse(
         app.id,
