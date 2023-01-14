@@ -1,26 +1,26 @@
-import { ILogger } from "../helper/logger";
-import { AnimeManager } from "./anime-manager";
+import { ILogger } from "../../helper/logger";
 import {
-  deleteAllSubscriptionsForId,
   getAllSubscriptionsForAnime,
+  deleteAllSubscriptionsForId,
   setNextAiring,
-} from "./database";
+} from "../database";
 import {
   searchByScheduleId,
   getNextAiringEpisode,
-} from "./graphql";
-import { IAnimeNotification } from "./models/animeNotification.model";
+} from "../graphql/graphql";
+import { IAnimeNotification } from "../models/animeNotification.model";
+import { AnimeManager } from "./anime-manager";
 import { IAnilistRateLimit } from "./rate-limiter";
 
-jest.mock("../discord/rest");
+jest.mock("@discord/rest");
 
-jest.mock("./graphql");
+jest.mock("../graphql/graphql");
 const mockSearchByScheduleId =
   searchByScheduleId as jest.Mock;
 const mockGetNextAiringEpisode =
   getNextAiringEpisode as jest.Mock;
 
-jest.mock("./database");
+jest.mock("../database");
 const mockGetAllSubscriptionsForAnime =
   getAllSubscriptionsForAnime as jest.Mock;
 const mockDeleteAllSubscriptionsForId =

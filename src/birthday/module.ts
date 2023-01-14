@@ -33,6 +33,7 @@ import {
 import { IBirthday } from "./models/birthday.model";
 import { no_mentions } from "../helper/constants";
 import { Application, Interaction } from "../types/discord";
+import { getOptions } from "../helper/modules";
 
 interface ChannelOption {
   channel: string;
@@ -255,11 +256,10 @@ export default class BirthdayModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { channel } =
-        this.getOptions<ChannelCommandOptions>(
-          ["channel"],
-          option.options
-        );
+      const { channel } = getOptions<ChannelCommandOptions>(
+        ["channel"],
+        option.options
+      );
 
       if (channel) {
         await setServerBirthdayChannel(
@@ -311,7 +311,7 @@ export default class BirthdayModule extends BaseModule {
     const app = getApplication();
     if (app && app.id) {
       const { day, month, year } =
-        this.getOptions<AddCommandOptions>(
+        getOptions<AddCommandOptions>(
           ["day", "month", "year"],
           option.options
         );
@@ -377,11 +377,10 @@ export default class BirthdayModule extends BaseModule {
       let user = data.member.user?.id;
 
       if (isAdmin) {
-        const options =
-          this.getOptions<RemoveCommandOptions>(
-            ["user"],
-            option.options
-          );
+        const options = getOptions<RemoveCommandOptions>(
+          ["user"],
+          option.options
+        );
 
         user = options.user || user;
       }
@@ -471,11 +470,10 @@ export default class BirthdayModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { user, month } =
-        this.getOptions<GetCommandOptions>(
-          ["user", "month"],
-          option.options
-        );
+      const { user, month } = getOptions<GetCommandOptions>(
+        ["user", "month"],
+        option.options
+      );
 
       if (month) {
         return this.handleGetMonthCommand(data, app, month);
@@ -556,7 +554,7 @@ export default class BirthdayModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { role } = this.getOptions<RoleCommandOptions>(
+      const { role } = getOptions<RoleCommandOptions>(
         ["role"],
         option.options
       );

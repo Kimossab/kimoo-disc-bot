@@ -1,5 +1,20 @@
 import { CommandInteractionDataOption } from "../types/discord";
 
+export const getOptions = <T>(
+  optionKeys: (keyof T)[],
+  options?: CommandInteractionDataOption[]
+): T => {
+  const response: T = {} as T;
+  for (const key of optionKeys) {
+    response[key] = getOptionValue(
+      options,
+      key as string
+    ) as unknown as T[keyof T];
+  }
+
+  return response;
+};
+
 export const getOptionValue = <
   T extends CommandInteractionDataOption["value"]
 >(

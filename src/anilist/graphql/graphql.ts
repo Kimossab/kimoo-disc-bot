@@ -8,7 +8,7 @@ import {
   AiringScheduleResponse,
   NextAiring,
   NextAiringWithTitle,
-} from "./types/graphql";
+} from "../types/graphql";
 import { searchByTypeGraphql } from "./queries/searchByTypeGraphql";
 import { searchGraphql } from "./queries/searchGraphql";
 import { searchForAiringScheduleGraphql } from "./queries/searchForAiringScheduleGraphql";
@@ -16,7 +16,7 @@ import { searchByScheduleIdGraphql } from "./queries/searchByScheduleIdGraphql";
 import { searchByIdsGraphql } from "./queries/searchByIdsGraphql";
 import { getNextAiringGraphql } from "./queries/getNextAiringGraphql";
 import { getAiringScheduleGraphql } from "./queries/getAiringScheduleGraphql";
-import { IAnilistRateLimit } from "./rate-limiter";
+import { IAnilistRateLimit } from "../helpers/rate-limiter";
 
 export const searchByQueryAndType = async (
   rateLimiter: IAnilistRateLimit,

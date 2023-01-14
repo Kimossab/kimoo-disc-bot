@@ -1,24 +1,24 @@
-import { getServerAnimeChannel } from "../bot/database";
-import { sendMessage } from "../discord/rest";
-import { ILogger } from "../helper/logger";
+import { getServerAnimeChannel } from "../../bot/database";
+import { sendMessage } from "../../discord/rest";
+import { ILogger } from "../../helper/logger";
+import {
+  getAllSubscriptionsForAnime,
+  deleteAllSubscriptionsForId,
+  setNextAiring,
+} from "../database";
+import {
+  searchByScheduleId,
+  getNextAiringEpisode,
+} from "../graphql/graphql";
+import { mapMediaAiringToNewEpisodeEmbed } from "../mappers/mapMediaAiringToNewEpisodeEmbed";
+import { IAnimeNotification } from "../models/animeNotification.model";
+import { AiringSchedule } from "../types/graphql";
 import {
   MIN_TIME_TO_NOTIFY,
   DEFAULT_TIMER,
   MAX_TIMER,
 } from "./anime-manager-config";
-import {
-  getAllSubscriptionsForAnime,
-  deleteAllSubscriptionsForId,
-  setNextAiring,
-} from "./database";
-import {
-  searchByScheduleId,
-  getNextAiringEpisode,
-} from "./graphql";
-import { mapMediaAiringToNewEpisodeEmbed } from "./mappers/mapMediaAiringToNewEpisodeEmbed";
-import { IAnimeNotification } from "./models/animeNotification.model";
 import { IAnilistRateLimit } from "./rate-limiter";
-import { AiringSchedule } from "./types/graphql";
 
 export class AnimeManager {
   private timer: NodeJS.Timeout | undefined;

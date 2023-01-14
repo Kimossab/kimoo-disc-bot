@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
-import Logger from "../helper/logger";
-import { Response } from "./types/graphql";
+import Logger from "../../helper/logger";
+import { Response } from "../types/graphql";
 
 const X_RATELIMIT_LIMIT = "x-ratelimit-limit";
 const X_RATELIMIT_REMAINING = "x-ratelimit-remaining";

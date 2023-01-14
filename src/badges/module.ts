@@ -31,6 +31,7 @@ import {
 } from "./helper";
 import BaseModule from "../base-module";
 import { InteractionPagination } from "../helper/interaction-pagination";
+import { getOptions } from "../helper/modules";
 
 interface NameOption {
   name: string;
@@ -91,7 +92,7 @@ export default class BadgesModule extends BaseModule {
     const app = getApplication();
     if (app && app.id) {
       const { name, image } =
-        this.getOptions<CreateCommandOptions>(
+        getOptions<CreateCommandOptions>(
           ["name", "image"],
           option.options
         );
@@ -218,11 +219,10 @@ export default class BadgesModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { user, name } =
-        this.getOptions<GiveCommandOptions>(
-          ["user", "name"],
-          option.options
-        );
+      const { user, name } = getOptions<GiveCommandOptions>(
+        ["user", "name"],
+        option.options
+      );
       if (!user || !name) {
         await editOriginalInteractionResponse(
           app.id,
@@ -313,7 +313,7 @@ export default class BadgesModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { user } = this.getOptions<UserOption>(
+      const { user } = getOptions<UserOption>(
         ["user"],
         option.options
       );
@@ -365,7 +365,7 @@ export default class BadgesModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { name } = this.getOptions<NameOption>(
+      const { name } = getOptions<NameOption>(
         ["name"],
         option.options
       );

@@ -10,7 +10,7 @@ import {
   giveBadge,
 } from "./database";
 import { badgeListFixture } from "./fixtures";
-import { TestDB } from "../helper/tests";
+import { TestDB } from "../helper/mocks/database";
 import { IBadge } from "./models/badges.model";
 
 let mongod: MongoMemoryServer;
