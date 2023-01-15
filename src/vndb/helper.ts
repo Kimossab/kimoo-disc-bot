@@ -1,15 +1,15 @@
+import { stringReplacer } from "../helper/common";
+import { CreatePageCallback } from "../helper/interaction-pagination";
+import messageList from "../helper/messages";
+import { Embed } from "../types/discord";
+import * as ReturnData from "./types/returnData";
 import {
   LENGTH_TYPE,
   RELATION_TYPES,
   sexual,
   violence,
 } from "./types/vndb";
-import * as ReturnData from "./types/returnData";
 import { vndb_get_vn } from "./vndb-api";
-import { stringReplacer } from "../helper/common";
-import messageList from "../helper/messages";
-import { Embed } from "../types/discord";
-import { CreatePageCallback } from "../helper/interaction-pagination";
 
 const codeReplaces = [
   {
@@ -26,7 +26,6 @@ export const replaceDescriptionCodes = (
   text: string
 ): string => {
   for (const rep of codeReplaces) {
-    console.log(rep, text);
     text = text.replace(rep.regex, rep.replace);
   }
 

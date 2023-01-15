@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
 import achievementModel from "../achievement/models/achievement.model";
 import Logger from "./logger";
+import mongoose from "mongoose";
 
 const _logger = new Logger("database");
 mongoose.set("strictQuery", true);

@@ -1,13 +1,14 @@
+import BaseModule from "#/base-module";
+
 import { editOriginalInteractionResponse } from "../discord/rest";
+import { InteractionPagination } from "../helper/interaction-pagination";
+import { getOptions } from "../helper/modules";
 import {
   addPagination,
   getApplication,
 } from "../state/store";
-import { VNDBApi } from "./vndb-api";
-import BaseModule from "../base-module";
 import { vndbSearchUpdatePage } from "./helper";
-import { InteractionPagination } from "../helper/interaction-pagination";
-import { getOptions } from "../helper/modules";
+import { VNDBApi } from "./vndb-api";
 
 export default class VNDBModule extends BaseModule {
   private vndbApi;

@@ -1,6 +1,6 @@
-import WebSocket from "ws";
 import { saveGuild } from "../bot/database";
 import { randomNum } from "../helper/common";
+import { PRESENCE_STRINGS } from "../helper/constants";
 import Logger from "../helper/logger";
 import {
   addGuild,
@@ -13,8 +13,6 @@ import {
   setDiscordSession,
   setReadyData,
 } from "../state/store";
-import { PRESENCE_STRINGS } from "../helper/constants";
-import { editMessage, sendMessage } from "./rest";
 import {
   ActivityType,
   DispatchPayload,
@@ -27,6 +25,8 @@ import {
   Payload,
   Status,
 } from "../types/discord";
+import { editMessage, sendMessage } from "./rest";
+import WebSocket from "ws";
 
 class Socket {
   private logger = new Logger("socket");

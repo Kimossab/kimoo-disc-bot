@@ -1,14 +1,16 @@
-import dotenv from "dotenv";
+import AnilistModule from "#anilist/module";
+import SauceModule from "#sauce/module";
 
-dotenv.config();
-
+import AchievementModule from "./achievement/module";
+import BadgesModule from "./badges/module";
+import BirthdayModule from "./birthday/module";
 import {
   getAdminRole,
-  setAdminRole,
   getCommandVersion,
+  setAdminRole,
   setCommandVersion,
 } from "./bot/database";
-
+import * as commandInfo from "./commands";
 import {
   createCommand,
   createInteractionResponse,
@@ -17,33 +19,30 @@ import {
   getGatewayBot,
 } from "./discord/rest";
 import socket from "./discord/socket";
-import mongoConnect from "./helper/database";
-import Logger from "./helper/logger";
+import FandomModule from "./fandom/module";
 import {
   checkAdmin,
   formatSecondsIntoMinutes,
   randomNum,
 } from "./helper/common";
+import mongoConnect from "./helper/database";
+import Logger from "./helper/logger";
+import messageList from "./helper/messages";
+import MiscModule from "./misc/module";
 import {
   getApplication,
   setCommandExecutedCallback,
   setReadyCallback,
 } from "./state/store";
-import * as commandInfo from "./commands";
-import AchievementModule from "./achievement/module";
-import BadgesModule from "./badges/module";
-import BirthdayModule from "./birthday/module";
-import FandomModule from "./fandom/module";
-import SauceModule from "./sauce/module";
-import MiscModule from "./misc/module";
-import VNDBModule from "./vndb/module";
-import AnilistModule from "./anilist/module";
-import messageList from "./helper/messages";
 import {
   Interaction,
   InteractionCallbackType,
   InteractionType,
 } from "./types/discord";
+import VNDBModule from "./vndb/module";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const _logger = new Logger("bot");
 

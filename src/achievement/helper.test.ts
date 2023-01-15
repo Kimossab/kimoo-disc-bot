@@ -1,3 +1,10 @@
+import { stringReplacer } from "../helper/common";
+import messageList from "../helper/messages";
+import {
+  achievementFixture,
+  rankListFixtures,
+  userAchievementsFixtures,
+} from "./fixtures";
 import {
   createAchievementGivenEmbed,
   createAchievementRankProgressEmbed,
@@ -5,13 +12,6 @@ import {
   getCurrentAndNextRank,
   getTotalPoints,
 } from "./helper";
-import messageList from "../helper/messages";
-import { stringReplacer } from "../helper/common";
-import {
-  userAchievementsFixtures,
-  rankListFixtures,
-  achievementFixture,
-} from "./fixtures";
 
 describe("AchievementHelper", () => {
   describe("getTotalPoints", () => {

@@ -1,16 +1,16 @@
 import { editOriginalInteractionResponse } from "../discord/rest";
 import { checkAdmin } from "../helper/common";
+import { FANDOM_LINKS } from "../helper/constants";
 import Logger from "../helper/logger";
+import messageList from "../helper/messages";
 import {
   addPagination,
   getApplication,
   setCommandExecutedCallback,
 } from "../state/store";
+import { Interaction } from "../types/discord";
 import FandomModule from "./module";
 import { requestFandom } from "./request";
-import messageList from "../helper/messages";
-import { FANDOM_LINKS } from "../helper/constants";
-import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "wiki";
 const APPLICATION_ID = "APPLICATION_ID";

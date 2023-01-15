@@ -1,16 +1,19 @@
+import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   checkAdmin,
   deleteFile,
   moveFile,
 } from "../helper/common";
+import { downloadImage } from "../helper/images";
+import Logger from "../helper/logger";
+import messageList from "../helper/messages";
 import {
   addPagination,
   getApplication,
   getChannelLastAttachment,
   setCommandExecutedCallback,
 } from "../state/store";
-import BadgesModule from "./module";
-import messageList from "../helper/messages";
+import { Interaction } from "../types/discord";
 import {
   checkBadgeUser,
   checkName,
@@ -22,11 +25,8 @@ import {
   giveBadge,
 } from "./database";
 import { badgeListFixture } from "./fixtures";
+import BadgesModule from "./module";
 import { getAverageColor } from "fast-average-color-node";
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { downloadImage } from "../helper/images";
-import Logger from "../helper/logger";
-import { Interaction } from "../types/discord";
 
 const MODULE_NAME = "badges";
 const APPLICATION_ID = "APPLICATION_ID";

@@ -1,10 +1,10 @@
 import serverSettingsModel from "../bot/server-settings.model";
-import BirthdayWithRole, {
-  IBirthdayWithRole,
-} from "./models/birthday-with-role.model";
 import Birthday, {
   IBirthday,
 } from "./models/birthday.model";
+import BirthdayWithRole, {
+  IBirthdayWithRole,
+} from "./models/birthday-with-role.model";
 
 /**
  * Adds a new birthday to the database
@@ -156,7 +156,6 @@ export const setBirthdayWithRole = async (
   bd.day = day;
   bd.month = month;
 
-  console.log(bd, users);
   await bd.save();
 };
 

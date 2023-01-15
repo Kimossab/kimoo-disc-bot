@@ -1,5 +1,5 @@
-import fs from "fs";
 import axios from "axios";
+import fs from "fs";
 
 const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20 MB
 

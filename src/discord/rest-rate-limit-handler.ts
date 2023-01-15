@@ -1,10 +1,10 @@
+import Logger from "../helper/logger";
 import axios, {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
   Method,
 } from "axios";
-import Logger from "../helper/logger";
 
 interface RateLimitObject {
   limit: number;

@@ -1,17 +1,18 @@
+import BaseModule from "#/base-module";
+
 import { editOriginalInteractionResponse } from "../discord/rest";
-import {
-  addPagination,
-  getApplication,
-} from "../state/store";
 import { FANDOM_LINKS } from "../helper/constants";
-import messageList from "../helper/messages";
-import BaseModule from "../base-module";
-import { requestFandom } from "./request";
 import {
   CreatePageCallback,
   InteractionPagination,
 } from "../helper/interaction-pagination";
+import messageList from "../helper/messages";
 import { getOptions } from "../helper/modules";
+import {
+  addPagination,
+  getApplication,
+} from "../state/store";
+import { requestFandom } from "./request";
 
 interface CommandOptions {
   fandom: string;
