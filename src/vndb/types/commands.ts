@@ -1,5 +1,5 @@
-import { flags } from "./vndb";
 import * as filters from "./filters";
+import { flags } from "./vndb";
 
 // login
 export interface login {

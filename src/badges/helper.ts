@@ -1,12 +1,12 @@
-import fs from "fs";
 import {
-  stringReplacer,
   deleteFile,
+  stringReplacer,
 } from "../helper/common";
-import { IBadge } from "./models/badges.model";
+import { CreatePageCallback } from "../helper/interaction-pagination";
 import messageList from "../helper/messages";
 import { Embed } from "../types/discord";
-import { CreatePageCallback } from "../helper/interaction-pagination";
+import { IBadge } from "./models/badges.model";
+import fs from "fs";
 
 export interface FastAverageColorResult {
   rgb: string;

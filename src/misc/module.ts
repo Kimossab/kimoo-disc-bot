@@ -1,14 +1,15 @@
+import BaseModule from "#/base-module";
+
 import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   randomNum,
   stringReplacer,
 } from "../helper/common";
-import { getApplication } from "../state/store";
 import messageList from "../helper/messages";
-import renderDonut from "./donut";
-import BaseModule from "../base-module";
-import { Embed } from "../types/discord";
 import { getOptions } from "../helper/modules";
+import { getApplication } from "../state/store";
+import { Embed } from "../types/discord";
+import renderDonut from "./donut";
 
 interface GroupCommandOptions {
   groups: number;

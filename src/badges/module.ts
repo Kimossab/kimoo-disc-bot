@@ -1,16 +1,20 @@
-import { getAverageColor } from "fast-average-color-node";
+import BaseModule from "#/base-module";
+
 import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   chunkArray,
   deleteFile,
   moveFile,
 } from "../helper/common";
+import { downloadImage } from "../helper/images";
+import { InteractionPagination } from "../helper/interaction-pagination";
+import messageList from "../helper/messages";
+import { getOptions } from "../helper/modules";
 import {
   addPagination,
   getApplication,
   getChannelLastAttachment,
 } from "../state/store";
-import messageList from "../helper/messages";
 import {
   checkBadgeUser,
   checkName,
@@ -21,17 +25,14 @@ import {
   getByName,
   giveBadge,
 } from "./database";
-import { downloadImage } from "../helper/images";
-import { IBadge } from "./models/badges.model";
 import {
   createdBadgeEmbed,
   giveBadgeEmbed,
   updateListBadgesPage,
   updateUserListBadgesPage,
 } from "./helper";
-import BaseModule from "../base-module";
-import { InteractionPagination } from "../helper/interaction-pagination";
-import { getOptions } from "../helper/modules";
+import { IBadge } from "./models/badges.model";
+import { getAverageColor } from "fast-average-color-node";
 
 interface NameOption {
   name: string;

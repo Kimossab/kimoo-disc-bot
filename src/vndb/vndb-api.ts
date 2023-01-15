@@ -1,13 +1,13 @@
-import net from "net";
 import Logger from "../helper/logger";
-import * as ReturnData from "./types/returnData";
 import * as Commands from "./types/commands";
+import * as ReturnData from "./types/returnData";
 import {
   flags,
   operators,
   queue,
   queue_callback,
 } from "./types/vndb";
+import net from "net";
 
 const VNDB_API = "api.vndb.org";
 const VNDB_PORT = 19534;

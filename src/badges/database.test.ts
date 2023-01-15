@@ -1,4 +1,4 @@
-import MongoMemoryServer from "mongodb-memory-server-core";
+import { TestDB } from "../helper/mocks/database";
 import {
   checkBadgeUser,
   checkName,
@@ -10,8 +10,8 @@ import {
   giveBadge,
 } from "./database";
 import { badgeListFixture } from "./fixtures";
-import { TestDB } from "../helper/mocks/database";
 import { IBadge } from "./models/badges.model";
+import MongoMemoryServer from "mongodb-memory-server-core";
 
 let mongod: MongoMemoryServer;
 describe("Badges database", () => {

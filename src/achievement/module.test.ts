@@ -1,12 +1,18 @@
 import { editOriginalInteractionResponse } from "../discord/rest";
 import {
+  checkAdmin,
+  stringReplacer,
+} from "../helper/common";
+import { no_mentions } from "../helper/constants";
+import { InteractionPagination } from "../helper/interaction-pagination";
+import Logger from "../helper/logger";
+import messageList from "../helper/messages";
+import {
   addPagination,
   getApplication,
   setCommandExecutedCallback,
 } from "../state/store";
-import AchievementModule from "./module";
-import messageList from "../helper/messages";
-import Logger from "../helper/logger";
+import { Interaction } from "../types/discord";
 import {
   createAchievement,
   createRank,
@@ -31,13 +37,7 @@ import {
   serverLeaderboardFixture,
   userAchievementsFixtures,
 } from "./fixtures";
-import {
-  checkAdmin,
-  stringReplacer,
-} from "../helper/common";
-import { no_mentions } from "../helper/constants";
-import { Interaction } from "../types/discord";
-import { InteractionPagination } from "../helper/interaction-pagination";
+import AchievementModule from "./module";
 
 const MODULE_NAME = "achievements";
 const APPLICATION_ID = "APPLICATION_ID";

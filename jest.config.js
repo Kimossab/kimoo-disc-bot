@@ -5,5 +5,9 @@ module.exports = {
     ".*.ts": ['ts-jest', {
       isolatedModules: true
     }],
+  },
+  moduleNameMapper: {
+    "^#\/(.*)": '<rootDir>/src/modules/$1',
+    "^@\/(.*)": '<rootDir>/src/$1'
   }
 };

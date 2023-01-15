@@ -1,3 +1,4 @@
+import { TestDB } from "../helper/mocks/database";
 import {
   createAchievement,
   createRank,
@@ -15,13 +16,12 @@ import {
   getUserAchievement,
   updateAchievement,
 } from "./database";
-import { TestDB } from "../helper/mocks/database";
-import MongoMemoryServer from "mongodb-memory-server-core";
 import {
   achievementListFixtures,
   rankListFixtures,
 } from "./fixtures";
 import { IAchievement } from "./models/achievement.model";
+import MongoMemoryServer from "mongodb-memory-server-core";
 
 let mongod: MongoMemoryServer;
 

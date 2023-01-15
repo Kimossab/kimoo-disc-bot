@@ -1,5 +1,3 @@
-import FormData from "form-data";
-import fs from "fs";
 import {
   ApplicationCommand,
   CreateGlobalApplicationCommand,
@@ -12,6 +10,8 @@ import {
   Message,
 } from "../types/discord";
 import RestRateLimitHandler from "./rest-rate-limit-handler";
+import FormData from "form-data";
+import fs from "fs";
 
 const rateLimiter = new RestRateLimitHandler();
 

@@ -1,12 +1,12 @@
-import fs from "fs";
-import https from "https";
-import { getGuilds } from "../state/store";
 import { getAdminRole } from "../bot/database";
+import { getGuilds } from "../state/store";
 import {
   GuildMember,
   MessageReactionAdd,
   MessageReactionRemove,
 } from "../types/discord";
+import fs from "fs";
+import https from "https";
 
 export enum string_constants {
   endpoint_wrong_response = "Wrong reply from `<endpoint>`",

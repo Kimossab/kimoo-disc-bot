@@ -1,12 +1,13 @@
-import { IAnilistSubscription } from "../../anilist/models/AnilistSubscription.model";
-import casual from "casual";
+import { IAnilistSubscription } from "#anilist/models/AnilistSubscription.model";
 import {
   MediaResponse,
   MediaSubbed,
   MediaSubbedInfo,
   NextAiringWithTitle,
   PageResponse,
-} from "../../anilist/types/graphql";
+} from "#anilist/types/graphql";
+
+import casual from "casual";
 
 const randomUserSub =
   (): Partial<IAnilistSubscription> => ({

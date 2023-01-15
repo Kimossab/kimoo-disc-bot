@@ -1,5 +1,6 @@
-import util from "util";
+/* eslint-disable no-console */
 import { colors } from "./constants";
+import util from "util";
 
 let currentColor = 1;
 export interface ILogger {

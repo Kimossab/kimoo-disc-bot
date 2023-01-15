@@ -1,5 +1,5 @@
-import { IAchievementRank } from "./models/achievement-rank.model";
 import { IAchievement } from "./models/achievement.model";
+import { IAchievementRank } from "./models/achievement-rank.model";
 import { IUserAchievement } from "./models/user-achievement.model";
 
 export const userAchievementsFixtures = [

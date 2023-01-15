@@ -1,13 +1,13 @@
-import { PipelineStage } from "mongoose";
-import AchievementRank, {
-  IAchievementRank,
-} from "./models/achievement-rank.model";
 import Achievement, {
   IAchievement,
 } from "./models/achievement.model";
+import AchievementRank, {
+  IAchievementRank,
+} from "./models/achievement-rank.model";
 import UserAchievement, {
   IUserAchievement,
 } from "./models/user-achievement.model";
+import { PipelineStage } from "mongoose";
 
 const getHighestId = async (
   server: string

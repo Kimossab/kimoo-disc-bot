@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
 import { IBadge } from "./badges.model";
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUserBadge extends Document {
   user: string;

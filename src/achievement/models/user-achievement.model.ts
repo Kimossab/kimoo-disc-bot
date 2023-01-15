@@ -1,5 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
 import { IAchievement } from "./achievement.model";
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IUserAchievement extends Document {
   user: string;

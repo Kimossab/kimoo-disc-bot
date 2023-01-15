@@ -1,3 +1,5 @@
+import BaseModule from "#/base-module";
+
 import { editOriginalInteractionResponse } from "../discord/rest";
 import {
   checkAdmin,
@@ -5,11 +7,21 @@ import {
   stringReplacer,
 } from "../helper/common";
 import { no_mentions } from "../helper/constants";
+import { InteractionPagination } from "../helper/interaction-pagination";
+import messageList from "../helper/messages";
+import {
+  getOption,
+  getOptions,
+  getOptionValue,
+} from "../helper/modules";
 import {
   addPagination,
   getApplication,
 } from "../state/store";
-import messageList from "../helper/messages";
+import {
+  CommandInteractionDataOption,
+  Interaction,
+} from "../types/discord";
 import {
   createAchievement,
   createRank,
@@ -27,32 +39,21 @@ import {
   getUserAchievement,
   updateAchievement,
 } from "./database";
+import {
+  createAchievementGivenEmbed,
+  createAchievementRankProgressEmbed,
+  getCurrentAndNextRank,
+  getTotalPoints,
+} from "./helper";
 import { IAchievement } from "./models/achievement.model";
 import { IAchievementRank } from "./models/achievement-rank.model";
 import { IUserAchievement } from "./models/user-achievement.model";
-import {
-  getOption,
-  getOptions,
-  getOptionValue,
-} from "../helper/modules";
-import {
-  getTotalPoints,
-  getCurrentAndNextRank,
-  createAchievementRankProgressEmbed,
-  createAchievementGivenEmbed,
-} from "./helper";
-import BaseModule from "../base-module";
 import {
   updateServerAchievementRanksPage,
   updateServerAchievementsPage,
   updateServerLeaderboardPage,
   updateUserAchievementsPage,
 } from "./pagination";
-import {
-  CommandInteractionDataOption,
-  Interaction,
-} from "../types/discord";
-import { InteractionPagination } from "../helper/interaction-pagination";
 
 interface CreateCommandOptions {
   name: Nullable<string>;

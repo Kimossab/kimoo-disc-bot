@@ -1,5 +1,5 @@
-import axios from "axios";
 import { requestFandom } from "./request";
+import axios from "axios";
 
 jest.mock("axios", () => ({
   get: jest.fn().mockReturnValue({ data: [] }),

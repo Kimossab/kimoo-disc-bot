@@ -1,4 +1,5 @@
-import { editOriginalInteractionResponse } from "../discord/rest";
+import { editOriginalInteractionResponse } from "@/discord/rest";
+
 import { checkAdmin } from "../helper/common";
 import { downloadImage } from "../helper/images";
 import Logger from "../helper/logger";
@@ -31,7 +32,7 @@ let commandCallback: (data: Interaction) => Promise<void>;
 // Common mocks
 jest.mock("axios");
 jest.mock("../state/store");
-jest.mock("../discord/rest");
+jest.mock("@/discord/rest");
 jest.mock("../helper/images");
 jest.mock("../helper/logger");
 jest.mock("../helper/pagination");
