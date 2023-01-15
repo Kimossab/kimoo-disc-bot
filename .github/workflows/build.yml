@@ -45,29 +45,31 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/download-artifact@v3
-    - uses: ncipollo/release-action@v1
-      with:
-        artifacts: "node-v*.x-release.zip"
+      - uses: actions/download-artifact@v3
+        with:
+          path: ./
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "node-v*.x-release.zip"
 
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ github.ref }}
-      #     release_name: Release ${{ github.ref }}
-      #     draft: false
-      #     prerelease: false
+        # - name: Create Release
+        #   id: create_release
+        #   uses: actions/create-release@v1
+        #   env:
+        #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #   with:
+        #     tag_name: ${{ github.ref }}
+        #     release_name: Release ${{ github.ref }}
+        #     draft: false
+        #     prerelease: false
 
-      # - name: Upload Release Asset
-      #   id: upload-release-asset
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: ./node-v${{ matrix.node-version }}-release.zip
-      #     asset_name: node-v${{ matrix.node-version }}-release.zip
-      #     asset_content_type: application/zip
+        # - name: Upload Release Asset
+        #   id: upload-release-asset
+        #   uses: actions/upload-release-asset@v1
+        #   env:
+        #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #   with:
+        #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+        #     asset_path: ./node-v${{ matrix.node-version }}-release.zip
+        #     asset_name: node-v${{ matrix.node-version }}-release.zip
+        #     asset_content_type: application/zip
