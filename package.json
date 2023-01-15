@@ -1,6 +1,6 @@
 {
   "name": "kimoo-disc-bot",
-  "version": "2.5.4",
+  "version": "2.6.0",
   "description": "Kimossab's Discord Bot",
   "scripts": {
     "build": "tsc",
