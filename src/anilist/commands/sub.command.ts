@@ -11,17 +11,17 @@ export const subCommand = (
   animeList: AnimeManager[],
   removeAnime: (id: number) => void
 ): CommandHandler => {
-  return async (data, option) => {
-    const subCommands: Record<string, CommandHandler> = {
-      add: subAddCommand(
-        logger,
-        rateLimiter,
-        animeList,
-        removeAnime
-      ),
-      list: subListCommand(logger, rateLimiter),
-    };
+  const subCommands: Record<string, CommandHandler> = {
+    add: subAddCommand(
+      logger,
+      rateLimiter,
+      animeList,
+      removeAnime
+    ),
+    list: subListCommand(logger, rateLimiter),
+  };
 
+  return async (data, option) => {
     for (const cmd of Object.keys(subCommands)) {
       const cmdData = getOption(option.options, cmd);
 
