@@ -27,7 +27,7 @@ const updateUserSubListEmbed: CreatePageCallback<
 };
 
 export const subListCommand = (
-  _logger: Logger,
+  logger: Logger,
   rateLimiter: AnilistRateLimit
 ): CommandHandler => {
   return async (data) => {
@@ -61,6 +61,8 @@ export const subListCommand = (
           rateLimiter,
           chunk.map((s) => s.id)
         );
+
+        logger.log("test", info, data);
 
         if (info && info.Page.media.length > 0) {
           animeInfo.push(...info.Page.media);

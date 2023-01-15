@@ -148,7 +148,11 @@ class Socket {
     const lastS = getDiscordLastS();
 
     if (sessionId) {
-      this.logger.log("Invoking resume");
+      this.logger.log("Invoking resume", {
+        token: process.env.TOKEN,
+        session_id: sessionId,
+        seq: lastS || 0,
+      });
 
       this.sendEvent({
         op: OpCode.Resume,

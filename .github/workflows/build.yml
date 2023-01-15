@@ -1,13 +1,12 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Prod Build
+name: Create Release
 
 on:
   push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
+    tags:
+    - 'v*'
 
 jobs:
   build:
@@ -27,14 +26,34 @@ jobs:
           cache: "npm"
 
       - run: npm ci
-      - run: npm run build --if-present
-
-      # not all tests are working yet
-      # - run: npm test
+      - run: npm run build
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: dist-${{ matrix.node-version }}
+          name: node-v${{ matrix.node-version }}-release
           path: |
-            build
+            */build
+            */node_modules
+
+     - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./node-v${{ matrix.node-version }}-release.zip
+          asset_name: node-v${{ matrix.node-version }}-release.zip
+          asset_content_type: application/zip
