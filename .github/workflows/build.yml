@@ -36,7 +36,6 @@ jobs:
           name: node-v${{ matrix.node-version }}-release
           path: |
             build
-            node_modules
             package.json
 
       - name: Create Release
