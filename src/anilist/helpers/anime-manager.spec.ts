@@ -12,7 +12,7 @@ import { IAnimeNotification } from "../models/animeNotification.model";
 import { AnimeManager } from "./anime-manager";
 import { IAnilistRateLimit } from "./rate-limiter";
 
-jest.mock("@discord/rest");
+jest.mock("../../discord/rest");
 
 jest.mock("../graphql/graphql");
 const mockSearchByScheduleId =
