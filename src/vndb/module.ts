@@ -7,6 +7,7 @@ import { VNDBApi } from "./vndb-api";
 import BaseModule from "../base-module";
 import { vndbSearchUpdatePage } from "./helper";
 import { InteractionPagination } from "../helper/interaction-pagination";
+import { getOptions } from "../helper/modules";
 
 export default class VNDBModule extends BaseModule {
   private vndbApi;
@@ -28,7 +29,7 @@ export default class VNDBModule extends BaseModule {
     async (data) => {
       const app = getApplication();
       if (app && app.id) {
-        const { search } = this.getOptions<{
+        const { search } = getOptions<{
           search: string;
         }>(["search"], data.data?.options);
 

@@ -36,25 +36,10 @@ export default class BaseModule {
 
   constructor(
     private name: string,
-    private isActive: boolean
+    protected isActive: boolean
   ) {
     this.logger = new Logger(name);
   }
-
-  protected getOptions = <T>(
-    optionKeys: (keyof T)[],
-    options?: CommandInteractionDataOption[]
-  ): T => {
-    const response: T = {} as T;
-    for (const key of optionKeys) {
-      response[key] = getOptionValue(
-        options,
-        key as string
-      ) as unknown as T[keyof T];
-    }
-
-    return response;
-  };
 
   private interactionExecuted = async (
     data: Interaction

@@ -8,6 +8,7 @@ import messageList from "../helper/messages";
 import renderDonut from "./donut";
 import BaseModule from "../base-module";
 import { Embed } from "../types/discord";
+import { getOptions } from "../helper/modules";
 
 interface GroupCommandOptions {
   groups: number;
@@ -46,7 +47,7 @@ export default class MiscModule extends BaseModule {
     const app = getApplication();
     if (app && app.id) {
       const { groups, values } =
-        this.getOptions<GroupCommandOptions>(
+        getOptions<GroupCommandOptions>(
           ["groups", "values"],
           option.options
         );
@@ -93,7 +94,7 @@ export default class MiscModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { a, b } = this.getOptions<DonutCommandOptions>(
+      const { a, b } = getOptions<DonutCommandOptions>(
         ["a", "b"],
         option.options
       );

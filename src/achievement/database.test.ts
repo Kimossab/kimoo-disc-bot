@@ -15,7 +15,7 @@ import {
   getUserAchievement,
   updateAchievement,
 } from "./database";
-import { TestDB } from "../helper/tests";
+import { TestDB } from "../helper/mocks/database";
 import MongoMemoryServer from "mongodb-memory-server-core";
 import {
   achievementListFixtures,

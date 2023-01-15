@@ -7,6 +7,7 @@ import messageList from "../helper/messages";
 import handleTraceMoe from "./traceMoe/trace-moe";
 import handleSauceNao from "./sauceNao/sauce-nao";
 import BaseModule from "../base-module";
+import { getOptions } from "../helper/modules";
 
 interface CommandOptions {
   type: "anime" | "art";
@@ -32,11 +33,10 @@ export default class SauceModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { type, image } =
-        this.getOptions<CommandOptions>(
-          ["type", "image"],
-          data.data?.options
-        );
+      const { type, image } = getOptions<CommandOptions>(
+        ["type", "image"],
+        data.data?.options
+      );
 
       const lastAttachment = getChannelLastAttachment(
         data.channel_id

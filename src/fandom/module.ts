@@ -11,6 +11,7 @@ import {
   CreatePageCallback,
   InteractionPagination,
 } from "../helper/interaction-pagination";
+import { getOptions } from "../helper/modules";
 
 interface CommandOptions {
   fandom: string;
@@ -37,11 +38,10 @@ export default class FandomModule extends BaseModule {
   ) => {
     const app = getApplication();
     if (app && app.id) {
-      const { fandom, query } =
-        this.getOptions<CommandOptions>(
-          ["fandom", "query"],
-          data.data?.options
-        );
+      const { fandom, query } = getOptions<CommandOptions>(
+        ["fandom", "query"],
+        data.data?.options
+      );
 
       if (!query || !fandom || fandom.includes(" ")) {
         await editOriginalInteractionResponse(

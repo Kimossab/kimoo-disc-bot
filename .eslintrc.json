@@ -20,13 +20,9 @@
   ],
   "overrides": [
     {
-      "files": [
-        "*.ts"
-      ],
+      "files": ["*.ts"],
       "parserOptions": {
-        "project": [
-          "./tsconfig.json"
-        ]
+        "project": ["./tsconfig.json"]
       }
     }
   ],
@@ -34,17 +30,13 @@
     "deprecation/deprecation": "error",
     "no-case-declarations": "off",
     "linebreak-style": "off",
+    "prefer-const": "error",
     "no-multiple-empty-lines": [
       "error",
       {
         "max": 1
       }
     ],
-    "prettier/prettier": [
-      "error",
-      {
-        "endOfLine": "auto"
-      }
-    ]
+    "prettier/prettier": "error"
   }
 }

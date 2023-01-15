@@ -1,9 +1,11 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IAnimeNotification extends Document {
+export interface IAnimeNotification {
   id: number;
   nextAiring: number | null;
 }
+export type IAnimeNotificationDocument = Document &
+  IAnimeNotification;
 
 const AnimeNotificationSchema: Schema = new mongoose.Schema(
   {
@@ -12,7 +14,7 @@ const AnimeNotificationSchema: Schema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model<IAnimeNotification>(
+export default mongoose.model<IAnimeNotificationDocument>(
   "AnimeNotification",
   AnimeNotificationSchema
 );

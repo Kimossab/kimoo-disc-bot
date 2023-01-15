@@ -3,6 +3,7 @@ import AnilistSubscription, {
 } from "./models/AnilistSubscription.model";
 import AnimeNotification, {
   IAnimeNotification,
+  IAnimeNotificationDocument,
 } from "./models/animeNotification.model";
 
 const getSubscription = async (
@@ -32,7 +33,7 @@ export const addSubscription = async (
 
 export const getNextAiring = async (
   animeId: number
-): Promise<IAnimeNotification | null> =>
+): Promise<IAnimeNotificationDocument | null> =>
   AnimeNotification.findOne({
     id: animeId,
   });
@@ -40,7 +41,7 @@ export const getNextAiring = async (
 export const setNextAiring = async (
   animeId: number,
   nextAiring: number | null
-): Promise<void> => {
+): Promise<IAnimeNotification> => {
   const info = await getNextAiring(animeId);
 
   if (!info) {
@@ -48,12 +49,12 @@ export const setNextAiring = async (
     nextAir.id = animeId;
     nextAir.nextAiring = nextAiring;
     await nextAir.save();
-    return;
+    return nextAir;
   }
 
   info.nextAiring = nextAiring;
   await info.save();
-  return;
+  return info;
 };
 
 export const getAllAnimeNotifications = async (): Promise<

@@ -230,6 +230,8 @@ const ready = async () => {
 
     setCommandVersion(commandInfo.version);
   }
+
+  updateBotPresence();
   _logger.log("All set");
 };
 

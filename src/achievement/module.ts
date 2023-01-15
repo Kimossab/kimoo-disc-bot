@@ -32,6 +32,7 @@ import { IAchievementRank } from "./models/achievement-rank.model";
 import { IUserAchievement } from "./models/user-achievement.model";
 import {
   getOption,
+  getOptions,
   getOptionValue,
 } from "../helper/modules";
 import {
@@ -115,7 +116,7 @@ export default class AchievementModule extends BaseModule {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       const { name, image, description, points } =
-        this.getOptions<CreateCommandOptions>(
+        getOptions<CreateCommandOptions>(
           ["name", "image", "description", "points"],
           option.options
         );
@@ -175,7 +176,7 @@ export default class AchievementModule extends BaseModule {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       const { id, name, description, points, image } =
-        this.getOptions<EditCommandOptions>(
+        getOptions<EditCommandOptions>(
           ["id", "name", "description", "points", "image"],
           option.options
         );
@@ -307,7 +308,7 @@ export default class AchievementModule extends BaseModule {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       const { user, achievement } =
-        this.getOptions<GiveCommandOptions>(
+        getOptions<GiveCommandOptions>(
           ["user", "achievement"],
           option.options
         );
