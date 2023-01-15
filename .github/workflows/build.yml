@@ -46,11 +46,9 @@ jobs:
 
     steps:
       - uses: actions/download-artifact@v3
-        with:
-          path: ./
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "node-v*.x-release.zip"
+          artifacts: "*/**/node-v*.x-release"
 
         # - name: Create Release
         #   id: create_release
