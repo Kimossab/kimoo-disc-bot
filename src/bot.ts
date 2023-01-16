@@ -35,10 +35,6 @@ import {
   setReadyCallback,
 } from "./state/store";
 import {
-  ApplicationCommand,
-  ApplicationCommandOption,
-  ApplicationCommandOptionChoice,
-  CreateGlobalApplicationCommand,
   Interaction,
   InteractionCallbackType,
   InteractionType,
@@ -136,100 +132,6 @@ const miscModule = new MiscModule(toggles.MISC_MODULE);
 const vndbModule = new VNDBModule(toggles.VNDB_MODULE);
 const anilistModule = new AnilistModule(toggles.ANILIST_MODULE);
 
-const compareChoices = (
-  localChoices: ApplicationCommandOptionChoice[] = [],
-  onlineChoices: ApplicationCommandOptionChoice[] = []
-): boolean => {
-  if (!localChoices && !onlineChoices) {
-    return true;
-  }
-  if (
-    !localChoices ||
-    !onlineChoices ||
-    localChoices.length !== onlineChoices.length
-  ) {
-    return false;
-  }
-
-  for (const choice of localChoices) {
-    const oChoice = onlineChoices.find((c) => c.name === choice.name);
-    if (!oChoice) {
-      return false;
-    }
-
-    if (oChoice.value !== choice.value) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const compareOptions = (
-  localOpt: ApplicationCommandOption[] = [],
-  onlineOpt: ApplicationCommandOption[] = []
-): boolean => {
-  if (localOpt.length !== onlineOpt.length) {
-    return false;
-  }
-
-  for (const option of localOpt) {
-    const opt = onlineOpt.find((o) => o.name === option.name);
-
-    if (!opt) {
-      return false;
-    }
-
-    const keys = Object.keys(option) as (keyof ApplicationCommandOption)[];
-
-    for (const key of keys) {
-      if (
-        ![
-          "options",
-          "choices",
-          "name_localizations",
-          "description_localizations",
-        ].includes(key)
-      ) {
-        if (option[key] !== opt[key]) {
-          return false;
-        }
-      }
-    }
-
-    if (!compareChoices(option.choices, opt.choices)) {
-      return false;
-    }
-
-    if (!compareOptions(option.options, opt.options)) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const compareCommands = (
-  appCmd: CreateGlobalApplicationCommand,
-  onlineCmd: ApplicationCommand
-): boolean => {
-  const keys = Object.keys(appCmd) as (keyof CreateGlobalApplicationCommand)[];
-
-  for (const key of keys) {
-    if (
-      !["options", "name_localizations", "description_localizations"].includes(
-        key
-      )
-    ) {
-      if (appCmd[key] !== onlineCmd[key]) {
-        return false;
-      }
-    }
-  }
-
-  return compareOptions(appCmd.options, onlineCmd.options);
-};
-
 const ready = async () => {
   _logger.log("Discord says Ready");
   birthdayModule.setUp();
@@ -265,7 +167,7 @@ const ready = async () => {
     for (const cmd of commandInfo.list) {
       const existing = commandData.find((c) => c.name === cmd.name);
 
-      if (!existing || !compareCommands(cmd, existing)) {
+      if (!existing || !commandInfo.compareCommands(cmd, existing)) {
         _logger.log("Creating command", cmd);
         const nCmd = await createCommand(app.id, cmd);
 
