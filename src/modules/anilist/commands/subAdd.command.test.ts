@@ -2,6 +2,7 @@ import { editOriginalInteractionResponse } from "@/discord/rest";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
+import { CommandInteractionDataOption, Interaction } from "@/types/discord";
 
 import { addSubscription, setNextAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
@@ -35,7 +36,7 @@ const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",
   member: {},
-};
+} as Interaction;
 
 const airingScheduleResult = {
   Media: {
@@ -59,7 +60,7 @@ describe("Anilist schedule command", () => {
       jest.fn()
     )(mockData, {
       options: [{ name: "anime", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(searchForAiringSchedule).toHaveBeenCalledWith({}, "abcd");
   });
@@ -74,7 +75,7 @@ describe("Anilist schedule command", () => {
       jest.fn()
     )(mockData, {
       options: [{ name: "anime", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
       "123456789",
@@ -97,7 +98,7 @@ describe("Anilist schedule command", () => {
       jest.fn()
     )(mockData, {
       options: [{ name: "anime", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(addSubscription).toHaveBeenCalledWith(
       "randomGuildId",
@@ -119,7 +120,7 @@ describe("Anilist schedule command", () => {
       jest.fn()
     )(mockData, {
       options: [{ name: "anime", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(animeList.length).toEqual(1);
   });
@@ -136,7 +137,7 @@ describe("Anilist schedule command", () => {
       jest.fn()
     )(mockData, {
       options: [{ name: "anime", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(setNextAiring).toHaveBeenCalledWith(123456789, 456789);
   });
@@ -159,7 +160,7 @@ describe("Anilist schedule command", () => {
       jest.fn()
     )(mockData, {
       options: [{ name: "anime", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(animeList.length).toEqual(1);
   });
@@ -176,7 +177,7 @@ describe("Anilist schedule command", () => {
       jest.fn()
     )(mockData, {
       options: [{ name: "anime", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
       "123456789",

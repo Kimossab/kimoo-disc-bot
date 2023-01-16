@@ -50,7 +50,7 @@ export default class RestRateLimitHandler {
         e.data.errors
       );
     } else {
-      this._logger.error(`[${place}] ${e.message}`, JSON.stringify(e));
+      this._logger.error(`[${place}] ${e.message}`, e);
     }
   };
 

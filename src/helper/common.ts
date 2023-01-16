@@ -82,9 +82,13 @@ export const randomNum = (min: number, max: number): number =>
  * @param member Guild member object
  */
 export const checkAdmin = async (
-  server: string,
-  member: GuildMember
+  server?: string,
+  member?: GuildMember
 ): Promise<boolean> => {
+  if (!server || !member) {
+    return false;
+  }
+
   const guild = getGuilds().find((g) => g.id === server);
 
   if (!guild || !member.user) {

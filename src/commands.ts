@@ -303,24 +303,12 @@ export const list: CreateGlobalApplicationCommand[] = [
     ],
   },
   {
-    name: "sauce",
-    description: "Search for sauce for a image",
-    options: [
-      {
-        name: "image",
-        description: "Image url to search",
-        type: ApplicationCommandOptionType.STRING,
-      },
-      {
-        name: "type",
-        description: "Type of image to search",
-        type: ApplicationCommandOptionType.STRING,
-        choices: [
-          { name: "art", value: "art" },
-          { name: "anime", value: "anime" },
-        ],
-      },
-    ],
+    name: "Sauce (art)",
+    type: ApplicationCommandType.MESSAGE,
+  },
+  {
+    name: "Sauce (anime)",
+    type: ApplicationCommandType.MESSAGE,
   },
   {
     name: "settings",

@@ -5,7 +5,7 @@ import { randomNum, stringReplacer } from "../helper/common";
 import messageList from "../helper/messages";
 import { getOptions } from "../helper/modules";
 import { getApplication } from "../state/store";
-import { Embed } from "../types/discord";
+import { CommandHandler, Embed } from "../types/discord";
 import renderDonut from "./donut";
 
 interface GroupCommandOptions {
@@ -108,7 +108,9 @@ export default class MiscModule extends BaseModule {
       });
 
       this.logger.log(
-        `Donut was requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `Donut was requested in ${data.guild_id} by ${
+          (data.member || data).user?.username
+        }#${(data.member || data).user?.discriminator}`
       );
     }
   };

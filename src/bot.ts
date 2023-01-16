@@ -40,6 +40,7 @@ import {
   InteractionType,
 } from "./types/discord";
 import VNDBModule from "./vndb/module";
+import { compareCommands } from "./commands";
 
 const _logger = new Logger("bot");
 
@@ -166,7 +167,8 @@ const ready = async () => {
 
     for (const cmd of commandInfo.list) {
       const existing = commandData.find((c) => c.name === cmd.name);
-      if (!existing || !commandInfo.compareCommands(cmd, existing)) {
+
+      if (!existing || !compareCommands(cmd, existing)) {
         _logger.log("Creating command", cmd);
         const nCmd = await createCommand(app.id, cmd);
 

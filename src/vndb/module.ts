@@ -1,5 +1,7 @@
 import BaseModule from "#/base-module";
 
+import { SingleCommandHandler } from "@/types/discord";
+
 import { editOriginalInteractionResponse } from "../discord/rest";
 import { InteractionPagination } from "../helper/interaction-pagination";
 import { getOptions } from "../helper/modules";

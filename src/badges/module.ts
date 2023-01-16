@@ -1,5 +1,7 @@
 import BaseModule from "#/base-module";
 
+import { CommandHandler } from "@/types/discord";
+
 import { editOriginalInteractionResponse } from "../discord/rest";
 import { chunkArray, deleteFile, moveFile } from "../helper/common";
 import { downloadImage } from "../helper/images";
@@ -84,7 +86,7 @@ export default class BadgesModule extends BaseModule {
 
   private handleCreateCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { name, image } = getOptions<CreateCommandOptions>(
         ["name", "image"],
         option.options
@@ -152,7 +154,9 @@ export default class BadgesModule extends BaseModule {
       );
 
       this.logger.log(
-        `Create badge in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `Create badge in ${data.guild_id} by ${
+          (data.member || data).user?.username
+        }#${(data.member || data).user?.discriminator}`
       );
     }
   };
@@ -160,7 +164,7 @@ export default class BadgesModule extends BaseModule {
   private handleListCommand: CommandHandler = async (data) => {
     const app = getApplication();
 
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const badges = await getAllBadges(data.guild_id);
 
       const chunks = chunkArray<IBadge>(badges, 9);
@@ -175,14 +179,16 @@ export default class BadgesModule extends BaseModule {
       addPagination(pagination as InteractionPagination);
 
       this.logger.log(
-        `List badges in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `List badges in ${data.guild_id} by ${
+          (data.member || data).user?.username
+        }#${(data.member || data).user?.discriminator}`
       );
     }
   };
 
   private handleGiveCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { user, name } = getOptions<GiveCommandOptions>(
         ["user", "name"],
         option.options
@@ -240,16 +246,18 @@ export default class BadgesModule extends BaseModule {
 
       this.logger.log(
         `Given badge ${name} to ${user} in ` +
-          `${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+          `${data.guild_id} by ${(data.member || data).user?.username}#${
+            (data.member || data).user?.discriminator
+          }`
       );
     }
   };
 
   private handleUserCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { user } = getOptions<UserOption>(["user"], option.options);
-      const userId = user || data.member.user?.id || "";
+      const userId = user || (data.member || data).user?.id || "";
 
       const allUserBadges = await getAllUserBadges(userId, data.guild_id);
 
@@ -273,14 +281,18 @@ export default class BadgesModule extends BaseModule {
       addPagination(pagination as InteractionPagination);
 
       this.logger.log(
-        `List badges for user ${userId} by ${data.member.user?.id} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `List badges for user ${userId} by ${
+          (data.member || data).user?.id
+        } in ${data.guild_id} by ${(data.member || data).user?.username}#${
+          (data.member || data).user?.discriminator
+        }`
       );
     }
   };
 
   private handleDeleteCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { name } = getOptions<NameOption>(["name"], option.options);
       if (!name) {
         await editOriginalInteractionResponse(app.id, data.token, {
@@ -305,7 +317,11 @@ export default class BadgesModule extends BaseModule {
       });
 
       this.logger.log(
-        `Delete badge ${name} by ${data.member.user?.id} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+        `Delete badge ${name} by ${(data.member || data).user?.id} in ${
+          data.guild_id
+        } by ${(data.member || data).user?.username}#${
+          (data.member || data).user?.discriminator
+        }`
       );
     }
   };

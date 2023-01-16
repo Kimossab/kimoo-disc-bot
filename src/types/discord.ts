@@ -1,6 +1,12 @@
 export type snowflake = string;
 type integer = number;
 
+export type CommandHandler = (
+  data: Interaction,
+  option: CommandInteractionDataOption
+) => Promise<void>;
+export type SingleCommandHandler = (data: Interaction) => Promise<void>;
+
 /** [Get Gateway Bot](https://discord.com/developers/docs/topics/gateway#get-gateway-bot-json-response) */
 export interface GatewayBot {
   /** The WSS URL that can be used for connecting to the gateway */
@@ -982,6 +988,40 @@ export interface InteractionCallbackData {
   attachments?: Partial<Attachment>[];
 }
 
+export enum AvailableLocales {
+  Indonesian = "id", // Bahasa Indonesia
+  Danish = "da", // Dansk
+  German = "de", // Deutsch
+  English_UK = "en-GB", // English, UK
+  English_US = "en-US", // English, US
+  Spanish = "es-ES", // Español
+  French = "fr", // Français
+  Croatian = "hr", // Hrvatski
+  Italian = "it", // Italiano
+  Lithuanian = "lt", // Lietuviškai
+  Hungarian = "hu", // Magyar
+  Dutch = "nl", // Nederlands
+  Norwegian = "no", // Norsk
+  Polish = "pl", // Polski
+  Portuguese_Brazilian = "pt-BR", // Português do Brasil
+  Romanian_Romania = "ro", // Română
+  Finnish = "fi", // Suomi
+  Swedish = "sv-SE", // Svenska
+  Vietnamese = "vi", // Tiếng Việt
+  Turkish = "tr", // Türkçe
+  Czech = "cs", // Čeština
+  Greek = "el", // Ελληνικά
+  Bulgarian = "bg", // български
+  Russian = "ru", // Pусский
+  Ukrainian = "uk", // Українська
+  Hindi = "hi", // हिन्दी
+  Thai = "th", // ไทย
+  Chinese_China = "zh-CN", // 中文
+  Japanese = "ja", // 日本語
+  Chinese_Taiwan = "zh-TW", // 繁體中文
+  Korean = "ko", // 한국어
+}
+
 /** [Application Command Structure](https://discord.com/developers/docs/resources/application#application-command-object) */
 export interface ApplicationCommand {
   /** unique id of the command */
@@ -994,31 +1034,34 @@ export interface ApplicationCommand {
   guild_id?: snowflake;
   /** 1-32 character name */
   name: string;
+  /** Localization dictionary for name field. Values follow the same restrictions as name */
+  name_localizations?: Record<AvailableLocales, string> | null;
   /** 1-100 character description for CHAT_INPUT commands, empty string for USER and MESSAGE commands */
-  description: string;
+  description?: string;
+  /** Localization dictionary for description field. Values follow the same restrictions as description */
+  description_localizations?: Record<AvailableLocales, string> | null;
   /** the parameters for the command, max 25 */
   options?: ApplicationCommandOption[];
-  /** whether the command is enabled by default when the app is added to a guild
-   * @defaultValue true
-   */
-  default_permission?: boolean;
+  /** Set of permissions represented as a bit set */
+  default_member_permissions?: string | null;
+  /** Indicates whether the command is available in DMs with the app, only for globally-scoped commands.
+   * By default, commands are visible. */
+  dm_permission?: boolean;
+  /**
+   * @deprecated Not recommended for use as field will soon be deprecated.
+   * Indicates whether the command is enabled by default when the app is added to a guild, defaults to true*/
+  default_permission?: boolean | null;
+  /** Indicates whether the command is age-restricted, defaults to false */
+  nsfw?: boolean;
   /** autoincrementing version identifier updated during substantial record changes */
   version: snowflake;
 }
 
 /** [Create Global Command](https://discord.com/developers/docs/interactions/application-commands#create-global-application-command) */
-export interface CreateGlobalApplicationCommand {
-  /** 1-32 character name */
-  name: string;
-  /** 1-100 character description */
-  description: string;
-  /** the parameters for the command */
-  options?: ApplicationCommandOption[];
-  /** whether the command is enabled by default when the app is added to a guild */
-  default_permission?: boolean;
-  /** the type of command, defaults 1 if not set */
-  type?: ApplicationCommandType;
-}
+export type CreateGlobalApplicationCommand = Omit<
+  ApplicationCommand,
+  "id" | "application_id" | "guild_id" | "version"
+>;
 
 /** [Application Command Option](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure) */
 export interface ApplicationCommandOption {
@@ -1026,8 +1069,12 @@ export interface ApplicationCommandOption {
   type: ApplicationCommandOptionType;
   /** 1-32 character name */
   name: string;
+  /** Localization dictionary for name field. Values follow the same restrictions as name */
+  name_localizations?: Record<AvailableLocales, string> | null;
   /** 1-100 character description */
   description: string;
+  /** Localization dictionary for the description field. Values follow the same restrictions as description */
+  description_localizations?: Record<AvailableLocales, string> | null;
   /**
    * if the parameter is required or optional--default false.\
    * `true` to prevent using `required: false` as that breaks the comparision
@@ -1043,6 +1090,10 @@ export interface ApplicationCommandOption {
   min_value?: number;
   /** if the option is an INTEGER or NUMBER type, the maximum value permitted */
   max_value?: number;
+  /** For option type STRING, the minimum allowed length (minimum of 0, maximum of 6000) */
+  min_length?: integer;
+  /** For option type STRING, the maximum allowed length (minimum of 1, maximum of 6000) */
+  max_length?: integer;
   /** enable autocomplete interactions for this option */
   autocomplete?: boolean;
 }
@@ -1051,6 +1102,8 @@ export interface ApplicationCommandOption {
 export interface ApplicationCommandOptionChoice {
   /** 1-100 character choice name */
   name: string;
+  /** Localization dictionary for the name field. Values follow the same restrictions as name */
+  name_localizations?: Record<AvailableLocales, string> | null;
   /** value of the choice, up to 100 characters if string */
   value: string | integer | boolean;
 }
@@ -1199,6 +1252,8 @@ export enum ApplicationCommandOptionType {
   MENTIONABLE = 9,
   /** Any double between -2^53 and 2^53 */
   NUMBER = 10,
+  /** attachment object */
+  ATTACHMENT = 11,
 }
 
 /** [Message Reaction Add Structure](https://discord.com/developers/docs/topics/gateway#message-reaction-add) */

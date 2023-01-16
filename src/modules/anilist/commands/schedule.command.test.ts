@@ -3,6 +3,11 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { randomAiringSchedule } from "@/helper/mocks/factories";
 import { getApplication } from "@/state/store";
+import {
+  CommandHandler,
+  CommandInteractionDataOption,
+  Interaction,
+} from "@/types/discord";
 
 import { getAiringSchedule } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
@@ -24,7 +29,7 @@ const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",
   member: {},
-};
+} as Interaction;
 
 describe("Anilist schedule command", () => {
   afterEach(() => {
@@ -34,7 +39,7 @@ describe("Anilist schedule command", () => {
   it("should request anilist using getAiringSchedule", async () => {
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(getAiringSchedule).toHaveBeenCalledWith(expect.any(Object), "abcd");
   });
@@ -44,7 +49,7 @@ describe("Anilist schedule command", () => {
 
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
       "123456789",
@@ -62,7 +67,7 @@ describe("Anilist schedule command", () => {
 
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
       "123456789",

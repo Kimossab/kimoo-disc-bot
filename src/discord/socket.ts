@@ -1,7 +1,7 @@
-import { saveGuild } from "../bot/database";
-import { randomNum } from "../helper/common";
-import { PRESENCE_STRINGS } from "../helper/constants";
-import Logger from "../helper/logger";
+import { saveGuild } from "@/bot/database";
+import { randomNum } from "@/helper/common";
+import { PRESENCE_STRINGS } from "@/helper/constants";
+import Logger from "@/helper/logger";
 import {
   addGuild,
   commandExecuted,
@@ -12,7 +12,7 @@ import {
   setDiscordLastS,
   setDiscordSession,
   setReadyData,
-} from "../state/store";
+} from "@/state/store";
 import {
   ActivityType,
   DispatchPayload,
@@ -24,7 +24,8 @@ import {
   OpCode,
   Payload,
   Status,
-} from "../types/discord";
+} from "@/types/discord";
+
 import { editMessage, sendMessage } from "./rest";
 import WebSocket from "ws";
 

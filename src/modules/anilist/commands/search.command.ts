@@ -7,7 +7,7 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { addPagination, getApplication } from "@/state/store";
-import { Embed } from "@/types/discord";
+import { CommandHandler, Embed } from "@/types/discord";
 
 import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
@@ -68,7 +68,9 @@ export const searchCommand = (
 
       logger.log(
         `Search Anime ${query} (${type}) in ${data.guild_id} by ` +
-          `${data.member.user?.username}#${data.member.user?.discriminator}`
+          `${(data.member || data).user?.username}#${
+            (data.member || data).user?.discriminator
+          }`
       );
     }
   };

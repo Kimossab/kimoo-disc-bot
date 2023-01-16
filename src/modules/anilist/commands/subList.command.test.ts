@@ -3,6 +3,11 @@ import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import { manyUserSubs, manyUserSubsAnilist } from "@/helper/mocks/factories";
 import { addPagination, getApplication } from "@/state/store";
+import {
+  CommandHandler,
+  CommandInteractionDataOption,
+  Interaction,
+} from "@/types/discord";
 
 import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
@@ -20,7 +25,7 @@ const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",
   member: { user: { id: "1234567890" } },
-};
+} as Interaction;
 
 (InteractionPagination as jest.Mock).mockImplementation(() => ({
   create: jest.fn(),
@@ -42,7 +47,7 @@ describe("Anilist schedule command", () => {
   });
 
   it("should get the subscriptions of the user getUserSubs", async () => {
-    await handler(mockData, {});
+    await handler(mockData, {} as CommandInteractionDataOption);
 
     expect(getUserSubs).toHaveBeenCalledWith("randomGuildId", "1234567890");
   });
@@ -50,7 +55,7 @@ describe("Anilist schedule command", () => {
   it("should edit message with 'No subscriptions' when there's no sub", async () => {
     (getUserSubs as jest.Mock).mockResolvedValueOnce([]);
 
-    await handler(mockData, {});
+    await handler(mockData, {} as CommandInteractionDataOption);
 
     expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
       "123456789",
@@ -62,7 +67,7 @@ describe("Anilist schedule command", () => {
   });
 
   it("should get info from anilist for those subscriptions", async () => {
-    await handler(mockData, {});
+    await handler(mockData, {} as CommandInteractionDataOption);
 
     expect(searchForUser).toHaveBeenCalledTimes(2);
     expect(searchForUser).toHaveBeenCalledWith(
@@ -83,7 +88,7 @@ describe("Anilist schedule command", () => {
     (searchForUser as jest.Mock).mockResolvedValueOnce(null);
     (searchForUser as jest.Mock).mockResolvedValueOnce(null);
 
-    await handler(mockData, {});
+    await handler(mockData, {} as CommandInteractionDataOption);
 
     expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
       "123456789",
@@ -98,7 +103,7 @@ describe("Anilist schedule command", () => {
     (searchForUser as jest.Mock).mockResolvedValueOnce(manyUserSubsAnilist(25));
     (searchForUser as jest.Mock).mockResolvedValueOnce(manyUserSubsAnilist(5));
 
-    await handler(mockData, {});
+    await handler(mockData, {} as CommandInteractionDataOption);
 
     expect(InteractionPagination).toHaveBeenCalledWith(
       "123456789",

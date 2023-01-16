@@ -2,6 +2,11 @@ import { getServerAnimeChannel, setServerAnimeChannel } from "@/bot/database";
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import Logger from "@/helper/logger";
 import { getApplication } from "@/state/store";
+import {
+  CommandHandler,
+  CommandInteractionDataOption,
+  Interaction,
+} from "@/types/discord";
 
 import { channelCommand } from "./channel.command";
 
@@ -20,7 +25,7 @@ const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",
   member: {},
-};
+} as Interaction;
 
 describe("Anilist channel command", () => {
   afterEach(() => {
@@ -29,7 +34,9 @@ describe("Anilist channel command", () => {
 
   describe("when no channel is given", () => {
     beforeEach(() => {
-      handler(mockData, { options: [] });
+      handler(mockData, {
+        options: [],
+      } as unknown as CommandInteractionDataOption);
     });
 
     it("should get the anime channel from the database", () => {
@@ -56,7 +63,7 @@ describe("Anilist channel command", () => {
             value: "someNewChannel",
           },
         ],
-      });
+      } as CommandInteractionDataOption);
     });
 
     it("should get the anime channel from the database", () => {

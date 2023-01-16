@@ -1,5 +1,6 @@
 import Logger from "@/helper/logger";
 import { getOption } from "@/helper/modules";
+import { CommandHandler } from "@/types/discord";
 
 import { AnimeManager } from "../helpers/anime-manager";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
