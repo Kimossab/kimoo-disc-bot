@@ -2,14 +2,13 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 
 export class TestDB {
-  public static connect =
-    async (): Promise<MongoMemoryServer> => {
-      const mongod = await MongoMemoryServer.create();
-      const uri = mongod.getUri();
+  public static connect = async (): Promise<MongoMemoryServer> => {
+    const mongod = await MongoMemoryServer.create();
+    const uri = mongod.getUri();
 
-      await mongoose.connect(uri);
-      return mongod;
-    };
+    await mongoose.connect(uri);
+    return mongod;
+  };
 
   public static closeDatabase = async (
     mongod: MongoMemoryServer

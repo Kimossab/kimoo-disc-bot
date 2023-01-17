@@ -15,12 +15,10 @@ jest.mock("@/helper/common");
 (Logger as jest.Mock).mockImplementation(() => ({
   error: jest.fn(),
 }));
-(FormData as unknown as jest.Mock).mockImplementation(
-  () => ({
-    append: jest.fn(),
-    getHeaders: jest.fn().mockReturnValue([]),
-  })
-);
+(FormData as unknown as jest.Mock).mockImplementation(() => ({
+  append: jest.fn(),
+  getHeaders: jest.fn().mockReturnValue([]),
+}));
 (downloadFile as jest.Mock).mockReturnValue({});
 
 describe("Sauce Nao Request", () => {
@@ -31,9 +29,7 @@ describe("Sauce Nao Request", () => {
 
     const logger = new Logger("test");
 
-    await expect(
-      requestTraceMoe("SOME_IMAGE", logger)
-    ).resolves.toBeNull();
+    await expect(requestTraceMoe("SOME_IMAGE", logger)).resolves.toBeNull();
 
     expect(logger.error).toHaveBeenCalled();
   });
@@ -42,14 +38,12 @@ describe("Sauce Nao Request", () => {
     (axios.post as jest.Mock).mockResolvedValueOnce({
       data: { test: "object" },
     });
-    (
-      fs.createReadStream as jest.Mock
-    ).mockResolvedValueOnce(jest.fn());
+    (fs.createReadStream as jest.Mock).mockResolvedValueOnce(jest.fn());
 
     const logger = new Logger("test");
 
-    await expect(
-      requestTraceMoe("SOME_IMAGE", logger)
-    ).resolves.toEqual({ test: "object" });
+    await expect(requestTraceMoe("SOME_IMAGE", logger)).resolves.toEqual({
+      test: "object",
+    });
   });
 });

@@ -18,9 +18,8 @@ const rateLimiter = new RestRateLimitHandler();
 /**
  * Request the gateway bot from discord
  */
-export const getGatewayBot =
-  (): Promise<GatewayBot | null> =>
-    rateLimiter.request<GatewayBot>("GET", "/gateway/bot");
+export const getGatewayBot = (): Promise<GatewayBot | null> =>
+  rateLimiter.request<GatewayBot>("GET", "/gateway/bot");
 
 // messages
 /**
@@ -197,8 +196,7 @@ export const addRole = (
   roleId: string,
   reason?: string
 ): Promise<null | undefined> => {
-  let headers: Record<string, string> | undefined =
-    undefined;
+  let headers: Record<string, string> | undefined = undefined;
 
   if (reason) {
     headers = {
@@ -220,8 +218,7 @@ export const removeRole = (
   roleId: string,
   reason?: string
 ): Promise<null | undefined> => {
-  let headers: Record<string, string> | undefined =
-    undefined;
+  let headers: Record<string, string> | undefined = undefined;
 
   if (reason) {
     headers = {

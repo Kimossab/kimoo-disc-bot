@@ -6,16 +6,10 @@ import {
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
-import {
-  addPagination,
-  getApplication,
-} from "@/state/store";
+import { addPagination, getApplication } from "@/state/store";
 import { Embed } from "@/types/discord";
 
-import {
-  searchByQuery,
-  searchByQueryAndType,
-} from "../graphql/graphql";
+import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
 import { mapMediaToEmbed } from "../mappers/mapMediaToEmbed";
 import { MediaType } from "../types/graphql";
@@ -25,11 +19,7 @@ interface SearchCommandOptions {
   type: MediaType;
 }
 
-const pageUpdate: CreatePageCallback<Embed> = async (
-  _page,
-  _total,
-  data
-) => ({
+const pageUpdate: CreatePageCallback<Embed> = async (_page, _total, data) => ({
   data: {
     embeds: [data],
   },
@@ -42,37 +32,28 @@ export const searchCommand = (
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
-      const { query, type } =
-        getOptions<SearchCommandOptions>(
-          ["query", "type"],
-          option.options
-        );
+      const { query, type } = getOptions<SearchCommandOptions>(
+        ["query", "type"],
+        option.options
+      );
 
       const allData = await (type
         ? searchByQueryAndType(rateLimiter, query, type)
         : searchByQuery(rateLimiter, query));
 
       if (!allData) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.anilist.not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.anilist.not_found,
+        });
         return;
       }
 
       const embedList = mapMediaToEmbed(allData);
 
       if (embedList.length === 0) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.anilist.not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.anilist.not_found,
+        });
         return;
       }
 

@@ -1,9 +1,5 @@
 import { editOriginalInteractionResponse } from "../discord/rest";
-import {
-  checkAdmin,
-  deleteFile,
-  moveFile,
-} from "../helper/common";
+import { checkAdmin, deleteFile, moveFile } from "../helper/common";
 import { downloadImage } from "../helper/images";
 import Logger from "../helper/logger";
 import messageList from "../helper/messages";
@@ -72,9 +68,7 @@ jest.mock("../helper/common", () => ({
   error: jest.fn(),
 }));
 
-(getChannelLastAttachment as jest.Mock).mockReturnValue(
-  LAST_ATTACHMENT
-);
+(getChannelLastAttachment as jest.Mock).mockReturnValue(LAST_ATTACHMENT);
 (getApplication as jest.Mock).mockReturnValue({
   id: APPLICATION_ID,
 });
@@ -82,9 +76,7 @@ jest.mock("../helper/common", () => ({
 (downloadImage as jest.Mock).mockReturnValue({
   success: true,
 });
-(
-  setCommandExecutedCallback as unknown as jest.Mock
-).mockImplementation(
+(setCommandExecutedCallback as unknown as jest.Mock).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
@@ -98,20 +90,12 @@ jest.mock("./helper", () => ({
   createGrid: jest.fn().mockReturnValue("IMAGE_NAME"),
 }));
 
-(deleteBadge as jest.Mock).mockReturnValue(
-  badgeListFixture[0]
-);
+(deleteBadge as jest.Mock).mockReturnValue(badgeListFixture[0]);
 (checkName as jest.Mock).mockReturnValue(false);
-(getAllBadges as jest.Mock).mockReturnValue(
-  badgeListFixture
-);
-(getByName as jest.Mock).mockReturnValue(
-  badgeListFixture[0]
-);
+(getAllBadges as jest.Mock).mockReturnValue(badgeListFixture);
+(getByName as jest.Mock).mockReturnValue(badgeListFixture[0]);
 (checkBadgeUser as jest.Mock).mockReturnValue(false);
-(giveBadge as jest.Mock).mockReturnValue(
-  badgeListFixture[0]
-);
+(giveBadge as jest.Mock).mockReturnValue(badgeListFixture[0]);
 (getAllUserBadges as jest.Mock).mockReturnValue([
   {
     badges: badgeListFixture,
@@ -160,9 +144,7 @@ describe("Badges module", () => {
 
   describe("Create command", () => {
     it("should let the user know there's no image to use", async () => {
-      (
-        getChannelLastAttachment as jest.Mock
-      ).mockReturnValueOnce(null);
+      (getChannelLastAttachment as jest.Mock).mockReturnValueOnce(null);
 
       await commandCallback({
         ...baseCommand,
@@ -176,11 +158,13 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: messageList.common.no_image,
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: messageList.common.no_image,
+        }
+      );
     });
 
     it("should let the user know there's already a badge with that name", async () => {
@@ -199,11 +183,13 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: "Badge with that name already exists.",
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: "Badge with that name already exists.",
+        }
+      );
     });
 
     it("should default to the last attachment if no image is given", async () => {
@@ -252,12 +238,13 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content:
-          "URL is not an image or image is too big (max 20MB)",
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: "URL is not an image or image is too big (max 20MB)",
+        }
+      );
     });
 
     it("should let delete the file and let the user know something went wrong", async () => {
@@ -281,11 +268,13 @@ describe("Badges module", () => {
       } as Interaction);
 
       expect(deleteFile).toHaveBeenCalled();
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: "Something went wrong",
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: "Something went wrong",
+        }
+      );
     });
 
     it("should move the file and let the user know it all worked", async () => {
@@ -293,9 +282,7 @@ describe("Badges module", () => {
       (downloadImage as jest.Mock).mockReturnValueOnce({
         success: true,
       });
-      (createBadge as jest.Mock).mockReturnValueOnce(
-        badgeListFixture[0]
-      );
+      (createBadge as jest.Mock).mockReturnValueOnce(badgeListFixture[0]);
 
       await commandCallback({
         ...baseCommand,
@@ -312,9 +299,7 @@ describe("Badges module", () => {
 
       expect(deleteFile).not.toHaveBeenCalled();
       expect(moveFile).toHaveBeenCalled();
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
         APPLICATION_ID,
         TOKEN,
         {
@@ -341,9 +326,7 @@ describe("Badges module", () => {
       } as Interaction);
 
       expect(deleteFile).toHaveBeenCalled();
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
         APPLICATION_ID,
         TOKEN,
         {
@@ -356,9 +339,7 @@ describe("Badges module", () => {
     });
 
     it("should create the pagination", async () => {
-      (
-        editOriginalInteractionResponse as jest.Mock
-      ).mockReturnValueOnce({
+      (editOriginalInteractionResponse as jest.Mock).mockReturnValueOnce({
         id: "SOME_MESSAGE",
       });
       (getAllBadges as jest.Mock).mockReturnValue([
@@ -405,17 +386,17 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: messageList.badges.not_found,
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: messageList.badges.not_found,
+        }
+      );
     });
 
     it("should let the user know already has that badge", async () => {
-      (checkBadgeUser as jest.Mock).mockReturnValueOnce(
-        true
-      );
+      (checkBadgeUser as jest.Mock).mockReturnValueOnce(true);
 
       await commandCallback({
         ...baseCommand,
@@ -430,11 +411,13 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: "User already has this badge.",
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: "User already has this badge.",
+        }
+      );
     });
 
     it("should show internal server error", async () => {
@@ -452,11 +435,13 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: messageList.common.internal_error,
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: messageList.common.internal_error,
+        }
+      );
     });
 
     it("should let the user know it has given the badge successfully", async () => {
@@ -473,9 +458,7 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
         APPLICATION_ID,
         TOKEN,
         {
@@ -508,9 +491,7 @@ describe("Badges module", () => {
     });
 
     it("should let let the user know there's no badges for the user", async () => {
-      (getAllUserBadges as jest.Mock).mockReturnValueOnce(
-        []
-      );
+      (getAllUserBadges as jest.Mock).mockReturnValueOnce([]);
 
       await commandCallback({
         ...baseCommand,
@@ -525,11 +506,13 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: "No badges found",
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: "No badges found",
+        }
+      );
     });
 
     it("should let show the image with badges and delete the file", async () => {
@@ -546,9 +529,7 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
         APPLICATION_ID,
         TOKEN,
         {
@@ -575,9 +556,7 @@ describe("Badges module", () => {
           ],
         },
       ]);
-      (
-        editOriginalInteractionResponse as jest.Mock
-      ).mockReturnValueOnce({
+      (editOriginalInteractionResponse as jest.Mock).mockReturnValueOnce({
         id: "SOME_MESSAGE",
       });
 
@@ -616,11 +595,13 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: messageList.badges.not_found,
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: messageList.badges.not_found,
+        }
+      );
     });
 
     it("should delete the file and let the user know", async () => {
@@ -638,11 +619,13 @@ describe("Badges module", () => {
       } as Interaction);
 
       expect(deleteFile).toHaveBeenCalled();
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: expect.any(String),
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: expect.any(String),
+        }
+      );
     });
   });
 });

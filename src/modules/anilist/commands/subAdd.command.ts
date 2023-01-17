@@ -4,10 +4,7 @@ import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
 
-import {
-  addSubscription,
-  setNextAiring,
-} from "../database";
+import { addSubscription, setNextAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
 import { AnimeManager } from "../helpers/anime-manager";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
@@ -30,19 +27,12 @@ export const subAddCommand = (
         option.options
       );
 
-      const animeInfo = await searchForAiringSchedule(
-        rateLimiter,
-        anime
-      );
+      const animeInfo = await searchForAiringSchedule(rateLimiter, anime);
 
       if (!animeInfo) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.anilist.not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.anilist.not_found,
+        });
         return;
       }
 
@@ -58,11 +48,7 @@ export const subAddCommand = (
         nextAiring?.id || null
       );
 
-      if (
-        !animeList.find(
-          (anime) => anime.id === animeInfo.Media.id
-        )
-      ) {
+      if (!animeList.find((anime) => anime.id === animeInfo.Media.id)) {
         const animeManager = new AnimeManager(
           logger,
           rateLimiter,
@@ -73,14 +59,10 @@ export const subAddCommand = (
         animeList.push(animeManager);
       }
 
-      await editOriginalInteractionResponse(
-        app.id,
-        data.token,
-        {
-          content: ``,
-          embeds: [mapMediaAiringToEmbed(animeInfo.Media)],
-        }
-      );
+      await editOriginalInteractionResponse(app.id, data.token, {
+        content: ``,
+        embeds: [mapMediaAiringToEmbed(animeInfo.Media)],
+      });
     }
   };
 };

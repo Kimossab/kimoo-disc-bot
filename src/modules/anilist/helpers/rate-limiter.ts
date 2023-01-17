@@ -27,13 +27,8 @@ interface ErrorData {
 
 type ErrorType = Error | ErrorData;
 
-const isErrorData = (
-  error: Error | ErrorData
-): error is ErrorData => {
-  return Object.prototype.hasOwnProperty.call(
-    error,
-    "data"
-  );
+const isErrorData = (error: Error | ErrorData): error is ErrorData => {
+  return Object.prototype.hasOwnProperty.call(error, "data");
 };
 
 export interface IAnilistRateLimit {
@@ -67,27 +62,18 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     });
   }
 
-  private handleErrors = (
-    place: string,
-    e: ErrorType
-  ): void => {
+  private handleErrors = (place: string, e: ErrorType): void => {
     if (isErrorData(e)) {
       this._logger.error(
         `[${place}] ${e.data.code} - ${e.data.message}`,
         e.data.errors
       );
     } else {
-      this._logger.error(
-        `[${place}] ${e.message}`,
-        JSON.stringify(e)
-      );
+      this._logger.error(`[${place}] ${e.message}`, JSON.stringify(e));
     }
   };
 
-  private logSuccess(
-    name: string,
-    headers: AxiosResponse["headers"]
-  ) {
+  private logSuccess(name: string, headers: AxiosResponse["headers"]) {
     this._logger.log(
       `[${name}][${headers[X_RATELIMIT_REMAINING]} / ${headers[X_RATELIMIT_LIMIT]}] Success.`
     );
@@ -121,9 +107,7 @@ export class AnilistRateLimit implements IAnilistRateLimit {
           e.response?.status === 429 &&
           !!e.response.headers[X_RATELIMIT_RESET]
         ) {
-          const nextRequest = Number(
-            e.response.headers[X_RATELIMIT_RESET]
-          );
+          const nextRequest = Number(e.response.headers[X_RATELIMIT_RESET]);
 
           this.queue.unshift(request);
 
@@ -166,10 +150,7 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     graphql: string,
     variables: Record<string, unknown>
   ): Promise<AxiosResponse<Response<T>>> {
-    const response = await axios.post<
-      string,
-      AxiosResponse<Response<T>>
-    >(
+    const response = await axios.post<string, AxiosResponse<Response<T>>>(
       ANILIST_GRAPHQL,
       JSON.stringify({
         query: graphql,

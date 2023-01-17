@@ -4,9 +4,7 @@ type CommandHandler = (
   data: Interaction,
   option: CommandInteractionDataOption
 ) => Promise<void>;
-type SingleCommandHandler = (
-  data: Interaction
-) => Promise<void>;
+type SingleCommandHandler = (data: Interaction) => Promise<void>;
 
 declare interface command_list {
   list: discord.application_command[];

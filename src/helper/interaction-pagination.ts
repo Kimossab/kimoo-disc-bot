@@ -72,15 +72,13 @@ export class InteractionPagination<T = unknown> {
       const pageSelector: Component = {
         type: ComponentType.SelectMenu,
         custom_id: "pagination.select",
-        options: Array.from(Array(this.data.length)).map(
-          (_value, index) => {
-            return {
-              label: `Page ${index + 1}`,
-              value: index.toString(),
-              default: index === this.currentPage,
-            };
-          }
-        ),
+        options: Array.from(Array(this.data.length)).map((_value, index) => {
+          return {
+            label: `Page ${index + 1}`,
+            value: index.toString(),
+            default: index === this.currentPage,
+          };
+        }),
       };
       const buttonRight: Button = {
         type: ComponentType.Button,
@@ -105,9 +103,7 @@ export class InteractionPagination<T = unknown> {
     return { pageData, file };
   }
 
-  public async create(
-    token: string
-  ): Promise<Message | null> {
+  public async create(token: string): Promise<Message | null> {
     const { pageData, file } = await this.buildPageData();
     this.message = await editOriginalInteractionResponse(
       this.appId,

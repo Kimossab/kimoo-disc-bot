@@ -1,7 +1,4 @@
-import {
-  formatSecondsIntoMinutes,
-  stringReplacer,
-} from "@/helper/common";
+import { formatSecondsIntoMinutes, stringReplacer } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { Embed } from "@/types/discord";
 
@@ -24,18 +21,14 @@ export const traceMoeEmbed = (
     title.push(item.anilist.title.native);
   }
 
-  title = title.filter(
-    (elem, index, self) => index === self.indexOf(elem)
-  );
+  title = title.filter((elem, index, self) => index === self.indexOf(elem));
 
   const description: string[] = [];
 
   if (item.episode) {
     description.push(`Episode #${item.episode}`);
   }
-  description.push(
-    `@${formatSecondsIntoMinutes(item.from)}`
-  );
+  description.push(`@${formatSecondsIntoMinutes(item.from)}`);
 
   const embed: Embed = {
     title: title.length ? title.join(" - ") : "UNKNOWN",

@@ -2,9 +2,7 @@ import { Embed, EmbedField } from "@/types/discord";
 
 import { MediaForAiring } from "../types/graphql";
 
-export const mapMediaAiringToEmbed = (
-  data: MediaForAiring
-): Embed => {
+export const mapMediaAiringToEmbed = (data: MediaForAiring): Embed => {
   const fields: EmbedField[] = [];
   fields.push({
     name: "Names",
@@ -21,18 +19,13 @@ export const mapMediaAiringToEmbed = (
 
   const embed: Embed = {
     title:
-      (data.isAdult ? "[**NSFW**] " : "") +
-      "Subscription added successfully",
+      (data.isAdult ? "[**NSFW**] " : "") + "Subscription added successfully",
     url: data.siteUrl,
-    color: parseInt(
-      data.coverImage.color?.slice(1) || "FFFFFF",
-      16
-    ),
+    color: parseInt(data.coverImage.color?.slice(1) || "FFFFFF", 16),
     fields,
     author: {
       name: "Anilist",
-      icon_url:
-        "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
+      icon_url: "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
       url: "https://anilist.co/home",
     },
   };

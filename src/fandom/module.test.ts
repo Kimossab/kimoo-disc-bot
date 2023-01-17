@@ -50,9 +50,7 @@ jest.mock("../helper/common", () => ({
 });
 (checkAdmin as jest.Mock).mockReturnValue(true);
 
-(
-  setCommandExecutedCallback as unknown as jest.Mock
-).mockImplementation(
+(setCommandExecutedCallback as unknown as jest.Mock).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
@@ -107,11 +105,13 @@ describe("Fandom Module", () => {
       },
     } as Interaction);
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-      content: messageList.fandom.invalid_slug,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+      APPLICATION_ID,
+      TOKEN,
+      {
+        content: messageList.fandom.invalid_slug,
+      }
+    );
   });
 
   it("should use a predefined fandom slug", async () => {
@@ -136,9 +136,7 @@ describe("Fandom Module", () => {
   });
 
   it("should let the user know nothing was found", async () => {
-    (requestFandom as jest.Mock).mockResolvedValueOnce(
-      null
-    );
+    (requestFandom as jest.Mock).mockResolvedValueOnce(null);
     await commandCallback({
       ...baseCommand,
       data: {
@@ -147,17 +145,19 @@ describe("Fandom Module", () => {
       },
     } as Interaction);
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-      content: "Nothing found",
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+      APPLICATION_ID,
+      TOKEN,
+      {
+        content: "Nothing found",
+      }
+    );
   });
 
   it("should show the first link and create pagination", async () => {
-    (
-      editOriginalInteractionResponse as jest.Mock
-    ).mockResolvedValueOnce({ id: "MESSAGE_ID" });
+    (editOriginalInteractionResponse as jest.Mock).mockResolvedValueOnce({
+      id: "MESSAGE_ID",
+    });
     await commandCallback({
       ...baseCommand,
       data: {
@@ -166,11 +166,13 @@ describe("Fandom Module", () => {
       },
     } as Interaction);
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-      content: "link1",
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+      APPLICATION_ID,
+      TOKEN,
+      {
+        content: "link1",
+      }
+    );
     // expect(Pagination).toHaveBeenCalled();
     expect(addPagination).toHaveBeenCalled();
   });

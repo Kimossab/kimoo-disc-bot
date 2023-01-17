@@ -179,8 +179,7 @@ export interface MediaForAiring {
   coverImage: MediaCoverImage;
   siteUrl: string;
 }
-export type NextAiringWithTitle = MediaForAiring &
-  NextAiring;
+export type NextAiringWithTitle = MediaForAiring & NextAiring;
 
 export interface MediaSubbedInfo {
   title: MediaTitle;

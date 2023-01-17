@@ -1,7 +1,4 @@
-import {
-  deleteFile,
-  stringReplacer,
-} from "../helper/common";
+import { deleteFile, stringReplacer } from "../helper/common";
 import { CreatePageCallback } from "../helper/interaction-pagination";
 import messageList from "../helper/messages";
 import { Embed } from "../types/discord";
@@ -25,19 +22,12 @@ const MARGIN = 50;
 const COLUMNS = 3;
 const ROWS = 3;
 const TEXT_HEIGHT = 45;
-const FULL_WIDTH =
-  SINGLE_WIDTH * COLUMNS + MARGIN * (COLUMNS + 1);
+const FULL_WIDTH = SINGLE_WIDTH * COLUMNS + MARGIN * (COLUMNS + 1);
 const FULL_HEIGHT =
-  SINGLE_HEIGHT * ROWS +
-  MARGIN * (ROWS + 1) +
-  TEXT_HEIGHT * ROWS;
+  SINGLE_HEIGHT * ROWS + MARGIN * (ROWS + 1) + TEXT_HEIGHT * ROWS;
 
-export const createGrid = async (
-  badges: IBadge[]
-): Promise<string> => {
-  const { createCanvas, loadImage } = await import(
-    "canvas"
-  );
+export const createGrid = async (badges: IBadge[]): Promise<string> => {
+  const { createCanvas, loadImage } = await import("canvas");
   const fileName = `${+new Date()}.png`;
   const canvas = createCanvas(FULL_WIDTH, FULL_HEIGHT);
   const context = canvas.getContext("2d");
@@ -50,16 +40,8 @@ export const createGrid = async (
   let y = MARGIN;
 
   for (const badge of badges) {
-    const image = await loadImage(
-      `badges/${badge._id}${badge.fileExtension}`
-    );
-    context.drawImage(
-      image,
-      x,
-      y,
-      SINGLE_WIDTH,
-      SINGLE_HEIGHT
-    );
+    const image = await loadImage(`badges/${badge._id}${badge.fileExtension}`);
+    context.drawImage(image, x, y, SINGLE_WIDTH, SINGLE_HEIGHT);
 
     context.fillText(
       badge.name,
@@ -168,9 +150,11 @@ export const userBadgeListEmbed = async (
   return embed;
 };
 
-export const updateListBadgesPage: CreatePageCallback<
-  IBadge[]
-> = async (page, total, badges) => {
+export const updateListBadgesPage: CreatePageCallback<IBadge[]> = async (
+  page,
+  total,
+  badges
+) => {
   const fileName = await createGrid(badges);
   setTimeout(async () => {
     await deleteFile(`trash/${fileName}`);
@@ -179,18 +163,19 @@ export const updateListBadgesPage: CreatePageCallback<
   return {
     data: {
       content: "",
-      embeds: [
-        await createBadgeListEmbed(fileName, page, total),
-      ],
+      embeds: [await createBadgeListEmbed(fileName, page, total)],
       attachments: [],
     },
     file: `trash/${fileName}`,
   };
 };
 
-export const updateUserListBadgesPage: CreatePageCallback<
-  IBadge[]
-> = async (page, total, badges, extraInfo) => {
+export const updateUserListBadgesPage: CreatePageCallback<IBadge[]> = async (
+  page,
+  total,
+  badges,
+  extraInfo
+) => {
   const fileName = await createGrid(badges);
   setTimeout(async () => {
     await deleteFile(`trash/${fileName}`);
@@ -200,12 +185,7 @@ export const updateUserListBadgesPage: CreatePageCallback<
     data: {
       content: "",
       embeds: [
-        await userBadgeListEmbed(
-          extraInfo as string,
-          fileName,
-          page,
-          total
-        ),
+        await userBadgeListEmbed(extraInfo as string, fileName, page, total),
       ],
       attachments: [],
     },

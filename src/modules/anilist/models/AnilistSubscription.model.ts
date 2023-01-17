@@ -6,12 +6,11 @@ export interface IAnilistSubscription extends Document {
   server: string;
 }
 
-const AnilistSubscriptionSchema: Schema =
-  new mongoose.Schema({
-    id: Number,
-    user: String,
-    server: String,
-  });
+const AnilistSubscriptionSchema: Schema = new mongoose.Schema({
+  id: Number,
+  user: String,
+  server: String,
+});
 
 export default mongoose.model<IAnilistSubscription>(
   "AnilistSubscription",

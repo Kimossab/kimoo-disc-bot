@@ -24,13 +24,8 @@ interface ErrorData {
 
 type ErrorType = Error | ErrorData;
 
-const isErrorData = (
-  error: Error | ErrorData
-): error is ErrorData => {
-  return Object.prototype.hasOwnProperty.call(
-    error,
-    "data"
-  );
+const isErrorData = (error: Error | ErrorData): error is ErrorData => {
+  return Object.prototype.hasOwnProperty.call(error, "data");
 };
 
 export default class RestRateLimitHandler {
@@ -48,20 +43,14 @@ export default class RestRateLimitHandler {
     },
   });
 
-  private handleErrors = (
-    place: string,
-    e: ErrorType
-  ): void => {
+  private handleErrors = (place: string, e: ErrorType): void => {
     if (isErrorData(e)) {
       this._logger.error(
         `[${place}] ${e.data.code} - ${e.data.message}`,
         e.data.errors
       );
     } else {
-      this._logger.error(
-        `[${place}] ${e.message}`,
-        JSON.stringify(e)
-      );
+      this._logger.error(`[${place}] ${e.message}`, JSON.stringify(e));
     }
   };
 
@@ -72,9 +61,7 @@ export default class RestRateLimitHandler {
       limit: Number(headers["x-ratelimit-limit"]),
       remaining: Number(headers["x-ratelimit-remaining"]),
       reset: Number(headers["x-ratelimit-reset"]),
-      resetAfter: Number(
-        headers["x-ratelimit-reset-after"]
-      ),
+      resetAfter: Number(headers["x-ratelimit-reset-after"]),
       bucket: headers["x-ratelimit-bucket"] as string,
     };
   }
@@ -105,9 +92,7 @@ export default class RestRateLimitHandler {
     headers?: Record<string, string>
   ): Promise<T | null> {
     const bucket = this.routeBucket[path];
-    const rateLimits = bucket
-      ? this.rateLimits[bucket]
-      : null;
+    const rateLimits = bucket ? this.rateLimits[bucket] : null;
 
     if (rateLimits) {
       const resetTimeMs = rateLimits.reset * 1000;
@@ -128,9 +113,7 @@ export default class RestRateLimitHandler {
         // rate limited
         return new Promise<T | null>((resolve) => {
           setTimeout(() => {
-            resolve(
-              this.request<T>(method, path, data, headers)
-            );
+            resolve(this.request<T>(method, path, data, headers));
           }, resetTimeMs - now);
         });
       }
@@ -150,13 +133,9 @@ export default class RestRateLimitHandler {
         requestOptions.headers = headers;
       }
 
-      response = await this.requester.request<T>(
-        requestOptions
-      );
+      response = await this.requester.request<T>(requestOptions);
 
-      const parsedHeaders = this.handleHeaders(
-        response.headers
-      );
+      const parsedHeaders = this.handleHeaders(response.headers);
 
       this.routeBucket[path] = parsedHeaders.bucket;
       this.rateLimits[parsedHeaders.bucket] = parsedHeaders;
@@ -171,15 +150,10 @@ export default class RestRateLimitHandler {
         )
       );
     } catch (e) {
-      if (
-        axios.isAxiosError(e) &&
-        e.response?.status === 429
-      ) {
+      if (axios.isAxiosError(e) && e.response?.status === 429) {
         // rate limited
 
-        const parsedHeaders = this.handleHeaders(
-          e.response.headers
-        );
+        const parsedHeaders = this.handleHeaders(e.response.headers);
         this._logger.error(
           this.logMessage(
             path,
@@ -193,9 +167,7 @@ export default class RestRateLimitHandler {
 
         return new Promise<T | null>((resolve) => {
           setTimeout(() => {
-            resolve(
-              this.request<T>(method, path, data, headers)
-            );
+            resolve(this.request<T>(method, path, data, headers));
           }, parsedHeaders.resetAfter);
         });
       }

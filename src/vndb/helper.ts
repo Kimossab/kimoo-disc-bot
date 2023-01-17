@@ -3,12 +3,7 @@ import { CreatePageCallback } from "../helper/interaction-pagination";
 import messageList from "../helper/messages";
 import { Embed } from "../types/discord";
 import * as ReturnData from "./types/returnData";
-import {
-  LENGTH_TYPE,
-  RELATION_TYPES,
-  sexual,
-  violence,
-} from "./types/vndb";
+import { LENGTH_TYPE, RELATION_TYPES, sexual, violence } from "./types/vndb";
 import { vndb_get_vn } from "./vndb-api";
 
 const codeReplaces = [
@@ -22,9 +17,7 @@ const codeReplaces = [
   },
 ];
 
-export const replaceDescriptionCodes = (
-  text: string
-): string => {
+export const replaceDescriptionCodes = (text: string): string => {
   for (const rep of codeReplaces) {
     text = text.replace(rep.regex, rep.replace);
   }
@@ -63,10 +56,7 @@ export const groupRelations = (
         RELATION_TYPES[rel] ? RELATION_TYPES[rel] : rel
       }**\n- ${relArr.join("\n- ")}\n`;
 
-      if (
-        returnStr.length + relationString.length >=
-        1024
-      ) {
+      if (returnStr.length + relationString.length >= 1024) {
         returnValues.push(returnStr);
         returnStr = "";
       }
@@ -131,9 +121,7 @@ export const vndbSearchEmbed = (
   }
 
   if (item.description) {
-    embed.description = replaceDescriptionCodes(
-      item.description
-    );
+    embed.description = replaceDescriptionCodes(item.description);
   }
 
   if (
@@ -162,8 +150,10 @@ export const vndbSearchEmbed = (
   return embed;
 };
 
-export const vndbSearchUpdatePage: CreatePageCallback<
-  vndb_get_vn
-> = async (page, total, data) => ({
+export const vndbSearchUpdatePage: CreatePageCallback<vndb_get_vn> = async (
+  page,
+  total,
+  data
+) => ({
   data: { embeds: [vndbSearchEmbed(data, page, total)] },
 });

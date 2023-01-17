@@ -6,14 +6,8 @@ import { checkAdmin } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOption } from "@/helper/modules";
-import {
-  getApplication,
-  setCommandExecutedCallback,
-} from "@/state/store";
-import {
-  Interaction,
-  InteractionCallbackType,
-} from "@/types/discord";
+import { getApplication, setCommandExecutedCallback } from "@/state/store";
+import { Interaction, InteractionCallbackType } from "@/types/discord";
 
 interface CommandInfo {
   handler: CommandHandler;
@@ -30,16 +24,11 @@ export default class BaseModule {
   protected singleCommand: SingleCommandInfo | null = null;
   private isSetup = false;
 
-  constructor(
-    private name: string,
-    protected isActive: boolean
-  ) {
+  constructor(private name: string, protected isActive: boolean) {
     this.logger = new Logger(name);
   }
 
-  private interactionExecuted = async (
-    data: Interaction
-  ): Promise<void> => {
+  private interactionExecuted = async (data: Interaction): Promise<void> => {
     if (
       data.data &&
       data.data.name === this.name &&
@@ -48,26 +37,18 @@ export default class BaseModule {
     ) {
       const app = getApplication();
       if (app && app.id) {
-        await createInteractionResponse(
-          data.id,
-          data.token,
-          {
-            type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-          }
-        );
+        await createInteractionResponse(data.id, data.token, {
+          type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        });
 
         if (this.singleCommand) {
           if (
             this.singleCommand.isAdmin &&
             !checkAdmin(data.guild_id, data.member)
           ) {
-            await editOriginalInteractionResponse(
-              app.id,
-              data.token,
-              {
-                content: messageList.common.no_permission,
-              }
-            );
+            await editOriginalInteractionResponse(app.id, data.token, {
+              content: messageList.common.no_permission,
+            });
             return;
           }
           return this.singleCommand.handler(data);
@@ -81,20 +62,13 @@ export default class BaseModule {
               this.commandList[cmd].isAdmin &&
               !checkAdmin(data.guild_id, data.member)
             ) {
-              await editOriginalInteractionResponse(
-                app.id,
-                data.token,
-                {
-                  content: messageList.common.no_permission,
-                }
-              );
+              await editOriginalInteractionResponse(app.id, data.token, {
+                content: messageList.common.no_permission,
+              });
               return;
             }
 
-            return this.commandList[cmd].handler(
-              data,
-              cmdData
-            );
+            return this.commandList[cmd].handler(data, cmdData);
           }
         }
 
@@ -105,13 +79,9 @@ export default class BaseModule {
           options?.options,
           options?.value
         );
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.common.internal_error,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.common.internal_error,
+        });
       }
     }
   };

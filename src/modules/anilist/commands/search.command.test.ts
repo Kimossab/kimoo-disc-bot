@@ -2,15 +2,9 @@ import { editOriginalInteractionResponse } from "@/discord/rest";
 import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import {
-  addPagination,
-  getApplication,
-} from "@/state/store";
+import { addPagination, getApplication } from "@/state/store";
 
-import {
-  searchByQuery,
-  searchByQueryAndType,
-} from "../graphql/graphql";
+import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
 import { searchCommand } from "./search.command";
 
@@ -97,11 +91,9 @@ const emptySearchResult = {
   },
 };
 
-(InteractionPagination as jest.Mock).mockImplementation(
-  () => ({
-    create: jest.fn(),
-  })
-);
+(InteractionPagination as jest.Mock).mockImplementation(() => ({
+  create: jest.fn(),
+}));
 
 const mockLogger = { log: jest.fn() } as unknown as Logger;
 (getApplication as jest.Mock).mockReturnValue({
@@ -127,10 +119,7 @@ describe("Anilist schedule command", () => {
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
     });
-    expect(searchByQuery).toHaveBeenCalledWith(
-      expect.any(Object),
-      "abcd"
-    );
+    expect(searchByQuery).toHaveBeenCalledWith(expect.any(Object), "abcd");
   });
 
   it("should request anilist using searchByQueryAndType if a type is given", async () => {
@@ -149,38 +138,36 @@ describe("Anilist schedule command", () => {
   });
 
   it('should edit message with "not_found" when no data is returned by anilist', async () => {
-    (searchByQuery as jest.Mock).mockResolvedValueOnce(
-      null
-    );
+    (searchByQuery as jest.Mock).mockResolvedValueOnce(null);
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
     });
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith("123456789", "randomToken", {
-      content: messageList.anilist.not_found,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      "123456789",
+      "randomToken",
+      {
+        content: messageList.anilist.not_found,
+      }
+    );
   });
 
   it('should edit message with "not_found" when an empty array is returned by anilist', async () => {
-    (searchByQuery as jest.Mock).mockResolvedValueOnce(
-      emptySearchResult
-    );
+    (searchByQuery as jest.Mock).mockResolvedValueOnce(emptySearchResult);
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
     });
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith("123456789", "randomToken", {
-      content: messageList.anilist.not_found,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      "123456789",
+      "randomToken",
+      {
+        content: messageList.anilist.not_found,
+      }
+    );
   });
 
   it("should create a new pagination with the correct values and add it to the pagination list", async () => {
-    (searchByQuery as jest.Mock).mockResolvedValueOnce(
-      searchResult
-    );
+    (searchByQuery as jest.Mock).mockResolvedValueOnce(searchResult);
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
     });

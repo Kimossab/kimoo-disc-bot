@@ -5,14 +5,8 @@ import {
 import { checkAdmin } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import {
-  getApplication,
-  setCommandExecutedCallback,
-} from "@/state/store";
-import {
-  Interaction,
-  InteractionCallbackType,
-} from "@/types/discord";
+import { getApplication, setCommandExecutedCallback } from "@/state/store";
+import { Interaction, InteractionCallbackType } from "@/types/discord";
 
 import BaseModule from "./base-module";
 
@@ -38,8 +32,7 @@ mockSetCommandExecutedCallback.mockImplementation(
 );
 
 jest.mock("./discord/rest");
-const mockCreateInteractionResponse =
-  createInteractionResponse as jest.Mock;
+const mockCreateInteractionResponse = createInteractionResponse as jest.Mock;
 const mockEditOriginalInteractionResponse =
   editOriginalInteractionResponse as jest.Mock;
 
@@ -74,9 +67,7 @@ describe("Base Module", () => {
       } as Interaction);
 
       expect(mockGetApplication).not.toHaveBeenCalled();
-      expect(
-        mockCreateInteractionResponse
-      ).not.toHaveBeenCalled();
+      expect(mockCreateInteractionResponse).not.toHaveBeenCalled();
     });
   });
 
@@ -91,9 +82,7 @@ describe("Base Module", () => {
       } as Interaction);
 
       expect(mockGetApplication).toHaveBeenCalled();
-      expect(
-        mockCreateInteractionResponse
-      ).not.toHaveBeenCalled();
+      expect(mockCreateInteractionResponse).not.toHaveBeenCalled();
     });
   });
 
@@ -108,11 +97,13 @@ describe("Base Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockCreateInteractionResponse
-      ).toHaveBeenCalledWith(COMMAND_ID, TOKEN, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-      });
+      expect(mockCreateInteractionResponse).toHaveBeenCalledWith(
+        COMMAND_ID,
+        TOKEN,
+        {
+          type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        }
+      );
 
       expect(mockError).toHaveBeenCalledWith(
         "UNKNOWN COMMAND",
@@ -121,11 +112,13 @@ describe("Base Module", () => {
         undefined
       );
 
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenCalledWith(APPLICATION_ID, TOKEN, {
-        content: messageList.common.internal_error,
-      });
+      expect(mockEditOriginalInteractionResponse).toHaveBeenCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: messageList.common.internal_error,
+        }
+      );
     });
   });
 
@@ -170,11 +163,13 @@ describe("Base Module", () => {
 
       expect(noAdminHandler).not.toHaveBeenCalled();
       expect(adminHandler).not.toHaveBeenCalled();
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenCalledWith(APPLICATION_ID, TOKEN, {
-        content: messageList.common.no_permission,
-      });
+      expect(mockEditOriginalInteractionResponse).toHaveBeenCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: messageList.common.no_permission,
+        }
+      );
     });
 
     it("should check if the user has permission and call the handler", async () => {

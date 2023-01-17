@@ -49,9 +49,7 @@ export const searchForAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
   search: string
 ): Promise<MediaResponse<MediaForAiring> | null> => {
-  return await rateLimiter.request<
-    MediaResponse<MediaForAiring>
-  >(
+  return await rateLimiter.request<MediaResponse<MediaForAiring>>(
     "searchForAiringSchedule",
     searchForAiringScheduleGraphql,
     {
@@ -77,31 +75,37 @@ export const searchForUser = async (
   rateLimiter: IAnilistRateLimit,
   ids: number[]
 ): Promise<PageResponse<MediaSubbed> | null> => {
-  return await rateLimiter.request<
-    PageResponse<MediaSubbed>
-  >("searchForUser", searchByIdsGraphql, {
-    ids,
-  });
+  return await rateLimiter.request<PageResponse<MediaSubbed>>(
+    "searchForUser",
+    searchByIdsGraphql,
+    {
+      ids,
+    }
+  );
 };
 
 export const getNextAiringEpisode = async (
   rateLimiter: IAnilistRateLimit,
   id: number
 ): Promise<MediaResponse<NextAiring> | null> => {
-  return await rateLimiter.request<
-    MediaResponse<NextAiring>
-  >("getNextAiring", getNextAiringGraphql, {
-    id,
-  });
+  return await rateLimiter.request<MediaResponse<NextAiring>>(
+    "getNextAiring",
+    getNextAiringGraphql,
+    {
+      id,
+    }
+  );
 };
 
 export const getAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
   search: string
 ): Promise<MediaResponse<NextAiringWithTitle> | null> => {
-  return await rateLimiter.request<
-    MediaResponse<NextAiringWithTitle>
-  >("getAiringSchedule", getAiringScheduleGraphql, {
-    search,
-  });
+  return await rateLimiter.request<MediaResponse<NextAiringWithTitle>>(
+    "getAiringSchedule",
+    getAiringScheduleGraphql,
+    {
+      search,
+    }
+  );
 };

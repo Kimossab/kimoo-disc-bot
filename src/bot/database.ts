@@ -1,10 +1,6 @@
 import Logger from "../helper/logger";
-import CommandVersion, {
-  ICommandVersion,
-} from "./command-version.model";
-import ServerSettings, {
-  IServerSettings,
-} from "./server-settings.model";
+import CommandVersion, { ICommandVersion } from "./command-version.model";
+import ServerSettings, { IServerSettings } from "./server-settings.model";
 
 const _logger = new Logger("bot.controller");
 
@@ -12,9 +8,7 @@ const _logger = new Logger("bot.controller");
  * Adds a new guild to the database if it doesn't exist yet
  * @param id Guild to store
  */
-export const saveGuild = async (
-  id: string
-): Promise<void> => {
+export const saveGuild = async (id: string): Promise<void> => {
   try {
     const exists = await ServerSettings.exists({
       serverId: id,
@@ -45,10 +39,9 @@ export const setServerAnimeChannel = async (
   server: string,
   channel: string
 ): Promise<void> => {
-  const settings: Nullable<IServerSettings> =
-    await ServerSettings.findOne({
-      serverId: server,
-    });
+  const settings: Nullable<IServerSettings> = await ServerSettings.findOne({
+    serverId: server,
+  });
 
   if (settings) {
     settings.animeChannel = channel;
@@ -63,10 +56,9 @@ export const setServerAnimeChannel = async (
 export const getServerAnimeChannel = async (
   id: string
 ): Promise<Nullable<string>> => {
-  const server: Nullable<IServerSettings> =
-    await ServerSettings.findOne({
-      serverId: id,
-    });
+  const server: Nullable<IServerSettings> = await ServerSettings.findOne({
+    serverId: id,
+  });
 
   return server?.animeChannel;
 };
@@ -75,11 +67,8 @@ export const getServerAnimeChannel = async (
  * Sets the last version of the commands that was successfully uploaded to discord
  * @param version Version of the last commands uploaded to discord
  */
-export const setCommandVersion = async (
-  version: string
-): Promise<void> => {
-  let cmd: Nullable<ICommandVersion> =
-    await CommandVersion.findOne();
+export const setCommandVersion = async (version: string): Promise<void> => {
+  let cmd: Nullable<ICommandVersion> = await CommandVersion.findOne();
 
   if (cmd) {
     cmd.version = version;
@@ -96,11 +85,8 @@ export const setCommandVersion = async (
 /**
  * Gets the last command version uploaded to discord
  */
-export const getCommandVersion = async (): Promise<
-  Nullable<string>
-> => {
-  const cmd: Nullable<ICommandVersion> =
-    await CommandVersion.findOne();
+export const getCommandVersion = async (): Promise<Nullable<string>> => {
+  const cmd: Nullable<ICommandVersion> = await CommandVersion.findOne();
 
   return cmd?.version;
 };
@@ -129,10 +115,9 @@ export const setServerBirthdayChannel = async (
 export const getServerBirthdayChannel = async (
   id: string
 ): Promise<Nullable<string>> => {
-  const server: Nullable<IServerSettings> =
-    await ServerSettings.findOne({
-      serverId: id,
-    });
+  const server: Nullable<IServerSettings> = await ServerSettings.findOne({
+    serverId: id,
+  });
 
   return server?.birthdayChannel;
 };
@@ -152,10 +137,9 @@ export const setServerBirthdayRole = async (
 export const getServerBirthdayRole = async (
   id: string
 ): Promise<Nullable<string>> => {
-  const server: Nullable<IServerSettings> =
-    await ServerSettings.findOne({
-      serverId: id,
-    });
+  const server: Nullable<IServerSettings> = await ServerSettings.findOne({
+    serverId: id,
+  });
 
   return server?.birthdayRole;
 };
@@ -164,9 +148,7 @@ export const getServerBirthdayRole = async (
  * Updates the year of last time a server was wished a happy birthday
  * @param server Server id to set the value
  */
-export const updateServerLastWishes = async (
-  server: string
-): Promise<void> => {
+export const updateServerLastWishes = async (server: string): Promise<void> => {
   await ServerSettings.updateOne(
     {
       serverId: server,
@@ -182,10 +164,9 @@ export const updateServerLastWishes = async (
 export const getLastServerBirthdayWishes = async (
   id: string
 ): Promise<Nullable<number>> => {
-  const server: Nullable<IServerSettings> =
-    await ServerSettings.findOne({
-      serverId: id,
-    });
+  const server: Nullable<IServerSettings> = await ServerSettings.findOne({
+    serverId: id,
+  });
 
   return server?.lastBirthdayWishes;
 };
@@ -211,13 +192,10 @@ export const setAdminRole = async (
  * Gets the role that's used to check for admin permissions for bot commands
  * @param id Server id
  */
-export const getAdminRole = async (
-  id: string
-): Promise<Nullable<string>> => {
-  const server: Nullable<IServerSettings> =
-    await ServerSettings.findOne({
-      serverId: id,
-    });
+export const getAdminRole = async (id: string): Promise<Nullable<string>> => {
+  const server: Nullable<IServerSettings> = await ServerSettings.findOne({
+    serverId: id,
+  });
 
   return server?.adminRole;
 };

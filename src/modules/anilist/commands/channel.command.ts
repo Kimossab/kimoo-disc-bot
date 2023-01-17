@@ -1,7 +1,4 @@
-import {
-  getServerAnimeChannel,
-  setServerAnimeChannel,
-} from "@/bot/database";
+import { getServerAnimeChannel, setServerAnimeChannel } from "@/bot/database";
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import { stringReplacer } from "@/helper/common";
 import Logger from "@/helper/logger";
@@ -13,9 +10,7 @@ interface ChannelCommandOptions {
   channel: string;
 }
 
-export const channelCommand = (
-  logger: Logger
-): CommandHandler => {
+export const channelCommand = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
@@ -26,38 +21,22 @@ export const channelCommand = (
 
       if (channel) {
         await setServerAnimeChannel(data.guild_id, channel);
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: stringReplacer(
-              messageList.anilist.channel_set_success,
-              {
-                channel: `<#${channel}>`,
-              }
-            ),
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: stringReplacer(messageList.anilist.channel_set_success, {
+            channel: `<#${channel}>`,
+          }),
+        });
         logger.log(
           `Set Anime channel to ${channel} in ${data.guild_id} by ` +
             `${data.member.user?.username}#${data.member.user?.discriminator}`
         );
       } else {
-        const ch = await getServerAnimeChannel(
-          data.guild_id
-        );
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: stringReplacer(
-              messageList.anilist.server_channel,
-              {
-                channel: `<#${ch}>`,
-              }
-            ),
-          }
-        );
+        const ch = await getServerAnimeChannel(data.guild_id);
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: stringReplacer(messageList.anilist.server_channel, {
+            channel: `<#${ch}>`,
+          }),
+        });
         logger.log(
           `Get anime channel in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
         );

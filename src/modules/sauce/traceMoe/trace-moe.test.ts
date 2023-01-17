@@ -46,9 +46,7 @@ describe("Trace moe module", () => {
   });
 
   it("should let the user know there was nothing found", async () => {
-    (requestTraceMoe as jest.Mock).mockResolvedValueOnce(
-      null
-    );
+    (requestTraceMoe as jest.Mock).mockResolvedValueOnce(null);
 
     await handleTraceMoe(
       baseCommand,
@@ -56,11 +54,13 @@ describe("Trace moe module", () => {
       APPLICATION_DATA,
       new Logger(MODULE_NAME)
     );
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith(APPLICATION_DATA.id, TOKEN, {
-      content: messageList.sauce.not_found,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      APPLICATION_DATA.id,
+      TOKEN,
+      {
+        content: messageList.sauce.not_found,
+      }
+    );
   });
 
   it("should attempt to map the response data for each result", async () => {
@@ -68,9 +68,7 @@ describe("Trace moe module", () => {
       result: [{}],
     });
     (traceMoeEmbed as jest.Mock).mockReturnValue({});
-    (
-      editOriginalInteractionResponse as jest.Mock
-    ).mockReturnValue({});
+    (editOriginalInteractionResponse as jest.Mock).mockReturnValue({});
 
     await handleTraceMoe(
       baseCommand,
@@ -78,9 +76,7 @@ describe("Trace moe module", () => {
       APPLICATION_DATA,
       new Logger(MODULE_NAME)
     );
-    (
-      editOriginalInteractionResponse as jest.Mock
-    ).mockResolvedValueOnce({});
+    (editOriginalInteractionResponse as jest.Mock).mockResolvedValueOnce({});
 
     // expect(Pagination).toHaveBeenCalled();
     expect(addPagination).toHaveBeenCalled();

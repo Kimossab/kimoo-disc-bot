@@ -1,7 +1,4 @@
-import {
-  getServerAnimeChannel,
-  setServerAnimeChannel,
-} from "@/bot/database";
+import { getServerAnimeChannel, setServerAnimeChannel } from "@/bot/database";
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import Logger from "@/helper/logger";
 import { getApplication } from "@/state/store";
@@ -16,9 +13,7 @@ const mockLogger = { log: jest.fn() } as unknown as Logger;
 (getApplication as jest.Mock).mockReturnValue({
   id: "123456789",
 });
-(getServerAnimeChannel as jest.Mock).mockReturnValue(
-  "1234567890"
-);
+(getServerAnimeChannel as jest.Mock).mockReturnValue("1234567890");
 
 const handler: CommandHandler = channelCommand(mockLogger);
 const mockData = {
@@ -38,17 +33,17 @@ describe("Anilist channel command", () => {
     });
 
     it("should get the anime channel from the database", () => {
-      expect(getServerAnimeChannel).toHaveBeenCalledWith(
-        "randomGuildId"
-      );
+      expect(getServerAnimeChannel).toHaveBeenCalledWith("randomGuildId");
     });
 
     it("should update the interaction response", () => {
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenCalledWith("123456789", "randomToken", {
-        content: "Server's anime channel: <#1234567890>",
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+        "123456789",
+        "randomToken",
+        {
+          content: "Server's anime channel: <#1234567890>",
+        }
+      );
     });
   });
 
@@ -72,12 +67,13 @@ describe("Anilist channel command", () => {
     });
 
     it("should update the interaction response", () => {
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenCalledWith("123456789", "randomToken", {
-        content:
-          "Anime channel set successfully to <#someNewChannel>",
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+        "123456789",
+        "randomToken",
+        {
+          content: "Anime channel set successfully to <#someNewChannel>",
+        }
+      );
     });
   });
 });

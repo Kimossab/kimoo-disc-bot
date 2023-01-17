@@ -1,7 +1,5 @@
 import serverSettingsModel from "../bot/server-settings.model";
-import Birthday, {
-  IBirthday,
-} from "./models/birthday.model";
+import Birthday, { IBirthday } from "./models/birthday.model";
 import BirthdayWithRole, {
   IBirthdayWithRole,
 } from "./models/birthday-with-role.model";
@@ -47,10 +45,7 @@ export const getBirthdays = async (
   const list = await Birthday.find({
     day,
     month,
-    $or: [
-      { lastWishes: null },
-      { lastWishes: { $lt: year } },
-    ],
+    $or: [{ lastWishes: null }, { lastWishes: { $lt: year } }],
   });
 
   return list;
@@ -110,38 +105,38 @@ interface ServersBirthdayInfo {
 export const getServersBirthdayInfo = async (): Promise<
   Record<string, ServersBirthdayInfo>
 > => {
-  const serverChannels =
-    await serverSettingsModel.aggregate<{
-      server: string;
-      channel: string;
-      role: string;
-    }>([
-      {
-        $match: {
-          birthdayChannel: {
-            $ne: null,
-          },
+  const serverChannels = await serverSettingsModel.aggregate<{
+    server: string;
+    channel: string;
+    role: string;
+  }>([
+    {
+      $match: {
+        birthdayChannel: {
+          $ne: null,
         },
       },
-      {
-        $project: {
-          _id: 0,
-          server: "$serverId",
-          channel: "$birthdayChannel",
-          role: "$birthdayRole",
-        },
+    },
+    {
+      $project: {
+        _id: 0,
+        server: "$serverId",
+        channel: "$birthdayChannel",
+        role: "$birthdayRole",
       },
-    ]);
+    },
+  ]);
 
-  return serverChannels.reduce<
-    Record<string, ServersBirthdayInfo>
-  >((accumulator, value) => {
-    accumulator[value.server] = {
-      channel: value.channel,
-      role: value.role,
-    };
-    return accumulator;
-  }, {});
+  return serverChannels.reduce<Record<string, ServersBirthdayInfo>>(
+    (accumulator, value) => {
+      accumulator[value.server] = {
+        channel: value.channel,
+        role: value.role,
+      };
+      return accumulator;
+    },
+    {}
+  );
 };
 
 export const setBirthdayWithRole = async (

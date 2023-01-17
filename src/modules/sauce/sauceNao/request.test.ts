@@ -18,9 +18,7 @@ describe("Sauce Nao Request", () => {
 
     const logger = new Logger("test");
 
-    await expect(
-      requestSauceNao("SOME_IMAGE", logger)
-    ).resolves.toBeNull();
+    await expect(requestSauceNao("SOME_IMAGE", logger)).resolves.toBeNull();
 
     expect(logger.error).toHaveBeenCalled();
   });
@@ -32,8 +30,8 @@ describe("Sauce Nao Request", () => {
 
     const logger = new Logger("test");
 
-    await expect(
-      requestSauceNao("SOME_IMAGE", logger)
-    ).resolves.toEqual({ test: "object" });
+    await expect(requestSauceNao("SOME_IMAGE", logger)).resolves.toEqual({
+      test: "object",
+    });
   });
 });

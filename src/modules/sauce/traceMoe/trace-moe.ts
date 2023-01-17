@@ -11,9 +11,11 @@ import { Application, Interaction } from "@/types/discord";
 import { traceMoeEmbed } from "./mapper";
 import { requestTraceMoe } from "./request";
 
-const traceMoeUpdatePage: CreatePageCallback<
-  TraceMoe.resultData
-> = async (page, total, data) => ({
+const traceMoeUpdatePage: CreatePageCallback<TraceMoe.resultData> = async (
+  page,
+  total,
+  data
+) => ({
   data: {
     embeds: [traceMoeEmbed(data, page, total)],
   },
@@ -29,13 +31,9 @@ const handleTraceMoe = async (
   const traceMoe = await requestTraceMoe(image, logger);
 
   if (!traceMoe || traceMoe.result.length === 0) {
-    await editOriginalInteractionResponse(
-      app.id || "",
-      data.token,
-      {
-        content: messageList.sauce.not_found,
-      }
-    );
+    await editOriginalInteractionResponse(app.id || "", data.token, {
+      content: messageList.sauce.not_found,
+    });
     return;
   }
 

@@ -8,10 +8,7 @@ import {
 } from "../helper/interaction-pagination";
 import messageList from "../helper/messages";
 import { getOptions } from "../helper/modules";
-import {
-  addPagination,
-  getApplication,
-} from "../state/store";
+import { addPagination, getApplication } from "../state/store";
 import { requestFandom } from "./request";
 
 interface CommandOptions {
@@ -34,9 +31,7 @@ export default class FandomModule extends BaseModule {
     };
   }
 
-  private commandHandler: SingleCommandHandler = async (
-    data
-  ) => {
+  private commandHandler: SingleCommandHandler = async (data) => {
     const app = getApplication();
     if (app && app.id) {
       const { fandom, query } = getOptions<CommandOptions>(
@@ -45,19 +40,13 @@ export default class FandomModule extends BaseModule {
       );
 
       if (!query || !fandom || fandom.includes(" ")) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.fandom.invalid_slug,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.fandom.invalid_slug,
+        });
         return;
       }
 
-      const fandomSlug = FANDOM_LINKS[fandom]
-        ? FANDOM_LINKS[fandom]
-        : fandom;
+      const fandomSlug = FANDOM_LINKS[fandom] ? FANDOM_LINKS[fandom] : fandom;
 
       const links = await requestFandom(fandomSlug, query);
 
@@ -72,13 +61,9 @@ export default class FandomModule extends BaseModule {
         await pagination.create(data.token);
         addPagination(pagination as InteractionPagination);
       } else {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: "Nothing found",
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: "Nothing found",
+        });
       }
 
       this.logger.log(

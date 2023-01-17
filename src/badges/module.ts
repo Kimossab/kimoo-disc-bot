@@ -1,11 +1,7 @@
 import BaseModule from "#/base-module";
 
 import { editOriginalInteractionResponse } from "../discord/rest";
-import {
-  chunkArray,
-  deleteFile,
-  moveFile,
-} from "../helper/common";
+import { chunkArray, deleteFile, moveFile } from "../helper/common";
 import { downloadImage } from "../helper/images";
 import { InteractionPagination } from "../helper/interaction-pagination";
 import messageList from "../helper/messages";
@@ -86,58 +82,36 @@ export default class BadgesModule extends BaseModule {
     };
   }
 
-  private handleCreateCommand: CommandHandler = async (
-    data,
-    option
-  ) => {
+  private handleCreateCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
-      const { name, image } =
-        getOptions<CreateCommandOptions>(
-          ["name", "image"],
-          option.options
-        );
-      const lastAttachment = getChannelLastAttachment(
-        data.channel_id
+      const { name, image } = getOptions<CreateCommandOptions>(
+        ["name", "image"],
+        option.options
       );
+      const lastAttachment = getChannelLastAttachment(data.channel_id);
       const url = image ?? lastAttachment;
 
       if (!url) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.common.no_image,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.common.no_image,
+        });
         return;
       }
 
       if (!name || (await checkName(name, data.guild_id))) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: "Badge with that name already exists.",
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: "Badge with that name already exists.",
+        });
         return;
       }
 
-      const imagePath = await downloadImage(
-        url,
-        `trash/${name}`
-      );
+      const imagePath = await downloadImage(url, `trash/${name}`);
 
       if (!imagePath.success) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content:
-              "URL is not an image or image is too big (max 20MB)",
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: "URL is not an image or image is too big (max 20MB)",
+        });
         return;
       }
 
@@ -150,13 +124,9 @@ export default class BadgesModule extends BaseModule {
       if (!badge) {
         await deleteFile(`trash/${name}`);
 
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: "Something went wrong",
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: "Something went wrong",
+        });
         return;
       }
 
@@ -174,9 +144,7 @@ export default class BadgesModule extends BaseModule {
             createdBadgeEmbed(
               name,
               `${badge._id}${imagePath.extension}`,
-              await getAverageColor(
-                `badges/${badge._id}${imagePath.extension}`
-              )
+              await getAverageColor(`badges/${badge._id}${imagePath.extension}`)
             ),
           ],
         },
@@ -189,9 +157,7 @@ export default class BadgesModule extends BaseModule {
     }
   };
 
-  private handleListCommand: CommandHandler = async (
-    data
-  ) => {
+  private handleListCommand: CommandHandler = async (data) => {
     const app = getApplication();
 
     if (app && app.id) {
@@ -214,10 +180,7 @@ export default class BadgesModule extends BaseModule {
     }
   };
 
-  private handleGiveCommand: CommandHandler = async (
-    data,
-    option
-  ) => {
+  private handleGiveCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
       const { user, name } = getOptions<GiveCommandOptions>(
@@ -225,60 +188,36 @@ export default class BadgesModule extends BaseModule {
         option.options
       );
       if (!user || !name) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.badges.not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.badges.not_found,
+        });
         return;
       }
 
       const badge = await getByName(name, data.guild_id);
 
       if (!badge) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.badges.not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.badges.not_found,
+        });
         return;
       }
 
-      const userHasBadge = await checkBadgeUser(
-        badge,
-        user,
-        data.guild_id
-      );
+      const userHasBadge = await checkBadgeUser(badge, user, data.guild_id);
 
       if (userHasBadge) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: "User already has this badge.",
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: "User already has this badge.",
+        });
         return;
       }
 
-      const userBadge = await giveBadge(
-        badge,
-        user,
-        data.guild_id
-      );
+      const userBadge = await giveBadge(badge, user, data.guild_id);
 
       if (!userBadge) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.common.internal_error,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.common.internal_error,
+        });
         return;
       }
 
@@ -292,9 +231,7 @@ export default class BadgesModule extends BaseModule {
               badge.name,
               `${badge._id}${badge.fileExtension}`,
               user,
-              await getAverageColor(
-                `badges/${badge._id}${badge.fileExtension}`
-              )
+              await getAverageColor(`badges/${badge._id}${badge.fileExtension}`)
             ),
           ],
         },
@@ -308,41 +245,22 @@ export default class BadgesModule extends BaseModule {
     }
   };
 
-  private handleUserCommand: CommandHandler = async (
-    data,
-    option
-  ) => {
+  private handleUserCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
-      const { user } = getOptions<UserOption>(
-        ["user"],
-        option.options
-      );
+      const { user } = getOptions<UserOption>(["user"], option.options);
       const userId = user || data.member.user?.id || "";
 
-      const allUserBadges = await getAllUserBadges(
-        userId,
-        data.guild_id
-      );
+      const allUserBadges = await getAllUserBadges(userId, data.guild_id);
 
-      if (
-        allUserBadges.length === 0 ||
-        allUserBadges[0].badges.length === 0
-      ) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: "No badges found",
-          }
-        );
+      if (allUserBadges.length === 0 || allUserBadges[0].badges.length === 0) {
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: "No badges found",
+        });
         return;
       }
 
-      const chunks = chunkArray<IBadge>(
-        allUserBadges[0].badges,
-        9
-      );
+      const chunks = chunkArray<IBadge>(allUserBadges[0].badges, 9);
 
       const pagination = new InteractionPagination(
         app.id,
@@ -360,51 +278,31 @@ export default class BadgesModule extends BaseModule {
     }
   };
 
-  private handleDeleteCommand: CommandHandler = async (
-    data,
-    option
-  ) => {
+  private handleDeleteCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
-      const { name } = getOptions<NameOption>(
-        ["name"],
-        option.options
-      );
+      const { name } = getOptions<NameOption>(["name"], option.options);
       if (!name) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.badges.not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.badges.not_found,
+        });
         return;
       }
 
       const badge = await deleteBadge(name, data.guild_id);
 
       if (!badge) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.badges.not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.badges.not_found,
+        });
         return;
       }
 
-      await deleteFile(
-        `badges/${badge.name}.${badge.fileExtension}`
-      );
+      await deleteFile(`badges/${badge.name}.${badge.fileExtension}`);
 
-      await editOriginalInteractionResponse(
-        app.id,
-        data.token,
-        {
-          content: `Badge ${name} deleted`,
-        }
-      );
+      await editOriginalInteractionResponse(app.id, data.token, {
+        content: `Badge ${name} deleted`,
+      });
 
       this.logger.log(
         `Delete badge ${name} by ${data.member.user?.id} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`

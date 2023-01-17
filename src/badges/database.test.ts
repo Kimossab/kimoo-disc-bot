@@ -21,11 +21,7 @@ describe("Badges database", () => {
 
   beforeEach(async () => {
     for (const fix of badgeListFixture) {
-      await createBadge(
-        fix.name,
-        fix.server,
-        fix.fileExtension
-      );
+      await createBadge(fix.name, fix.server, fix.fileExtension);
     }
   });
 
@@ -46,17 +42,12 @@ describe("Badges database", () => {
 
     expect(badge).not.toBeNull();
     expect(badge?.name).toEqual(badgeListFixture[0].name);
-    expect(badge?.fileExtension).toEqual(
-      badgeListFixture[0].fileExtension
-    );
+    expect(badge?.fileExtension).toEqual(badgeListFixture[0].fileExtension);
   });
 
   it("should return true for a name that exists and false otherwise", async () => {
     await expect(
-      checkName(
-        badgeListFixture[0].name,
-        badgeListFixture[0].server
-      )
+      checkName(badgeListFixture[0].name, badgeListFixture[0].server)
     ).resolves.toBe(true);
 
     await expect(
@@ -65,13 +56,9 @@ describe("Badges database", () => {
   });
 
   it("should return the list of badges of a server", async () => {
-    await expect(
-      getAllBadges(badgeListFixture[0].server)
-    ).resolves.toEqual(
+    await expect(getAllBadges(badgeListFixture[0].server)).resolves.toEqual(
       badgeListFixture
-        .filter(
-          (b) => b.server === badgeListFixture[0].server
-        )
+        .filter((b) => b.server === badgeListFixture[0].server)
         .map((b) => expect.objectContaining(b))
     );
   });
@@ -92,10 +79,7 @@ describe("Badges database", () => {
     }
 
     await expect(
-      getAllUserBadges(
-        "USER_ID",
-        badgeListFixture[0].server
-      )
+      getAllUserBadges("USER_ID", badgeListFixture[0].server)
     ).resolves.toEqual([
       {
         _id: "USER_ID",
@@ -116,30 +100,17 @@ describe("Badges database", () => {
     await giveBadge(badge, "USER_ID", badge.server);
 
     await expect(
-      checkBadgeUser(
-        badge,
-        "USER_ID",
-        badgeListFixture[2].server
-      )
+      checkBadgeUser(badge, "USER_ID", badgeListFixture[2].server)
     ).resolves.toBe(true);
     await expect(
-      checkBadgeUser(
-        badge,
-        "USER_ID2",
-        badgeListFixture[2].server
-      )
+      checkBadgeUser(badge, "USER_ID2", badgeListFixture[2].server)
     ).resolves.toBe(false);
   });
 
   it("should delete a badge", async () => {
-    await deleteBadge(
-      badgeListFixture[2].name,
-      badgeListFixture[2].server
-    );
+    await deleteBadge(badgeListFixture[2].name, badgeListFixture[2].server);
 
-    await expect(
-      getAllBadges(badgeListFixture[2].server)
-    ).resolves.toEqual(
+    await expect(getAllBadges(badgeListFixture[2].server)).resolves.toEqual(
       expect.arrayContaining(
         badgeListFixture
           .filter(

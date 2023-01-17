@@ -8,13 +8,11 @@ jest.mock("./helpers/anime-manager");
 jest.mock("./helpers/rate-limiter");
 jest.mock("@/helper/logger");
 
-(AnimeManager as jest.Mock).mockImplementation(
-  (...props) => ({
-    props,
-    id: props[2].id,
-    checkNextEpisode: jest.fn(),
-  })
-);
+(AnimeManager as jest.Mock).mockImplementation((...props) => ({
+  props,
+  id: props[2].id,
+  checkNextEpisode: jest.fn(),
+}));
 
 (getAllAnimeNotifications as jest.Mock).mockResolvedValue([
   {
@@ -33,9 +31,7 @@ describe("Anilist Module", () => {
     });
 
     it("should not get data from the database", () => {
-      expect(
-        getAllAnimeNotifications
-      ).not.toHaveBeenCalled();
+      expect(getAllAnimeNotifications).not.toHaveBeenCalled();
     });
   });
 

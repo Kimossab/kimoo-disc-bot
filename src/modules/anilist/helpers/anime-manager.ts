@@ -7,10 +7,7 @@ import {
   getAllSubscriptionsForAnime,
   setNextAiring,
 } from "../database";
-import {
-  getNextAiringEpisode,
-  searchByScheduleId,
-} from "../graphql/graphql";
+import { getNextAiringEpisode, searchByScheduleId } from "../graphql/graphql";
 import { mapMediaAiringToNewEpisodeEmbed } from "../mappers/mapMediaAiringToNewEpisodeEmbed";
 import { IAnimeNotification } from "../models/animeNotification.model";
 import { AiringSchedule } from "../types/graphql";
@@ -51,13 +48,10 @@ export class AnimeManager {
     );
 
     if (!scheduleInfo) {
-      this.logger.log(
-        "No info found for airing id from Anilist",
-        {
-          nextAiring: this.anime.nextAiring,
-          id: this.anime.id,
-        }
-      );
+      this.logger.log("No info found for airing id from Anilist", {
+        nextAiring: this.anime.nextAiring,
+        id: this.anime.id,
+      });
       await this.setNextEpisodeOrDelete();
       return;
     }
@@ -75,9 +69,7 @@ export class AnimeManager {
           "Next episode aired already in the past",
           scheduleInfo.AiringSchedule
         );
-        await this.notifyNewEpisode(
-          scheduleInfo.AiringSchedule
-        );
+        await this.notifyNewEpisode(scheduleInfo.AiringSchedule);
 
         // await setNextAiring(
         //   this.anime.id,
@@ -104,9 +96,7 @@ export class AnimeManager {
       animeInfo.episode,
       animeInfo.airingAt
     );
-    const subs = await getAllSubscriptionsForAnime(
-      animeInfo.media.id
-    );
+    const subs = await getAllSubscriptionsForAnime(animeInfo.media.id);
 
     const servers = subs.map((s) => s.server);
     const uniqServers = [...new Set(servers)];
@@ -156,31 +146,23 @@ export class AnimeManager {
 
     const nextEpisode = animeInfo.Media.nextAiringEpisode;
 
-    this.logger.log(
-      "Setting next episode in the database",
-      { id: this.anime.id, nextEpisode }
-    );
-    await setNextAiring(
-      this.anime.id,
-      nextEpisode?.id ?? null
-    );
+    this.logger.log("Setting next episode in the database", {
+      id: this.anime.id,
+      nextEpisode,
+    });
+    await setNextAiring(this.anime.id, nextEpisode?.id ?? null);
 
     this.setTimer(nextEpisode?.timeUntilAiring);
   };
 
   private setTimer = (time: number = DEFAULT_TIMER) => {
     const timeToAir = Math.min(time * 1000, MAX_TIMER);
-    this.logger.log(
-      `Set timeout for ${this.anime.id} with ${timeToAir}ms`
-    );
+    this.logger.log(`Set timeout for ${this.anime.id} with ${timeToAir}ms`);
 
     if (this.timer) {
       clearTimeout(this.timer);
     }
 
-    this.timer = setTimeout(
-      () => this.checkNextEpisode(),
-      timeToAir
-    );
+    this.timer = setTimeout(() => this.checkNextEpisode(), timeToAir);
   };
 }

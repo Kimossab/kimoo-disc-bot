@@ -55,9 +55,7 @@ jest.mock("../helper/common", () => ({
 (downloadImage as jest.Mock).mockReturnValue({
   success: true,
 });
-(
-  setCommandExecutedCallback as unknown as jest.Mock
-).mockImplementation(
+(setCommandExecutedCallback as unknown as jest.Mock).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
@@ -115,9 +113,7 @@ describe("VNDB module", () => {
 
   it("should create pagination", async () => {
     (vndbSearchEmbed as jest.Mock).mockReturnValue({});
-    (
-      editOriginalInteractionResponse as jest.Mock
-    ).mockReturnValue({});
+    (editOriginalInteractionResponse as jest.Mock).mockReturnValue({});
 
     await commandCallback({
       ...baseCommand,

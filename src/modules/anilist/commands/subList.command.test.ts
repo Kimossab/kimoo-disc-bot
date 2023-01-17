@@ -1,14 +1,8 @@
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
-import {
-  manyUserSubs,
-  manyUserSubsAnilist,
-} from "@/helper/mocks/factories";
-import {
-  addPagination,
-  getApplication,
-} from "@/state/store";
+import { manyUserSubs, manyUserSubsAnilist } from "@/helper/mocks/factories";
+import { addPagination, getApplication } from "@/state/store";
 
 import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
@@ -28,11 +22,9 @@ const mockData = {
   member: { user: { id: "1234567890" } },
 };
 
-(InteractionPagination as jest.Mock).mockImplementation(
-  () => ({
-    create: jest.fn(),
-  })
-);
+(InteractionPagination as jest.Mock).mockImplementation(() => ({
+  create: jest.fn(),
+}));
 (getApplication as jest.Mock).mockReturnValue({
   id: "123456789",
 });
@@ -52,10 +44,7 @@ describe("Anilist schedule command", () => {
   it("should get the subscriptions of the user getUserSubs", async () => {
     await handler(mockData, {});
 
-    expect(getUserSubs).toHaveBeenCalledWith(
-      "randomGuildId",
-      "1234567890"
-    );
+    expect(getUserSubs).toHaveBeenCalledWith("randomGuildId", "1234567890");
   });
 
   it("should edit message with 'No subscriptions' when there's no sub", async () => {
@@ -63,11 +52,13 @@ describe("Anilist schedule command", () => {
 
     await handler(mockData, {});
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith("123456789", "randomToken", {
-      content: "No subscriptions",
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      "123456789",
+      "randomToken",
+      {
+        content: "No subscriptions",
+      }
+    );
   });
 
   it("should get info from anilist for those subscriptions", async () => {
@@ -89,38 +80,30 @@ describe("Anilist schedule command", () => {
   });
 
   it("should edit message with 'No subscriptions' when anilist returns nothing", async () => {
-    (searchForUser as jest.Mock).mockResolvedValueOnce(
-      null
-    );
-    (searchForUser as jest.Mock).mockResolvedValueOnce(
-      null
-    );
+    (searchForUser as jest.Mock).mockResolvedValueOnce(null);
+    (searchForUser as jest.Mock).mockResolvedValueOnce(null);
 
     await handler(mockData, {});
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith("123456789", "randomToken", {
-      content: "No subscriptions",
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      "123456789",
+      "randomToken",
+      {
+        content: "No subscriptions",
+      }
+    );
   });
 
   it("should create a new pagination with the correct values and add it to the pagination list", async () => {
-    (searchForUser as jest.Mock).mockResolvedValueOnce(
-      manyUserSubsAnilist(25)
-    );
-    (searchForUser as jest.Mock).mockResolvedValueOnce(
-      manyUserSubsAnilist(5)
-    );
+    (searchForUser as jest.Mock).mockResolvedValueOnce(manyUserSubsAnilist(25));
+    (searchForUser as jest.Mock).mockResolvedValueOnce(manyUserSubsAnilist(5));
 
     await handler(mockData, {});
 
     expect(InteractionPagination).toHaveBeenCalledWith(
       "123456789",
       [
-        Array.from({ length: 25 }, () =>
-          expect.any(Object)
-        ),
+        Array.from({ length: 25 }, () => expect.any(Object)),
         Array.from({ length: 5 }, () => expect.any(Object)),
       ],
       expect.any(Function)

@@ -16,10 +16,7 @@ import {
   getUserAchievement,
   updateAchievement,
 } from "./database";
-import {
-  achievementListFixtures,
-  rankListFixtures,
-} from "./fixtures";
+import { achievementListFixtures, rankListFixtures } from "./fixtures";
 import { IAchievement } from "./models/achievement.model";
 import MongoMemoryServer from "mongodb-memory-server-core";
 
@@ -58,9 +55,7 @@ describe("Achievement database", () => {
     );
 
     expect(achievement).not.toBeNull();
-    expect(achievement?.name).toEqual(
-      achievementListFixtures[0].name
-    );
+    expect(achievement?.name).toEqual(achievementListFixtures[0].name);
     expect(achievement?.description).toEqual(
       achievementListFixtures[0].description
     );
@@ -97,9 +92,7 @@ describe("Achievement database", () => {
     if (!achievement) {
       throw new Error("achievement is null");
     }
-    expect(achievement.name).toMatch(
-      achievementListFixtures[0].name
-    );
+    expect(achievement.name).toMatch(achievementListFixtures[0].name);
 
     const updatedAchievement = await updateAchievement(
       achievementListFixtures[0].server,
@@ -113,9 +106,7 @@ describe("Achievement database", () => {
     expect(updatedAchievement?.name).toEqual(
       achievementListFixtures[0].name + " update"
     );
-    expect(updatedAchievement?.image).toEqual(
-      "some image url"
-    );
+    expect(updatedAchievement?.image).toEqual("some image url");
     expect(updatedAchievement?.description).toEqual(
       achievementListFixtures[0].description + " updated"
     );
@@ -125,10 +116,7 @@ describe("Achievement database", () => {
   });
 
   it("should delete the achievement", async () => {
-    await deleteAchievement(
-      achievementListFixtures[0].server,
-      1
-    );
+    await deleteAchievement(achievementListFixtures[0].server, 1);
     const achievement = await getAchievementById(
       achievementListFixtures[0].server,
       1
@@ -166,9 +154,7 @@ describe("Achievement database", () => {
       expect(userAchievement?.server).toEqual(
         achievementListFixtures[0].server
       );
-      expect(userAchievement?.achievement).toEqual(
-        achievement._id
-      );
+      expect(userAchievement?.achievement).toEqual(achievement._id);
     });
 
     it("should get a list of achievements for a user", async () => {
@@ -181,10 +167,9 @@ describe("Achievement database", () => {
     });
 
     it("should get a the server leaderboard", async () => {
-      const leaderboard =
-        await getServerAchievementLeaderboard(
-          achievementListFixtures[0].server
-        );
+      const leaderboard = await getServerAchievementLeaderboard(
+        achievementListFixtures[0].server
+      );
 
       expect(leaderboard.length).toEqual(1);
       expect(leaderboard).toEqual(
@@ -211,9 +196,7 @@ describe("Achievement database", () => {
         rankListFixtures[0].name
       );
 
-      expect(rank).toEqual(
-        expect.objectContaining(rankListFixtures[0])
-      );
+      expect(rank).toEqual(expect.objectContaining(rankListFixtures[0]));
     });
 
     it("should get the rank by points", async () => {
@@ -222,15 +205,11 @@ describe("Achievement database", () => {
         rankListFixtures[1].points
       );
 
-      expect(rank).toEqual(
-        expect.objectContaining(rankListFixtures[1])
-      );
+      expect(rank).toEqual(expect.objectContaining(rankListFixtures[1]));
     });
 
     it("should get the server ranks", async () => {
-      const ranks = await getServerRanks(
-        rankListFixtures[1].server
-      );
+      const ranks = await getServerRanks(rankListFixtures[1].server);
 
       expect(ranks).toEqual(
         expect.arrayContaining([
@@ -242,15 +221,10 @@ describe("Achievement database", () => {
 
     it("should delete without throwing errors", async () => {
       await expect(
-        deleteRank(
-          rankListFixtures[0].server,
-          rankListFixtures[0].name
-        )
+        deleteRank(rankListFixtures[0].server, rankListFixtures[0].name)
       ).resolves.not.toThrow();
 
-      const ranks = await getServerRanks(
-        rankListFixtures[0].server
-      );
+      const ranks = await getServerRanks(rankListFixtures[0].server);
       expect(ranks.length).toEqual(2);
     });
   });

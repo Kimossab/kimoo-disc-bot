@@ -9,17 +9,13 @@ export interface IBirthday extends Document {
   lastWishes: number | null;
 }
 
-const BirthdaySchema: Schema<IBirthday> =
-  new mongoose.Schema({
-    day: Number,
-    month: Number,
-    year: Number,
-    user: String,
-    server: String,
-    lastWishes: Number,
-  });
+const BirthdaySchema: Schema<IBirthday> = new mongoose.Schema({
+  day: Number,
+  month: Number,
+  year: Number,
+  user: String,
+  server: String,
+  lastWishes: Number,
+});
 
-export default mongoose.model<IBirthday>(
-  "Birthday",
-  BirthdaySchema
-);
+export default mongoose.model<IBirthday>("Birthday", BirthdaySchema);

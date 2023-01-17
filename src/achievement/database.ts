@@ -1,6 +1,4 @@
-import Achievement, {
-  IAchievement,
-} from "./models/achievement.model";
+import Achievement, { IAchievement } from "./models/achievement.model";
 import AchievementRank, {
   IAchievementRank,
 } from "./models/achievement-rank.model";
@@ -9,16 +7,17 @@ import UserAchievement, {
 } from "./models/user-achievement.model";
 import { PipelineStage } from "mongoose";
 
-const getHighestId = async (
-  server: string
-): Promise<number> => {
-  const ach: Nullable<IAchievement> =
-    await Achievement.findOne({ server }, null, {
+const getHighestId = async (server: string): Promise<number> => {
+  const ach: Nullable<IAchievement> = await Achievement.findOne(
+    { server },
+    null,
+    {
       sort: {
         id: -1,
       },
       limit: 1,
-    });
+    }
+  );
 
   return ach ? ach.id : 0;
 };
@@ -231,9 +230,7 @@ export const createUserAchievement = async (
   user: string,
   achievement: IAchievement
 ): Promise<void> => {
-  if (
-    !(await getUserAchievement(server, user, achievement))
-  ) {
+  if (!(await getUserAchievement(server, user, achievement))) {
     const uAch = new UserAchievement();
     uAch.user = user;
     uAch.server = server;

@@ -1,7 +1,5 @@
 import Badge, { IBadge } from "./models/badges.model";
-import UserBadge, {
-  IUserBadge,
-} from "./models/user-badge.model";
+import UserBadge, { IUserBadge } from "./models/user-badge.model";
 
 export const createBadge = async (
   name: string,
@@ -37,9 +35,7 @@ export const checkName = async (
   return !!badge;
 };
 
-export const getAllBadges = async (
-  server: string
-): Promise<IBadge[]> =>
+export const getAllBadges = async (server: string): Promise<IBadge[]> =>
   await Badge.find({
     server,
   });
