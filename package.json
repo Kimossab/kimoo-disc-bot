@@ -4,7 +4,7 @@
   "description": "Kimossab's Discord Bot",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "dev": "ts-node-dev --respawn --transpile-only ./src/bot.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only ./src/bot.ts",
     "test": "jest --maxWorkers=1",
     "coverage": "jest --coverage --detectOpenHandles --maxWorkers=1",
     "prod": "node ./build/bot.js",
@@ -40,6 +40,7 @@
     "prettier": "^2.8.1",
     "ts-jest": "^29.0.3",
     "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.1.2",
     "typescript": "^4.9.4"
   },
   "dependencies": {

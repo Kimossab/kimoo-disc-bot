@@ -10,12 +10,9 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
+      "#*": ["src/modules/*"],
       "@/*": ["src/*"]
     }
   },
-  "exclude": [
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "src/**/*fixture*"
-  ]
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "src/**/*fixture*"]
 }

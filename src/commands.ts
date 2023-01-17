@@ -1,12 +1,107 @@
 import { MediaType } from "#anilist/types/graphql";
 
 import {
+  ApplicationCommand,
+  ApplicationCommandOption,
+  ApplicationCommandOptionChoice,
   ApplicationCommandOptionType,
   ApplicationCommandType,
   CreateGlobalApplicationCommand,
 } from "./types/discord";
 
-export const version = "1.4.5";
+const compareChoices = (
+  localChoices: ApplicationCommandOptionChoice[] = [],
+  onlineChoices: ApplicationCommandOptionChoice[] = []
+): boolean => {
+  if (!localChoices && !onlineChoices) {
+    return true;
+  }
+  if (
+    !localChoices ||
+    !onlineChoices ||
+    localChoices.length !== onlineChoices.length
+  ) {
+    return false;
+  }
+
+  for (const choice of localChoices) {
+    const oChoice = onlineChoices.find((c) => c.name === choice.name);
+    if (!oChoice) {
+      return false;
+    }
+
+    if (oChoice.value !== choice.value) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+const compareOptions = (
+  localOpt: ApplicationCommandOption[] = [],
+  onlineOpt: ApplicationCommandOption[] = []
+): boolean => {
+  if (localOpt.length !== onlineOpt.length) {
+    return false;
+  }
+
+  for (const option of localOpt) {
+    const opt = onlineOpt.find((o) => o.name === option.name);
+
+    if (!opt) {
+      return false;
+    }
+
+    const keys = Object.keys(option) as (keyof ApplicationCommandOption)[];
+
+    for (const key of keys) {
+      if (
+        ![
+          "options",
+          "choices",
+          "name_localizations",
+          "description_localizations",
+        ].includes(key)
+      ) {
+        if (option[key] !== opt[key]) {
+          return false;
+        }
+      }
+    }
+
+    if (!compareChoices(option.choices, opt.choices)) {
+      return false;
+    }
+
+    if (!compareOptions(option.options, opt.options)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const compareCommands = (
+  appCmd: CreateGlobalApplicationCommand,
+  onlineCmd: ApplicationCommand
+): boolean => {
+  const keys = Object.keys(appCmd) as (keyof CreateGlobalApplicationCommand)[];
+
+  for (const key of keys) {
+    if (
+      !["options", "name_localizations", "description_localizations"].includes(
+        key
+      )
+    ) {
+      if (appCmd[key] !== onlineCmd[key]) {
+        return false;
+      }
+    }
+  }
+
+  return compareOptions(appCmd.options, onlineCmd.options);
+};
 
 export const list: CreateGlobalApplicationCommand[] = [
   {
@@ -38,7 +133,6 @@ export const list: CreateGlobalApplicationCommand[] = [
                 value: MediaType.MANGA,
               },
             ],
-            required: false,
           },
         ],
       },
@@ -92,7 +186,6 @@ export const list: CreateGlobalApplicationCommand[] = [
             description:
               "The channel where the anime notification messages are sent to",
             type: ApplicationCommandOptionType.CHANNEL,
-            required: false,
           },
         ],
       },
@@ -114,7 +207,6 @@ export const list: CreateGlobalApplicationCommand[] = [
             description:
               "The channel where the happy birthday message is sent to",
             type: ApplicationCommandOptionType.CHANNEL,
-            required: false,
           },
         ],
       },
@@ -144,14 +236,12 @@ export const list: CreateGlobalApplicationCommand[] = [
       },
       {
         name: "remove",
-        description:
-          "Removes someone's birthday from the database",
+        description: "Removes someone's birthday from the database",
         type: ApplicationCommandOptionType.SUB_COMMAND,
         options: [
           {
             name: "user",
-            description:
-              "The user whose birthday you're removing",
+            description: "The user whose birthday you're removing",
             type: ApplicationCommandOptionType.USER,
             required: true,
           },
@@ -159,23 +249,18 @@ export const list: CreateGlobalApplicationCommand[] = [
       },
       {
         name: "get",
-        description:
-          "Gets someone's birthday from the database",
+        description: "Gets someone's birthday from the database",
         type: ApplicationCommandOptionType.SUB_COMMAND,
         options: [
           {
             name: "user",
-            description:
-              "The user whose birthday you're getting",
+            description: "The user whose birthday you're getting",
             type: ApplicationCommandOptionType.USER,
-            required: false,
           },
           {
             name: "month",
-            description:
-              "The users whose birthday is on a certain month",
+            description: "The users whose birthday is on a certain month",
             type: ApplicationCommandOptionType.INTEGER,
-            required: false,
           },
         ],
       },
@@ -187,16 +272,13 @@ export const list: CreateGlobalApplicationCommand[] = [
       },
       {
         name: "role",
-        description:
-          "Sets the role to give to users on their birthday",
+        description: "Sets the role to give to users on their birthday",
         type: ApplicationCommandOptionType.SUB_COMMAND,
         options: [
           {
             name: "role",
-            description:
-              "The role to give to users on their birthday",
+            description: "The role to give to users on their birthday",
             type: ApplicationCommandOptionType.ROLE,
-            required: false,
           },
         ],
       },
@@ -253,7 +335,6 @@ export const list: CreateGlobalApplicationCommand[] = [
             name: "role",
             description: "Role you want to set as admin",
             type: ApplicationCommandOptionType.ROLE,
-            required: false,
           },
         ],
       },
@@ -261,13 +342,11 @@ export const list: CreateGlobalApplicationCommand[] = [
   },
   {
     name: "achievements",
-    description:
-      "Handles everything related to achievements",
+    description: "Handles everything related to achievements",
     options: [
       {
         name: "create",
-        description:
-          "Creates a new achievement (admin only)",
+        description: "Creates a new achievement (admin only)",
         type: ApplicationCommandOptionType.SUB_COMMAND,
         options: [
           {
@@ -292,7 +371,6 @@ export const list: CreateGlobalApplicationCommand[] = [
             name: "image",
             description: "Achievement image URL",
             type: ApplicationCommandOptionType.STRING,
-            required: false,
           },
         ],
       },
@@ -362,7 +440,6 @@ export const list: CreateGlobalApplicationCommand[] = [
                 name: "user",
                 description: "User to get the rank of",
                 type: ApplicationCommandOptionType.USER,
-                required: false,
               },
             ],
           },
@@ -385,8 +462,7 @@ export const list: CreateGlobalApplicationCommand[] = [
               },
               {
                 name: "points",
-                description:
-                  "Points necessary to achieve this rank",
+                description: "Points necessary to achieve this rank",
                 type: ApplicationCommandOptionType.INTEGER,
                 required: true,
               },
@@ -427,7 +503,6 @@ export const list: CreateGlobalApplicationCommand[] = [
                 name: "user",
                 description: "User to lsit",
                 type: ApplicationCommandOptionType.USER,
-                required: false,
               },
             ],
           },
@@ -435,8 +510,7 @@ export const list: CreateGlobalApplicationCommand[] = [
       },
       {
         name: "give",
-        description:
-          "Gives an achievement to a user (Admin only)",
+        description: "Gives an achievement to a user (Admin only)",
         type: ApplicationCommandOptionType.SUB_COMMAND,
         options: [
           {
@@ -447,8 +521,7 @@ export const list: CreateGlobalApplicationCommand[] = [
           },
           {
             name: "achievement",
-            description:
-              "Achievement id to give to the user",
+            description: "Achievement id to give to the user",
             type: ApplicationCommandOptionType.INTEGER,
             required: true,
           },
@@ -485,8 +558,7 @@ export const list: CreateGlobalApplicationCommand[] = [
           },
           {
             name: "values",
-            description:
-              "Names to group (seperate each name with ` | `)",
+            description: "Names to group (seperate each name with ` | `)",
             type: ApplicationCommandOptionType.STRING,
             required: true,
           },
@@ -501,13 +573,11 @@ export const list: CreateGlobalApplicationCommand[] = [
             name: "a",
             description: "Angle of A (radians)",
             type: ApplicationCommandOptionType.STRING,
-            required: false,
           },
           {
             name: "b",
             description: "Angle of B (radians)",
             type: ApplicationCommandOptionType.STRING,
-            required: false,
           },
         ],
       },
@@ -532,14 +602,12 @@ export const list: CreateGlobalApplicationCommand[] = [
             name: "image",
             description: "Badge image",
             type: ApplicationCommandOptionType.STRING,
-            required: false,
           },
         ],
       },
       {
         name: "list",
-        description:
-          "List badges from the user or the server",
+        description: "List badges from the user or the server",
         type: ApplicationCommandOptionType.SUB_COMMAND,
       },
       {
@@ -570,7 +638,6 @@ export const list: CreateGlobalApplicationCommand[] = [
             name: "user",
             description: "User",
             type: ApplicationCommandOptionType.USER,
-            required: false,
           },
         ],
       },

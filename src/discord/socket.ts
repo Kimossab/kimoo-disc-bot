@@ -65,10 +65,7 @@ class Socket {
   }
 
   private onClose(e: unknown) {
-    this.logger.log(
-      "Socket closed - Restarting in 2 seconds",
-      e
-    );
+    this.logger.log("Socket closed - Restarting in 2 seconds", e);
 
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
@@ -168,7 +165,7 @@ class Socket {
           this.logger.log("Did not resume.");
           this.identify();
         }
-      }, 2000);
+      }, 20000);
     } else {
       this.identify();
     }
@@ -190,20 +187,14 @@ class Socket {
         try {
           commandExecuted(event.d);
         } catch (e) {
-          this.logger.error(
-            "Failed to handle interaction",
-            e
-          );
+          this.logger.error("Failed to handle interaction", e);
         }
         break;
       case GatewayEvent.MessageCreate:
         if (event.d.attachments.length > 0) {
           setChannelLastAttachment({
             channel: event.d.channel_id,
-            attachment:
-              event.d.attachments[
-                event.d.attachments.length - 1
-              ].url,
+            attachment: event.d.attachments[event.d.attachments.length - 1].url,
           });
         }
 
@@ -239,10 +230,7 @@ class Socket {
   }
 
   public randomPresence(): void {
-    const randomPresence = randomNum(
-      0,
-      PRESENCE_STRINGS.length
-    );
+    const randomPresence = randomNum(0, PRESENCE_STRINGS.length);
     this.logger.log(
       `Updating bot presence to "${PRESENCE_STRINGS[randomPresence]}"`
     );
@@ -300,20 +288,14 @@ class Socket {
         /^sudo\smessage\s(?<channel>\d*)\s(?<content>(.|\n)*)/gm;
       const sendMatch = sendMessageRegex.exec(data.content);
 
-      if (
-        sendMatch &&
-        sendMatch.groups?.channel &&
-        sendMatch.groups?.content
-      ) {
+      if (sendMatch && sendMatch.groups?.channel && sendMatch.groups?.content) {
         const message = await sendMessage(
           sendMatch.groups.channel,
           `${sendMatch.groups.content}\n[stuff](https://www.livechart.me/anime/1235)`
         );
         await sendMessage(
           data.channel_id,
-          message
-            ? "Message sent successfully"
-            : "Failed to send message"
+          message ? "Message sent successfully" : "Failed to send message"
         );
         return;
       }
@@ -335,9 +317,7 @@ class Socket {
         );
         await sendMessage(
           data.channel_id,
-          message
-            ? "Message edited successfully"
-            : "Failed to edit message"
+          message ? "Message edited successfully" : "Failed to edit message"
         );
       }
     }

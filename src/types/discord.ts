@@ -1028,8 +1028,11 @@ export interface ApplicationCommandOption {
   name: string;
   /** 1-100 character description */
   description: string;
-  /** if the parameter is required or optional--default false */
-  required?: boolean;
+  /**
+   * if the parameter is required or optional--default false.\
+   * `true` to prevent using `required: false` as that breaks the comparision
+   */
+  required?: true;
   /** choices for STRING, INTEGER, and NUMBER types for the user to pick from, max 25 */
   choices?: ApplicationCommandOptionChoice[];
   /** if the option is a subcommand or subcommand group type, these nested options will be the parameters */
@@ -2240,60 +2243,27 @@ export type DispatchPayload =
   | DispatchPayloadBase<GatewayEvent.Ready, Ready>
   | DispatchPayloadBase<GatewayEvent.Resumed, unknown>
   | DispatchPayloadBase<GatewayEvent.Reconnect, unknown>
-  | DispatchPayloadBase<
-      GatewayEvent.InvalidSession,
-      boolean
-    >
+  | DispatchPayloadBase<GatewayEvent.InvalidSession, boolean>
   | DispatchPayloadBase<GatewayEvent.ChannelCreate, Channel>
   | DispatchPayloadBase<GatewayEvent.ChannelUpdate, Channel>
   | DispatchPayloadBase<GatewayEvent.ChannelDelete, Channel>
-  | DispatchPayloadBase<
-      GatewayEvent.ChannelPinsUpdate,
-      ChannelPinsUpdate
-    >
+  | DispatchPayloadBase<GatewayEvent.ChannelPinsUpdate, ChannelPinsUpdate>
   | DispatchPayloadBase<GatewayEvent.ThreadCreate, Channel>
   | DispatchPayloadBase<GatewayEvent.ThreadUpdate, Channel>
   | DispatchPayloadBase<
       GatewayEvent.ThreadDelete,
-      Pick<
-        Channel,
-        "id" | "guild_id" | "parent_id" | "type"
-      >
+      Pick<Channel, "id" | "guild_id" | "parent_id" | "type">
     >
-  | DispatchPayloadBase<
-      GatewayEvent.ThreadListSync,
-      ThreadListSync
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.ThreadMemberUpdate,
-      ThreadMember
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.ThreadMembersUpdate,
-      ThreadMember[]
-    >
+  | DispatchPayloadBase<GatewayEvent.ThreadListSync, ThreadListSync>
+  | DispatchPayloadBase<GatewayEvent.ThreadMemberUpdate, ThreadMember>
+  | DispatchPayloadBase<GatewayEvent.ThreadMembersUpdate, ThreadMember[]>
   | DispatchPayloadBase<GatewayEvent.GuildCreate, Guild>
   | DispatchPayloadBase<GatewayEvent.GuildUpdate, Guild>
-  | DispatchPayloadBase<
-      GatewayEvent.GuildDelete,
-      UnavailableGuild
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildBanAdd,
-      GuildBanAdd
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildBanRemove,
-      GuildBanRemove
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildEmojisUpdate,
-      GuildEmojisUpdate
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildStickersUpdate,
-      GuildStickersUpdate
-    >
+  | DispatchPayloadBase<GatewayEvent.GuildDelete, UnavailableGuild>
+  | DispatchPayloadBase<GatewayEvent.GuildBanAdd, GuildBanAdd>
+  | DispatchPayloadBase<GatewayEvent.GuildBanRemove, GuildBanRemove>
+  | DispatchPayloadBase<GatewayEvent.GuildEmojisUpdate, GuildEmojisUpdate>
+  | DispatchPayloadBase<GatewayEvent.GuildStickersUpdate, GuildStickersUpdate>
   | DispatchPayloadBase<
       GatewayEvent.GuildIntegrationsUpdate,
       GuildIntegrationsUpdate
@@ -2302,42 +2272,15 @@ export type DispatchPayload =
       GatewayEvent.GuildMemberAdd,
       GuildMember & { guild_id: snowflake }
     >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildMemberRemove,
-      GuildMemberRemove
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildMemberRemove,
-      GuildMemberUpdate
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildMembersChunk,
-      GuildMembersChunk
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildRoleCreate,
-      GuildRoleCreate
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildRoleUpdate,
-      GuildRoleUpdate
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildRoleDelete,
-      GuildRoleDelete
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildScheduledEventCreate,
-      ScheduledEvent
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildScheduledEventUpdate,
-      ScheduledEvent
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.GuildScheduledEventDelete,
-      ScheduledEvent
-    >
+  | DispatchPayloadBase<GatewayEvent.GuildMemberRemove, GuildMemberRemove>
+  | DispatchPayloadBase<GatewayEvent.GuildMemberRemove, GuildMemberUpdate>
+  | DispatchPayloadBase<GatewayEvent.GuildMembersChunk, GuildMembersChunk>
+  | DispatchPayloadBase<GatewayEvent.GuildRoleCreate, GuildRoleCreate>
+  | DispatchPayloadBase<GatewayEvent.GuildRoleUpdate, GuildRoleUpdate>
+  | DispatchPayloadBase<GatewayEvent.GuildRoleDelete, GuildRoleDelete>
+  | DispatchPayloadBase<GatewayEvent.GuildScheduledEventCreate, ScheduledEvent>
+  | DispatchPayloadBase<GatewayEvent.GuildScheduledEventUpdate, ScheduledEvent>
+  | DispatchPayloadBase<GatewayEvent.GuildScheduledEventDelete, ScheduledEvent>
   | DispatchPayloadBase<
       GatewayEvent.GuildScheduledEventUserAdd,
       GuildScheduledEventUserAdd
@@ -2354,39 +2297,15 @@ export type DispatchPayload =
       GatewayEvent.IntegrationUpdate,
       Integration & { guild_id: snowflake }
     >
-  | DispatchPayloadBase<
-      GatewayEvent.IntegrationDelete,
-      IntegrationDelete
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.InteractionCreate,
-      Interaction
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.InviteCreate,
-      InviteCreate
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.InviteDelete,
-      InviteDelete
-    >
+  | DispatchPayloadBase<GatewayEvent.IntegrationDelete, IntegrationDelete>
+  | DispatchPayloadBase<GatewayEvent.InteractionCreate, Interaction>
+  | DispatchPayloadBase<GatewayEvent.InviteCreate, InviteCreate>
+  | DispatchPayloadBase<GatewayEvent.InviteDelete, InviteDelete>
   | DispatchPayloadBase<GatewayEvent.MessageCreate, Message>
-  | DispatchPayloadBase<
-      GatewayEvent.MessageUpdate,
-      Partial<Message>
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.MessageDelete,
-      MessageDelete
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.MessageDeleteBulk,
-      MessageDeleteBulk
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.MessageReactionAdd,
-      MessageReactionAdd
-    >
+  | DispatchPayloadBase<GatewayEvent.MessageUpdate, Partial<Message>>
+  | DispatchPayloadBase<GatewayEvent.MessageDelete, MessageDelete>
+  | DispatchPayloadBase<GatewayEvent.MessageDeleteBulk, MessageDeleteBulk>
+  | DispatchPayloadBase<GatewayEvent.MessageReactionAdd, MessageReactionAdd>
   | DispatchPayloadBase<
       GatewayEvent.MessageReactionRemove,
       MessageReactionRemove
@@ -2399,39 +2318,15 @@ export type DispatchPayload =
       GatewayEvent.MessageReactionRemoveEmoji,
       MessageReactionRemoveEmoji
     >
-  | DispatchPayloadBase<
-      GatewayEvent.PresenceUpdate,
-      PresenceUpdate
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.StageInstanceCreate,
-      StageInstance
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.StageInstanceUpdate,
-      StageInstance
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.StageInstanceDelete,
-      StageInstance
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.TypingStart,
-      TypingStart
-    >
+  | DispatchPayloadBase<GatewayEvent.PresenceUpdate, PresenceUpdate>
+  | DispatchPayloadBase<GatewayEvent.StageInstanceCreate, StageInstance>
+  | DispatchPayloadBase<GatewayEvent.StageInstanceUpdate, StageInstance>
+  | DispatchPayloadBase<GatewayEvent.StageInstanceDelete, StageInstance>
+  | DispatchPayloadBase<GatewayEvent.TypingStart, TypingStart>
   | DispatchPayloadBase<GatewayEvent.UserUpdate, User>
-  | DispatchPayloadBase<
-      GatewayEvent.VoiceServerUpdate,
-      VoiceServerUpdate
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.VoiceStateUpdate,
-      VoiceState
-    >
-  | DispatchPayloadBase<
-      GatewayEvent.WebhooksUpdate,
-      WebhooksUpdate
-    >;
+  | DispatchPayloadBase<GatewayEvent.VoiceServerUpdate, VoiceServerUpdate>
+  | DispatchPayloadBase<GatewayEvent.VoiceStateUpdate, VoiceState>
+  | DispatchPayloadBase<GatewayEvent.WebhooksUpdate, WebhooksUpdate>;
 
 interface HeartbeatPayload {
   op: OpCode.Heartbeat;

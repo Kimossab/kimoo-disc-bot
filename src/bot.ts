@@ -1,15 +1,15 @@
+/* eslint-disable simple-import-sort/imports */
+/* eslint-disable import/first */
+import dotenv from "dotenv";
+
+dotenv.config();
+
 import AnilistModule from "#anilist/module";
 import SauceModule from "#sauce/module";
-
 import AchievementModule from "./achievement/module";
 import BadgesModule from "./badges/module";
 import BirthdayModule from "./birthday/module";
-import {
-  getAdminRole,
-  getCommandVersion,
-  setAdminRole,
-  setCommandVersion,
-} from "./bot/database";
+import { getAdminRole, setAdminRole } from "./bot/database";
 import * as commandInfo from "./commands";
 import {
   createCommand,
@@ -40,9 +40,6 @@ import {
   InteractionType,
 } from "./types/discord";
 import VNDBModule from "./vndb/module";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const _logger = new Logger("bot");
 
@@ -60,41 +57,40 @@ const commandExecuted = async (data: Interaction) => {
     }
     const option = data.data.options[0];
 
-    if (
-      option.name === "admin_role" &&
-      data.member &&
-      data.guild_id
-    ) {
+    if (option.name === "admin_role" && data.member && data.guild_id) {
       if (!checkAdmin(data.guild_id, data.member)) {
-        await createInteractionResponse(
-          data.id,
-          data.token,
-          {
-            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content: messageList.common.no_permission,
-            },
-          }
-        );
+        await createInteractionResponse(data.id, data.token, {
+          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: messageList.common.no_permission,
+          },
+        });
         return;
       }
 
-      const role = option.options?.length
-        ? option.options[0]
-        : null;
+      const role = option.options?.length ? option.options[0] : null;
 
       if (role) {
-        await setAdminRole(
-          data.guild_id,
-          role.value as string
-        );
-        await createInteractionResponse(
-          data.id,
-          data.token,
-          {
+        await setAdminRole(data.guild_id, role.value as string);
+        await createInteractionResponse(data.id, data.token, {
+          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Admin role set to <@&${role.value}>`,
+            allowed_mentions: {
+              parse: [],
+              roles: [],
+              users: [],
+              replied_user: false,
+            },
+          },
+        });
+      } else {
+        const role = await getAdminRole(data.guild_id);
+        if (role) {
+          await createInteractionResponse(data.id, data.token, {
             type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              content: `Admin role set to <@&${role.value}>`,
+              content: `Admin role is <@&${role}>`,
               allowed_mentions: {
                 parse: [],
                 roles: [],
@@ -102,39 +98,14 @@ const commandExecuted = async (data: Interaction) => {
                 replied_user: false,
               },
             },
-          }
-        );
-      } else {
-        const role = await getAdminRole(data.guild_id);
-        if (role) {
-          await createInteractionResponse(
-            data.id,
-            data.token,
-            {
-              type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                content: `Admin role is <@&${role}>`,
-                allowed_mentions: {
-                  parse: [],
-                  roles: [],
-                  users: [],
-                  replied_user: false,
-                },
-              },
-            }
-          );
+          });
         } else {
-          await createInteractionResponse(
-            data.id,
-            data.token,
-            {
-              type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                content:
-                  "This server doesn't have an admin role defined",
-              },
-            }
-          );
+          await createInteractionResponse(data.id, data.token, {
+            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: "This server doesn't have an admin role defined",
+            },
+          });
         }
       }
     }
@@ -143,8 +114,7 @@ const commandExecuted = async (data: Interaction) => {
 
 const toggles = {
   BIRTHDAY_MODULE: process.env.BIRTHDAY_MODULE === "true",
-  ACHIEVEMENT_MODULE:
-    process.env.ACHIEVEMENT_MODULE === "true",
+  ACHIEVEMENT_MODULE: process.env.ACHIEVEMENT_MODULE === "true",
   BADGES_MODULE: process.env.BADGES_MODULE === "true",
   FANDOM_MODULE: process.env.FANDOM_MODULE === "true",
   SAUCE_MODULE: process.env.SAUCE_MODULE === "true",
@@ -153,24 +123,14 @@ const toggles = {
   ANILIST_MODULE: process.env.ANILIST_MODULE === "true",
 };
 
-const birthdayModule = new BirthdayModule(
-  toggles.BIRTHDAY_MODULE
-);
-const achievementModule = new AchievementModule(
-  toggles.ACHIEVEMENT_MODULE
-);
-const badgesModule = new BadgesModule(
-  toggles.BADGES_MODULE
-);
-const fandomModule = new FandomModule(
-  toggles.FANDOM_MODULE
-);
+const birthdayModule = new BirthdayModule(toggles.BIRTHDAY_MODULE);
+const achievementModule = new AchievementModule(toggles.ACHIEVEMENT_MODULE);
+const badgesModule = new BadgesModule(toggles.BADGES_MODULE);
+const fandomModule = new FandomModule(toggles.FANDOM_MODULE);
 const sauceModule = new SauceModule(toggles.SAUCE_MODULE);
 const miscModule = new MiscModule(toggles.MISC_MODULE);
 const vndbModule = new VNDBModule(toggles.VNDB_MODULE);
-const anilistModule = new AnilistModule(
-  toggles.ANILIST_MODULE
-);
+const anilistModule = new AnilistModule(toggles.ANILIST_MODULE);
 
 const ready = async () => {
   _logger.log("Discord says Ready");
@@ -186,15 +146,12 @@ const ready = async () => {
   const app = getApplication();
   if (app && app.id) {
     let commandData = await getCommands(app.id);
+
     if (commandData === null) {
       return;
     }
 
-    const commandVersion = await getCommandVersion();
-
-    const commandNames = commandInfo.list.map(
-      (c) => c.name
-    );
+    const commandNames = commandInfo.list.map((c) => c.name);
 
     const commandsToRemove = commandData.filter(
       (c) => !commandNames.includes(c.name)
@@ -208,26 +165,16 @@ const ready = async () => {
     }
 
     for (const cmd of commandInfo.list) {
-      const existing = commandData.filter(
-        (c) => c.name === cmd.name
-      );
-
-      if (
-        !existing.length ||
-        commandVersion !== commandInfo.version
-      ) {
+      const existing = commandData.find((c) => c.name === cmd.name);
+      if (!existing || !commandInfo.compareCommands(cmd, existing)) {
         _logger.log("Creating command", cmd);
         const nCmd = await createCommand(app.id, cmd);
 
         if (nCmd) {
-          commandData = commandData.filter(
-            (c) => c.name !== nCmd.name
-          );
+          commandData = commandData.filter((c) => c.name !== nCmd.name);
         }
       }
     }
-
-    setCommandVersion(commandInfo.version);
   }
 
   updateBotPresence();
@@ -238,11 +185,7 @@ const updateBotPresence = () => {
   socket.randomPresence();
 
   const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);
-  _logger.log(
-    `updating presence in ${formatSecondsIntoMinutes(
-      time / 1000
-    )}`
-  );
+  _logger.log(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
   setTimeout(updateBotPresence, time);
 };
 
@@ -262,19 +205,12 @@ const main = async (): Promise<void> => {
       `SESSION START LIMIT REACHED (is 0). RESTARTING IN ${gateway.session_start_limit.reset_after}ms`,
       gateway
     );
-    setTimeout(
-      main,
-      gateway.session_start_limit.reset_after
-    );
+    setTimeout(main, gateway.session_start_limit.reset_after);
     return;
   }
 
   const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);
-  _logger.log(
-    `updating presence in ${formatSecondsIntoMinutes(
-      time / 1000
-    )}`
-  );
+  _logger.log(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
   setTimeout(updateBotPresence, time);
 
   _logger.log(
