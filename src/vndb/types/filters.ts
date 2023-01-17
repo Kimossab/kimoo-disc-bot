@@ -19,10 +19,7 @@ export type id = { field: "id" } & (
 
 export type title = {
   field: "title";
-  operator:
-    | operators.equal
-    | operators.not_equal
-    | operators.like;
+  operator: operators.equal | operators.not_equal | operators.like;
   value: string;
 };
 
@@ -34,10 +31,7 @@ export type original = {
       value: null;
     }
   | {
-      operator:
-        | operators.equal
-        | operators.not_equal
-        | operators.like;
+      operator: operators.equal | operators.not_equal | operators.like;
       value: string;
     }
 );

@@ -5,9 +5,7 @@ import { IAchievement } from "./models/achievement.model";
 import { IAchievementRank } from "./models/achievement-rank.model";
 import { IUserAchievement } from "./models/user-achievement.model";
 
-export const getTotalPoints = (
-  data: IUserAchievement[]
-): number => {
+export const getTotalPoints = (data: IUserAchievement[]): number => {
   let count = 0;
   for (const ach of data) {
     count += ach.achievement.points;

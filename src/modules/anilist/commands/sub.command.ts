@@ -13,12 +13,7 @@ export const subCommand = (
   removeAnime: (id: number) => void
 ): CommandHandler => {
   const subCommands: Record<string, CommandHandler> = {
-    add: subAddCommand(
-      logger,
-      rateLimiter,
-      animeList,
-      removeAnime
-    ),
+    add: subAddCommand(logger, rateLimiter, animeList, removeAnime),
     list: subListCommand(logger, rateLimiter),
   };
 

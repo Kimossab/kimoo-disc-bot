@@ -22,10 +22,7 @@ export default class AnilistModule extends BaseModule {
 
     this.commandList = {
       search: {
-        handler: searchCommand(
-          this.logger,
-          this.rateLimiter
-        ),
+        handler: searchCommand(this.logger, this.rateLimiter),
       },
       sub: {
         handler: subCommand(
@@ -36,10 +33,7 @@ export default class AnilistModule extends BaseModule {
         ),
       },
       schedule: {
-        handler: scheduleCommand(
-          this.logger,
-          this.rateLimiter
-        ),
+        handler: scheduleCommand(this.logger, this.rateLimiter),
       },
       channel: {
         isAdmin: true,
@@ -71,8 +65,6 @@ export default class AnilistModule extends BaseModule {
   }
 
   private removeAnime = (id: number) => {
-    this.animeList = this.animeList.filter(
-      (anime) => anime.id !== id
-    );
+    this.animeList = this.animeList.filter((anime) => anime.id !== id);
   };
 }

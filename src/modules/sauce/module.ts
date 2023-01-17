@@ -3,10 +3,7 @@ import BaseModule from "#/base-module";
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
-import {
-  getApplication,
-  getChannelLastAttachment,
-} from "@/state/store";
+import { getApplication, getChannelLastAttachment } from "@/state/store";
 
 import handleSauceNao from "./sauceNao/sauce-nao";
 import handleTraceMoe from "./traceMoe/trace-moe";
@@ -30,9 +27,7 @@ export default class SauceModule extends BaseModule {
     };
   }
 
-  private commandHandler: SingleCommandHandler = async (
-    data
-  ) => {
+  private commandHandler: SingleCommandHandler = async (data) => {
     const app = getApplication();
     if (app && app.id) {
       const { type, image } = getOptions<CommandOptions>(
@@ -40,20 +35,14 @@ export default class SauceModule extends BaseModule {
         data.data?.options
       );
 
-      const lastAttachment = getChannelLastAttachment(
-        data.channel_id
-      );
+      const lastAttachment = getChannelLastAttachment(data.channel_id);
 
       const url = image || lastAttachment;
 
       if (!url) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.sauce.image_not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.sauce.image_not_found,
+        });
         return;
       }
 

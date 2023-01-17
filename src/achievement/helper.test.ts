@@ -16,9 +16,7 @@ import {
 describe("AchievementHelper", () => {
   describe("getTotalPoints", () => {
     it("should return the correct sum of points", () => {
-      expect(
-        getTotalPoints(userAchievementsFixtures)
-      ).toEqual(25);
+      expect(getTotalPoints(userAchievementsFixtures)).toEqual(25);
     });
 
     it("should return 0 points for an empty array", () => {
@@ -35,10 +33,7 @@ describe("AchievementHelper", () => {
     ])(
       "should return the correct ranks for %s points",
       (points, current, next) => {
-        const result = getCurrentAndNextRank(
-          points,
-          rankListFixtures
-        );
+        const result = getCurrentAndNextRank(points, rankListFixtures);
         expect(result.current).toEqual(current);
         expect(result.next).toEqual(next);
       }
@@ -74,14 +69,10 @@ describe("AchievementHelper", () => {
 
   describe("createAchievementGivenEmbed", () => {
     it("should create a correct discord embed", () => {
-      expect(
-        createAchievementGivenEmbed(achievementFixture)
-      ).toEqual({
-        title:
-          messageList.achievements.new_achievement_awarded,
+      expect(createAchievementGivenEmbed(achievementFixture)).toEqual({
+        title: messageList.achievements.new_achievement_awarded,
         description: stringReplacer(
-          messageList.achievements
-            .new_achievement_awarded_desc,
+          messageList.achievements.new_achievement_awarded_desc,
           {
             name: achievementFixture.name,
             description: achievementFixture.description,

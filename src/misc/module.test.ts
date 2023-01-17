@@ -2,10 +2,7 @@ import { editOriginalInteractionResponse } from "../discord/rest";
 import { checkAdmin } from "../helper/common";
 import { downloadImage } from "../helper/images";
 import Logger from "../helper/logger";
-import {
-  getApplication,
-  setCommandExecutedCallback,
-} from "../state/store";
+import { getApplication, setCommandExecutedCallback } from "../state/store";
 import { Interaction } from "../types/discord";
 import MiscModule from "./module";
 
@@ -44,9 +41,7 @@ jest.mock("../helper/common", () => ({
 (downloadImage as jest.Mock).mockReturnValue({
   success: true,
 });
-(
-  setCommandExecutedCallback as unknown as jest.Mock
-).mockImplementation(
+(setCommandExecutedCallback as unknown as jest.Mock).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
@@ -99,12 +94,14 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenCalledWith(APPLICATION_ID, TOKEN, {
-        content: "",
-        embeds: [expect.any(Object)],
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: "",
+          embeds: [expect.any(Object)],
+        }
+      );
     });
   });
 
@@ -122,11 +119,13 @@ describe("Badges module", () => {
         },
       } as Interaction);
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenCalledWith(APPLICATION_ID, TOKEN, {
-        content: expect.any(String),
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: expect.any(String),
+        }
+      );
     });
   });
 });

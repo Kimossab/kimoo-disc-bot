@@ -47,9 +47,7 @@ export const createEmbedField = (
   inline,
 });
 
-export const createDescription = (
-  description: string
-): string => {
+export const createDescription = (description: string): string => {
   return limitString(description, 4096);
 };
 

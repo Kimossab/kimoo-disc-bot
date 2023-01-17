@@ -26,31 +26,20 @@ export const scheduleCommand = (
         option.options
       );
 
-      const allData = await getAiringSchedule(
-        rateLimiter,
-        query
-      );
+      const allData = await getAiringSchedule(rateLimiter, query);
 
       if (!allData?.Media) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: messageList.anilist.not_found,
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: messageList.anilist.not_found,
+        });
         return;
       }
 
       const embed = mapAiringScheduleToEmbed(allData.Media);
-      await editOriginalInteractionResponse(
-        app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [embed],
-        }
-      );
+      await editOriginalInteractionResponse(app.id, data.token, {
+        content: "",
+        embeds: [embed],
+      });
     }
   };
 };

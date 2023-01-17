@@ -6,10 +6,7 @@ import {
   getAllSubscriptionsForAnime,
   setNextAiring,
 } from "../database";
-import {
-  getNextAiringEpisode,
-  searchByScheduleId,
-} from "../graphql/graphql";
+import { getNextAiringEpisode, searchByScheduleId } from "../graphql/graphql";
 import { IAnimeNotification } from "../models/animeNotification.model";
 import { AnimeManager } from "./anime-manager";
 import { IAnilistRateLimit } from "./rate-limiter";
@@ -17,10 +14,8 @@ import { IAnilistRateLimit } from "./rate-limiter";
 jest.mock("@/discord/rest");
 
 jest.mock("../graphql/graphql");
-const mockSearchByScheduleId =
-  searchByScheduleId as jest.Mock;
-const mockGetNextAiringEpisode =
-  getNextAiringEpisode as jest.Mock;
+const mockSearchByScheduleId = searchByScheduleId as jest.Mock;
+const mockGetNextAiringEpisode = getNextAiringEpisode as jest.Mock;
 
 jest.mock("../database");
 const mockGetAllSubscriptionsForAnime =
@@ -82,16 +77,12 @@ describe("AnimeManager", () => {
 
     describe("when anilist returns null", () => {
       beforeEach(async () => {
-        mockGetNextAiringEpisode.mockResolvedValueOnce(
-          null
-        );
+        mockGetNextAiringEpisode.mockResolvedValueOnce(null);
         await manager.checkNextEpisode();
       });
 
       it("should delete all database information", async () => {
-        expect(
-          mockDeleteAllSubscriptionsForId
-        ).toHaveBeenCalledWith(123456);
+        expect(mockDeleteAllSubscriptionsForId).toHaveBeenCalledWith(123456);
       });
 
       it("should call the onDelete callback", async () => {
@@ -119,16 +110,11 @@ describe("AnimeManager", () => {
       });
 
       it(`should set the next airing as null`, () => {
-        expect(mockSetNextAiring).toHaveBeenCalledWith(
-          123456,
-          null
-        );
+        expect(mockSetNextAiring).toHaveBeenCalledWith(123456, null);
       });
 
       it("shouldn't make any other requests to the DB", () => {
-        expect(
-          mockGetAllSubscriptionsForAnime
-        ).not.toHaveBeenCalled();
+        expect(mockGetAllSubscriptionsForAnime).not.toHaveBeenCalled();
       });
 
       it("shouldn't call onDelete", () => {
@@ -155,16 +141,11 @@ describe("AnimeManager", () => {
       });
 
       it(`should set the next airing as 78954646`, () => {
-        expect(mockSetNextAiring).toHaveBeenCalledWith(
-          123456,
-          78954646
-        );
+        expect(mockSetNextAiring).toHaveBeenCalledWith(123456, 78954646);
       });
 
       it("shouldn't make any other requests to the DB", () => {
-        expect(
-          mockGetAllSubscriptionsForAnime
-        ).not.toHaveBeenCalled();
+        expect(mockGetAllSubscriptionsForAnime).not.toHaveBeenCalled();
       });
 
       it("shouldn't call onDelete", () => {
@@ -200,10 +181,7 @@ describe("AnimeManager", () => {
         manager as any,
         "setNextEpisodeOrDelete"
       );
-      spyNotifyNewEpisode = jest.spyOn(
-        manager as any,
-        "notifyNewEpisode"
-      );
+      spyNotifyNewEpisode = jest.spyOn(manager as any, "notifyNewEpisode");
       spyNotifyNewEpisode.mockImplementation(() => ({}));
     });
     afterEach(() => {
@@ -227,9 +205,7 @@ describe("AnimeManager", () => {
       });
 
       it("should just get the next episode from anilist", () => {
-        expect(
-          spySetNextEpisodeOrDelete
-        ).toHaveBeenCalled();
+        expect(spySetNextEpisodeOrDelete).toHaveBeenCalled();
       });
     });
 
@@ -253,9 +229,7 @@ describe("AnimeManager", () => {
         });
         await manager.checkNextEpisode();
         expect(spyNotifyNewEpisode).toHaveBeenCalled();
-        expect(
-          spySetNextEpisodeOrDelete
-        ).toHaveBeenCalled();
+        expect(spySetNextEpisodeOrDelete).toHaveBeenCalled();
       });
 
       it("should not send the message if it aired longer than MIN_TIME_TO_NOTIFY ago", async () => {
@@ -264,9 +238,7 @@ describe("AnimeManager", () => {
         });
         await manager.checkNextEpisode();
         expect(spyNotifyNewEpisode).not.toHaveBeenCalled();
-        expect(
-          spySetNextEpisodeOrDelete
-        ).toHaveBeenCalled();
+        expect(spySetNextEpisodeOrDelete).toHaveBeenCalled();
       });
     });
   });

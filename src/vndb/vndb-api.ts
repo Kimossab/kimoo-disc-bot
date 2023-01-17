@@ -1,12 +1,7 @@
 import Logger from "../helper/logger";
 import * as Commands from "./types/commands";
 import * as ReturnData from "./types/returnData";
-import {
-  flags,
-  operators,
-  queue,
-  queue_callback,
-} from "./types/vndb";
+import { flags, operators, queue, queue_callback } from "./types/vndb";
 import net from "net";
 
 const VNDB_API = "api.vndb.org";
@@ -75,10 +70,7 @@ export class VNDBApi {
     if (data.startsWith("error")) {
       const sData = data.substring(6);
       this.queueResolve(null);
-      this.logger.error(
-        "[RECEIVED ERROR]",
-        JSON.parse(sData)
-      );
+      this.logger.error("[RECEIVED ERROR]", JSON.parse(sData));
     } else {
       this.queueResolve(data);
     }
@@ -105,9 +97,7 @@ export class VNDBApi {
     );
   }
 
-  public search(
-    name: string
-  ): Promise<vndb_get_vn[] | null> {
+  public search(name: string): Promise<vndb_get_vn[] | null> {
     const searchCommand: Commands.get_vn = {
       command: "get",
       type: "vn",
@@ -132,24 +122,20 @@ export class VNDBApi {
       },
     };
     return new Promise((resolve) => {
-      this.addQueue(
-        this.formatCommand(searchCommand),
-        (data) => {
-          if (data) {
-            if (data.startsWith("results")) {
-              data = data.slice(8, data.length - 1);
-            }
-            const parsed: ReturnData.data<vndb_get_vn> =
-              JSON.parse(data);
-
-            this.logger.log("[SEARCH RESULT] OK");
-            resolve(parsed.items);
-          } else {
-            this.logger.log("[SEARCH RESULT] NO DATA");
-            resolve(null);
+      this.addQueue(this.formatCommand(searchCommand), (data) => {
+        if (data) {
+          if (data.startsWith("results")) {
+            data = data.slice(8, data.length - 1);
           }
+          const parsed: ReturnData.data<vndb_get_vn> = JSON.parse(data);
+
+          this.logger.log("[SEARCH RESULT] OK");
+          resolve(parsed.items);
+        } else {
+          this.logger.log("[SEARCH RESULT] NO DATA");
+          resolve(null);
         }
-      );
+      });
     });
   }
 
@@ -169,10 +155,7 @@ export class VNDBApi {
     }
   }
 
-  private addQueue(
-    command: Buffer,
-    callback: queue_callback
-  ): void {
+  private addQueue(command: Buffer, callback: queue_callback): void {
     this.queue.push({
       command,
       callback,
@@ -185,17 +168,12 @@ export class VNDBApi {
 
   private checkQueue(): void {
     if (!this.waitingReply && this.queue.length > 0) {
-      this.logger.log(
-        `[SENDING COMMAND] ${this.queue[0].command.toString()}`
-      );
+      this.logger.log(`[SENDING COMMAND] ${this.queue[0].command.toString()}`);
       this.client.write(this.queue[0].command);
       this.waitingReply = true;
 
       this.commandTimeout = setTimeout(() => {
-        this.logger.error(
-          "[COMMAND TIMEOUT]",
-          this.queue[0]
-        );
+        this.logger.error("[COMMAND TIMEOUT]", this.queue[0]);
 
         this.queueResolve(null);
 
@@ -205,16 +183,12 @@ export class VNDBApi {
   }
 
   // HELPERS
-  private formatFilters(
-    data: Commands.get_vn_filters[]
-  ): string {
+  private formatFilters(data: Commands.get_vn_filters[]): string {
     let filters = "";
 
     for (let i = 0; i < data.length; i++) {
       if (i !== 0) {
-        filters += `${
-          data[i].join ? data[i].join : "AND"
-        } `;
+        filters += `${data[i].join ? data[i].join : "AND"} `;
       }
 
       let { value } = data[i];
@@ -236,9 +210,7 @@ export class VNDBApi {
   private formatGetVN(data: Commands.get_vn): string {
     const flags = data.flags.join(",");
     const filters = this.formatFilters(data.filters);
-    const options = data.options
-      ? JSON.stringify(data.options)
-      : "";
+    const options = data.options ? JSON.stringify(data.options) : "";
 
     return `${flags} ${filters} ${options}`;
   }

@@ -45,9 +45,7 @@ describe("Sauce nao module", () => {
   });
 
   it("should let the user know there was nothing found", async () => {
-    (requestSauceNao as jest.Mock).mockResolvedValueOnce(
-      null
-    );
+    (requestSauceNao as jest.Mock).mockResolvedValueOnce(null);
 
     await handleSauceNao(
       baseCommand,
@@ -55,11 +53,13 @@ describe("Sauce nao module", () => {
       APPLICATION_DATA,
       new Logger(MODULE_NAME)
     );
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith(APPLICATION_DATA.id, TOKEN, {
-      content: messageList.sauce.not_found,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      APPLICATION_DATA.id,
+      TOKEN,
+      {
+        content: messageList.sauce.not_found,
+      }
+    );
   });
 
   it.each([1, -1])(
@@ -76,22 +76,20 @@ describe("Sauce nao module", () => {
         new Logger(MODULE_NAME)
       );
 
-      expect(
-        editOriginalInteractionResponse
-      ).toHaveBeenCalledWith(APPLICATION_DATA.id, TOKEN, {
-        content: messageList.sauce.not_found,
-      });
+      expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+        APPLICATION_DATA.id,
+        TOKEN,
+        {
+          content: messageList.sauce.not_found,
+        }
+      );
     }
   );
 
   it("should attempt to map the response data for each result", async () => {
-    (requestSauceNao as jest.Mock).mockResolvedValueOnce(
-      sauceNaoDataFixtures
-    );
+    (requestSauceNao as jest.Mock).mockResolvedValueOnce(sauceNaoDataFixtures);
 
-    (
-      editOriginalInteractionResponse as jest.Mock
-    ).mockResolvedValueOnce({});
+    (editOriginalInteractionResponse as jest.Mock).mockResolvedValueOnce({});
 
     await handleSauceNao(
       baseCommand,
@@ -119,10 +117,12 @@ describe("Sauce nao module", () => {
       new Logger(MODULE_NAME)
     );
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith(APPLICATION_DATA.id, TOKEN, {
-      content: messageList.sauce.not_found,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      APPLICATION_DATA.id,
+      TOKEN,
+      {
+        content: messageList.sauce.not_found,
+      }
+    );
   });
 });

@@ -206,9 +206,7 @@ export const sauceNaoDataFixtures = {
         dupes: 0,
       },
       data: {
-        ext_urls: [
-          "https://www.mangaupdates.com/series.html?id=169",
-        ],
+        ext_urls: ["https://www.mangaupdates.com/series.html?id=169"],
         mu_id: 169,
         source: "Anastasia Club",
         part: "Anastasia Club v04 c13-16",
@@ -245,8 +243,7 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img1.saucenao.com/res/pixiv/7216/manga/72162896_p14.jpg?auth=bMh_5zNMjpG2dYGZhGXlYg\u0026exp=1633460400",
         index_id: 5,
-        index_name:
-          "Index #5: Pixiv Images - 72162896_p14.jpg",
+        index_name: "Index #5: Pixiv Images - 72162896_p14.jpg",
         dupes: 0,
       },
       data: {
@@ -298,16 +295,14 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img1.saucenao.com/res/pixiv/2782/manga/27827103_p6.jpg?auth=21Rn--c51-EfuhlFqpUIwA\u0026exp=1633460400",
         index_id: 5,
-        index_name:
-          "Index #5: Pixiv Images - 27827103_p6.jpg",
+        index_name: "Index #5: Pixiv Images - 27827103_p6.jpg",
         dupes: 0,
       },
       data: {
         ext_urls: [
           "https://www.pixiv.net/member_illust.php?mode=medium\u0026illust_id=27827103",
         ],
-        title:
-          "\u30ad\u30e9\u30da\u30f3/\u8150\u5411\u3051",
+        title: "\u30ad\u30e9\u30da\u30f3/\u8150\u5411\u3051",
         pixiv_id: 27827103,
         member_name: "\u3048\u30fc",
         member_id: 394514,
@@ -319,8 +314,7 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img3.saucenao.com/dA2/67985/679856140.jpg?auth=tznkm5CCPs8DpryV9WdluA\u0026exp=1633460400",
         index_id: 34,
-        index_name:
-          "Index #34: deviantArt2 - 679856140.jpg",
+        index_name: "Index #34: deviantArt2 - 679856140.jpg",
         dupes: 0,
       },
       data: {
@@ -328,8 +322,7 @@ export const sauceNaoDataFixtures = {
         title: "wedding hairstyle",
         da_id: "679856140",
         author_name: "x3lovestory",
-        author_url:
-          "https://www.deviantart.com/x3lovestory",
+        author_url: "https://www.deviantart.com/x3lovestory",
       },
     },
     {
@@ -338,8 +331,7 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img1.saucenao.com/res/bcy/cosplay/126/manga/1267371_p5-28.jpg?auth=K8rR4dXy-4XC6Tg5f1R-Lg\u0026exp=1633460400",
         index_id: 32,
-        index_name:
-          "Index #32: bcy.net Cosplay - 1267371_p5-28.jpg",
+        index_name: "Index #32: bcy.net Cosplay - 1267371_p5-28.jpg",
         dupes: 0,
       },
       data: {
@@ -358,8 +350,7 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img3.saucenao.com/frames/?expires=1633460400\u0026init=abff01350e1a65c9\u0026data=66a91d097fbd2713665c12ea99d9ef38dc1b8441d1409d72dcfdfd60bb058802a62c793b196829be5b72a5f6dfd637b34065e58265da3c04a5960ff40ba98431d8e71a4420f3397860cb1f53c55e37ac98bb1504e1bf1dccbbbc9f7e1add2d623617cee04ac31f2c479974b83e96141bb4ada7bf94938c4d1b04f50f6595f4be477470fa062c751cfbb2494a3f93695bb8b5cafdb038800102232f8a4829a14e\u0026auth=4cb3c2ce6f5585f6198fcc019f2d605d4683c76b",
         index_id: 21,
-        index_name:
-          "Index #21: Anime* - 28963-23-966365.jpg (82866)",
+        index_name: "Index #21: Anime* - 28963-23-966365.jpg (82866)",
         dupes: 0,
       },
       data: {
@@ -377,8 +368,7 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img1.saucenao.com/res/pixiv/5171/51714312_p0_master1200.jpg?auth=PRyZPK7sh8ZAm-5QJFvllg\u0026exp=1633460400",
         index_id: 5,
-        index_name:
-          "Index #5: Pixiv Images - 51714312_p0_master1200.jpg",
+        index_name: "Index #5: Pixiv Images - 51714312_p0_master1200.jpg",
         dupes: 0,
       },
       data: {
@@ -397,8 +387,7 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img3.saucenao.com/frames/?expires=1633460400\u0026init=1c871efea3a900be\u0026data=20f91130118fa0e4324224e1b80ef5e44c2ef75481cb0b7a29a3a37852cd5b00858f92513cee6a01f2e43cdb3e58431387234354b872e461e353c73dbe43e8ed57248b5de9de3cce9285f9332bd217794b1e756451ea993a36759f67c313813016672ea3e6ca4cba865d2a335d2ea520\u0026auth=c8630c7444fc54421455d3065f5c7d6a5ec31241",
         index_id: 21,
-        index_name:
-          "Index #21: Anime* - 17-47-667.jpg (50323)",
+        index_name: "Index #21: Anime* - 17-47-667.jpg (50323)",
         dupes: 0,
       },
       data: {
@@ -416,8 +405,7 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img1.saucenao.com/res/pixiv/7773/manga/77737221_p20.jpg?auth=vgWO78L0kWvdUchGjsYr0Q\u0026exp=1633460400",
         index_id: 5,
-        index_name:
-          "Index #5: Pixiv Images - 77737221_p20.jpg",
+        index_name: "Index #5: Pixiv Images - 77737221_p20.jpg",
         dupes: 0,
       },
       data: {
@@ -441,9 +429,7 @@ export const sauceNaoDataFixtures = {
         dupes: 0,
       },
       data: {
-        ext_urls: [
-          "https://chan.sankakucomplex.com/post/show/3795204",
-        ],
+        ext_urls: ["https://chan.sankakucomplex.com/post/show/3795204"],
         sankaku_id: 3795204,
         creator: "lillithlauda",
         material: "",
@@ -458,14 +444,11 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img3.saucenao.com/twitter/9/s/f/CXHYbzzUAAAa9sf.jpg?auth=9UCLNq1TQ-242nQ_zvRvnA\u0026exp=1633460400",
         index_id: 41,
-        index_name:
-          "Index #41: Twitter - CXHYbzzUAAAa9sf.jpg",
+        index_name: "Index #41: Twitter - CXHYbzzUAAAa9sf.jpg",
         dupes: 0,
       },
       data: {
-        ext_urls: [
-          "https://twitter.com/i/web/status/680562995160723457",
-        ],
+        ext_urls: ["https://twitter.com/i/web/status/680562995160723457"],
         created_at: "2015-12-26T01:37:16Z",
         tweet_id: "680562995160723457",
         twitter_user_id: "260091588",
@@ -515,14 +498,11 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img3.saucenao.com/artstation/674/6740191_24421267.jpg?auth=Eu6RxxOIiAYQWD2Tk25IsA\u0026exp=1633460400",
         index_id: 39,
-        index_name:
-          "Index #39: Artstation - 6740191_24421267.jpg",
+        index_name: "Index #39: Artstation - 6740191_24421267.jpg",
         dupes: 0,
       },
       data: {
-        ext_urls: [
-          "https://www.artstation.com/artwork/xzE3yO",
-        ],
+        ext_urls: ["https://www.artstation.com/artwork/xzE3yO"],
         title: "Weapons design for Deimos",
         as_project: "xzE3yO",
         author_name: "Nuo Lin",
@@ -560,14 +540,11 @@ export const sauceNaoDataFixtures = {
         dupes: 0,
       },
       data: {
-        ext_urls: [
-          "https://www.furaffinity.net/view/20688512",
-        ],
+        ext_urls: ["https://www.furaffinity.net/view/20688512"],
         title: "GigaTRIGGR the First poster GARLIC",
         fa_id: 20688512,
         author_name: "NP-GigaTRIGGR",
-        author_url:
-          "https://www.furaffinity.net/user/np-gigatriggr",
+        author_url: "https://www.furaffinity.net/user/np-gigatriggr",
       },
     },
     {
@@ -580,9 +557,7 @@ export const sauceNaoDataFixtures = {
         dupes: 0,
       },
       data: {
-        ext_urls: [
-          "https://medibang.com/picture/di1910122314455220010590172",
-        ],
+        ext_urls: ["https://medibang.com/picture/di1910122314455220010590172"],
         title: "\u9022\u5742\u58ee\u4e94",
         url: "https://medibang.com/picture/di1910122314455220010590172",
         member_name: "HACHESUKE",
@@ -595,8 +570,7 @@ export const sauceNaoDataFixtures = {
         thumbnail:
           "https://img1.saucenao.com/res/bcy/illust/191/1913093.jpg?auth=Cy0S_35wIaE6a257CDjupw\u0026exp=1633460400",
         index_id: 31,
-        index_name:
-          "Index #31: bcy.net Illust - 1913093.jpg",
+        index_name: "Index #31: bcy.net Illust - 1913093.jpg",
         dupes: 0,
       },
       data: {
@@ -620,9 +594,7 @@ export const sauceNaoDataFixtures = {
         dupes: 0,
       },
       data: {
-        ext_urls: [
-          "https://www.fakku.net/hentai/miyo-mishiro-english",
-        ],
+        ext_urls: ["https://www.fakku.net/hentai/miyo-mishiro-english"],
         source: "Miyo \u0026amp; Mishiro",
         creator: "Yumeno Tanuki",
       },
@@ -643,8 +615,7 @@ export const sauceNaoDataFixtures = {
         creator: "choco",
         material: "",
         characters: "",
-        source:
-          "https://www.pixiv.net/member_illust.php?id=4034569",
+        source: "https://www.pixiv.net/member_illust.php?id=4034569",
       },
     },
   ],

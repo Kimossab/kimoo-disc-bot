@@ -33,9 +33,7 @@ export const downloadImage = async (
 
     if (
       !contentType ||
-      !Object.keys(IMAGE_EXTENSIONS).includes(
-        contentType
-      ) ||
+      !Object.keys(IMAGE_EXTENSIONS).includes(contentType) ||
       !headers["content-length"] ||
       Number(headers["content-length"]) > MAX_IMAGE_SIZE
     ) {
@@ -55,8 +53,7 @@ export const downloadImage = async (
       file.on("finish", () =>
         resolve({
           success: true,
-          extension:
-            IMAGE_EXTENSIONS[contentType as string],
+          extension: IMAGE_EXTENSIONS[contentType as string],
         })
       );
       file.on("error", () => resolve({ success: false }));

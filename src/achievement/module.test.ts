@@ -1,8 +1,5 @@
 import { editOriginalInteractionResponse } from "../discord/rest";
-import {
-  checkAdmin,
-  stringReplacer,
-} from "../helper/common";
+import { checkAdmin, stringReplacer } from "../helper/common";
 import { no_mentions } from "../helper/constants";
 import { InteractionPagination } from "../helper/interaction-pagination";
 import Logger from "../helper/logger";
@@ -79,8 +76,7 @@ jest.mock("../state/store");
 const mockGetApplication = getApplication as jest.Mock;
 const mockSetCommandExecutedCallback =
   setCommandExecutedCallback as unknown as jest.Mock;
-const mockAddPagination =
-  addPagination as unknown as jest.Mock;
+const mockAddPagination = addPagination as unknown as jest.Mock;
 mockGetApplication.mockReturnValue({
   id: APPLICATION_ID,
 });
@@ -105,24 +101,16 @@ jest.mock("../helper/interaction-pagination");
 
 jest.mock("./database");
 const mockGetAchievement = getAchievement as jest.Mock;
-const mockCreateAchievement =
-  createAchievement as jest.Mock;
+const mockCreateAchievement = createAchievement as jest.Mock;
 mockGetAchievement.mockReturnValue(null);
-const mockUpdateAchievement =
-  updateAchievement as jest.Mock;
-const mockDeleteAchievement =
-  deleteAchievement as jest.Mock;
-const mockGetAchievementById =
-  getAchievementById as jest.Mock;
-const mockGetUserAchievement =
-  getUserAchievement as jest.Mock;
-const mockGetAllUserAchievements =
-  getAllUserAchievements as jest.Mock;
+const mockUpdateAchievement = updateAchievement as jest.Mock;
+const mockDeleteAchievement = deleteAchievement as jest.Mock;
+const mockGetAchievementById = getAchievementById as jest.Mock;
+const mockGetUserAchievement = getUserAchievement as jest.Mock;
+const mockGetAllUserAchievements = getAllUserAchievements as jest.Mock;
 const mockGetServerRanks = getServerRanks as jest.Mock;
-const mockCreateUserAchievement =
-  createUserAchievement as jest.Mock;
-const mockGetServerAchievements =
-  getServerAchievements as jest.Mock;
+const mockCreateUserAchievement = createUserAchievement as jest.Mock;
+const mockGetServerAchievements = getServerAchievements as jest.Mock;
 const mockGetServerAchievementLeaderboard =
   getServerAchievementLeaderboard as jest.Mock;
 const mockCreateRank = createRank as jest.Mock;
@@ -207,9 +195,7 @@ describe("Achievement Module", () => {
     });
 
     it("should let the user know the achievement already exists", async () => {
-      mockGetAchievement.mockReturnValueOnce(
-        achievementFixture
-      );
+      mockGetAchievement.mockReturnValueOnce(achievementFixture);
 
       await commandCallback({
         ...baseCommand,
@@ -224,11 +210,13 @@ describe("Achievement Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: messageList.achievements.already_exists,
-      });
+      expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: messageList.achievements.already_exists,
+        }
+      );
     });
 
     it("should create the achievement and let the user know", async () => {
@@ -245,9 +233,7 @@ describe("Achievement Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockCreateAchievement
-      ).toHaveBeenLastCalledWith(
+      expect(mockCreateAchievement).toHaveBeenLastCalledWith(
         GUILD_ID,
         CREATE_ACHIEVEMENT_VALUES.name,
         CREATE_ACHIEVEMENT_VALUES.image,
@@ -255,16 +241,15 @@ describe("Achievement Module", () => {
         CREATE_ACHIEVEMENT_VALUES.points
       );
 
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: stringReplacer(
-          messageList.achievements.create_success,
-          {
+      expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: stringReplacer(messageList.achievements.create_success, {
             name: CREATE_ACHIEVEMENT_VALUES.name,
-          }
-        ),
-      });
+          }),
+        }
+      );
     });
   });
 
@@ -302,22 +287,19 @@ describe("Achievement Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: stringReplacer(
-          messageList.achievements.not_found,
-          {
+      expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: stringReplacer(messageList.achievements.not_found, {
             id: EDIT_ACHIEVEMENT_VALUES.id,
-          }
-        ),
-      });
+          }),
+        }
+      );
     });
 
     it("should update the achievement and let the user know", async () => {
-      mockUpdateAchievement.mockReturnValueOnce(
-        EDIT_ACHIEVEMENT_VALUES
-      );
+      mockUpdateAchievement.mockReturnValueOnce(EDIT_ACHIEVEMENT_VALUES);
 
       await commandCallback({
         ...baseCommand,
@@ -332,9 +314,7 @@ describe("Achievement Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockUpdateAchievement
-      ).toHaveBeenLastCalledWith(
+      expect(mockUpdateAchievement).toHaveBeenLastCalledWith(
         GUILD_ID,
         EDIT_ACHIEVEMENT_VALUES.id,
         EDIT_ACHIEVEMENT_VALUES.name,
@@ -343,16 +323,15 @@ describe("Achievement Module", () => {
         EDIT_ACHIEVEMENT_VALUES.points
       );
 
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: stringReplacer(
-          messageList.achievements.update_success,
-          {
+      expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: stringReplacer(messageList.achievements.update_success, {
             name: EDIT_ACHIEVEMENT_VALUES.name,
-          }
-        ),
-      });
+          }),
+        }
+      );
     });
   });
 
@@ -388,23 +367,20 @@ describe("Achievement Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockDeleteAchievement
-      ).toHaveBeenLastCalledWith(
+      expect(mockDeleteAchievement).toHaveBeenLastCalledWith(
         GUILD_ID,
         DELETE_ACHIEVEMENT_VALUES.id
       );
 
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: stringReplacer(
-          messageList.achievements.update_success,
-          {
+      expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: stringReplacer(messageList.achievements.update_success, {
             id: DELETE_ACHIEVEMENT_VALUES.id,
-          }
-        ),
-      });
+          }),
+        }
+      );
     });
   });
 
@@ -426,21 +402,20 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content:
-            messageList.achievements.server_no_achievements,
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: messageList.achievements.server_no_achievements,
+          }
+        );
       });
 
       it("should show a list of achievements", async () => {
-        mockGetServerAchievements.mockReturnValueOnce(
-          achievementListFixtures
-        );
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
+        mockGetServerAchievements.mockReturnValueOnce(achievementListFixtures);
+        mockEditOriginalInteractionResponse.mockReturnValueOnce({
+          id: "some_id",
+        });
 
         await commandCallback({
           ...baseCommand,
@@ -472,9 +447,9 @@ describe("Achievement Module", () => {
           ...achievementListFixtures,
           ...achievementListFixtures,
         ]);
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
+        mockEditOriginalInteractionResponse.mockReturnValueOnce({
+          id: "some_id",
+        });
 
         await commandCallback({
           ...baseCommand,
@@ -509,9 +484,10 @@ describe("Achievement Module", () => {
           },
         } as unknown as Interaction);
 
-        expect(
-          mockGetAllUserAchievements
-        ).toHaveBeenLastCalledWith(GUILD_ID, USER_ID);
+        expect(mockGetAllUserAchievements).toHaveBeenLastCalledWith(
+          GUILD_ID,
+          USER_ID
+        );
       });
 
       it("should use by default the id of the user requesting the command", async () => {
@@ -529,9 +505,10 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockGetAllUserAchievements
-        ).toHaveBeenLastCalledWith(GUILD_ID, USER_ID);
+        expect(mockGetAllUserAchievements).toHaveBeenLastCalledWith(
+          GUILD_ID,
+          USER_ID
+        );
       });
 
       it("should let the user know there's no achievements for the requested user", async () => {
@@ -559,19 +536,18 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockGetAllUserAchievements
-        ).toHaveBeenLastCalledWith(
+        expect(mockGetAllUserAchievements).toHaveBeenLastCalledWith(
           GUILD_ID,
           "some_random_user"
         );
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content:
-            messageList.achievements.user_no_achievements,
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: messageList.achievements.user_no_achievements,
+          }
+        );
       });
 
       it("should show a list of achievements", async () => {
@@ -579,12 +555,10 @@ describe("Achievement Module", () => {
           achievement: ach,
           awardDate: new Date(),
         }));
-        mockGetAllUserAchievements.mockReturnValueOnce(
-          data
-        );
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
+        mockGetAllUserAchievements.mockReturnValueOnce(data);
+        mockEditOriginalInteractionResponse.mockReturnValueOnce({
+          id: "some_id",
+        });
 
         await commandCallback({
           ...baseCommand,
@@ -620,9 +594,9 @@ describe("Achievement Module", () => {
             awardDate: new Date(),
           }))
         );
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
+        mockEditOriginalInteractionResponse.mockReturnValueOnce({
+          id: "some_id",
+        });
 
         await commandCallback({
           ...baseCommand,
@@ -660,20 +634,20 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: messageList.achievements.server_no_ranks,
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: messageList.achievements.server_no_ranks,
+          }
+        );
       });
 
       it("should show a list of ranks", async () => {
-        mockGetServerRanks.mockReturnValueOnce(
-          rankListFixtures
-        );
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
+        mockGetServerRanks.mockReturnValueOnce(rankListFixtures);
+        mockEditOriginalInteractionResponse.mockReturnValueOnce({
+          id: "some_id",
+        });
 
         await commandCallback({
           ...baseCommand,
@@ -705,9 +679,9 @@ describe("Achievement Module", () => {
           ...rankListFixtures,
           ...rankListFixtures,
         ]);
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
+        mockEditOriginalInteractionResponse.mockReturnValueOnce({
+          id: "some_id",
+        });
 
         await commandCallback({
           ...baseCommand,
@@ -739,12 +713,10 @@ describe("Achievement Module", () => {
             awardDate: new Date(),
           }))
         );
-        mockGetServerRanks.mockReturnValueOnce(
-          rankListFixtures
-        );
-        mockEditOriginalInteractionResponse.mockReturnValueOnce(
-          { id: "some_id" }
-        );
+        mockGetServerRanks.mockReturnValueOnce(rankListFixtures);
+        mockEditOriginalInteractionResponse.mockReturnValueOnce({
+          id: "some_id",
+        });
 
         await commandCallback({
           ...baseCommand,
@@ -763,12 +735,14 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: "",
-          embeds: [expect.any(Object)],
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: "",
+            embeds: [expect.any(Object)],
+          }
+        );
       });
 
       it("should use by default the id of the user requesting the command", async () => {
@@ -787,9 +761,10 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockGetAllUserAchievements
-        ).toHaveBeenLastCalledWith(GUILD_ID, USER_ID);
+        expect(mockGetAllUserAchievements).toHaveBeenLastCalledWith(
+          GUILD_ID,
+          USER_ID
+        );
       });
 
       it("should let the user know there's no achievements for the requested user", async () => {
@@ -818,19 +793,18 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockGetAllUserAchievements
-        ).toHaveBeenLastCalledWith(
+        expect(mockGetAllUserAchievements).toHaveBeenLastCalledWith(
           GUILD_ID,
           "some_random_user"
         );
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content:
-            messageList.achievements.user_no_achievements,
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: messageList.achievements.user_no_achievements,
+          }
+        );
       });
 
       it("should let the user know there's no ranks in the server", async () => {
@@ -865,18 +839,18 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockGetAllUserAchievements
-        ).toHaveBeenLastCalledWith(
+        expect(mockGetAllUserAchievements).toHaveBeenLastCalledWith(
           GUILD_ID,
           "some_random_user"
         );
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: messageList.achievements.server_no_ranks,
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: messageList.achievements.server_no_ranks,
+          }
+        );
       });
     });
 
@@ -899,9 +873,7 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          InteractionPagination
-        ).toHaveBeenLastCalledWith(
+        expect(InteractionPagination).toHaveBeenLastCalledWith(
           APPLICATION_ID,
           [serverLeaderboardFixture],
           expect.any(Function)
@@ -912,9 +884,7 @@ describe("Achievement Module", () => {
 
     describe("Create command", () => {
       it("should let the user know he doesn't have permission", async () => {
-        (checkAdmin as jest.Mock).mockReturnValueOnce(
-          false
-        );
+        (checkAdmin as jest.Mock).mockReturnValueOnce(false);
 
         await commandCallback({
           ...baseCommand,
@@ -933,11 +903,13 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenCalledWith(APPLICATION_ID, TOKEN, {
-          content: messageList.common.no_permission,
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: messageList.common.no_permission,
+          }
+        );
       });
 
       it("should not try to create an achievement if name is missing, because that means something's very wrong with discord and the command is invalid", async () => {
@@ -962,9 +934,7 @@ describe("Achievement Module", () => {
       });
 
       it("should let the user know there's already a rank with that name", async () => {
-        mockGetRankByName.mockReturnValueOnce(
-          rankListFixtures[0]
-        );
+        mockGetRankByName.mockReturnValueOnce(rankListFixtures[0]);
 
         await commandCallback({
           ...baseCommand,
@@ -989,23 +959,20 @@ describe("Achievement Module", () => {
 
         expect(mockCreateRank).not.toHaveBeenCalled();
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: stringReplacer(
-            messageList.achievements.rank_exists,
-            {
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: stringReplacer(messageList.achievements.rank_exists, {
               name: "some_rank",
-            }
-          ),
-        });
+            }),
+          }
+        );
       });
 
       it("should let the user know there's already a rank with the same points", async () => {
         mockGetRankByName.mockReturnValueOnce(null);
-        mockGetRankByPoints.mockReturnValueOnce(
-          rankListFixtures[0]
-        );
+        mockGetRankByPoints.mockReturnValueOnce(rankListFixtures[0]);
 
         await commandCallback({
           ...baseCommand,
@@ -1030,17 +997,19 @@ describe("Achievement Module", () => {
 
         expect(mockCreateRank).not.toHaveBeenCalled();
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: stringReplacer(
-            messageList.achievements.rank_point_exists,
-            {
-              points: 25,
-              name: rankListFixtures[0].name,
-            }
-          ),
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: stringReplacer(
+              messageList.achievements.rank_point_exists,
+              {
+                points: 25,
+                name: rankListFixtures[0].name,
+              }
+            ),
+          }
+        );
       });
 
       it("should create the achievement and let the user know", async () => {
@@ -1074,25 +1043,25 @@ describe("Achievement Module", () => {
           25
         );
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: stringReplacer(
-            messageList.achievements.rank_create_success,
-            {
-              points: 25,
-              name: "some_rank",
-            }
-          ),
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: stringReplacer(
+              messageList.achievements.rank_create_success,
+              {
+                points: 25,
+                name: "some_rank",
+              }
+            ),
+          }
+        );
       });
     });
 
     describe("Delete command", () => {
       it("should let the user know he doesn't have permission", async () => {
-        (checkAdmin as jest.Mock).mockReturnValueOnce(
-          false
-        );
+        (checkAdmin as jest.Mock).mockReturnValueOnce(false);
 
         await commandCallback({
           ...baseCommand,
@@ -1111,11 +1080,13 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenCalledWith(APPLICATION_ID, TOKEN, {
-          content: messageList.common.no_permission,
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: messageList.common.no_permission,
+          }
+        );
       });
 
       it("should not try to delete an achievement if name is missing, because that means something's very wrong with discord and the command is invalid", async () => {
@@ -1150,9 +1121,7 @@ describe("Achievement Module", () => {
                 options: [
                   {
                     name: "delete",
-                    options: [
-                      { name: "name", value: "some_rank" },
-                    ],
+                    options: [{ name: "name", value: "some_rank" }],
                   },
                 ],
               },
@@ -1160,16 +1129,15 @@ describe("Achievement Module", () => {
           },
         } as Interaction);
 
-        expect(mockDeleteRank).toHaveBeenLastCalledWith(
-          GUILD_ID,
-          "some_rank"
-        );
+        expect(mockDeleteRank).toHaveBeenLastCalledWith(GUILD_ID, "some_rank");
 
-        expect(
-          mockEditOriginalInteractionResponse
-        ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-          content: messageList.achievements.rank_deleted,
-        });
+        expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+          APPLICATION_ID,
+          TOKEN,
+          {
+            content: messageList.achievements.rank_deleted,
+          }
+        );
       });
     });
   });
@@ -1208,25 +1176,20 @@ describe("Achievement Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: stringReplacer(
-          messageList.achievements.not_found,
-          {
+      expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: stringReplacer(messageList.achievements.not_found, {
             id: GIVE_ACHIEVEMENT_VALUES.achievement,
-          }
-        ),
-      });
+          }),
+        }
+      );
     });
 
     it("should let the user know the user already had that achievement", async () => {
-      mockGetAchievementById.mockReturnValueOnce(
-        achievementFixture
-      );
-      mockGetUserAchievement.mockReturnValueOnce(
-        achievementFixture
-      );
+      mockGetAchievementById.mockReturnValueOnce(achievementFixture);
+      mockGetUserAchievement.mockReturnValueOnce(achievementFixture);
 
       await commandCallback({
         ...baseCommand,
@@ -1241,34 +1204,25 @@ describe("Achievement Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockCreateUserAchievement
-      ).not.toHaveBeenCalled();
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: stringReplacer(
-          messageList.achievements.already_got,
-          {
+      expect(mockCreateUserAchievement).not.toHaveBeenCalled();
+      expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: stringReplacer(messageList.achievements.already_got, {
             user: `<@${GIVE_ACHIEVEMENT_VALUES.user}>`,
             id: GIVE_ACHIEVEMENT_VALUES.achievement,
-          }
-        ),
-        allowed_mentions: no_mentions,
-      });
+          }),
+          allowed_mentions: no_mentions,
+        }
+      );
     });
 
     it("should give the achievement to the user", async () => {
-      mockGetAchievementById.mockReturnValueOnce(
-        achievementFixture
-      );
+      mockGetAchievementById.mockReturnValueOnce(achievementFixture);
       mockGetUserAchievement.mockReturnValueOnce(null);
-      mockGetAllUserAchievements.mockReturnValueOnce(
-        userAchievementsFixtures
-      );
-      mockGetServerRanks.mockReturnValueOnce(
-        rankListFixtures
-      );
+      mockGetAllUserAchievements.mockReturnValueOnce(userAchievementsFixtures);
+      mockGetServerRanks.mockReturnValueOnce(rankListFixtures);
 
       await commandCallback({
         ...baseCommand,
@@ -1283,25 +1237,22 @@ describe("Achievement Module", () => {
         },
       } as Interaction);
 
-      expect(
-        mockCreateUserAchievement
-      ).toHaveBeenLastCalledWith(
+      expect(mockCreateUserAchievement).toHaveBeenLastCalledWith(
         GUILD_ID,
         GIVE_ACHIEVEMENT_VALUES.user,
         achievementFixture
       );
-      expect(
-        mockEditOriginalInteractionResponse
-      ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-        content: stringReplacer(
-          messageList.achievements.given_success,
-          {
+      expect(mockEditOriginalInteractionResponse).toHaveBeenLastCalledWith(
+        APPLICATION_ID,
+        TOKEN,
+        {
+          content: stringReplacer(messageList.achievements.given_success, {
             user: `<@${GIVE_ACHIEVEMENT_VALUES.user}>`,
             name: `\`${achievementFixture.name}\``,
-          }
-        ),
-        embeds: [expect.any(Object), expect.any(Object)],
-      });
+          }),
+          embeds: [expect.any(Object), expect.any(Object)],
+        }
+      );
     });
   });
 });

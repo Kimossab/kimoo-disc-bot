@@ -36,26 +36,23 @@ describe("Anilist schedule command", () => {
       options: [{ name: "query", value: "abcd" }],
     });
 
-    expect(getAiringSchedule).toHaveBeenCalledWith(
-      expect.any(Object),
-      "abcd"
-    );
+    expect(getAiringSchedule).toHaveBeenCalledWith(expect.any(Object), "abcd");
   });
 
   it('should edit message with "not_found" when no data is returned by anilist', async () => {
-    (getAiringSchedule as jest.Mock).mockResolvedValueOnce(
-      null
-    );
+    (getAiringSchedule as jest.Mock).mockResolvedValueOnce(null);
 
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
     });
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith("123456789", "randomToken", {
-      content: messageList.anilist.not_found,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      "123456789",
+      "randomToken",
+      {
+        content: messageList.anilist.not_found,
+      }
+    );
   });
 
   it("should edit message with an embed", async () => {
@@ -67,11 +64,13 @@ describe("Anilist schedule command", () => {
       options: [{ name: "query", value: "abcd" }],
     });
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith("123456789", "randomToken", {
-      content: "",
-      embeds: [expect.any(Object)],
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      "123456789",
+      "randomToken",
+      {
+        content: "",
+        embeds: [expect.any(Object)],
+      }
+    );
   });
 });

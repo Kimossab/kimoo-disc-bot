@@ -42,8 +42,7 @@ interface ActionData {
   response: unknown;
 }
 
-export interface Actions
-  extends Record<string, ActionData> {
+export interface Actions extends Record<string, ActionData> {
   [ActionName.SetUser]: {
     payload: User;
     response: void;

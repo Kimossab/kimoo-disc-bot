@@ -7,11 +7,7 @@ import {
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { addPagination } from "@/state/store";
-import {
-  Application,
-  Embed,
-  Interaction,
-} from "@/types/discord";
+import { Application, Embed, Interaction } from "@/types/discord";
 
 import { mapSauceNaoResultToData } from "./mapper";
 import { requestSauceNao } from "./request";
@@ -63,12 +59,8 @@ const sauceNaoEmbed = (
     embed.fields = [
       ...(embed.fields ?? []),
       {
-        name: item.authorData.authorName
-          ? item.authorData.authorName
-          : "-",
-        value: item.authorData.authorUrl
-          ? item.authorData.authorUrl
-          : "-",
+        name: item.authorData.authorName ? item.authorData.authorName : "-",
+        value: item.authorData.authorUrl ? item.authorData.authorUrl : "-",
       },
     ];
   }
@@ -85,9 +77,11 @@ const sauceNaoEmbed = (
   return embed;
 };
 
-const sauceNaoUpdatePage: CreatePageCallback<
-  SauceNao.data
-> = async (page, total, data) => ({
+const sauceNaoUpdatePage: CreatePageCallback<SauceNao.data> = async (
+  page,
+  total,
+  data
+) => ({
   data: {
     embeds: [sauceNaoEmbed(data, page, total)],
   },
@@ -102,37 +96,25 @@ const handleSauceNao = async (
   const saucenao = await requestSauceNao(image, logger);
 
   if (!saucenao) {
-    await editOriginalInteractionResponse(
-      app.id || "",
-      data.token,
-      {
-        content: messageList.sauce.not_found,
-      }
-    );
+    await editOriginalInteractionResponse(app.id || "", data.token, {
+      content: messageList.sauce.not_found,
+    });
     return;
   }
 
   if (saucenao.header.status > 0) {
     logger.error("SauceNao - Ext error", saucenao);
-    await editOriginalInteractionResponse(
-      app.id || "",
-      data.token,
-      {
-        content: messageList.sauce.not_found,
-      }
-    );
+    await editOriginalInteractionResponse(app.id || "", data.token, {
+      content: messageList.sauce.not_found,
+    });
     return;
   }
 
   if (saucenao.header.status < 0) {
     logger.error("SauceNao - Int error", saucenao);
-    await editOriginalInteractionResponse(
-      app.id || "",
-      data.token,
-      {
-        content: messageList.sauce.not_found,
-      }
-    );
+    await editOriginalInteractionResponse(app.id || "", data.token, {
+      content: messageList.sauce.not_found,
+    });
     return;
   }
 
@@ -142,19 +124,13 @@ const handleSauceNao = async (
   }
 
   // sort and filter
-  resData = resData.sort(
-    (a, b) => b.similarity - a.similarity
-  );
+  resData = resData.sort((a, b) => b.similarity - a.similarity);
   resData = resData.filter((a) => a.similarity > 75);
 
   if (resData.length === 0) {
-    await editOriginalInteractionResponse(
-      app.id || "",
-      data.token,
-      {
-        content: messageList.sauce.not_found,
-      }
-    );
+    await editOriginalInteractionResponse(app.id || "", data.token, {
+      content: messageList.sauce.not_found,
+    });
     return;
   }
 

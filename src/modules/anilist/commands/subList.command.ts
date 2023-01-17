@@ -5,10 +5,7 @@ import {
   InteractionPagination,
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
-import {
-  addPagination,
-  getApplication,
-} from "@/state/store";
+import { addPagination, getApplication } from "@/state/store";
 
 import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
@@ -17,9 +14,11 @@ import { mapSubListToEmbed } from "../mappers/mapSubListToEmbed";
 import { IAnilistSubscription } from "../models/AnilistSubscription.model";
 import { MediaSubbedInfo } from "../types/graphql";
 
-const updateUserSubListEmbed: CreatePageCallback<
-  MediaSubbedInfo[]
-> = async (page, total, data) => {
+const updateUserSubListEmbed: CreatePageCallback<MediaSubbedInfo[]> = async (
+  page,
+  total,
+  data
+) => {
   return {
     data: {
       embeds: [mapSubListToEmbed(data, page, total)],
@@ -34,26 +33,16 @@ export const subListCommand = (
   return async (data) => {
     const app = getApplication();
     if (app && app.id) {
-      const subs = await getUserSubs(
-        data.guild_id,
-        data.member.user?.id || ""
-      );
+      const subs = await getUserSubs(data.guild_id, data.member.user?.id || "");
 
       if (subs.length === 0) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: "No subscriptions",
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: "No subscriptions",
+        });
 
         return;
       }
-      const subsChunk = chunkArray<IAnilistSubscription>(
-        subs,
-        25
-      );
+      const subsChunk = chunkArray<IAnilistSubscription>(subs, 25);
 
       const animeInfo = [];
 
@@ -68,21 +57,14 @@ export const subListCommand = (
       }
 
       if (animeInfo.length === 0) {
-        await editOriginalInteractionResponse(
-          app.id,
-          data.token,
-          {
-            content: "No subscriptions",
-          }
-        );
+        await editOriginalInteractionResponse(app.id, data.token, {
+          content: "No subscriptions",
+        });
 
         return;
       }
 
-      const chunks = chunkArray<MediaSubbedInfo>(
-        animeInfo,
-        25
-      );
+      const chunks = chunkArray<MediaSubbedInfo>(animeInfo, 25);
 
       const pagination = new InteractionPagination(
         app.id,

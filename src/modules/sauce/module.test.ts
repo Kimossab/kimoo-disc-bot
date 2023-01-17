@@ -41,16 +41,12 @@ jest.mock("@/helper/common", () => ({
   error: jest.fn(),
 }));
 
-(getChannelLastAttachment as jest.Mock).mockReturnValue(
-  LAST_ATTACHMENT
-);
+(getChannelLastAttachment as jest.Mock).mockReturnValue(LAST_ATTACHMENT);
 (getApplication as jest.Mock).mockReturnValue({
   id: APPLICATION_ID,
 });
 (checkAdmin as jest.Mock).mockReturnValue(true);
-(
-  setCommandExecutedCallback as unknown as jest.Mock
-).mockImplementation(
+(setCommandExecutedCallback as unknown as jest.Mock).mockImplementation(
   (callback: (data: Interaction) => Promise<void>) => {
     commandCallback = callback;
   }
@@ -83,9 +79,7 @@ describe("Sauce Module", () => {
   });
 
   it("should let the user know there's no image found", async () => {
-    (
-      getChannelLastAttachment as jest.Mock
-    ).mockReturnValueOnce(null);
+    (getChannelLastAttachment as jest.Mock).mockReturnValueOnce(null);
 
     await commandCallback({
       ...baseCommand,
@@ -94,11 +88,13 @@ describe("Sauce Module", () => {
       },
     } as Interaction);
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenLastCalledWith(APPLICATION_ID, TOKEN, {
-      content: messageList.sauce.image_not_found,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenLastCalledWith(
+      APPLICATION_ID,
+      TOKEN,
+      {
+        content: messageList.sauce.image_not_found,
+      }
+    );
   });
 
   it("should default to last attachment and type art", async () => {

@@ -54,13 +54,7 @@ export type get_vn = base_get & {
   flags: get_vn_flags[];
   filters: get_vn_filters[];
   options?: base_options & {
-    sort:
-      | "id"
-      | "title"
-      | "released"
-      | "popularity"
-      | "rating"
-      | "votecount";
+    sort: "id" | "title" | "released" | "popularity" | "rating" | "votecount";
   };
 };
 

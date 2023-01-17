@@ -1,10 +1,7 @@
 import BaseModule from "#/base-module";
 
 import { editOriginalInteractionResponse } from "../discord/rest";
-import {
-  randomNum,
-  stringReplacer,
-} from "../helper/common";
+import { randomNum, stringReplacer } from "../helper/common";
 import messageList from "../helper/messages";
 import { getOptions } from "../helper/modules";
 import { getApplication } from "../state/store";
@@ -41,17 +38,13 @@ export default class MiscModule extends BaseModule {
     };
   }
 
-  private handleGroupCommand: CommandHandler = async (
-    data,
-    option
-  ) => {
+  private handleGroupCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
-      const { groups, values } =
-        getOptions<GroupCommandOptions>(
-          ["groups", "values"],
-          option.options
-        );
+      const { groups, values } = getOptions<GroupCommandOptions>(
+        ["groups", "values"],
+        option.options
+      );
 
       if (!groups || !values) {
         return;
@@ -78,21 +71,14 @@ export default class MiscModule extends BaseModule {
         }
       }
 
-      await editOriginalInteractionResponse(
-        app.id,
-        data.token,
-        {
-          content: "",
-          embeds: [this.groupEmbed(grouped)],
-        }
-      );
+      await editOriginalInteractionResponse(app.id, data.token, {
+        content: "",
+        embeds: [this.groupEmbed(grouped)],
+      });
     }
   };
 
-  private handleDonutCommand: CommandHandler = async (
-    data,
-    option
-  ) => {
+  private handleDonutCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
       const { a, b } = getOptions<DonutCommandOptions>(
@@ -103,34 +89,23 @@ export default class MiscModule extends BaseModule {
       const nB = Number(b);
       let donut: string;
 
-      if (
-        a &&
-        b &&
-        !Number.isNaN(nA) &&
-        !Number.isNaN(nB)
-      ) {
+      if (a && b && !Number.isNaN(nA) && !Number.isNaN(nB)) {
         donut = renderDonut(nA, nB);
       } else {
         const A =
           Math.PI / 2 +
-          (Math.random() *
-            (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE) +
+          (Math.random() * (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE) +
             MIN_RANDOM_ANGLE);
         const B =
-          Math.random() *
-            (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE) +
+          Math.random() * (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE) +
           MIN_RANDOM_ANGLE;
 
         donut = renderDonut(A, B);
       }
 
-      await editOriginalInteractionResponse(
-        app.id,
-        data.token,
-        {
-          content: `Here's your donut:\n\`\`\`\n${donut}\`\`\``,
-        }
-      );
+      await editOriginalInteractionResponse(app.id, data.token, {
+        content: `Here's your donut:\n\`\`\`\n${donut}\`\`\``,
+      });
 
       this.logger.log(
         `Donut was requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`

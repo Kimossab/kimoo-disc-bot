@@ -3,10 +3,7 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
 
-import {
-  addSubscription,
-  setNextAiring,
-} from "../database";
+import { addSubscription, setNextAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
 import { AnimeManager } from "../helpers/anime-manager";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
@@ -28,13 +25,11 @@ const mockLogger = { log: jest.fn() } as unknown as Logger;
   nextAiring: {},
 });
 
-(AnimeManager as jest.Mock).mockImplementation(
-  (...props) => ({
-    props,
-    id: props[2].id,
-    checkNextEpisode: jest.fn(),
-  })
-);
+(AnimeManager as jest.Mock).mockImplementation((...props) => ({
+  props,
+  id: props[2].id,
+  checkNextEpisode: jest.fn(),
+}));
 
 const mockData = {
   guild_id: "randomGuildId",
@@ -66,16 +61,11 @@ describe("Anilist schedule command", () => {
       options: [{ name: "anime", value: "abcd" }],
     });
 
-    expect(searchForAiringSchedule).toHaveBeenCalledWith(
-      {},
-      "abcd"
-    );
+    expect(searchForAiringSchedule).toHaveBeenCalledWith({}, "abcd");
   });
 
   it('should edit message with "not_found" when no data is returned by anilist', async () => {
-    (
-      searchForAiringSchedule as jest.Mock
-    ).mockResolvedValueOnce(null);
+    (searchForAiringSchedule as jest.Mock).mockResolvedValueOnce(null);
 
     await subAddCommand(
       mockLogger,
@@ -86,17 +76,19 @@ describe("Anilist schedule command", () => {
       options: [{ name: "anime", value: "abcd" }],
     });
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith("123456789", "randomToken", {
-      content: messageList.anilist.not_found,
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      "123456789",
+      "randomToken",
+      {
+        content: messageList.anilist.not_found,
+      }
+    );
   });
 
   it("should add a subscription for the anime requested", async () => {
-    (
-      searchForAiringSchedule as jest.Mock
-    ).mockResolvedValueOnce(airingScheduleResult);
+    (searchForAiringSchedule as jest.Mock).mockResolvedValueOnce(
+      airingScheduleResult
+    );
 
     await subAddCommand(
       mockLogger,
@@ -115,9 +107,9 @@ describe("Anilist schedule command", () => {
   });
 
   it("should add a new entry to the animeList object", async () => {
-    (
-      searchForAiringSchedule as jest.Mock
-    ).mockResolvedValueOnce(airingScheduleResult);
+    (searchForAiringSchedule as jest.Mock).mockResolvedValueOnce(
+      airingScheduleResult
+    );
 
     const animeList: AnimeManager[] = [];
     await subAddCommand(
@@ -133,9 +125,9 @@ describe("Anilist schedule command", () => {
   });
 
   it("should call the setNextAiring", async () => {
-    (
-      searchForAiringSchedule as jest.Mock
-    ).mockResolvedValueOnce(airingScheduleResult);
+    (searchForAiringSchedule as jest.Mock).mockResolvedValueOnce(
+      airingScheduleResult
+    );
 
     await subAddCommand(
       mockLogger,
@@ -146,16 +138,11 @@ describe("Anilist schedule command", () => {
       options: [{ name: "anime", value: "abcd" }],
     });
 
-    expect(setNextAiring).toHaveBeenCalledWith(
-      123456789,
-      456789
-    );
+    expect(setNextAiring).toHaveBeenCalledWith(123456789, 456789);
   });
 
   it("should not add a new entry to the animeList object", async () => {
-    (
-      searchForAiringSchedule as jest.Mock
-    ).mockResolvedValueOnce({
+    (searchForAiringSchedule as jest.Mock).mockResolvedValueOnce({
       ...airingScheduleResult,
       Media: {
         ...airingScheduleResult.Media,
@@ -163,9 +150,7 @@ describe("Anilist schedule command", () => {
       },
     });
 
-    const animeList: AnimeManager[] = [
-      { id: 123456 } as AnimeManager,
-    ];
+    const animeList: AnimeManager[] = [{ id: 123456 } as AnimeManager];
 
     await subAddCommand(
       mockLogger,
@@ -180,9 +165,9 @@ describe("Anilist schedule command", () => {
   });
 
   it("should edit message with an embed", async () => {
-    (
-      searchForAiringSchedule as jest.Mock
-    ).mockResolvedValueOnce(airingScheduleResult);
+    (searchForAiringSchedule as jest.Mock).mockResolvedValueOnce(
+      airingScheduleResult
+    );
 
     await subAddCommand(
       mockLogger,
@@ -193,11 +178,13 @@ describe("Anilist schedule command", () => {
       options: [{ name: "anime", value: "abcd" }],
     });
 
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith("123456789", "randomToken", {
-      content: "",
-      embeds: [expect.any(Object)],
-    });
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      "123456789",
+      "randomToken",
+      {
+        content: "",
+        embeds: [expect.any(Object)],
+      }
+    );
   });
 });

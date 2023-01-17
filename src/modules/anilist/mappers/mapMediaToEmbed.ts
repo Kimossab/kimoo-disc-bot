@@ -10,11 +10,7 @@ import {
 import messageList from "@/helper/messages";
 import { Embed, EmbedField } from "@/types/discord";
 
-import {
-  Date,
-  MediaList,
-  PageResponse,
-} from "../types/graphql";
+import { Date, MediaList, PageResponse } from "../types/graphql";
 import {
   formatMapper,
   relationMapper,
@@ -28,10 +24,7 @@ const dateToString = (date: Date): string => {
   return `${date.year}-${date.month}-${date.day}`;
 };
 
-const formatReleasingDate = (
-  start: Date,
-  end: Date
-): string | null => {
+const formatReleasingDate = (start: Date, end: Date): string | null => {
   if (!start.year) {
     return null;
   }
@@ -43,18 +36,14 @@ const formatReleasingDate = (
   return `${dateToString(start)} - ${dateToString(end)}`;
 };
 
-const cleanUpDescription = (
-  description: string
-): string => {
+const cleanUpDescription = (description: string): string => {
   return description
     .replace(/<br>/g, "")
     .replace(/<i>/g, "*")
     .replace(/<\/i>/g, "*");
 };
 
-export const mapMediaToEmbed = (
-  data: PageResponse<MediaList>
-): Embed[] => {
+export const mapMediaToEmbed = (data: PageResponse<MediaList>): Embed[] => {
   return data.Page.media.map((media, index) => {
     const fields: EmbedField[] = [];
 
@@ -64,84 +53,37 @@ export const mapMediaToEmbed = (
           `• ${media.title.native}`,
           `• ${media.title.romaji}`,
         ]),
-        createEmbedField(
-          "Type",
-          typeMapper[media.type],
-          true
-        ),
-        createEmbedField(
-          "Format",
-          formatMapper[media.format],
-          true
-        ),
-        createEmbedField(
-          "Status",
-          statusMapper[media.status],
-          true
-        ),
+        createEmbedField("Type", typeMapper[media.type], true),
+        createEmbedField("Format", formatMapper[media.format], true),
+        createEmbedField("Status", statusMapper[media.status], true),
       ]
     );
-    const dates = formatReleasingDate(
-      media.startDate,
-      media.endDate
-    );
+    const dates = formatReleasingDate(media.startDate, media.endDate);
     if (dates) {
-      fields.push(
-        createEmbedField("Airing Dates", dates, true)
-      );
+      fields.push(createEmbedField("Airing Dates", dates, true));
     }
     if (media.season) {
-      fields.push(
-        createEmbedField(
-          "Season",
-          seasonMapper[media.season],
-          true
-        )
-      );
+      fields.push(createEmbedField("Season", seasonMapper[media.season], true));
     }
     if (media.episodes) {
       fields.push(
-        createEmbedField(
-          "Episodes",
-          media.episodes.toString(),
-          true
-        )
+        createEmbedField("Episodes", media.episodes.toString(), true)
       );
     }
     if (media.duration) {
       fields.push(
-        createEmbedField(
-          "Duration",
-          media.duration.toString(),
-          true
-        )
+        createEmbedField("Duration", media.duration.toString(), true)
       );
     }
     if (media.volumes) {
-      fields.push(
-        createEmbedField(
-          "Volumes",
-          media.volumes.toString(),
-          true
-        )
-      );
+      fields.push(createEmbedField("Volumes", media.volumes.toString(), true));
     }
     if (media.source) {
-      fields.push(
-        createEmbedField(
-          "Source",
-          sourceMapper[media.source],
-          true
-        )
-      );
+      fields.push(createEmbedField("Source", sourceMapper[media.source], true));
     }
     if (media.averageScore) {
       fields.push(
-        createEmbedField(
-          "Average score",
-          media.averageScore.toString(),
-          true
-        )
+        createEmbedField("Average score", media.averageScore.toString(), true)
       );
     }
     if (media.nextAiringEpisode) {
@@ -157,17 +99,13 @@ export const mapMediaToEmbed = (
       fields.push(
         ...createEmbedFieldList(
           "Studios",
-          media.studios.nodes.map(
-            (studio) => `• ${studio.name}`
-          ),
+          media.studios.nodes.map((studio) => `• ${studio.name}`),
           true
         )
       );
     }
     if (media.genres?.length) {
-      fields.push(
-        createEmbedField("Genres", media.genres.join(", "))
-      );
+      fields.push(createEmbedField("Genres", media.genres.join(", ")));
     }
     if (media.relations.edges.length) {
       const relationTextList = media.relations.edges.map(
@@ -181,19 +119,13 @@ export const mapMediaToEmbed = (
           }](${relation.node.siteUrl})`
       );
 
-      fields.push(
-        ...createEmbedFieldList(
-          "Relations",
-          relationTextList
-        )
-      );
+      fields.push(...createEmbedFieldList("Relations", relationTextList));
     }
 
     if (media.idMal || media.externalLinks?.length) {
       const externalLinks =
-        media.externalLinks?.map(
-          (link) => `• [${link.site}](${link.url})`
-        ) ?? [];
+        media.externalLinks?.map((link) => `• [${link.site}](${link.url})`) ??
+        [];
 
       fields.push(
         ...createEmbedFieldList(
@@ -210,26 +142,17 @@ export const mapMediaToEmbed = (
     const embed: Embed = {
       title: createTitle(
         (media.isAdult ? "[**NSFW**] " : "") +
-          (media.title.english ||
-            media.title.romaji ||
-            media.title.native)
+          (media.title.english || media.title.romaji || media.title.native)
       ),
       url: media.siteUrl,
-      color: parseInt(
-        media.coverImage.color?.slice(1) || "FFFFFF",
-        16
-      ),
+      color: parseInt(media.coverImage.color?.slice(1) || "FFFFFF", 16),
       description: createDescription(
-        media.description
-          ? cleanUpDescription(media.description)
-          : ""
+        media.description ? cleanUpDescription(media.description) : ""
       ),
-      fields:
-        fields.length > 25 ? fields.slice(0, 25) : fields,
+      fields: fields.length > 25 ? fields.slice(0, 25) : fields,
       author: {
         name: createAuthorName("Anilist"),
-        icon_url:
-          "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
+        icon_url: "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
         url: "https://anilist.co/home",
       },
     };

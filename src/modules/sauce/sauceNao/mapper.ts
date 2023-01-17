@@ -41,9 +41,7 @@ export const mapSauceNaoResultToData = (
         ];
         parsed.name = data.data.title;
         parsed.authorData = {
-          authorName: data.data.member_name
-            ? data.data.member_name
-            : null,
+          authorName: data.data.member_name ? data.data.member_name : null,
           authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`,
         };
         break;
@@ -54,9 +52,7 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.title;
         parsed.authorData = {
-          authorName: data.data.member_name
-            ? data.data.member_name
-            : null,
+          authorName: data.data.member_name ? data.data.member_name : null,
           authorUrl: null,
         };
         break;
@@ -65,16 +61,10 @@ export const mapSauceNaoResultToData = (
         // danbooru / gelbooru / sankaku
         parsed.site = "danbooru / gelbooru / sankaku";
         parsed.url = data.data.ext_urls;
-        parsed.name = data.data.material
-          ? data.data.material
-          : "";
+        parsed.name = data.data.material ? data.data.material : "";
         parsed.authorData = {
-          authorName: data.data.creator
-            ? data.data.creator.toString()
-            : null,
-          authorUrl: data.data.source
-            ? data.data.source
-            : null,
+          authorName: data.data.creator ? data.data.creator.toString() : null,
+          authorUrl: data.data.source ? data.data.source : null,
         };
         break;
       }
@@ -84,9 +74,7 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.title!;
         parsed.authorData = {
-          authorName: data.data.member_name
-            ? data.data.member_name
-            : null,
+          authorName: data.data.member_name ? data.data.member_name : null,
           authorUrl: `https://nijie.info/members.php?id=${data.data.member_id}`,
         };
         break;
@@ -97,9 +85,7 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.material!;
         parsed.authorData = {
-          authorName: data.data.creator
-            ? data.data.creator.toString()
-            : null,
+          authorName: data.data.creator ? data.data.creator.toString() : null,
           authorUrl: null,
         };
         break;
@@ -110,9 +96,7 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.source!;
         parsed.authorData = {
-          authorName: data.data.creator
-            ? data.data.creator.toString()
-            : null,
+          authorName: data.data.creator ? data.data.creator.toString() : null,
           authorUrl: null,
         };
         break;
@@ -131,12 +115,9 @@ export const mapSauceNaoResultToData = (
             `https://nhentai.net/g/${path}`,
           ];
         }
-        parsed.name = (data.data.eng_name ||
-          data.data.jp_name)!;
+        parsed.name = (data.data.eng_name || data.data.jp_name)!;
         parsed.authorData = {
-          authorName: (data.data.creator as string[]).join(
-            ","
-          ),
+          authorName: (data.data.creator as string[]).join(","),
           authorUrl: null,
         };
         break;
@@ -147,9 +128,7 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.title;
         parsed.authorData = {
-          authorName: data.data.member_name
-            ? data.data.member_name
-            : null,
+          authorName: data.data.member_name ? data.data.member_name : null,
           authorUrl: `https://medibang.com/author/${data.data.member_id}/`,
         };
         break;
@@ -175,9 +154,7 @@ export const mapSauceNaoResultToData = (
         parsed.name = data.data.material!;
         parsed.url = data.data.ext_urls;
         parsed.authorData = {
-          authorName: data.data.creator
-            ? data.data.creator.toString()
-            : null,
+          authorName: data.data.creator ? data.data.creator.toString() : null,
           authorUrl: null,
         };
         break;
@@ -189,12 +166,8 @@ export const mapSauceNaoResultToData = (
         parsed.name = data.data.title;
         parsed.url = data.data.ext_urls;
         parsed.authorData = {
-          authorName: data.data.member_name
-            ? data.data.member_name
-            : null,
-          authorUrl: data.data.source
-            ? data.data.source
-            : null,
+          authorName: data.data.member_name ? data.data.member_name : null,
+          authorUrl: data.data.source ? data.data.source : null,
         };
         break;
       }
@@ -204,9 +177,7 @@ export const mapSauceNaoResultToData = (
         parsed.url = [data.data.ext_urls[0]];
         parsed.name = data.data.title;
         parsed.authorData = {
-          authorName: data.data.author_name
-            ? data.data.author_name
-            : null,
+          authorName: data.data.author_name ? data.data.author_name : null,
           authorUrl: data.data.author_url,
         };
         break;
@@ -214,9 +185,7 @@ export const mapSauceNaoResultToData = (
       case 35: {
         // Pawoo
         parsed.site = "Pawoo";
-        parsed.url = [
-          data.data.ext_urls[0] + data.data.pawoo_id,
-        ];
+        parsed.url = [data.data.ext_urls[0] + data.data.pawoo_id];
         parsed.name = "";
         parsed.authorData = {
           authorName: data.data.pawoo_user_display_name
@@ -244,26 +213,20 @@ export const mapSauceNaoResultToData = (
         // twitter
         parsed.site = "Twitter";
         parsed.url = data.data.ext_urls;
-        parsed.name = `Tweet by ${data.data
-          .twitter_user_handle!}`;
+        parsed.name = `Tweet by ${data.data.twitter_user_handle!}`;
         parsed.authorData = {
           authorName: data.data.twitter_user_handle!,
-          authorUrl: `https://twitter.com/${data.data
-            .twitter_user_handle!}/`,
+          authorUrl: `https://twitter.com/${data.data.twitter_user_handle!}/`,
         };
         break;
       }
       case 371: {
         // some manga list
         const nameSplit = data.header.index_name.split(" ");
-        const page =
-          nameSplit[nameSplit.length - 1].split(".")[0];
+        const page = nameSplit[nameSplit.length - 1].split(".")[0];
         parsed.name = data.data.source! + data.data.part!;
         parsed.site = "MangaDex";
-        parsed.url = [
-          data.data.ext_urls[0] + page,
-          ...data.data.ext_urls,
-        ];
+        parsed.url = [data.data.ext_urls[0] + page, ...data.data.ext_urls];
         parsed.authorData = {
           authorName: data.data.author!,
           authorUrl: "",

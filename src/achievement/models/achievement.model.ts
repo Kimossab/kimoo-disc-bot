@@ -18,7 +18,4 @@ const AchievementSchema: Schema = new mongoose.Schema({
   points: Number,
 });
 
-export default mongoose.model<IAchievement>(
-  "Achievement",
-  AchievementSchema
-);
+export default mongoose.model<IAchievement>("Achievement", AchievementSchema);

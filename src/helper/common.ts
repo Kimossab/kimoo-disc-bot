@@ -45,26 +45,18 @@ export const isValidReactionUser = (
   }
 
   const d: MessageReactionAdd = data as MessageReactionAdd;
-  return !!(
-    d.member &&
-    d.member.user &&
-    !d.member.user.bot
-  );
+  return !!(d.member && d.member.user && !d.member.user.bot);
 };
 
 /**
  * Converts a value in seconds into a string of MM:SS
  * @param seconds Time in seconds
  */
-export const formatSecondsIntoMinutes = (
-  seconds: number
-): string => {
+export const formatSecondsIntoMinutes = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
-  const minsString =
-    mins < 10 ? `0${mins}` : mins.toString();
+  const minsString = mins < 10 ? `0${mins}` : mins.toString();
   const secs = Math.trunc(seconds % 60);
-  const secsString =
-    secs < 10 ? `0${secs}` : secs.toString();
+  const secsString = secs < 10 ? `0${secs}` : secs.toString();
 
   return `${minsString}:${secsString}`;
 };
@@ -81,10 +73,8 @@ export const snowflakeToDate = (snowflake: string): Date =>
  * @param min Minimum value
  * @param max Maximum value (excluded)
  */
-export const randomNum = (
-  min: number,
-  max: number
-): number => Math.floor(Math.random() * (max - min)) + min;
+export const randomNum = (min: number, max: number): number =>
+  Math.floor(Math.random() * (max - min)) + min;
 
 /**
  * Checks if the user is an admin for this server
@@ -114,10 +104,7 @@ export const checkAdmin = async (
   return member.roles.includes(role);
 };
 
-export const chunkArray = <T>(
-  data: T[],
-  size: number
-): T[][] => {
+export const chunkArray = <T>(data: T[], size: number): T[][] => {
   const R = [];
   for (let i = 0; i < data.length; i += size) {
     R.push(data.slice(i, i + size));
@@ -163,18 +150,12 @@ export const moveFile = async (
   destination: string
 ): Promise<boolean> =>
   new Promise((resolve) => {
-    fs.rename(
-      source,
-      destination,
-      (err: NodeJS.ErrnoException | null) => {
-        resolve(!err);
-      }
-    );
+    fs.rename(source, destination, (err: NodeJS.ErrnoException | null) => {
+      resolve(!err);
+    });
   });
 
-export const deleteFile = async (
-  file: string
-): Promise<boolean> =>
+export const deleteFile = async (file: string): Promise<boolean> =>
   new Promise((resolve) => {
     fs.unlink(file, (err: NodeJS.ErrnoException | null) => {
       resolve(!err);

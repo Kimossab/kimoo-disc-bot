@@ -15,9 +15,7 @@ export const getOptions = <T>(
   return response;
 };
 
-export const getOptionValue = <
-  T extends CommandInteractionDataOption["value"]
->(
+export const getOptionValue = <T extends CommandInteractionDataOption["value"]>(
   options: CommandInteractionDataOption[] | undefined,
   name: string
 ): T | null => {

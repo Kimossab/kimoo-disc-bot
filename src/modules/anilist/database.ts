@@ -63,8 +63,7 @@ export const getAllAnimeNotifications = async (): Promise<
 
 export const getAllSubscriptionsForAnime = async (
   id: number
-): Promise<IAnilistSubscription[]> =>
-  AnilistSubscription.find({ id });
+): Promise<IAnilistSubscription[]> => AnilistSubscription.find({ id });
 
 export const deleteAllSubscriptionsForId = async (
   id: number

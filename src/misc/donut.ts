@@ -5,20 +5,7 @@ const { sin } = Math;
 
 const SCREEN_WIDTH = 40;
 const SCREEN_HEIGHT = 40;
-const CHARACTERS = [
-  ".",
-  ",",
-  "-",
-  "~",
-  ":",
-  ";",
-  "=",
-  "!",
-  "*",
-  "#",
-  "$",
-  "@",
-];
+const CHARACTERS = [".", ",", "-", "~", ":", ";", "=", "!", "*", "#", "$", "@"];
 
 const THETA_SPACING = 0.07;
 const PHI_SPACING = 0.02;
@@ -42,19 +29,11 @@ const renderDonut = (a: number, b: number): string => {
     .fill(0)
     .map(() => new Array(SCREEN_HEIGHT).fill(0));
 
-  for (
-    let theta = 0;
-    theta < 2 * Math.PI;
-    theta += THETA_SPACING
-  ) {
+  for (let theta = 0; theta < 2 * Math.PI; theta += THETA_SPACING) {
     const cosTheta = cos(theta);
     const sinTheta = sin(theta);
 
-    for (
-      let phi = 0;
-      phi < 2 * Math.PI;
-      phi += PHI_SPACING
-    ) {
+    for (let phi = 0; phi < 2 * Math.PI; phi += PHI_SPACING) {
       const cosPhi = cos(phi);
       const sinPhi = sin(phi);
 
@@ -67,16 +46,11 @@ const renderDonut = (a: number, b: number): string => {
       const y =
         circleX * (sinB * cosPhi - sinA * cosB * sinPhi) +
         circleY * cosA * cosB;
-      const z =
-        K2 + cosA * circleX * sinPhi + circleY * sinA;
+      const z = K2 + cosA * circleX * sinPhi + circleY * sinA;
       const ooz = 1 / z;
 
-      const xp = Math.floor(
-        SCREEN_WIDTH / 2 + K1 * ooz * x
-      );
-      const yp = Math.floor(
-        SCREEN_HEIGHT / 2 - K1 * ooz * y
-      );
+      const xp = Math.floor(SCREEN_WIDTH / 2 + K1 * ooz * x);
+      const yp = Math.floor(SCREEN_HEIGHT / 2 - K1 * ooz * y);
 
       const L =
         cosPhi * cosTheta * sinB -
@@ -105,9 +79,7 @@ const renderDonut = (a: number, b: number): string => {
     }
   }
 
-  return strings
-    .filter((s) => s.replace(" ", "").length !== 0)
-    .join("\n");
+  return strings.filter((s) => s.replace(" ", "").length !== 0).join("\n");
 };
 
 export default renderDonut;

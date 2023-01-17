@@ -14,11 +14,9 @@ export const mapSubListToEmbed = (
     description: data
       .map(
         (m) =>
-          `• [${
-            m.title.english ||
-            m.title.romaji ||
-            m.title.native
-          }](${m.siteUrl})\n`
+          `• [${m.title.english || m.title.romaji || m.title.native}](${
+            m.siteUrl
+          })\n`
       )
       .join(""),
   };

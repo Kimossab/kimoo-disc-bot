@@ -7,13 +7,12 @@ export interface IBirthdayWithRole extends Document {
   server: string;
 }
 
-const BirthdayWithRoleSchema: Schema<IBirthdayWithRole> =
-  new Schema({
-    day: Number,
-    month: Number,
-    users: [String],
-    server: String,
-  });
+const BirthdayWithRoleSchema: Schema<IBirthdayWithRole> = new Schema({
+  day: Number,
+  month: Number,
+  users: [String],
+  server: String,
+});
 
 export default mongoose.model<IBirthdayWithRole>(
   "BirthdayWithRole",

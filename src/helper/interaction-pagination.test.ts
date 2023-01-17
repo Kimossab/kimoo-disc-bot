@@ -28,11 +28,7 @@ describe("InteractionPagination", () => {
   const mockCreatePage = jest.fn();
 
   beforeEach(() => {
-    pagination = new InteractionPagination(
-      APP_ID,
-      DATA,
-      mockCreatePage
-    );
+    pagination = new InteractionPagination(APP_ID, DATA, mockCreatePage);
     mockCreatePage.mockReturnValue({
       embeds: DATA.map((data) => ({ title: data })),
     });
@@ -44,53 +40,49 @@ describe("InteractionPagination", () => {
 
   it("should call `editOriginalInteractionResponse` on create", () => {
     pagination.create(TOKEN);
-    expect(mockCreatePage).toHaveBeenCalledWith(
-      1,
-      5,
-      DATA[0]
-    );
-    expect(
-      editOriginalInteractionResponse
-    ).toHaveBeenCalledWith(APP_ID, TOKEN, {
-      embeds: DATA.map((data) => ({ title: data })),
-      components: [
-        {
-          type: ComponentType.ActionRow,
-          components: [
-            {
-              type: ComponentType.SelectMenu,
-              custom_id: "pagination.select",
-              options: Array.from(Array(5)).map(
-                (value, index) => {
+    expect(mockCreatePage).toHaveBeenCalledWith(1, 5, DATA[0]);
+    expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
+      APP_ID,
+      TOKEN,
+      {
+        embeds: DATA.map((data) => ({ title: data })),
+        components: [
+          {
+            type: ComponentType.ActionRow,
+            components: [
+              {
+                type: ComponentType.SelectMenu,
+                custom_id: "pagination.select",
+                options: Array.from(Array(5)).map((value, index) => {
                   return {
                     label: `Page ${index + 1}`,
                     value: index.toString(),
                     default: index === 0,
                   };
-                }
-              ),
-            },
-          ],
-        },
-        {
-          type: ComponentType.ActionRow,
-          components: [
-            {
-              type: ComponentType.Button,
-              style: ButtonStyle.Primary,
-              custom_id: "pagination.previous",
-              label: "◀",
-            },
-            {
-              type: ComponentType.Button,
-              style: ButtonStyle.Primary,
-              custom_id: "pagination.next",
-              label: "▶",
-            },
-          ],
-        },
-      ],
-    });
+                }),
+              },
+            ],
+          },
+          {
+            type: ComponentType.ActionRow,
+            components: [
+              {
+                type: ComponentType.Button,
+                style: ButtonStyle.Primary,
+                custom_id: "pagination.previous",
+                label: "◀",
+              },
+              {
+                type: ComponentType.Button,
+                style: ButtonStyle.Primary,
+                custom_id: "pagination.next",
+                label: "▶",
+              },
+            ],
+          },
+        ],
+      }
+    );
   });
 
   it.each`
@@ -120,12 +112,14 @@ describe("InteractionPagination", () => {
           5,
           DATA[expectedPage]
         );
-        expect(
-          createInteractionResponse
-        ).toHaveBeenCalledWith("INTERACTION_ID", TOKEN, {
-          type: InteractionCallbackType.UPDATE_MESSAGE,
-          data: expect.any(Object),
-        });
+        expect(createInteractionResponse).toHaveBeenCalledWith(
+          "INTERACTION_ID",
+          TOKEN,
+          {
+            type: InteractionCallbackType.UPDATE_MESSAGE,
+            data: expect.any(Object),
+          }
+        );
       } else if (expectedBehavior === "throw") {
         await expect(
           pagination.handlePage("INTERACTION_ID", TOKEN, {
@@ -133,9 +127,7 @@ describe("InteractionPagination", () => {
             values,
           } as InteractionData)
         ).rejects.toThrow(expectedValue);
-        expect(
-          createInteractionResponse
-        ).not.toHaveBeenCalled();
+        expect(createInteractionResponse).not.toHaveBeenCalled();
       }
     }
   );

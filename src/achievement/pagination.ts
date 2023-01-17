@@ -48,9 +48,7 @@ export const updateUserAchievementsPage: CreatePageCallback<
   IUserAchievement[]
 > = async (page, total, data) => ({
   data: {
-    embeds: [
-      createUserAchievementsEmbed(data, page, total),
-    ],
+    embeds: [createUserAchievementsEmbed(data, page, total)],
   },
 });
 
@@ -95,9 +93,7 @@ export const updateServerAchievementsPage: CreatePageCallback<
   IAchievement[]
 > = async (page, total, data) => ({
   data: {
-    embeds: [
-      createServerAchievementsEmbed(data, page, total),
-    ],
+    embeds: [createServerAchievementsEmbed(data, page, total)],
   },
 });
 // server ranks
@@ -107,8 +103,7 @@ export const createServerAchievementRanksEmbed = (
   total: number
 ): Embed => {
   const embed: Embed = {
-    title:
-      messageList.achievements.server_achievement_ranks,
+    title: messageList.achievements.server_achievement_ranks,
     color: 3035554,
     description: "",
   };
@@ -133,9 +128,7 @@ export const updateServerAchievementRanksPage: CreatePageCallback<
   IAchievementRank[]
 > = async (page, total, data) => ({
   data: {
-    embeds: [
-      createServerAchievementRanksEmbed(data, page, total),
-    ],
+    embeds: [createServerAchievementRanksEmbed(data, page, total)],
   },
 });
 
@@ -170,11 +163,9 @@ export const createServerLeaderboardEmbed = (
   for (let i = 0; i < data.length; i++) {
     const element = data[i];
 
-    fields[0].value += `• \`${
-      (page - 1) * 10 + i + 1
-    }\` • \`${element.rank} - ${element.points} Pts.\` <@${
-      element.user
-    }>\n`;
+    fields[0].value += `• \`${(page - 1) * 10 + i + 1}\` • \`${
+      element.rank
+    } - ${element.points} Pts.\` <@${element.user}>\n`;
   }
 
   return embed;
@@ -184,8 +175,6 @@ export const updateServerLeaderboardPage: CreatePageCallback<
   achievement.serverLeaderboard[]
 > = async (page, total, data) => ({
   data: {
-    embeds: [
-      createServerLeaderboardEmbed(data, page, total),
-    ],
+    embeds: [createServerLeaderboardEmbed(data, page, total)],
   },
 });

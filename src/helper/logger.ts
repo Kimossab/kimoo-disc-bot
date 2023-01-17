@@ -4,10 +4,7 @@ import util from "util";
 
 let currentColor = 1;
 export interface ILogger {
-  log(
-    message: string | null | undefined,
-    ...data: unknown[]
-  ): void;
+  log(message: string | null | undefined, ...data: unknown[]): void;
   error(message: string, ...data: unknown[]): void;
 }
 /**
@@ -36,10 +33,7 @@ class Logger implements ILogger {
    * @param message Message to write
    * @param data Variables to log
    */
-  public log(
-    message: string | null | undefined,
-    ...data: unknown[]
-  ): void {
+  public log(message: string | null | undefined, ...data: unknown[]): void {
     const timeString = new Date().toLocaleTimeString();
     const colStr = `\x1b[${90 + this._color}m`;
 
@@ -50,10 +44,7 @@ class Logger implements ILogger {
     );
     if (data.length) {
       for (const d of data) {
-        console.log(
-          `${colStr}•\x1b[0m`,
-          util.inspect(d, false, null, true)
-        );
+        console.log(`${colStr}•\x1b[0m`, util.inspect(d, false, null, true));
       }
     }
   }
@@ -65,9 +56,7 @@ class Logger implements ILogger {
    */
   public error(message: string, ...data: unknown[]): void {
     const timeString = new Date().toLocaleTimeString();
-    const colStr = `\x1b[5;${90 + colors.white};${
-      100 + colors.red
-    }m`;
+    const colStr = `\x1b[5;${90 + colors.white};${100 + colors.red}m`;
 
     console.log(
       `${colStr}[${timeString}][${this._module}]`,
