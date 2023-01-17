@@ -1,11 +1,11 @@
-import { IAnilistSubscription } from "#anilist/models/AnilistSubscription.model";
+import { IAnilistSubscription } from "#/anilist/models/AnilistSubscription.model";
 import {
   MediaResponse,
   MediaSubbed,
   MediaSubbedInfo,
   NextAiringWithTitle,
   PageResponse,
-} from "#anilist/types/graphql";
+} from "#/anilist/types/graphql";
 
 import casual from "casual";
 

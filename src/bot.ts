@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-import AnilistModule from "#anilist/module";
-import SauceModule from "#sauce/module";
+import AnilistModule from "#/anilist/module";
+import SauceModule from "#/sauce/module";
 import AchievementModule from "./achievement/module";
 import BadgesModule from "./badges/module";
 import BirthdayModule from "./birthday/module";

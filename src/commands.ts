@@ -1,4 +1,4 @@
-import { MediaType } from "#anilist/types/graphql";
+import { MediaType } from "#/anilist/types/graphql";
 
 import {
   ApplicationCommand,
