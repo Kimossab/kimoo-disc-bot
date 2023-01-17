@@ -33,6 +33,7 @@ jobs:
           name: node-v${{ matrix.node-version }}-release
           path: |
             build
+            package.lock.json
             package.json
 
   release:
