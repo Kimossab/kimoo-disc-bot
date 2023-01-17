@@ -50,6 +50,8 @@ jobs:
           zip node-v17.x-release.zip ./node-v17.x-release/* -r
           zip node-v18.x-release.zip ./node-v18.x-release/* -r
           zip node-v19.x-release.zip ./node-v19.x-release/* -r
-      - uses: ncipollo/release-action@v1
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          artifacts: "*.zip"
+          files: "*.zip"
