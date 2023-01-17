@@ -166,7 +166,6 @@ const ready = async () => {
 
     for (const cmd of commandInfo.list) {
       const existing = commandData.find((c) => c.name === cmd.name);
-
       if (!existing || !commandInfo.compareCommands(cmd, existing)) {
         _logger.log("Creating command", cmd);
         const nCmd = await createCommand(app.id, cmd);
