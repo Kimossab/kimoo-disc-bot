@@ -161,12 +161,12 @@ class Socket {
         },
       });
 
-      setTimeout(() => {
-        if (!this.resumed) {
-          this.logger.log("Did not resume.");
-          this.identify();
-        }
-      }, 20000);
+      // setTimeout(() => {
+      //   if (!this.resumed) {
+      //     this.logger.log("Did not resume.");
+      //     this.identify();
+      //   }
+      // }, 20000);
     } else {
       this.identify();
     }
