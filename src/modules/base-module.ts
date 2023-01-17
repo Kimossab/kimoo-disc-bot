@@ -7,7 +7,12 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOption } from "@/helper/modules";
 import { getApplication, setCommandExecutedCallback } from "@/state/store";
-import { Interaction, InteractionCallbackType } from "@/types/discord";
+import {
+  CommandHandler,
+  Interaction,
+  InteractionCallbackType,
+  SingleCommandHandler,
+} from "@/types/discord";
 
 interface CommandInfo {
   handler: CommandHandler;
@@ -29,11 +34,11 @@ export default class BaseModule {
   }
 
   private interactionExecuted = async (data: Interaction): Promise<void> => {
+    const cmdName = data.data?.name.toLowerCase().split(" ")[0];
     if (
       data.data &&
-      data.data.name === this.name &&
-      data.guild_id &&
-      data.member
+      cmdName === this.name &&
+      (data.user || (data.guild_id && data.member))
     ) {
       const app = getApplication();
       if (app && app.id) {

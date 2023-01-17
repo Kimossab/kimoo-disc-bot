@@ -3,6 +3,7 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
+import { CommandHandler } from "@/types/discord";
 
 import { addSubscription, setNextAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
@@ -21,7 +22,7 @@ export const subAddCommand = (
 ): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id && data.member) {
       const { anime } = getOptions<SubAddCommandOptions>(
         ["anime"],
         option.options

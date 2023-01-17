@@ -91,7 +91,7 @@ const actions: StateActions = {
   },
   [ActionName.GetApplication]: () => state.application,
   [ActionName.GetChannelLastAttachment]: (channel) =>
-    state.channelLastAttachment[channel],
+    channel ? state.channelLastAttachment[channel] : "",
   [ActionName.GetGuilds]: () => state.guilds,
   [ActionName.GetResumeGateway]: () => state.resumeGatewayUrl,
   [ActionName.GetDiscordSession]: () => state.discordSessionId,

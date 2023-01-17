@@ -23,7 +23,7 @@ import { no_mentions } from "../helper/constants";
 import messageList from "../helper/messages";
 import { getOptions } from "../helper/modules";
 import { getApplication, getGuilds } from "../state/store";
-import { Application, Interaction } from "../types/discord";
+import { Application, CommandHandler, Interaction } from "../types/discord";
 import {
   addBirthday,
   getBirthdays,
@@ -204,7 +204,7 @@ export default class BirthdayModule extends BaseModule {
 
   private handleChannelCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { channel } = getOptions<ChannelCommandOptions>(
         ["channel"],
         option.options
@@ -219,7 +219,9 @@ export default class BirthdayModule extends BaseModule {
         });
         this.logger.log(
           `Set birthday channel to ${channel} in ${data.guild_id} by ` +
-            `${data.member.user?.username}#${data.member.user?.discriminator}`
+            `${(data.member || data).user?.username}#${
+              (data.member || data).user?.discriminator
+            }`
         );
       } else {
         const ch = await getServersBirthdayInfo();
@@ -230,7 +232,9 @@ export default class BirthdayModule extends BaseModule {
           }),
         });
         this.logger.log(
-          `Get birthday channel in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+          `Get birthday channel in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       }
     }
@@ -238,13 +242,13 @@ export default class BirthdayModule extends BaseModule {
 
   private handleAddCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { day, month, year } = getOptions<AddCommandOptions>(
         ["day", "month", "year"],
         option.options
       );
 
-      const user = data.member.user?.id || "";
+      const user = (data.member || data).user?.id || "";
 
       const bd = await getUserBirthday(data.guild_id, user);
 
@@ -267,17 +271,19 @@ export default class BirthdayModule extends BaseModule {
 
       this.logger.log(
         `Add user ${user} birthday to ${birthdayString} in ${data.guild_id} by ` +
-          `${data.member.user?.username}#${data.member.user?.discriminator}`
+          `${(data.member || data).user?.username}#${
+            (data.member || data).user?.discriminator
+          }`
       );
     }
   };
 
   private handleRemoveCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id && data.member) {
       const isAdmin = await checkAdmin(data.guild_id, data.member);
 
-      let user = data.member.user?.id;
+      let user = (data.member || data).user?.id;
 
       if (isAdmin) {
         const options = getOptions<RemoveCommandOptions>(
@@ -297,7 +303,9 @@ export default class BirthdayModule extends BaseModule {
         });
         this.logger.log(
           `Removed user ${user} birthday in ${data.guild_id} by ` +
-            `${data.member.user?.username}#${data.member.user?.discriminator}`
+            `${(data.member || data).user?.username}#${
+              (data.member || data).user?.discriminator
+            }`
         );
       } else {
         await editOriginalInteractionResponse(app.id, data.token, {
@@ -348,7 +356,7 @@ export default class BirthdayModule extends BaseModule {
 
   private handleGetCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { user, month } = getOptions<GetCommandOptions>(
         ["user", "month"],
         option.options
@@ -358,7 +366,7 @@ export default class BirthdayModule extends BaseModule {
         return this.handleGetMonthCommand(data, app, month);
       }
 
-      const requestedUser = user || data.member.user?.id || "";
+      const requestedUser = user || (data.member || data).user?.id || "";
 
       const bd = await getUserBirthday(data.guild_id, requestedUser);
 
@@ -374,7 +382,9 @@ export default class BirthdayModule extends BaseModule {
           allowed_mentions: no_mentions,
         });
         this.logger.log(
-          `Birthday requested in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+          `Birthday requested in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       } else {
         await editOriginalInteractionResponse(app.id, data.token, {
@@ -386,7 +396,7 @@ export default class BirthdayModule extends BaseModule {
 
   private handleServerCommand: CommandHandler = async (data) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const serverDate = snowflakeToDate(data.guild_id);
       const birthdayString = `${serverDate.getDate()}/${
         serverDate.getMonth() + 1
@@ -398,14 +408,16 @@ export default class BirthdayModule extends BaseModule {
       });
       this.logger.log(
         `Get server birthday date in ${data.guild_id} by ` +
-          `${data.member.user?.username}#${data.member.user?.discriminator}`
+          `${(data.member || data).user?.username}#${
+            (data.member || data).user?.discriminator
+          }`
       );
     }
   };
 
   private handleRoleCommand: CommandHandler = async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { role } = getOptions<RoleCommandOptions>(["role"], option.options);
 
       if (role) {
@@ -417,7 +429,9 @@ export default class BirthdayModule extends BaseModule {
           allowed_mentions: no_mentions,
         });
         this.logger.log(
-          `Set birthday role ${role} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+          `Set birthday role ${role} in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       } else {
         const role = await getServerBirthdayRole(data.guild_id);
@@ -435,7 +449,9 @@ export default class BirthdayModule extends BaseModule {
           });
         }
         this.logger.log(
-          `Get birthday role in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+          `Get birthday role in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       }
     }

@@ -3,6 +3,11 @@ import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { addPagination, getApplication } from "@/state/store";
+import {
+  CommandHandler,
+  CommandInteractionDataOption,
+  Interaction,
+} from "@/types/discord";
 
 import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
@@ -108,7 +113,7 @@ const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",
   member: {},
-};
+} as Interaction;
 
 describe("Anilist schedule command", () => {
   afterEach(() => {
@@ -118,7 +123,7 @@ describe("Anilist schedule command", () => {
   it("should request anilist using searchByQuery if no type is given", async () => {
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
     expect(searchByQuery).toHaveBeenCalledWith(expect.any(Object), "abcd");
   });
 
@@ -128,7 +133,7 @@ describe("Anilist schedule command", () => {
         { name: "query", value: "abcd" },
         { name: "type", value: "ANIME" },
       ],
-    });
+    } as CommandInteractionDataOption);
 
     expect(searchByQueryAndType).toHaveBeenCalledWith(
       expect.any(Object),
@@ -141,7 +146,7 @@ describe("Anilist schedule command", () => {
     (searchByQuery as jest.Mock).mockResolvedValueOnce(null);
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
       "123456789",
@@ -156,7 +161,7 @@ describe("Anilist schedule command", () => {
     (searchByQuery as jest.Mock).mockResolvedValueOnce(emptySearchResult);
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
     expect(editOriginalInteractionResponse).toHaveBeenCalledWith(
       "123456789",
       "randomToken",
@@ -170,7 +175,7 @@ describe("Anilist schedule command", () => {
     (searchByQuery as jest.Mock).mockResolvedValueOnce(searchResult);
     await handler(mockData, {
       options: [{ name: "query", value: "abcd" }],
-    });
+    } as CommandInteractionDataOption);
 
     expect(InteractionPagination).toHaveBeenCalledWith(
       "123456789",

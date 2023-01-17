@@ -2,16 +2,11 @@ import BaseModule from "#/base-module";
 
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import messageList from "@/helper/messages";
-import { getOptions } from "@/helper/modules";
-import { getApplication, getChannelLastAttachment } from "@/state/store";
+import { getApplication } from "@/state/store";
+import { Message, SingleCommandHandler } from "@/types/discord";
 
 import handleSauceNao from "./sauceNao/sauce-nao";
 import handleTraceMoe from "./traceMoe/trace-moe";
-
-interface CommandOptions {
-  type: "anime" | "art";
-  image: string;
-}
 
 export default class SauceModule extends BaseModule {
   constructor(isActive: boolean) {
@@ -30,21 +25,24 @@ export default class SauceModule extends BaseModule {
   private commandHandler: SingleCommandHandler = async (data) => {
     const app = getApplication();
     if (app && app.id) {
-      const { type, image } = getOptions<CommandOptions>(
-        ["type", "image"],
-        data.data?.options
-      );
+      this.logger.log("sauce command", data);
 
-      const lastAttachment = getChannelLastAttachment(data.channel_id);
+      const msgs = Object.values(
+        data.data?.resolved?.messages ?? {}
+      ) as Message[];
 
-      const url = image || lastAttachment;
-
-      if (!url) {
+      if (!msgs.length || !msgs[0].attachments.length) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.sauce.image_not_found,
         });
         return;
       }
+
+      const url = msgs[0].attachments[0].url;
+
+      const type = data.data?.name.split(" ")[1].slice(1, -1) as
+        | "anime"
+        | "art";
 
       if (type === "anime") {
         // anime

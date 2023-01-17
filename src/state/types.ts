@@ -108,7 +108,7 @@ export interface Actions extends Record<string, ActionData> {
     response: State["application"];
   };
   [ActionName.GetChannelLastAttachment]: {
-    payload: string;
+    payload: string | undefined;
     response: string;
   };
   [ActionName.GetGuilds]: {

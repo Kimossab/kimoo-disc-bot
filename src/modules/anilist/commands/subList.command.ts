@@ -6,6 +6,7 @@ import {
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import { addPagination, getApplication } from "@/state/store";
+import { CommandHandler } from "@/types/discord";
 
 import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
@@ -32,7 +33,7 @@ export const subListCommand = (
 ): CommandHandler => {
   return async (data) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id && data.member) {
       const subs = await getUserSubs(data.guild_id, data.member.user?.id || "");
 
       if (subs.length === 0) {

@@ -5,6 +5,7 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
+import { CommandHandler } from "@/types/discord";
 
 interface ChannelCommandOptions {
   channel: string;
@@ -13,7 +14,7 @@ interface ChannelCommandOptions {
 export const channelCommand = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app && app.id && data.guild_id) {
       const { channel } = getOptions<ChannelCommandOptions>(
         ["channel"],
         option.options
@@ -28,7 +29,9 @@ export const channelCommand = (logger: Logger): CommandHandler => {
         });
         logger.log(
           `Set Anime channel to ${channel} in ${data.guild_id} by ` +
-            `${data.member.user?.username}#${data.member.user?.discriminator}`
+            `${(data.member || data).user?.username}#${
+              (data.member || data).user?.discriminator
+            }`
         );
       } else {
         const ch = await getServerAnimeChannel(data.guild_id);
@@ -38,7 +41,9 @@ export const channelCommand = (logger: Logger): CommandHandler => {
           }),
         });
         logger.log(
-          `Get anime channel in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
+          `Get anime channel in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       }
     }

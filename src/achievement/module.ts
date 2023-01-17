@@ -7,7 +7,11 @@ import { InteractionPagination } from "../helper/interaction-pagination";
 import messageList from "../helper/messages";
 import { getOption, getOptions, getOptionValue } from "../helper/modules";
 import { addPagination, getApplication } from "../state/store";
-import { CommandInteractionDataOption, Interaction } from "../types/discord";
+import {
+  CommandHandler,
+  CommandInteractionDataOption,
+  Interaction,
+} from "../types/discord";
 import {
   createAchievement,
   createRank,

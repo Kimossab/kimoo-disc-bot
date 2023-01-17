@@ -1,4 +1,9 @@
 import Logger from "@/helper/logger";
+import {
+  CommandHandler,
+  CommandInteractionDataOption,
+  Interaction,
+} from "@/types/discord";
 
 import { AnilistRateLimit } from "../helpers/rate-limiter";
 import { subCommand } from "./sub.command";
@@ -18,7 +23,7 @@ const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",
   member: {},
-};
+} as Interaction;
 
 const handler: CommandHandler = subCommand(
   mockLogger,
@@ -40,7 +45,7 @@ describe("Anilist schedule command", () => {
           options: [{ name: "test", value: "test" }],
         },
       ],
-    });
+    } as CommandInteractionDataOption);
     expect(subAdd).toHaveBeenCalledWith(mockData, {
       name: "add",
       options: [{ name: "test", value: "test" }],
@@ -55,7 +60,7 @@ describe("Anilist schedule command", () => {
           options: [{ name: "test", value: "test" }],
         },
       ],
-    });
+    } as CommandInteractionDataOption);
     expect(subList).toHaveBeenCalledWith(mockData, {
       name: "list",
       options: [{ name: "test", value: "test" }],

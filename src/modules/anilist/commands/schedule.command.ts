@@ -3,6 +3,7 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
+import { CommandHandler } from "@/types/discord";
 
 import { getAiringSchedule } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";

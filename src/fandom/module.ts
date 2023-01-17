@@ -1,5 +1,7 @@
 import BaseModule from "#/base-module";
 
+import { SingleCommandHandler } from "@/types/discord";
+
 import { editOriginalInteractionResponse } from "../discord/rest";
 import { FANDOM_LINKS } from "../helper/constants";
 import {
@@ -68,7 +70,9 @@ export default class FandomModule extends BaseModule {
 
       this.logger.log(
         `${query} queried for ${fandom} in ${data.guild_id} by ` +
-          `${data.member.user?.username}#${data.member.user?.discriminator}`
+          `${(data.member || data).user?.username}#${
+            (data.member || data).user?.discriminator
+          }`
       );
     }
   };
