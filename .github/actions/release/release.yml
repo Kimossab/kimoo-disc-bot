@@ -1,0 +1,9 @@
+name: "Kimoo Bot Release"
+descript: "Handles the creation of a new release"
+inputs:
+  files:
+    description: "Files to upload alongside the new release"
+    required: false
+runs:
+  using: "node18"
+  main: "release.js"

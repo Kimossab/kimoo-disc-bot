@@ -44,18 +44,16 @@ jobs:
 
     steps:
       - uses: actions/download-artifact@v3
-      # - name: Zip artifact for deployment
-      # run: |
-      #   zip node-v16.x-release.zip ./node-v16.x-release/* -r
-      #   zip node-v17.x-release.zip ./node-v17.x-release/* -r
-      #   zip node-v18.x-release.zip ./node-v18.x-release/* -r
-      #   zip node-v19.x-release.zip ./node-v19.x-release/* -r
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Zip artifact for deployment
+      run: |
+        zip node-v16.x-release.zip ./node-v16.x-release/* -r
+        zip node-v17.x-release.zip ./node-v17.x-release/* -r
+        zip node-v18.x-release.zip ./node-v18.x-release/* -r
+        zip node-v19.x-release.zip ./node-v19.x-release/* -r
+      - uses: ./actions/release
         with:
           files: |
-            ./**/*
-            ./**/*
-            ./**/*
-            ./**/*
+            node-v16.x-release.zip
+            node-v17.x-release.zip
+            node-v18.x-release.zip
+            node-v19.x-release.zip
