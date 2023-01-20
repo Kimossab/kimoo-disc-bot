@@ -55,7 +55,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            ./node-v16.x-release/*
-            ./node-v17.x-release/*
-            ./node-v18.x-release/*
-            ./node-v19.x-release/*
+            ./**/*
+            ./**/*
+            ./**/*
+            ./**/*
