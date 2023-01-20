@@ -51,7 +51,7 @@ jobs:
           zip node-v17.x-release.zip ./node-v17.x-release/* -r
           zip node-v18.x-release.zip ./node-v18.x-release/* -r
           zip node-v19.x-release.zip ./node-v19.x-release/* -r
-      - uses: ./actions/release
+      - uses: ./.github/actions/release
         with:
           files: |
             node-v16.x-release.zip
