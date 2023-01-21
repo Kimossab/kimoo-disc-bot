@@ -47,10 +47,10 @@ jobs:
       - uses: actions/download-artifact@v3
       - name: Zip artifact for deployment
         run: |
-          zip node-v16.x-release.zip ./node-v16.x-release/* -r
-          zip node-v17.x-release.zip ./node-v17.x-release/* -r
-          zip node-v18.x-release.zip ./node-v18.x-release/* -r
-          zip node-v19.x-release.zip ./node-v19.x-release/* -r
+          (cd node-v16.x-release && zip -r "$OLDPWD/package.zip" .)
+          (cd node-v17.x-release && zip -r "$OLDPWD/package.zip" .)
+          (cd node-v18.x-release && zip -r "$OLDPWD/package.zip" .)
+          (cd node-v19.x-release && zip -r "$OLDPWD/package.zip" .)
       - name: Create draft release
         id: draft
         run: |
@@ -102,10 +102,12 @@ jobs:
             -H "Content-Type: application/zip" \
             ${{steps.draft.outputs.upload_url}}?name=node-v19.x-release.zip
       - name: Publish release
-        run: curl \
-          -s \
-          -X PATCH \
-          -H 'Accept:application/vnd.github+json' \
-          -H 'Authorization:Bearer ${{github.token}}' \
-          ${{steps.draft.outputs.url}} \
-          -d '{"draft":false,"make_latest":true}'
+        run: |
+          echo ${{steps.draft.outputs.url}}
+          curl \
+            -s \
+            -X PATCH \
+            -H 'Accept:application/vnd.github+json' \
+            -H 'Authorization:Bearer ${{github.token}}' \
+            ${{steps.draft.outputs.url}} \
+            -d '{"tag_name":"${{github.ref_name}}","draft":false,"prerelease":false}'
