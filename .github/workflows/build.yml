@@ -51,10 +51,37 @@ jobs:
           zip node-v17.x-release.zip ./node-v17.x-release/* -r
           zip node-v18.x-release.zip ./node-v18.x-release/* -r
           zip node-v19.x-release.zip ./node-v19.x-release/* -r
-      - uses: ./.github/actions/release
-        with:
-          files: |
-            node-v16.x-release.zip
-            node-v17.x-release.zip
-            node-v18.x-release.zip
-            node-v19.x-release.zip
+      - name: Create draft release
+        id: draft
+        run: |
+          echo "${{github.api_url}}/repos/${{github.repository}}/releases"
+          curl \
+            -X POST \
+            -H 'Accept:application/vnd.github+json' \
+            -H 'Authorization:Bearer ${{github.token}}'\
+            ${{github.api_url}}/repos/${{github.repository}}/releases \
+            -d '{"tag_name":"${{github.ref_name}}","target_commitish":"master","name":"${{github.ref_name}}","draft":true,"prerelease":false,"generate_release_notes":true}'
+            -o release-output.json
+          echo "::set-ouput name=release::$(cat release-output.json | jq -c '.id')"
+      - name: Echo response
+        run: echo ${{ steps.draft.outputs.release }}
+      - name: Upload assets
+        run: curl \
+          -X POST \
+          -H 'Accept:application/vnd.github+json' \
+          -H 'Authorization:Bearer ${{github.token}}'\
+          -H "Content-Type:multipart/form-data"\
+          -F "data=@node-v16.x-release.zip"
+          -F "data=@node-v17.x-release.zip"
+          -F "data=@node-v18.x-release.zip"
+          -F "data=@node-v19.x-release.zip"
+          https://uploads.github.com/repos/${{github.repository}}/releases/${{steps.draft.outputs.release}}/assets
+      - name: Publish release
+        run: curl \
+          -X PATCH \
+          -H 'Accept:application/vnd.github+json' \
+          -H 'Authorization:Bearer ${{github.token}}'\
+          -H "Content-Type:multipart/form-data"\
+          ${{github.api_url}}/repos/${{github.repository}}/releases/${{steps.draft.outputs.release}}\
+          -d '{"draft":false,"make_latest":true}'
+      
