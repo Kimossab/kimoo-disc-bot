@@ -105,12 +105,12 @@ jobs:
       #       -H "Content-Type: application/zip" \
       #       ${{steps.draft.outputs.upload_url}}?name=node-v19.x-release.zip
       # - name: Publish release
-        run: |
-          echo ${{steps.draft.outputs.url}}
-          curl \
-            -s \
-            -X PATCH \
-            -H 'Accept:application/vnd.github+json' \
-            -H 'Authorization:Bearer ${{github.token}}' \
-            ${{steps.draft.outputs.url}} \
-            -d '{"tag_name":"${{github.ref_name}}","draft":false,"prerelease":false}'
+      # run: |
+      #   echo ${{steps.draft.outputs.url}}
+      #   curl \
+      #     -s \
+      #     -X PATCH \
+      #     -H 'Accept:application/vnd.github+json' \
+      #     -H 'Authorization:Bearer ${{github.token}}' \
+      #     ${{steps.draft.outputs.url}} \
+      #     -d '{"tag_name":"${{github.ref_name}}","draft":false,"prerelease":false}'
