@@ -76,7 +76,7 @@ jobs:
             -H 'Accept:application/vnd.github+json' \
             -H 'Authorization:Bearer ${{github.token}}' \
             -H "Content-Type: application/zip" \
-            ${{steps.draft.outputs.upload_url}}?name=node-v16.x-release.zip"
+            ${{steps.draft.outputs.upload_url}}?name=node-v16.x-release.zip
           curl \
             -s \
             --upload-file node-v17.x-release.zip \
@@ -84,7 +84,7 @@ jobs:
             -H 'Accept:application/vnd.github+json' \
             -H 'Authorization:Bearer ${{github.token}}' \
             -H "Content-Type: application/zip" \
-            ${{steps.draft.outputs.upload_url}}?name=node-v17.x-release.zip"
+            ${{steps.draft.outputs.upload_url}}?name=node-v17.x-release.zip
           curl \
             -s \
             --upload-file node-v18.x-release.zip \
@@ -92,7 +92,7 @@ jobs:
             -H 'Accept:application/vnd.github+json' \
             -H 'Authorization:Bearer ${{github.token}}' \
             -H "Content-Type: application/zip" \
-            ${{steps.draft.outputs.upload_url}}?name=node-v18.x-release.zip"
+            ${{steps.draft.outputs.upload_url}}?name=node-v18.x-release.zip
           curl \
             -s \
             --upload-file node-v19.x-release.zip \
@@ -100,7 +100,7 @@ jobs:
             -H 'Accept:application/vnd.github+json' \
             -H 'Authorization:Bearer ${{github.token}}' \
             -H "Content-Type: application/zip" \
-            ${{steps.draft.outputs.upload_url}}?name=node-v19.x-release.zip"
+            ${{steps.draft.outputs.upload_url}}?name=node-v19.x-release.zip
       - name: Publish release
         run: curl \
           -s \
