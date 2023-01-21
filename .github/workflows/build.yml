@@ -63,23 +63,44 @@ jobs:
             ${{github.api_url}}/repos/${{github.repository}}/releases \
             -o release-output.json \
             -d '{"tag_name":"${{github.ref_name}}","target_commitish":"master","name":"${{github.ref_name}}","draft":true,"prerelease":false,"generate_release_notes":true}'
-          echo "::set-output name=upload_url::$(cat release-output.json | jq -c '.upload_url')"
-          echo "::set-output name=url::$(cat release-output.json | jq -c '.url')"
-          echo "::set-output name=html_url::$(cat release-output.json | jq -c '.html_url')"
-      - name: Echo html url of release
-        run: echo ${{ steps.draft.outputs.html_url }}
+          echo ${{github.ref_name}}
+          echo "upload_url=$(cat release-output.json | jq -c '.upload_url')" >> $GITHUB_OUTPUT
+          echo "url=$(cat release-output.json | jq -c '.url')" >> $GITHUB_OUTPUT
+          echo "html_url=$(cat release-output.json | jq -c '.html_url')" >> $GITHUB_OUTPUT
       - name: Upload assets
-        run: curl \
-          -s \
-          -X POST \
-          -H 'Accept:application/vnd.github+json' \
-          -H 'Authorization:Bearer ${{github.token}}' \
-          -H "Content-Type:multipart/form-data" \
-          -F "node-v16.x-release=@node-v16.x-release.zip" \
-          -F "node-v17.x-release=@node-v17.x-release.zip" \
-          -F "node-v18.x-release=@node-v18.x-release.zip" \
-          -F "node-v19.x-release=@node-v19.x-release.zip" \
-          ${{steps.draft.outputs.upload_url}}
+        run: |
+          curl \
+            -s \
+            --data-binary @node-v16.x-release.zip \
+            -X POST \
+            -H 'Accept:application/vnd.github+json' \
+            -H 'Authorization:Bearer ${{github.token}}' \
+            -H "Content-Type: application/zip" \
+            ${{steps.draft.outputs.upload_url}}
+          curl \
+            -s \
+            --data-binary @node-v17.x-release.zip \
+            -X POST \
+            -H 'Accept:application/vnd.github+json' \
+            -H 'Authorization:Bearer ${{github.token}}' \
+            -H "Content-Type: application/zip" \
+            ${{steps.draft.outputs.upload_url}}
+          curl \
+            -s \
+            --data-binary @node-v18.x-release.zip \
+            -X POST \
+            -H 'Accept:application/vnd.github+json' \
+            -H 'Authorization:Bearer ${{github.token}}' \
+            -H "Content-Type: application/zip" \
+            ${{steps.draft.outputs.upload_url}}
+          curl \
+            -s \
+            --data-binary @node-v19.x-release.zip \
+            -X POST \
+            -H 'Accept:application/vnd.github+json' \
+            -H 'Authorization:Bearer ${{github.token}}' \
+            -H "Content-Type: application/zip" \
+            ${{steps.draft.outputs.upload_url}}
       - name: Publish release
         run: curl \
           -s \
