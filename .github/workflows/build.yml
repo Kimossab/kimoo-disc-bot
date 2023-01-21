@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,15 +46,13 @@ jobs:
       contents: write
 
     steps:
+      - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
       - name: Zip artifact for deployment
         run: |
-          zip node-v16.x-release.zip ./node-v16.x-release/* -r
-          zip node-v17.x-release.zip ./node-v17.x-release/* -r
-          zip node-v18.x-release.zip ./node-v18.x-release/* -r
-          zip node-v19.x-release.zip ./node-v19.x-release/* -r
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: "*.zip"
+          (cd node-v16.x-release && zip -r "$OLDPWD/node-v16.x-release.zip" .)
+          (cd node-v17.x-release && zip -r "$OLDPWD/node-v17.x-release.zip" .)
+          (cd node-v18.x-release && zip -r "$OLDPWD/node-v18.x-release.zip" .)
+          (cd node-v19.x-release && zip -r "$OLDPWD/node-v19.x-release.zip" .)
+      - name: Create Release
+        run: gh release create ${{github.ref_name}} --generate-notes ./*.zip
