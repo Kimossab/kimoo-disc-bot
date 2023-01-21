@@ -47,10 +47,7 @@ jobs:
       - uses: actions/download-artifact@v3
       - name: Zip artifact for deployment
         run: |
-          (cd node-v16.x-release && zip -r "$OLDPWD/package.zip" .)
-          (cd node-v17.x-release && zip -r "$OLDPWD/package.zip" .)
-          (cd node-v18.x-release && zip -r "$OLDPWD/package.zip" .)
-          (cd node-v19.x-release && zip -r "$OLDPWD/package.zip" .)
+          ls -la
       - name: Create draft release
         id: draft
         run: |
