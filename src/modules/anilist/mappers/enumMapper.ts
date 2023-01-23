@@ -5,7 +5,7 @@ import {
   MediaSource,
   MediaStatus,
   MediaType,
-} from "../types/graphql";
+} from "#anilist/types/graphql";
 
 export const typeMapper: {
   [key in keyof typeof MediaType]: string;

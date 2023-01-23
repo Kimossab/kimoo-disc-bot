@@ -1,5 +1,6 @@
-import { stringReplacer } from "../helper/common";
-import messageList from "../helper/messages";
+import { stringReplacer } from "@/helper/common";
+import messageList from "@/helper/messages";
+
 import {
   achievementFixture,
   rankListFixtures,

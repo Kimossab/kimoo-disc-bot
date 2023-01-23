@@ -1,7 +1,8 @@
-import { stringReplacer } from "../helper/common";
-import { CreatePageCallback } from "../helper/interaction-pagination";
-import messageList from "../helper/messages";
-import { Embed } from "../types/discord";
+import { stringReplacer } from "@/helper/common";
+import { CreatePageCallback } from "@/helper/interaction-pagination";
+import messageList from "@/helper/messages";
+import { Embed } from "@/types/discord";
+
 import * as ReturnData from "./types/returnData";
 import { LENGTH_TYPE, RELATION_TYPES, sexual, violence } from "./types/vndb";
 import { vndb_get_vn } from "./vndb-api";

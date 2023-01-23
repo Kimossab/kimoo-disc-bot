@@ -1,4 +1,4 @@
-import { EmbedField } from "../types/discord";
+import { EmbedField } from "@/types/discord";
 
 const limitString = (str: string, limit: number) => {
   if (str.length > limit) {

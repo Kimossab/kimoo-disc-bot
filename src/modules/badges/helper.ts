@@ -1,7 +1,8 @@
-import { deleteFile, stringReplacer } from "../helper/common";
-import { CreatePageCallback } from "../helper/interaction-pagination";
-import messageList from "../helper/messages";
-import { Embed } from "../types/discord";
+import { deleteFile, stringReplacer } from "@/helper/common";
+import { CreatePageCallback } from "@/helper/interaction-pagination";
+import messageList from "@/helper/messages";
+import { Embed } from "@/types/discord";
+
 import { IBadge } from "./models/badges.model";
 import fs from "fs";
 

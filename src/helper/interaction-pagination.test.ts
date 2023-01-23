@@ -1,16 +1,17 @@
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
-} from "../discord/rest";
+} from "@/discord/rest";
 import {
   ButtonStyle,
   ComponentType,
   InteractionCallbackType,
   InteractionData,
-} from "../types/discord";
+} from "@/types/discord";
+
 import { InteractionPagination } from "./interaction-pagination";
 
-jest.mock("../discord/rest");
+jest.mock("@/discord/rest");
 
 const APP_ID = "APP_ID";
 const TOKEN = "TOKEN";

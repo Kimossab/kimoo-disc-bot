@@ -1,15 +1,16 @@
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { checkAdmin, stringReplacer } from "../helper/common";
-import { no_mentions } from "../helper/constants";
-import { InteractionPagination } from "../helper/interaction-pagination";
-import Logger from "../helper/logger";
-import messageList from "../helper/messages";
+import { editOriginalInteractionResponse } from "@/discord/rest";
+import { checkAdmin, stringReplacer } from "@/helper/common";
+import { no_mentions } from "@/helper/constants";
+import { InteractionPagination } from "@/helper/interaction-pagination";
+import Logger from "@/helper/logger";
+import messageList from "@/helper/messages";
 import {
   addPagination,
   getApplication,
   setCommandExecutedCallback,
-} from "../state/store";
-import { Interaction } from "../types/discord";
+} from "@/state/store";
+import { Interaction } from "@/types/discord";
+
 import {
   createAchievement,
   createRank,
@@ -67,12 +68,12 @@ const GIVE_ACHIEVEMENT_VALUES = {
 let commandCallback: (data: Interaction) => Promise<void>;
 
 //mocks
-jest.mock("../helper/common", () => ({
-  ...jest.requireActual("../helper/common"),
+jest.mock("@/helper/common", () => ({
+  ...jest.requireActual("@/helper/common"),
   checkAdmin: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("../state/store");
+jest.mock("@/state/store");
 const mockGetApplication = getApplication as jest.Mock;
 const mockSetCommandExecutedCallback =
   setCommandExecutedCallback as unknown as jest.Mock;
@@ -86,18 +87,18 @@ mockSetCommandExecutedCallback.mockImplementation(
   }
 );
 
-jest.mock("../discord/rest");
+jest.mock("@/discord/rest");
 const mockEditOriginalInteractionResponse =
   editOriginalInteractionResponse as jest.Mock;
 
 const mockLog = jest.fn();
 const mockError = jest.fn();
-jest.mock("../helper/logger");
+jest.mock("@/helper/logger");
 (Logger as jest.Mock).mockImplementation(() => ({
   log: mockLog,
   error: mockError,
 }));
-jest.mock("../helper/interaction-pagination");
+jest.mock("@/helper/interaction-pagination");
 
 jest.mock("./database");
 const mockGetAchievement = getAchievement as jest.Mock;

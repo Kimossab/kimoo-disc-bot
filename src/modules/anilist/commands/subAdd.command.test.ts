@@ -14,7 +14,7 @@ jest.mock("@/state/store");
 jest.mock("@/discord/rest");
 jest.mock("../graphql/graphql");
 jest.mock("../database");
-jest.mock("../helpers/anime-manager");
+jest.mock("@/helpers/anime-manager");
 
 const mockLogger = { log: jest.fn() } as unknown as Logger;
 (getApplication as jest.Mock).mockReturnValue({

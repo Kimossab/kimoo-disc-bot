@@ -1,25 +1,26 @@
-/* eslint-disable simple-import-sort/imports */
-/* eslint-disable import/first */
-import dotenv from "dotenv";
+import "dotenv/config";
 
-dotenv.config();
-
+import AchievementModule from "#/achievement/module";
 import AnilistModule from "#/anilist/module";
+import BadgesModule from "#/badges/module";
+import BirthdayModule from "#/birthday/module";
+import FandomModule from "#/fandom/module";
+import MiscModule from "#/misc/module";
 import SauceModule from "#/sauce/module";
-import AchievementModule from "./achievement/module";
-import BadgesModule from "./badges/module";
-import BirthdayModule from "./birthday/module";
+import VNDBModule from "#/vndb/module";
+
 import { getAdminRole, setAdminRole } from "./bot/database";
 import * as commandInfo from "./commands";
+import { compareCommands } from "./commands";
 import {
   createCommand,
   createInteractionResponse,
   deleteCommand,
   getCommands,
   getGatewayBot,
+  sendMessage,
 } from "./discord/rest";
 import socket from "./discord/socket";
-import FandomModule from "./fandom/module";
 import {
   checkAdmin,
   formatSecondsIntoMinutes,
@@ -28,7 +29,6 @@ import {
 import mongoConnect from "./helper/database";
 import Logger from "./helper/logger";
 import messageList from "./helper/messages";
-import MiscModule from "./misc/module";
 import {
   getApplication,
   setCommandExecutedCallback,
@@ -39,10 +39,10 @@ import {
   InteractionCallbackType,
   InteractionType,
 } from "./types/discord";
-import VNDBModule from "./vndb/module";
-import { compareCommands } from "./commands";
 
 const _logger = new Logger("bot");
+
+let hasStarted = false;
 
 // default command executer
 // this is necessary mainly for ping/pong
@@ -135,6 +135,7 @@ const anilistModule = new AnilistModule(toggles.ANILIST_MODULE);
 
 const ready = async () => {
   _logger.log("Discord says Ready");
+
   birthdayModule.setUp();
   achievementModule.setUp();
   badgesModule.setUp();
@@ -180,6 +181,13 @@ const ready = async () => {
   }
 
   updateBotPresence();
+
+  if (!hasStarted) {
+    if (process.env.OWNER_DM_CHANNEL) {
+      await sendMessage(process.env.OWNER_DM_CHANNEL, "Bot started");
+    }
+    hasStarted = true;
+  }
   _logger.log("All set");
 };
 

@@ -1,16 +1,16 @@
 import BaseModule from "#/base-module";
 
-import { SingleCommandHandler } from "@/types/discord";
-
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { FANDOM_LINKS } from "../helper/constants";
+import { editOriginalInteractionResponse } from "@/discord/rest";
+import { FANDOM_LINKS } from "@/helper/constants";
 import {
   CreatePageCallback,
   InteractionPagination,
-} from "../helper/interaction-pagination";
-import messageList from "../helper/messages";
-import { getOptions } from "../helper/modules";
-import { addPagination, getApplication } from "../state/store";
+} from "@/helper/interaction-pagination";
+import messageList from "@/helper/messages";
+import { getOptions } from "@/helper/modules";
+import { addPagination, getApplication } from "@/state/store";
+import { SingleCommandHandler } from "@/types/discord";
+
 import { requestFandom } from "./request";
 
 interface CommandOptions {

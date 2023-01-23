@@ -1,4 +1,5 @@
-import { InteractionType } from "../types/discord";
+import { InteractionType } from "@/types/discord";
+
 import { ActionName, Actions, State } from "./types";
 
 const state: State = {

@@ -1,4 +1,5 @@
-import { TestDB } from "../helper/mocks/database";
+import { TestDB } from "@/helper/mocks/database";
+
 import {
   checkBadgeUser,
   checkName,

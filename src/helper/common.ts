@@ -1,10 +1,11 @@
-import { getAdminRole } from "../bot/database";
-import { getGuilds } from "../state/store";
+import { getAdminRole } from "@/bot/database";
+import { getGuilds } from "@/state/store";
 import {
   GuildMember,
   MessageReactionAdd,
   MessageReactionRemove,
-} from "../types/discord";
+} from "@/types/discord";
+
 import fs from "fs";
 import https from "https";
 

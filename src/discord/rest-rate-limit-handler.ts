@@ -1,4 +1,5 @@
-import Logger from "../helper/logger";
+import Logger from "@/helper/logger";
+
 import axios, {
   AxiosInstance,
   AxiosRequestConfig,
@@ -50,7 +51,7 @@ export default class RestRateLimitHandler {
         e.data.errors
       );
     } else {
-      this._logger.error(`[${place}] ${e.message}`, e);
+      this._logger.error(`[${place}] ${e.message}`, JSON.stringify(e));
     }
   };
 

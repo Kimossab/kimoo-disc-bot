@@ -1,14 +1,15 @@
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { checkAdmin } from "../helper/common";
-import { FANDOM_LINKS } from "../helper/constants";
-import Logger from "../helper/logger";
-import messageList from "../helper/messages";
+import { editOriginalInteractionResponse } from "@/discord/rest";
+import { checkAdmin } from "@/helper/common";
+import { FANDOM_LINKS } from "@/helper/constants";
+import Logger from "@/helper/logger";
+import messageList from "@/helper/messages";
 import {
   addPagination,
   getApplication,
   setCommandExecutedCallback,
-} from "../state/store";
-import { Interaction } from "../types/discord";
+} from "@/state/store";
+import { Interaction } from "@/types/discord";
+
 import FandomModule from "./module";
 import { requestFandom } from "./request";
 
@@ -27,13 +28,13 @@ const FANDOM_VALUES = {
 let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
-jest.mock("../state/store");
-jest.mock("../discord/rest");
-jest.mock("../helper/images");
-jest.mock("../helper/logger");
-jest.mock("../helper/pagination");
-jest.mock("../helper/common", () => ({
-  ...jest.requireActual("../helper/common"),
+jest.mock("@/state/store");
+jest.mock("@/discord/rest");
+jest.mock("@/helper/images");
+jest.mock("@/helper/logger");
+jest.mock("@/helper/pagination");
+jest.mock("@/helper/common", () => ({
+  ...jest.requireActual("@/helper/common"),
   checkAdmin: jest.fn().mockReturnValue(true),
   deleteFile: jest.fn(),
   moveFile: jest.fn(),

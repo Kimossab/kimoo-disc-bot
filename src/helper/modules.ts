@@ -1,4 +1,4 @@
-import { CommandInteractionDataOption } from "../types/discord";
+import { CommandInteractionDataOption } from "@/types/discord";
 
 export const getOptions = <T>(
   optionKeys: (keyof T)[],
