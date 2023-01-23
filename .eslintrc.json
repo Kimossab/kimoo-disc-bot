@@ -44,7 +44,7 @@
     "simple-import-sort/imports": [
       "warn",
       {
-        "groups": [["^#"], ["^@"], ["^\\.", "^"]]
+        "groups": [["dotenv"], ["^#"], ["^@"], ["^\\.", "^"]]
       }
     ],
     "no-multiple-empty-lines": [

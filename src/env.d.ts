@@ -16,6 +16,7 @@ declare global {
       MISC_MODULE: "true" | "false";
       VNDB_MODULE: "true" | "false";
       ANILIST_MODULE: "true" | "false";
+      OWNER_DM_CHANNEL?: string;
     }
   }
 }

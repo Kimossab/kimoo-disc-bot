@@ -1,7 +1,8 @@
-import { stringReplacer } from "../helper/common";
-import { CreatePageCallback } from "../helper/interaction-pagination";
-import messageList from "../helper/messages";
-import { Embed, EmbedField } from "../types/discord";
+import { stringReplacer } from "@/helper/common";
+import { CreatePageCallback } from "@/helper/interaction-pagination";
+import messageList from "@/helper/messages";
+import { Embed, EmbedField } from "@/types/discord";
+
 import { IAchievement } from "./models/achievement.model";
 import { IAchievementRank } from "./models/achievement-rank.model";
 import { IUserAchievement } from "./models/user-achievement.model";

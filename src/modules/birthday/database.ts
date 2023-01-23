@@ -1,4 +1,5 @@
-import serverSettingsModel from "../bot/server-settings.model";
+import serverSettingsModel from "@/bot/server-settings.model";
+
 import Birthday, { IBirthday } from "./models/birthday.model";
 import BirthdayWithRole, {
   IBirthdayWithRole,

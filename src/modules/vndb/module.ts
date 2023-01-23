@@ -1,11 +1,11 @@
 import BaseModule from "#/base-module";
 
+import { editOriginalInteractionResponse } from "@/discord/rest";
+import { InteractionPagination } from "@/helper/interaction-pagination";
+import { getOptions } from "@/helper/modules";
+import { addPagination, getApplication } from "@/state/store";
 import { SingleCommandHandler } from "@/types/discord";
 
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { InteractionPagination } from "../helper/interaction-pagination";
-import { getOptions } from "../helper/modules";
-import { addPagination, getApplication } from "../state/store";
 import { vndbSearchUpdatePage } from "./helper";
 import { VNDBApi } from "./vndb-api";
 

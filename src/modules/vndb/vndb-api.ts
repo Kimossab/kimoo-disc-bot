@@ -1,4 +1,5 @@
-import Logger from "../helper/logger";
+import Logger from "@/helper/logger";
+
 import * as Commands from "./types/commands";
 import * as ReturnData from "./types/returnData";
 import { flags, operators, queue, queue_callback } from "./types/vndb";

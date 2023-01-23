@@ -8,7 +8,8 @@ import {
   GatewayBot,
   InteractionResponse,
   Message,
-} from "../types/discord";
+} from "@/types/discord";
+
 import RestRateLimitHandler from "./rest-rate-limit-handler";
 import FormData from "form-data";
 import fs from "fs";

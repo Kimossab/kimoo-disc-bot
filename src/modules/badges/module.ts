@@ -1,18 +1,18 @@
 import BaseModule from "#/base-module";
 
-import { CommandHandler } from "@/types/discord";
-
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { chunkArray, deleteFile, moveFile } from "../helper/common";
-import { downloadImage } from "../helper/images";
-import { InteractionPagination } from "../helper/interaction-pagination";
-import messageList from "../helper/messages";
-import { getOptions } from "../helper/modules";
+import { editOriginalInteractionResponse } from "@/discord/rest";
+import { chunkArray, deleteFile, moveFile } from "@/helper/common";
+import { downloadImage } from "@/helper/images";
+import { InteractionPagination } from "@/helper/interaction-pagination";
+import messageList from "@/helper/messages";
+import { getOptions } from "@/helper/modules";
 import {
   addPagination,
   getApplication,
   getChannelLastAttachment,
-} from "../state/store";
+} from "@/state/store";
+import { CommandHandler } from "@/types/discord";
+
 import {
   checkBadgeUser,
   checkName,

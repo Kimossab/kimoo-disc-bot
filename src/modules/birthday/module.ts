@@ -6,24 +6,25 @@ import {
   setServerBirthdayChannel,
   setServerBirthdayRole,
   updateServerLastWishes,
-} from "../bot/database";
+} from "@/bot/database";
 import {
   addRole,
   editOriginalInteractionResponse,
   removeRole,
   sendMessage,
-} from "../discord/rest";
+} from "@/discord/rest";
 import {
   checkAdmin,
   getDayInfo,
   snowflakeToDate,
   stringReplacer,
-} from "../helper/common";
-import { no_mentions } from "../helper/constants";
-import messageList from "../helper/messages";
-import { getOptions } from "../helper/modules";
-import { getApplication, getGuilds } from "../state/store";
-import { Application, CommandHandler, Interaction } from "../types/discord";
+} from "@/helper/common";
+import { no_mentions } from "@/helper/constants";
+import messageList from "@/helper/messages";
+import { getOptions } from "@/helper/modules";
+import { getApplication, getGuilds } from "@/state/store";
+import { Application, CommandHandler, Interaction } from "@/types/discord";
+
 import {
   addBirthday,
   getBirthdays,

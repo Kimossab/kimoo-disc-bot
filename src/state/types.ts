@@ -1,4 +1,4 @@
-import { InteractionPagination } from "../helper/interaction-pagination";
+import { InteractionPagination } from "@/helper/interaction-pagination";
 import {
   Application,
   Guild,
@@ -8,7 +8,7 @@ import {
   MessageReactionRemove,
   Ready,
   User,
-} from "../types/discord";
+} from "@/types/discord";
 
 export enum ActionName {
   SetUser = "SET_USER",

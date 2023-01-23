@@ -1,15 +1,16 @@
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { checkAdmin, deleteFile, moveFile } from "../helper/common";
-import { downloadImage } from "../helper/images";
-import Logger from "../helper/logger";
-import messageList from "../helper/messages";
+import { editOriginalInteractionResponse } from "@/discord/rest";
+import { checkAdmin, deleteFile, moveFile } from "@/helper/common";
+import { downloadImage } from "@/helper/images";
+import Logger from "@/helper/logger";
+import messageList from "@/helper/messages";
 import {
   addPagination,
   getApplication,
   getChannelLastAttachment,
   setCommandExecutedCallback,
-} from "../state/store";
-import { Interaction } from "../types/discord";
+} from "@/state/store";
+import { Interaction } from "@/types/discord";
+
 import {
   checkBadgeUser,
   checkName,
@@ -51,13 +52,13 @@ let commandCallback: (data: Interaction) => Promise<void>;
 
 // Common mocks
 jest.mock("axios");
-jest.mock("../state/store");
-jest.mock("../discord/rest");
-jest.mock("../helper/images");
-jest.mock("../helper/logger");
-jest.mock("../helper/pagination");
-jest.mock("../helper/common", () => ({
-  ...jest.requireActual("../helper/common"),
+jest.mock("@/state/store");
+jest.mock("@/discord/rest");
+jest.mock("@/helper/images");
+jest.mock("@/helper/logger");
+jest.mock("@/helper/pagination");
+jest.mock("@/helper/common", () => ({
+  ...jest.requireActual("@/helper/common"),
   checkAdmin: jest.fn().mockReturnValue(true),
   deleteFile: jest.fn(),
   moveFile: jest.fn(),

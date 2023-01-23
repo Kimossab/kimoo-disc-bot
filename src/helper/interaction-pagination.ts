@@ -1,7 +1,7 @@
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
-} from "../discord/rest";
+} from "@/discord/rest";
 import {
   ActionRow,
   Button,
@@ -14,7 +14,7 @@ import {
   InteractionData,
   Message,
   snowflake,
-} from "../types/discord";
+} from "@/types/discord";
 
 export type CreatePageCallback<T> = (
   page: number,

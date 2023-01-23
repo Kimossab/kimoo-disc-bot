@@ -1,4 +1,4 @@
-import { AllowedMentions } from "../types/discord";
+import { AllowedMentions } from "@/types/discord";
 
 // common
 export const PRESENCE_STRINGS = [

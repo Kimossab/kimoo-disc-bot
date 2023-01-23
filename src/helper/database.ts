@@ -1,4 +1,5 @@
-import achievementModel from "../achievement/models/achievement.model";
+import achievementModel from "#/achievement/models/achievement.model";
+
 import Logger from "./logger";
 import mongoose from "mongoose";
 

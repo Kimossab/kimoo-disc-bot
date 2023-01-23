@@ -1,17 +1,18 @@
 import BaseModule from "#/base-module";
 
-import { editOriginalInteractionResponse } from "../discord/rest";
-import { checkAdmin, chunkArray, stringReplacer } from "../helper/common";
-import { no_mentions } from "../helper/constants";
-import { InteractionPagination } from "../helper/interaction-pagination";
-import messageList from "../helper/messages";
-import { getOption, getOptions, getOptionValue } from "../helper/modules";
-import { addPagination, getApplication } from "../state/store";
+import { editOriginalInteractionResponse } from "@/discord/rest";
+import { checkAdmin, chunkArray, stringReplacer } from "@/helper/common";
+import { no_mentions } from "@/helper/constants";
+import { InteractionPagination } from "@/helper/interaction-pagination";
+import messageList from "@/helper/messages";
+import { getOption, getOptions, getOptionValue } from "@/helper/modules";
+import { addPagination, getApplication } from "@/state/store";
 import {
   CommandHandler,
   CommandInteractionDataOption,
   Interaction,
-} from "../types/discord";
+} from "@/types/discord";
+
 import {
   createAchievement,
   createRank,

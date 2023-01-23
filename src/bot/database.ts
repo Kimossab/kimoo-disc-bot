@@ -1,5 +1,5 @@
-import Logger from "../helper/logger";
-import CommandVersion, { ICommandVersion } from "./command-version.model";
+import Logger from "@/helper/logger";
+
 import ServerSettings, { IServerSettings } from "./server-settings.model";
 
 const _logger = new Logger("bot.controller");
@@ -61,34 +61,6 @@ export const getServerAnimeChannel = async (
   });
 
   return server?.animeChannel;
-};
-
-/**
- * Sets the last version of the commands that was successfully uploaded to discord
- * @param version Version of the last commands uploaded to discord
- */
-export const setCommandVersion = async (version: string): Promise<void> => {
-  let cmd: Nullable<ICommandVersion> = await CommandVersion.findOne();
-
-  if (cmd) {
-    cmd.version = version;
-    cmd.lastUpdate = new Date();
-    await cmd.save();
-  } else {
-    cmd = new CommandVersion();
-    cmd.lastUpdate = new Date();
-    cmd.version = version;
-    await cmd.save();
-  }
-};
-
-/**
- * Gets the last command version uploaded to discord
- */
-export const getCommandVersion = async (): Promise<Nullable<string>> => {
-  const cmd: Nullable<ICommandVersion> = await CommandVersion.findOne();
-
-  return cmd?.version;
 };
 
 /**
