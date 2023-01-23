@@ -16,7 +16,11 @@ export const mapSubListToEmbed = (
         (m) =>
           `• [${m.title.english || m.title.romaji || m.title.native}](${
             m.siteUrl
-          })\n`
+          }) | ${
+            m.nextAiringEpisode
+              ? `Ep. #${m.nextAiringEpisode.episode} <t:${m.nextAiringEpisode.airingAt}:R>`
+              : "Next episode unknown"
+          }\n`
       )
       .join(""),
   };

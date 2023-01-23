@@ -167,8 +167,11 @@ type Page<T> = {
   pageInfo: PageInfo;
 } & T;
 
-export interface NextAiring {
+interface NextAiringEpisode {
   nextAiringEpisode: NextEpisode | null;
+}
+
+export interface NextAiring extends NextAiringEpisode {
   airingSchedule: Nodes<NextEpisode>;
 }
 export interface MediaForAiring {
@@ -181,7 +184,7 @@ export interface MediaForAiring {
 }
 export type NextAiringWithTitle = MediaForAiring & NextAiring;
 
-export interface MediaSubbedInfo {
+export interface MediaSubbedInfo extends NextAiringEpisode {
   title: MediaTitle;
   siteUrl: string;
 }

@@ -9,6 +9,12 @@ query ($ids: [Int]) {
         userPreferred
       }
       siteUrl
+      nextAiringEpisode {
+        id
+        airingAt
+        timeUntilAiring
+        episode
+      }
     }
   }
 }`;
