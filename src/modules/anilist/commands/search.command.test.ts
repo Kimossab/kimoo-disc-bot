@@ -3,15 +3,11 @@ import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { addPagination, getApplication } from "@/state/store";
-import {
-  CommandHandler,
-  CommandInteractionDataOption,
-  Interaction,
-} from "@/types/discord";
+import { CommandInteractionDataOption, Interaction } from "@/types/discord";
 
 import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
-import { searchCommand } from "./search.command";
+import searchCommand from "./search.command";
 
 jest.mock("@/state/store");
 jest.mock("@/discord/rest");
@@ -105,10 +101,7 @@ const mockLogger = { log: jest.fn() } as unknown as Logger;
   id: "123456789",
 });
 
-const handler: CommandHandler = searchCommand(
-  mockLogger,
-  {} as AnilistRateLimit
-);
+const { handler } = searchCommand(mockLogger, {} as AnilistRateLimit);
 const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",

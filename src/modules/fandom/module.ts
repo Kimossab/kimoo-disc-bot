@@ -9,7 +9,11 @@ import {
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { addPagination, getApplication } from "@/state/store";
-import { SingleCommandHandler } from "@/types/discord";
+import {
+  ApplicationCommandOptionType,
+  AvailableLocales,
+  SingleCommandHandler,
+} from "@/types/discord";
 
 import { requestFandom } from "./request";
 
@@ -27,7 +31,28 @@ export default class FandomModule extends BaseModule {
       return;
     }
 
+    this.commandDescription[AvailableLocales.English_US] =
+      "Search for an article from a fandom";
+
     this.singleCommand = {
+      definition: {
+        name: "wiki",
+        description: "Search for an article from a fandom",
+        options: [
+          {
+            name: "fandom",
+            description: "Slug of the fandom to search",
+            type: ApplicationCommandOptionType.STRING,
+            required: true,
+          },
+          {
+            name: "query",
+            description: "Search query",
+            type: ApplicationCommandOptionType.STRING,
+            required: true,
+          },
+        ],
+      },
       handler: this.commandHandler,
       isAdmin: false,
     };

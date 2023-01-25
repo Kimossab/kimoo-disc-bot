@@ -8,7 +8,7 @@ import {
   Interaction,
 } from "@/types/discord";
 
-import { channelCommand } from "./channel.command";
+import channelCommand from "./channel.command";
 
 jest.mock("@/state/store");
 jest.mock("@/bot/database");
@@ -20,7 +20,7 @@ const mockLogger = { log: jest.fn() } as unknown as Logger;
 });
 (getServerAnimeChannel as jest.Mock).mockReturnValue("1234567890");
 
-const handler: CommandHandler = channelCommand(mockLogger);
+const handler: CommandHandler = channelCommand(mockLogger).handler;
 const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",

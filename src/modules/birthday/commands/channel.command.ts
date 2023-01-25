@@ -1,6 +1,7 @@
 import { CommandInfo } from "#base-module";
+import { getServersBirthdayInfo } from "#birthday/database";
 
-import { getServerAnimeChannel, setServerAnimeChannel } from "@/bot/database";
+import { setServerBirthdayChannel } from "@/bot/database";
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import { stringReplacer } from "@/helper/common";
 import Logger from "@/helper/logger";
@@ -13,20 +14,18 @@ import {
   CommandHandler,
 } from "@/types/discord";
 
-interface ChannelCommandOptions {
+interface ChannelOption {
   channel: string;
 }
 
 const definition: ApplicationCommandOption = {
   name: "channel",
-  description:
-    "Sets the channel where the anime notification messages are sent to",
+  description: "Sets the channel where the happy birthday message is sent to",
   type: ApplicationCommandOptionType.SUB_COMMAND,
   options: [
     {
       name: "channel",
-      description:
-        "The channel where the anime notification messages are sent to",
+      description: "The channel where the happy birthday message is sent to",
       type: ApplicationCommandOptionType.CHANNEL,
     },
   ],
@@ -36,33 +35,34 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
-      const { channel } = getOptions<ChannelCommandOptions>(
+      const { channel } = getOptions<ChannelOption>(
         ["channel"],
         option.options
       );
 
       if (channel) {
-        await setServerAnimeChannel(data.guild_id, channel);
+        await setServerBirthdayChannel(data.guild_id, channel);
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: stringReplacer(messageList.anilist.channel_set_success, {
+          content: stringReplacer(messageList.birthday.channel_set_success, {
             channel: `<#${channel}>`,
           }),
         });
         logger.log(
-          `Set Anime channel to ${channel} in ${data.guild_id} by ` +
+          `Set birthday channel to ${channel} in ${data.guild_id} by ` +
             `${(data.member || data).user?.username}#${
               (data.member || data).user?.discriminator
             }`
         );
       } else {
-        const ch = await getServerAnimeChannel(data.guild_id);
+        const ch = await getServersBirthdayInfo();
+        const { channel } = ch[data.guild_id];
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: stringReplacer(messageList.anilist.server_channel, {
-            channel: `<#${ch}>`,
+          content: stringReplacer(messageList.birthday.servers_channel, {
+            channel: `<#${channel}>`,
           }),
         });
         logger.log(
-          `Get anime channel in ${data.guild_id} by ${
+          `Get birthday channel in ${data.guild_id} by ${
             (data.member || data).user?.username
           }#${(data.member || data).user?.discriminator}`
         );

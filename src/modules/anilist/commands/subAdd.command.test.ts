@@ -8,7 +8,7 @@ import { addSubscription, setNextAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
 import { AnimeManager } from "../helpers/anime-manager";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
-import { subAddCommand } from "./subAdd.command";
+import subAddCommand from "./subAdd.command";
 
 jest.mock("@/state/store");
 jest.mock("@/discord/rest");
@@ -58,7 +58,7 @@ describe("Anilist schedule command", () => {
       {} as AnilistRateLimit,
       [],
       jest.fn()
-    )(mockData, {
+    ).handler(mockData, {
       options: [{ name: "anime", value: "abcd" }],
     } as CommandInteractionDataOption);
 
@@ -73,7 +73,7 @@ describe("Anilist schedule command", () => {
       {} as AnilistRateLimit,
       [],
       jest.fn()
-    )(mockData, {
+    ).handler(mockData, {
       options: [{ name: "anime", value: "abcd" }],
     } as CommandInteractionDataOption);
 
@@ -96,7 +96,7 @@ describe("Anilist schedule command", () => {
       {} as AnilistRateLimit,
       [],
       jest.fn()
-    )(mockData, {
+    ).handler(mockData, {
       options: [{ name: "anime", value: "abcd" }],
     } as CommandInteractionDataOption);
 
@@ -118,7 +118,7 @@ describe("Anilist schedule command", () => {
       {} as AnilistRateLimit,
       animeList,
       jest.fn()
-    )(mockData, {
+    ).handler(mockData, {
       options: [{ name: "anime", value: "abcd" }],
     } as CommandInteractionDataOption);
 
@@ -135,7 +135,7 @@ describe("Anilist schedule command", () => {
       {} as AnilistRateLimit,
       [],
       jest.fn()
-    )(mockData, {
+    ).handler(mockData, {
       options: [{ name: "anime", value: "abcd" }],
     } as CommandInteractionDataOption);
 
@@ -158,7 +158,7 @@ describe("Anilist schedule command", () => {
       {} as AnilistRateLimit,
       animeList,
       jest.fn()
-    )(mockData, {
+    ).handler(mockData, {
       options: [{ name: "anime", value: "abcd" }],
     } as CommandInteractionDataOption);
 
@@ -175,7 +175,7 @@ describe("Anilist schedule command", () => {
       {} as AnilistRateLimit,
       [],
       jest.fn()
-    )(mockData, {
+    ).handler(mockData, {
       options: [{ name: "anime", value: "abcd" }],
     } as CommandInteractionDataOption);
 

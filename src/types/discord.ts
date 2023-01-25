@@ -1022,6 +1022,8 @@ export enum AvailableLocales {
   Korean = "ko", // 한국어
 }
 
+export type Localization = Partial<Record<AvailableLocales, string>>;
+
 /** [Application Command Structure](https://discord.com/developers/docs/resources/application#application-command-object) */
 export interface ApplicationCommand {
   /** unique id of the command */
@@ -1035,11 +1037,11 @@ export interface ApplicationCommand {
   /** 1-32 character name */
   name: string;
   /** Localization dictionary for name field. Values follow the same restrictions as name */
-  name_localizations?: Record<AvailableLocales, string> | null;
+  name_localizations?: Localization | null;
   /** 1-100 character description for CHAT_INPUT commands, empty string for USER and MESSAGE commands */
   description?: string;
   /** Localization dictionary for description field. Values follow the same restrictions as description */
-  description_localizations?: Record<AvailableLocales, string> | null;
+  description_localizations?: Localization | null;
   /** the parameters for the command, max 25 */
   options?: ApplicationCommandOption[];
   /** Set of permissions represented as a bit set */
@@ -1070,11 +1072,11 @@ export interface ApplicationCommandOption {
   /** 1-32 character name */
   name: string;
   /** Localization dictionary for name field. Values follow the same restrictions as name */
-  name_localizations?: Record<AvailableLocales, string> | null;
+  name_localizations?: Localization | null;
   /** 1-100 character description */
   description: string;
   /** Localization dictionary for the description field. Values follow the same restrictions as description */
-  description_localizations?: Record<AvailableLocales, string> | null;
+  description_localizations?: Localization | null;
   /**
    * if the parameter is required or optional--default false.\
    * `true` to prevent using `required: false` as that breaks the comparision

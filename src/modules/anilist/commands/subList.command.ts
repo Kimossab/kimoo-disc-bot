@@ -1,3 +1,5 @@
+import { CommandInfo } from "#base-module";
+
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import { chunkArray } from "@/helper/common";
 import {
@@ -6,7 +8,11 @@ import {
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import { addPagination, getApplication } from "@/state/store";
-import { CommandHandler } from "@/types/discord";
+import {
+  ApplicationCommandOption,
+  ApplicationCommandOptionType,
+  CommandHandler,
+} from "@/types/discord";
 
 import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
@@ -14,6 +20,13 @@ import { AnilistRateLimit } from "../helpers/rate-limiter";
 import { mapSubListToEmbed } from "../mappers/mapSubListToEmbed";
 import { IAnilistSubscription } from "../models/AnilistSubscription.model";
 import { MediaSubbedInfo } from "../types/graphql";
+
+const definition: ApplicationCommandOption = {
+  name: "list",
+  description: "List your subscriptions",
+  type: ApplicationCommandOptionType.SUB_COMMAND,
+  options: [],
+};
 
 const updateUserSubListEmbed: CreatePageCallback<MediaSubbedInfo[]> = async (
   page,
@@ -27,10 +40,7 @@ const updateUserSubListEmbed: CreatePageCallback<MediaSubbedInfo[]> = async (
   };
 };
 
-export const subListCommand = (
-  logger: Logger,
-  rateLimiter: AnilistRateLimit
-): CommandHandler => {
+const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
   return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
@@ -78,3 +88,11 @@ export const subListCommand = (
     }
   };
 };
+
+export default (
+  logger: Logger,
+  rateLimiter: AnilistRateLimit
+): CommandInfo => ({
+  definition,
+  handler: handler(rateLimiter),
+});

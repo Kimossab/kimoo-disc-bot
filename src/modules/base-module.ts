@@ -1,4 +1,6 @@
+import { compareCommands } from "@/commands";
 import {
+  createCommand,
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
@@ -8,36 +10,63 @@ import messageList from "@/helper/messages";
 import { getOption } from "@/helper/modules";
 import { getApplication, setCommandExecutedCallback } from "@/state/store";
 import {
+  ApplicationCommand,
+  ApplicationCommandOption,
+  ApplicationCommandType,
+  AvailableLocales,
   CommandHandler,
+  CreateGlobalApplicationCommand,
   Interaction,
   InteractionCallbackType,
+  Localization,
   SingleCommandHandler,
 } from "@/types/discord";
 
-interface CommandInfo {
+export interface CommandInfo {
+  definition: ApplicationCommandOption;
   handler: CommandHandler;
   isAdmin?: boolean;
 }
 interface SingleCommandInfo {
+  definition: CreateGlobalApplicationCommand;
   handler: SingleCommandHandler;
   isAdmin?: boolean;
 }
 
 export default class BaseModule {
   protected logger: Logger;
+  protected commandName: Localization = {};
+  protected commandDescription: Localization = {};
+  protected commandType = ApplicationCommandType.CHAT_INPUT;
   protected commandList: Record<string, CommandInfo> = {};
   protected singleCommand: SingleCommandInfo | null = null;
   private isSetup = false;
 
-  constructor(private name: string, protected isActive: boolean) {
-    this.logger = new Logger(name);
+  constructor(private _name: string, protected isActive: boolean) {
+    this.logger = new Logger(_name);
+    this.commandName[AvailableLocales.English_US] = _name;
+    this.commandDescription[AvailableLocales.English_US] = _name;
+  }
+
+  private get commandDefinition(): CreateGlobalApplicationCommand {
+    if (!this.singleCommand) {
+      return {
+        name: this.name,
+        name_localizations: this.commandName,
+        description: this.commandDescription[AvailableLocales.English_US],
+        description_localizations: this.commandDescription,
+        type: this.commandType,
+        options: Object.values(this.commandList).map((cmd) => cmd.definition),
+      };
+    }
+    return this.singleCommand.definition;
   }
 
   private interactionExecuted = async (data: Interaction): Promise<void> => {
-    const cmdName = data.data?.name.toLowerCase().split(" ")[0];
     if (
       data.data &&
-      cmdName === this.name &&
+      (data.data?.name === this.name ||
+        data.data?.name === this.singleCommand?.definition.name) &&
       (data.user || (data.guild_id && data.member))
     ) {
       const app = getApplication();
@@ -91,6 +120,14 @@ export default class BaseModule {
     }
   };
 
+  public get name() {
+    return this._name;
+  }
+
+  public get active() {
+    return this.isActive;
+  }
+
   public setUp(): void {
     if (!this.isActive) {
       return;
@@ -98,6 +135,19 @@ export default class BaseModule {
     if (!this.isSetup) {
       setCommandExecutedCallback(this.interactionExecuted);
       this.isSetup = true;
+    }
+  }
+
+  public async upsertCommands(
+    appId: string,
+    discordCommand?: ApplicationCommand
+  ) {
+    if (
+      !discordCommand ||
+      !compareCommands(this.commandDefinition, discordCommand)
+    ) {
+      this.logger.log("Creating command");
+      await createCommand(appId, this.commandDefinition);
     }
   }
 }

@@ -1,3 +1,5 @@
+import { CommandInfo } from "#base-module";
+
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import {
   CreatePageCallback,
@@ -7,7 +9,12 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { addPagination, getApplication } from "@/state/store";
-import { CommandHandler, Embed } from "@/types/discord";
+import {
+  ApplicationCommandOption,
+  ApplicationCommandOptionType,
+  CommandHandler,
+  Embed,
+} from "@/types/discord";
 
 import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
@@ -19,13 +26,42 @@ interface SearchCommandOptions {
   type: MediaType;
 }
 
+const definition: ApplicationCommandOption = {
+  name: "search",
+  description: "Search for an anime or manga",
+  type: ApplicationCommandOptionType.SUB_COMMAND,
+  options: [
+    {
+      name: "query",
+      description: "Query to search for",
+      type: ApplicationCommandOptionType.STRING,
+      required: true,
+    },
+    {
+      name: "type",
+      description: "Query to search for",
+      type: ApplicationCommandOptionType.STRING,
+      choices: [
+        {
+          name: MediaType.ANIME,
+          value: MediaType.ANIME,
+        },
+        {
+          name: MediaType.MANGA,
+          value: MediaType.MANGA,
+        },
+      ],
+    },
+  ],
+};
+
 const pageUpdate: CreatePageCallback<Embed> = async (_page, _total, data) => ({
   data: {
     embeds: [data],
   },
 });
 
-export const searchCommand = (
+const handler = (
   logger: Logger,
   rateLimiter: AnilistRateLimit
 ): CommandHandler => {
@@ -75,3 +111,11 @@ export const searchCommand = (
     }
   };
 };
+
+export default (
+  logger: Logger,
+  rateLimiter: AnilistRateLimit
+): CommandInfo => ({
+  definition,
+  handler: handler(logger, rateLimiter),
+});

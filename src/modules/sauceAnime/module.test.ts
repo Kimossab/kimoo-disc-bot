@@ -9,8 +9,8 @@ import {
 } from "@/state/store";
 import { Interaction } from "@/types/discord";
 
+import handleSauceNao from "../sauceArt/sauceNao/sauce-nao";
 import SauceModule from "./module";
-import handleSauceNao from "./sauceNao/sauce-nao";
 import handleTraceMoe from "./traceMoe/trace-moe";
 
 const MODULE_NAME = "sauce";

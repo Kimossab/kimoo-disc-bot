@@ -8,19 +8,23 @@ import {
   CommandHandler,
 } from "@/types/discord";
 
-import { AnimeManager } from "../helpers/anime-manager";
-import { AnilistRateLimit } from "../helpers/rate-limiter";
-import subAddCommand from "./subAdd.command";
-import subListCommand from "./subList.command";
+import rankCreateCommand from "./rankCreate.command";
+import rankDeleteCommand from "./rankDelete.command";
+import rankLeaderboardCommand from "./rankLeaderboard.command";
+import rankListCommand from "./rankList.command";
+import rankUserCommand from "./rankUser.command";
 
 const definition: ApplicationCommandOption = {
-  name: "sub",
-  description: "Subscriptions commands",
+  name: "rank",
+  description: "Server achievement ranks",
   type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
   options: [],
 };
 
-const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
+const handler = (
+  logger: Logger,
+  subCommands: Record<string, CommandInfo>
+): CommandHandler => {
   return async (data, option) => {
     for (const cmd of Object.keys(subCommands)) {
       const cmdData = getOption(option.options, cmd);
@@ -32,15 +36,13 @@ const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
   };
 };
 
-export default (
-  logger: Logger,
-  rateLimiter: AnilistRateLimit,
-  animeList: AnimeManager[],
-  removeAnime: (id: number) => void
-): CommandInfo => {
+export default (logger: Logger): CommandInfo => {
   const subCommands: Record<string, CommandInfo> = {
-    add: subAddCommand(logger, rateLimiter, animeList, removeAnime),
-    list: subListCommand(logger, rateLimiter),
+    list: rankListCommand(logger),
+    user: rankUserCommand(),
+    leaderboard: rankLeaderboardCommand(logger),
+    create: rankCreateCommand(logger),
+    delete: rankDeleteCommand(logger),
   };
 
   for (const cmd of Object.keys(subCommands)) {
@@ -49,6 +51,6 @@ export default (
 
   return {
     definition,
-    handler: handler(subCommands),
+    handler: handler(logger, subCommands),
   };
 };

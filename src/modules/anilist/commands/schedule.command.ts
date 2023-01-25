@@ -1,9 +1,15 @@
+import { CommandInfo } from "#base-module";
+
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { CommandHandler } from "@/types/discord";
+import {
+  ApplicationCommandOption,
+  ApplicationCommandOptionType,
+  CommandHandler,
+} from "@/types/discord";
 
 import { getAiringSchedule } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
@@ -15,7 +21,21 @@ interface ScheduleCommandOptions {
   type: MediaType;
 }
 
-export const scheduleCommand = (
+const definition: ApplicationCommandOption = {
+  name: "schedule",
+  description: "Search for an anime airing schedule",
+  type: ApplicationCommandOptionType.SUB_COMMAND,
+  options: [
+    {
+      name: "query",
+      description: "Query to search for",
+      type: ApplicationCommandOptionType.STRING,
+      required: true,
+    },
+  ],
+};
+
+const handler = (
   _logger: Logger,
   rateLimiter: AnilistRateLimit
 ): CommandHandler => {
@@ -44,3 +64,11 @@ export const scheduleCommand = (
     }
   };
 };
+
+export default (
+  logger: Logger,
+  rateLimiter: AnilistRateLimit
+): CommandInfo => ({
+  definition,
+  handler: handler(logger, rateLimiter),
+});
