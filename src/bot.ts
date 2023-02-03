@@ -78,6 +78,7 @@ const ready = async () => {
   const commandNames = modules
     .filter((module) => module.active)
     .map((module) => module.cmdName);
+    
   for (const module of modules) {
     module.setUp();
   }
