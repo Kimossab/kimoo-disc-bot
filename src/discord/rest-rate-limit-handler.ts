@@ -1,11 +1,6 @@
 import Logger from "@/helper/logger";
 
-import axios, {
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-  Method,
-} from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, Method } from "axios";
 
 interface RateLimitObject {
   limit: number;
@@ -13,6 +8,14 @@ interface RateLimitObject {
   reset: number;
   resetAfter: number;
   bucket: string;
+}
+
+interface RequestData<T = unknown> {
+  method: Method;
+  path: string;
+  data?: unknown;
+  headers?: Record<string, string>;
+  callback: (data: T | null) => void;
 }
 
 interface ErrorData {
@@ -25,17 +28,20 @@ interface ErrorData {
 
 type ErrorType = Error | ErrorData;
 
+const topLevelBucketPath = (path: string): string => {
+  const match = /^(?<bucketPath>\/[^/]*\/[^/]*)/g.exec(path);
+
+  return match?.groups?.bucketPath || "unknown";
+};
+
 const isErrorData = (error: Error | ErrorData): error is ErrorData => {
   return Object.prototype.hasOwnProperty.call(error, "data");
 };
 
 export default class RestRateLimitHandler {
-  // class
   private _logger = new Logger("RestRateLimitHandler");
-
-  private routeBucket: Record<string, string> = {};
-
-  private rateLimits: Record<string, RateLimitObject> = {};
+  private queueBucket: Record<string, RequestData[]> = {};
+  private busyBucket: Record<string, boolean> = {};
 
   private requester: AxiosInstance = axios.create({
     baseURL: `https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}`,
@@ -79,6 +85,93 @@ export default class RestRateLimitHandler {
     return message ? `${s} ${message}` : s;
   }
 
+  private async checkQueue(bucket: string) {
+    if (this.busyBucket[bucket]) {
+      return;
+    }
+
+    this.busyBucket[bucket] = true;
+
+    const req = this.queueBucket[bucket]?.shift();
+
+    if (!req) {
+      this.busyBucket[bucket] = false;
+      return;
+    }
+
+    const { callback, method, path, data, headers } = req;
+
+    try {
+      const requestOptions: AxiosRequestConfig = {
+        method,
+        url: path,
+        data,
+      };
+
+      if (headers) {
+        requestOptions.headers = headers;
+      }
+
+      const response = await this.requester.request(requestOptions);
+
+      const parsedHeaders = this.handleHeaders(response.headers);
+
+      this._logger.log(
+        this.logMessage(
+          path,
+          parsedHeaders.bucket,
+          parsedHeaders.remaining,
+          parsedHeaders.limit,
+          parsedHeaders.resetAfter
+        )
+      );
+      callback(response ? response.data : null);
+
+      if (parsedHeaders.remaining === 0) {
+        this._logger.log(
+          `[${bucket}] Rate Limit Waiting ${parsedHeaders.resetAfter}s before requesting again`
+        );
+        setTimeout(() => {
+          this.busyBucket[bucket] = false;
+          this.checkQueue(bucket);
+        }, parsedHeaders.resetAfter * 1000);
+
+        return;
+      }
+
+      this.busyBucket[bucket] = false;
+      this.checkQueue(bucket);
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response?.status === 429) {
+        // rate limited
+
+        const parsedHeaders = this.handleHeaders(e.response.headers);
+        this._logger.error(
+          this.logMessage(
+            path,
+            parsedHeaders.bucket,
+            parsedHeaders.remaining,
+            parsedHeaders.limit,
+            parsedHeaders.resetAfter,
+            `Rate limited - made a request - Bucket: ${bucket}`
+          )
+        );
+
+        this.queueBucket[bucket].unshift(req);
+
+        setTimeout(() => {
+          this.busyBucket[bucket] = false;
+          this.checkQueue(bucket);
+        }, parsedHeaders.resetAfter * 1000);
+      } else {
+        this.busyBucket[bucket] = false;
+        callback(null);
+      }
+
+      this.handleErrors(path, e as ErrorType);
+    }
+  }
+
   /**
    * Sends a request and handles rate limits
    * @param method HTTP request method (GET, POST, PUT, DELETE, etc.)
@@ -92,89 +185,29 @@ export default class RestRateLimitHandler {
     data?: unknown,
     headers?: Record<string, string>
   ): Promise<T | null> {
-    const bucket = this.routeBucket[path];
-    const rateLimits = bucket ? this.rateLimits[bucket] : null;
+    const bucketPath = topLevelBucketPath(path);
 
-    if (rateLimits) {
-      const resetTimeMs = rateLimits.reset * 1000;
-      const now = +new Date();
-
-      if (rateLimits.remaining === 0 && resetTimeMs > now) {
-        this._logger.error(
-          this.logMessage(
-            path,
-            bucket ?? null,
-            rateLimits.remaining,
-            rateLimits.limit,
-            rateLimits.resetAfter,
-            "Rate limited"
-          )
-        );
-
-        // rate limited
-        return new Promise<T | null>((resolve) => {
-          setTimeout(() => {
-            resolve(this.request<T>(method, path, data, headers));
-          }, resetTimeMs - now);
-        });
-      }
-    }
-
-    // not rate limited - ok
-
-    let response: AxiosResponse<T> | null = null;
-    try {
-      const requestOptions: AxiosRequestConfig = {
-        method,
-        url: path,
-        data,
-      };
-
-      if (headers) {
-        requestOptions.headers = headers;
-      }
-
-      response = await this.requester.request<T>(requestOptions);
-
-      const parsedHeaders = this.handleHeaders(response.headers);
-
-      this.routeBucket[path] = parsedHeaders.bucket;
-      this.rateLimits[parsedHeaders.bucket] = parsedHeaders;
-
-      this._logger.log(
-        this.logMessage(
+    return new Promise<T>((resolve) => {
+      if (this.queueBucket[bucketPath]) {
+        this.queueBucket[bucketPath].push({
+          method,
           path,
-          parsedHeaders.bucket,
-          parsedHeaders.remaining,
-          parsedHeaders.limit,
-          parsedHeaders.resetAfter
-        )
-      );
-    } catch (e) {
-      if (axios.isAxiosError(e) && e.response?.status === 429) {
-        // rate limited
-
-        const parsedHeaders = this.handleHeaders(e.response.headers);
-        this._logger.error(
-          this.logMessage(
-            path,
-            parsedHeaders.bucket,
-            parsedHeaders.remaining,
-            parsedHeaders.limit,
-            parsedHeaders.resetAfter,
-            "Rate limited"
-          )
-        );
-
-        return new Promise<T | null>((resolve) => {
-          setTimeout(() => {
-            resolve(this.request<T>(method, path, data, headers));
-          }, parsedHeaders.resetAfter);
+          data,
+          headers,
+          callback: (data) => resolve(data as T),
         });
+      } else {
+        this.queueBucket[bucketPath] = [
+          {
+            method,
+            path,
+            data,
+            headers,
+            callback: (data) => resolve(data as T),
+          },
+        ];
       }
-      this.handleErrors(path, e as ErrorType);
-    }
-
-    return response ? response.data : null;
+      this.checkQueue(bucketPath);
+    });
   }
 }

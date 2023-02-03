@@ -14,7 +14,7 @@ import handleSauceNao from "./sauceNao/sauce-nao";
 
 export default class SauceArtModule extends BaseModule {
   constructor(isActive: boolean) {
-    super("sauceArt", isActive);
+    super("sauceArt", isActive, "Sauce (art)");
 
     if (!isActive) {
       this.logger.log("Module deactivated");

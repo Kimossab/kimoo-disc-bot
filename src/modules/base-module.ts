@@ -42,7 +42,11 @@ export default class BaseModule {
   protected singleCommand: SingleCommandInfo | null = null;
   private isSetup = false;
 
-  constructor(private _name: string, protected isActive: boolean) {
+  constructor(
+    private _name: string,
+    protected isActive: boolean,
+    private _commandName: string = _name
+  ) {
     this.logger = new Logger(_name);
     this.commandName[AvailableLocales.English_US] = _name;
     this.commandDescription[AvailableLocales.English_US] = _name;
@@ -122,6 +126,10 @@ export default class BaseModule {
 
   public get name() {
     return this._name;
+  }
+
+  public get cmdName() {
+    return this._commandName;
   }
 
   public get active() {

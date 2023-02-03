@@ -14,7 +14,7 @@ import handleTraceMoe from "./traceMoe/trace-moe";
 
 export default class SauceAnimeModule extends BaseModule {
   constructor(isActive: boolean) {
-    super("sauce", isActive);
+    super("sauce", isActive, "Sauce (anime)");
 
     if (!isActive) {
       this.logger.log("Module deactivated");
