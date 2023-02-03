@@ -172,13 +172,6 @@ export default class RestRateLimitHandler {
     }
   }
 
-  /**
-   * Sends a request and handles rate limits
-   * @param method HTTP request method (GET, POST, PUT, DELETE, etc.)
-   * @param path URL to request
-   * @param data Data to send for the request if available
-   * @returns The response of the request or null in case of failure
-   */
   public async request<T>(
     method: Method,
     path: string,
