@@ -8,19 +8,20 @@ import {
   CommandHandler,
 } from "@/types/discord";
 
-import { AnimeManager } from "../helpers/anime-manager";
-import { AnilistRateLimit } from "../helpers/rate-limiter";
-import subAddCommand from "./subAdd.command";
-import subListCommand from "./subList.command";
+import listServerCommand from "./listServer.command";
+import listUserCommand from "./listUser.command";
 
 const definition: ApplicationCommandOption = {
-  name: "sub",
-  description: "Subscriptions commands",
+  name: "list",
+  description: "Lists achievements",
   type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
   options: [],
 };
 
-const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
+const handler = (
+  logger: Logger,
+  subCommands: Record<string, CommandInfo>
+): CommandHandler => {
   return async (data, option) => {
     for (const cmd of Object.keys(subCommands)) {
       const cmdData = getOption(option.options, cmd);
@@ -32,23 +33,17 @@ const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
   };
 };
 
-export default (
-  logger: Logger,
-  rateLimiter: AnilistRateLimit,
-  animeList: AnimeManager[],
-  removeAnime: (id: number) => void
-): CommandInfo => {
+export default (logger: Logger): CommandInfo => {
   const subCommands: Record<string, CommandInfo> = {
-    add: subAddCommand(logger, rateLimiter, animeList, removeAnime),
-    list: subListCommand(logger, rateLimiter),
+    server: listServerCommand(logger),
+    user: listUserCommand(logger),
   };
-
   for (const cmd of Object.keys(subCommands)) {
     definition.options?.push(subCommands[cmd].definition);
   }
 
   return {
     definition,
-    handler: handler(subCommands),
+    handler: handler(logger, subCommands),
   };
 };

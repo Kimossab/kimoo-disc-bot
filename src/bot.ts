@@ -6,14 +6,12 @@ import BadgesModule from "#/badges/module";
 import BirthdayModule from "#/birthday/module";
 import FandomModule from "#/fandom/module";
 import MiscModule from "#/misc/module";
-import SauceModule from "#/sauce/module";
 import VNDBModule from "#/vndb/module";
+import SauceAnimeModule from "#sauceAnime/module";
+import SauceArtModule from "#sauceArt/module";
+import SettingsModule from "#settings/module";
 
-import { getAdminRole, setAdminRole } from "./bot/database";
-import * as commandInfo from "./commands";
-import { compareCommands } from "./commands";
 import {
-  createCommand,
   createInteractionResponse,
   deleteCommand,
   getCommands,
@@ -21,14 +19,9 @@ import {
   sendMessage,
 } from "./discord/rest";
 import socket from "./discord/socket";
-import {
-  checkAdmin,
-  formatSecondsIntoMinutes,
-  randomNum,
-} from "./helper/common";
+import { formatSecondsIntoMinutes, randomNum } from "./helper/common";
 import mongoConnect from "./helper/database";
 import Logger from "./helper/logger";
-import messageList from "./helper/messages";
 import {
   getApplication,
   setCommandExecutedCallback,
@@ -52,64 +45,6 @@ const commandExecuted = async (data: Interaction) => {
       type: InteractionCallbackType.PONG,
     });
     _logger.log("Got Ping");
-  } else if (data && data.data?.name === "settings") {
-    if (!data.data.options) {
-      throw new Error("Missing options");
-    }
-    const option = data.data.options[0];
-
-    if (option.name === "admin_role" && data.member && data.guild_id) {
-      if (!checkAdmin(data.guild_id, data.member)) {
-        await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: messageList.common.no_permission,
-          },
-        });
-        return;
-      }
-
-      const role = option.options?.length ? option.options[0] : null;
-
-      if (role) {
-        await setAdminRole(data.guild_id, role.value as string);
-        await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: `Admin role set to <@&${role.value}>`,
-            allowed_mentions: {
-              parse: [],
-              roles: [],
-              users: [],
-              replied_user: false,
-            },
-          },
-        });
-      } else {
-        const role = await getAdminRole(data.guild_id);
-        if (role) {
-          await createInteractionResponse(data.id, data.token, {
-            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content: `Admin role is <@&${role}>`,
-              allowed_mentions: {
-                parse: [],
-                roles: [],
-                users: [],
-                replied_user: false,
-              },
-            },
-          });
-        } else {
-          await createInteractionResponse(data.id, data.token, {
-            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content: "This server doesn't have an admin role defined",
-            },
-          });
-        }
-      }
-    }
   }
 };
 
@@ -124,59 +59,52 @@ const toggles = {
   ANILIST_MODULE: process.env.ANILIST_MODULE === "true",
 };
 
-const birthdayModule = new BirthdayModule(toggles.BIRTHDAY_MODULE);
-const achievementModule = new AchievementModule(toggles.ACHIEVEMENT_MODULE);
-const badgesModule = new BadgesModule(toggles.BADGES_MODULE);
-const fandomModule = new FandomModule(toggles.FANDOM_MODULE);
-const sauceModule = new SauceModule(toggles.SAUCE_MODULE);
-const miscModule = new MiscModule(toggles.MISC_MODULE);
-const vndbModule = new VNDBModule(toggles.VNDB_MODULE);
-const anilistModule = new AnilistModule(toggles.ANILIST_MODULE);
+const modules = [
+  new SettingsModule(),
+  new BirthdayModule(toggles.BIRTHDAY_MODULE),
+  new AchievementModule(toggles.ACHIEVEMENT_MODULE),
+  new BadgesModule(toggles.BADGES_MODULE),
+  new FandomModule(toggles.FANDOM_MODULE),
+  new SauceArtModule(toggles.SAUCE_MODULE),
+  new SauceAnimeModule(toggles.SAUCE_MODULE),
+  new MiscModule(toggles.MISC_MODULE),
+  new VNDBModule(toggles.VNDB_MODULE),
+  new AnilistModule(toggles.ANILIST_MODULE),
+];
 
 const ready = async () => {
   _logger.log("Discord says Ready");
 
-  birthdayModule.setUp();
-  achievementModule.setUp();
-  badgesModule.setUp();
-  fandomModule.setUp();
-  sauceModule.setUp();
-  miscModule.setUp();
-  vndbModule.setUp();
-  anilistModule.setUp();
+  const activeModules = modules.filter((module) => module.active);
+
+  for (const module of activeModules) {
+    module.setUp();
+  }
 
   const app = getApplication();
   if (app && app.id) {
-    let commandData = await getCommands(app.id);
+    const commandData = await getCommands(app.id);
 
     if (commandData === null) {
       return;
     }
 
-    const commandNames = commandInfo.list.map((c) => c.name);
+    const commandNames = activeModules.map((module) => module.cmdName);
 
     const commandsToRemove = commandData.filter(
-      (c) => !commandNames.includes(c.name)
+      (command) => !commandNames.includes(command.name)
     );
 
     for (const cmd of commandsToRemove) {
       if (cmd.id) {
-        _logger.log("Deleting command", cmd);
+        _logger.log("Deleting command", cmd.name);
         deleteCommand(app.id, cmd.id);
       }
     }
 
-    for (const cmd of commandInfo.list) {
-      const existing = commandData.find((c) => c.name === cmd.name);
-
-      if (!existing || !compareCommands(cmd, existing)) {
-        _logger.log("Creating command", cmd);
-        const nCmd = await createCommand(app.id, cmd);
-
-        if (nCmd) {
-          commandData = commandData.filter((c) => c.name !== nCmd.name);
-        }
-      }
+    for (const module of activeModules) {
+      const existing = commandData.find((c) => c.name === module.name);
+      module.upsertCommands(app.id, existing);
     }
   }
 
@@ -188,6 +116,7 @@ const ready = async () => {
     }
     hasStarted = true;
   }
+
   _logger.log("All set");
 };
 

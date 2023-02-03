@@ -1,9 +1,11 @@
 import BaseModule from "#/base-module";
 
-import { channelCommand } from "./commands/channel.command";
-import { scheduleCommand } from "./commands/schedule.command";
-import { searchCommand } from "./commands/search.command";
-import { subCommand } from "./commands/sub.command";
+import { AvailableLocales } from "@/types/discord";
+
+import channelCommand from "./commands/channel.command";
+import scheduleCommand from "./commands/schedule.command";
+import searchCommand from "./commands/search.command";
+import subCommand from "./commands/sub.command";
 import { getAllAnimeNotifications } from "./database";
 import { AnimeManager } from "./helpers/anime-manager";
 import { AnilistRateLimit } from "./helpers/rate-limiter";
@@ -20,25 +22,19 @@ export default class AnilistModule extends BaseModule {
       return;
     }
 
+    this.commandDescription[AvailableLocales.English_US] =
+      "Commands related to anilist";
+
     this.commandList = {
-      search: {
-        handler: searchCommand(this.logger, this.rateLimiter),
-      },
-      sub: {
-        handler: subCommand(
-          this.logger,
-          this.rateLimiter,
-          this.animeList,
-          this.removeAnime
-        ),
-      },
-      schedule: {
-        handler: scheduleCommand(this.logger, this.rateLimiter),
-      },
-      channel: {
-        isAdmin: true,
-        handler: channelCommand(this.logger),
-      },
+      search: searchCommand(this.logger, this.rateLimiter),
+      sub: subCommand(
+        this.logger,
+        this.rateLimiter,
+        this.animeList,
+        this.removeAnime
+      ),
+      schedule: scheduleCommand(this.logger, this.rateLimiter),
+      channel: channelCommand(this.logger),
     };
   }
 

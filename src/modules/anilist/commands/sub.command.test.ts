@@ -1,14 +1,10 @@
 import Logger from "@/helper/logger";
-import {
-  CommandHandler,
-  CommandInteractionDataOption,
-  Interaction,
-} from "@/types/discord";
+import { CommandInteractionDataOption, Interaction } from "@/types/discord";
 
 import { AnilistRateLimit } from "../helpers/rate-limiter";
-import { subCommand } from "./sub.command";
-import { subAddCommand } from "./subAdd.command";
-import { subListCommand } from "./subList.command";
+import subCommand from "./sub.command";
+import subAddCommand from "./subAdd.command";
+import subListCommand from "./subList.command";
 
 jest.mock("./subAdd.command");
 jest.mock("./subList.command");
@@ -25,7 +21,7 @@ const mockData = {
   member: {},
 } as Interaction;
 
-const handler: CommandHandler = subCommand(
+const { handler } = subCommand(
   mockLogger,
   {} as AnilistRateLimit,
   [],

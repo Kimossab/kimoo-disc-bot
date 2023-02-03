@@ -4,7 +4,10 @@ import { editOriginalInteractionResponse } from "@/discord/rest";
 import { InteractionPagination } from "@/helper/interaction-pagination";
 import { getOptions } from "@/helper/modules";
 import { addPagination, getApplication } from "@/state/store";
-import { SingleCommandHandler } from "@/types/discord";
+import {
+  ApplicationCommandOptionType,
+  SingleCommandHandler,
+} from "@/types/discord";
 
 import { vndbSearchUpdatePage } from "./helper";
 import { VNDBApi } from "./vndb-api";
@@ -21,6 +24,18 @@ export default class VNDBModule extends BaseModule {
     this.vndbApi = new VNDBApi();
 
     this.singleCommand = {
+      definition: {
+        name: "vn",
+        description: "Gets Visual Novel information",
+        options: [
+          {
+            name: "search",
+            description: "Title to search for",
+            type: ApplicationCommandOptionType.STRING,
+            required: true,
+          },
+        ],
+      },
       handler: this.handleSearchCommand,
     };
   }

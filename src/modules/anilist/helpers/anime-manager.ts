@@ -11,11 +11,7 @@ import { getNextAiringEpisode, searchByScheduleId } from "../graphql/graphql";
 import { mapMediaAiringToNewEpisodeEmbed } from "../mappers/mapMediaAiringToNewEpisodeEmbed";
 import { IAnimeNotification } from "../models/animeNotification.model";
 import { AiringSchedule } from "../types/graphql";
-import {
-  DEFAULT_TIMER,
-  MAX_TIMER,
-  MIN_TIME_TO_NOTIFY,
-} from "./anime-manager-config";
+import { MAX_TIMER, MIN_TIME_TO_NOTIFY } from "./anime-manager-config";
 import { IAnilistRateLimit } from "./rate-limiter";
 
 export class AnimeManager {
@@ -155,7 +151,7 @@ export class AnimeManager {
     this.setTimer(nextEpisode?.timeUntilAiring);
   };
 
-  private setTimer = (time: number = DEFAULT_TIMER) => {
+  private setTimer = (time: number = MAX_TIMER) => {
     const timeToAir = Math.min(time * 1000, MAX_TIMER);
     this.logger.log(`Set timeout for ${this.anime.id} with ${timeToAir}ms`);
 

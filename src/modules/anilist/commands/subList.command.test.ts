@@ -3,16 +3,12 @@ import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import { manyUserSubs, manyUserSubsAnilist } from "@/helper/mocks/factories";
 import { addPagination, getApplication } from "@/state/store";
-import {
-  CommandHandler,
-  CommandInteractionDataOption,
-  Interaction,
-} from "@/types/discord";
+import { CommandInteractionDataOption, Interaction } from "@/types/discord";
 
 import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
-import { subListCommand } from "./subList.command";
+import subListCommand from "./subList.command";
 
 jest.mock("@/helper/interaction-pagination");
 jest.mock("@/discord/rest");
@@ -36,10 +32,7 @@ const mockData = {
 const mockUserSubs = manyUserSubs(30);
 (getUserSubs as jest.Mock).mockResolvedValue(mockUserSubs);
 
-const handler: CommandHandler = subListCommand(
-  mockLogger,
-  {} as AnilistRateLimit
-);
+const { handler } = subListCommand(mockLogger, {} as AnilistRateLimit);
 
 describe("Anilist schedule command", () => {
   afterEach(() => {

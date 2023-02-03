@@ -1,9 +1,15 @@
+import { CommandInfo } from "#base-module";
+
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { CommandHandler } from "@/types/discord";
+import {
+  ApplicationCommandOption,
+  ApplicationCommandOptionType,
+  CommandHandler,
+} from "@/types/discord";
 
 import { addSubscription, setNextAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
@@ -14,7 +20,22 @@ import { mapMediaAiringToEmbed } from "../mappers/mapMediaAiringToEmbed";
 interface SubAddCommandOptions {
   anime: string;
 }
-export const subAddCommand = (
+
+const definition: ApplicationCommandOption = {
+  name: "add",
+  description: "Add a subscription",
+  type: ApplicationCommandOptionType.SUB_COMMAND,
+  options: [
+    {
+      name: "anime",
+      description: "Anime name",
+      type: ApplicationCommandOptionType.STRING,
+      required: true,
+    },
+  ],
+};
+
+export const handler = (
   logger: Logger,
   rateLimiter: AnilistRateLimit,
   animeList: AnimeManager[],
@@ -67,3 +88,13 @@ export const subAddCommand = (
     }
   };
 };
+
+export default (
+  logger: Logger,
+  rateLimiter: AnilistRateLimit,
+  animeList: AnimeManager[],
+  removeAnime: (id: number) => void
+): CommandInfo => ({
+  definition,
+  handler: handler(logger, rateLimiter, animeList, removeAnime),
+});

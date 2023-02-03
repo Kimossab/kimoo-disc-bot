@@ -3,15 +3,11 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { randomAiringSchedule } from "@/helper/mocks/factories";
 import { getApplication } from "@/state/store";
-import {
-  CommandHandler,
-  CommandInteractionDataOption,
-  Interaction,
-} from "@/types/discord";
+import { CommandInteractionDataOption, Interaction } from "@/types/discord";
 
 import { getAiringSchedule } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
-import { scheduleCommand } from "./schedule.command";
+import scheduleCommand from "./schedule.command";
 
 jest.mock("@/state/store");
 jest.mock("@/discord/rest");
@@ -21,10 +17,7 @@ const mockLogger = { log: jest.fn() } as unknown as Logger;
 (getApplication as jest.Mock).mockReturnValue({
   id: "123456789",
 });
-const handler: CommandHandler = scheduleCommand(
-  mockLogger,
-  {} as AnilistRateLimit
-);
+const { handler } = scheduleCommand(mockLogger, {} as AnilistRateLimit);
 const mockData = {
   guild_id: "randomGuildId",
   token: "randomToken",
