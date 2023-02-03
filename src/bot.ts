@@ -75,11 +75,9 @@ const modules = [
 const ready = async () => {
   _logger.log("Discord says Ready");
 
-  const commandNames = modules
-    .filter((module) => module.active)
-    .map((module) => module.cmdName);
-    
-  for (const module of modules) {
+  const activeModules = modules.filter((module) => module.active);
+
+  for (const module of activeModules) {
     module.setUp();
   }
 
@@ -90,6 +88,8 @@ const ready = async () => {
     if (commandData === null) {
       return;
     }
+
+    const commandNames = activeModules.map((module) => module.cmdName);
 
     const commandsToRemove = commandData.filter(
       (command) => !commandNames.includes(command.name)
@@ -102,7 +102,7 @@ const ready = async () => {
       }
     }
 
-    for (const module of modules.filter((m) => m.active)) {
+    for (const module of activeModules) {
       const existing = commandData.find((c) => c.name === module.name);
       module.upsertCommands(app.id, existing);
     }
@@ -116,6 +116,7 @@ const ready = async () => {
     }
     hasStarted = true;
   }
+
   _logger.log("All set");
 };
 
