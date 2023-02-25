@@ -1,245 +1,198 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { deleteAllSubscriptionsForId } from "#anilist/database";
+import { getFullAiringSchedule } from "#anilist/graphql/graphql";
+import { ILastAiredNotificationDocument } from "#anilist/models/LastAiredNotification.model";
+import {
+  InfoWithSchedule,
+  MediaStatus,
+  NextEpisode,
+  Nodes,
+} from "#anilist/types/graphql";
+
 import { ILogger } from "@/helper/logger";
 
-import {
-  deleteAllSubscriptionsForId,
-  getAllSubscriptionsForAnime,
-  setNextAiring,
-} from "../database";
-import { getNextAiringEpisode, searchByScheduleId } from "../graphql/graphql";
-import { IAnimeNotification } from "../models/animeNotification.model";
-import { AnimeManager } from "./anime-manager";
-import { IAnilistRateLimit } from "./rate-limiter";
+import { AnimeManager, getLastAndNextEpisode } from "./anime-manager";
 
+jest.mock("#anilist/database");
+jest.mock("#anilist/graphql/graphql");
 jest.mock("@/discord/rest");
+jest.mock("@/bot/database");
 
-jest.mock("../graphql/graphql");
-const mockSearchByScheduleId = searchByScheduleId as jest.Mock;
-const mockGetNextAiringEpisode = getNextAiringEpisode as jest.Mock;
+const onDeleteMock = jest.fn();
 
-jest.mock("../database");
-const mockGetAllSubscriptionsForAnime =
-  getAllSubscriptionsForAnime as jest.Mock;
-const mockDeleteAllSubscriptionsForId =
-  deleteAllSubscriptionsForId as jest.Mock;
-const mockSetNextAiring = setNextAiring as jest.Mock;
-
-const mockRateLimiterRequest = jest.fn();
-const mockRateLimiter: IAnilistRateLimit = {
-  request: mockRateLimiterRequest,
-};
-const mockLogger: ILogger = {
+const loggerMock: ILogger = {
   log: jest.fn(),
   error: jest.fn(),
 };
-const mockOnDelete = jest.fn();
+
+const rateLimiterMock = {
+  request: jest.fn(),
+};
+
+const animeMock = {
+  id: 123,
+  lastAired: 1,
+  lastUpdated: new Date(),
+} as ILastAiredNotificationDocument;
+
+const mockNextEpisode1: NextEpisode = {
+  id: 1,
+  airingAt: 1644862800, // Feb 15, 2022 12:00:00 AM UTC
+  timeUntilAiring: -31536000, // -1 year in seconds
+  episode: 1,
+};
+
+const mockNextEpisode2: NextEpisode = {
+  id: 2,
+  airingAt: Date.now() / 1000 - 1, // 1 second ago
+  timeUntilAiring: 1,
+  episode: 2,
+};
+
+const mockNextEpisode3: NextEpisode = {
+  id: 3,
+  airingAt: Date.now() / 1000 + 3600, // 1 hour from now
+  timeUntilAiring: 3600,
+  episode: 3,
+};
+
+const mockAiringSchedule: Nodes<NextEpisode> = {
+  nodes: [mockNextEpisode1, mockNextEpisode2, mockNextEpisode3],
+};
+
+const mockInfoWithSchedule: InfoWithSchedule = {
+  id: 1,
+  status: MediaStatus.RELEASING,
+  title: {
+    romaji: "Mock Title",
+    english: "Mock Title",
+    native: "Mock Title",
+    userPreferred: "Mock Title",
+  },
+  isAdult: false,
+  coverImage: {
+    extraLarge: "https://example.com/image.png",
+    large: "https://example.com/image.png",
+    medium: "https://example.com/image.png",
+    color: null,
+  },
+  siteUrl: "https://example.com",
+  airingSchedule: mockAiringSchedule,
+};
+
+(getFullAiringSchedule as jest.Mock).mockResolvedValue({
+  Media: mockInfoWithSchedule,
+});
 
 describe("AnimeManager", () => {
-  afterEach(() => {
+  let animeManager: AnimeManager;
+
+  beforeEach(() => {
     jest.clearAllMocks();
+
+    animeManager = new AnimeManager(
+      loggerMock,
+      rateLimiterMock,
+      animeMock,
+      onDeleteMock
+    );
   });
 
-  describe("When the anime next airing is null", () => {
-    let spySetTimer: jest.SpyInstance;
-    const animeNotification: IAnimeNotification = {
-      id: 123456,
-      nextAiring: null,
-    };
-    let manager: AnimeManager;
+  describe("constructor", () => {
+    it("should set the anime, logger, rateLimiter, and onDelete properties", () => {
+      expect(animeManager["anime"]).toBe(animeMock);
+      expect(animeManager["logger"]).toBe(loggerMock);
+      expect(animeManager["rateLimiter"]).toBe(rateLimiterMock);
+      expect(animeManager["onDelete"]).toBe(onDeleteMock);
+    });
+  });
 
+  describe("getLastAndNextEpisode", () => {
+    let mockGetLastAndNextEpisode: jest.SpyInstance;
     beforeEach(() => {
-      manager = new AnimeManager(
-        mockLogger,
-        mockRateLimiter,
-        animeNotification,
-        mockOnDelete
-      );
-      spySetTimer = jest.spyOn(manager as any, "setTimer");
-      spySetTimer.mockImplementation(() => ({}));
-    });
-    afterEach(() => {
-      spySetTimer.mockClear();
-    });
-
-    it("should attempt to get the next airing episode from anilist", async () => {
-      const spySetNextEpisodeOrDelete = jest.spyOn(
-        manager as any,
-        "setNextEpisodeOrDelete"
-      );
-      await manager.checkNextEpisode();
-
-      expect(spySetNextEpisodeOrDelete).toHaveBeenCalled();
-      expect(mockGetNextAiringEpisode).toHaveBeenCalledWith(
-        mockRateLimiter,
-        123456
+      mockGetLastAndNextEpisode = jest.spyOn(
+        animeManager as any,
+        "getLastAndNextEpisode"
       );
     });
 
-    describe("when anilist returns null", () => {
-      beforeEach(async () => {
-        mockGetNextAiringEpisode.mockResolvedValueOnce(null);
-        await manager.checkNextEpisode();
-      });
-
-      it("should delete all database information", async () => {
-        expect(mockDeleteAllSubscriptionsForId).toHaveBeenCalledWith(123456);
-      });
-
-      it("should call the onDelete callback", async () => {
-        expect(mockOnDelete).toHaveBeenCalledWith(123456);
-      });
-
-      it("shouldn't make any other requests to the DB", async () => {
-        expect(mockSetNextAiring).not.toHaveBeenCalled();
-      });
-
-      it("should not set the timer", async () => {
-        expect(spySetTimer).not.toHaveBeenCalled();
-      });
-    });
-
-    describe("when anilist returns with the next airing as null", () => {
-      beforeEach(async () => {
-        mockGetNextAiringEpisode.mockResolvedValueOnce({
-          Media: {
-            nextAiringEpisode: null,
-            airingSchedule: { nodes: [] },
-          },
-        });
-        await manager.checkNextEpisode();
-      });
-
-      it(`should set the next airing as null`, () => {
-        expect(mockSetNextAiring).toHaveBeenCalledWith(123456, null);
-      });
-
-      it("shouldn't make any other requests to the DB", () => {
-        expect(mockGetAllSubscriptionsForAnime).not.toHaveBeenCalled();
-      });
-
-      it("shouldn't call onDelete", () => {
-        expect(mockOnDelete).not.toHaveBeenCalled();
-      });
-
-      it("should set the timer with undefined", () => {
-        expect(spySetTimer).toHaveBeenCalledWith(undefined);
-      });
-    });
-
-    describe("when anilist returns nextAiringEpisode with values", () => {
-      beforeEach(async () => {
-        mockGetNextAiringEpisode.mockResolvedValueOnce({
-          Media: {
-            nextAiringEpisode: {
-              id: 78954646,
-              timeUntilAiring: 606060,
-            },
-            airingSchedule: { nodes: [] },
-          },
-        });
-        manager.checkNextEpisode();
-      });
-
-      it(`should set the next airing as 78954646`, () => {
-        expect(mockSetNextAiring).toHaveBeenCalledWith(123456, 78954646);
-      });
-
-      it("shouldn't make any other requests to the DB", () => {
-        expect(mockGetAllSubscriptionsForAnime).not.toHaveBeenCalled();
-      });
-
-      it("shouldn't call onDelete", () => {
-        expect(mockOnDelete).not.toHaveBeenCalled();
-      });
-
-      it("should set the timer with 606060", () => {
-        expect(spySetTimer).toHaveBeenCalledWith(606060);
+    it("should return the correct values", () => {
+      expect(mockGetLastAndNextEpisode.mock.results[0]).toEqual({
+        last: mockNextEpisode2,
+        next: mockNextEpisode3,
       });
     });
   });
 
-  describe("When the anime next airing exists", () => {
-    let spySetTimer: jest.SpyInstance;
-    let spySetNextEpisodeOrDelete: jest.SpyInstance;
-    let spyNotifyNewEpisode: jest.SpyInstance;
-    const animeNotification: IAnimeNotification = {
-      id: 123456,
-      nextAiring: 987654,
-    };
-    let manager: AnimeManager;
+  describe("checkNextEpisode", () => {
+    it("should get full airing schedule for the anime", async () => {
+      await animeManager.checkNextEpisode();
 
-    beforeEach(() => {
-      manager = new AnimeManager(
-        mockLogger,
-        mockRateLimiter,
-        animeNotification,
-        mockOnDelete
-      );
-      spySetTimer = jest.spyOn(manager as any, "setTimer");
-      spySetTimer.mockImplementation(() => ({}));
-      spySetNextEpisodeOrDelete = jest.spyOn(
-        manager as any,
-        "setNextEpisodeOrDelete"
-      );
-      spyNotifyNewEpisode = jest.spyOn(manager as any, "notifyNewEpisode");
-      spyNotifyNewEpisode.mockImplementation(() => ({}));
-    });
-    afterEach(() => {
-      spySetTimer.mockClear();
-      spySetNextEpisodeOrDelete.mockClear();
-      spyNotifyNewEpisode.mockClear();
-    });
-
-    it("should get the episode info from anilist", async () => {
-      await manager.checkNextEpisode();
-      expect(mockSearchByScheduleId).toHaveBeenCalledWith(
-        mockRateLimiter,
-        987654
+      expect(getFullAiringSchedule).toHaveBeenCalledWith(
+        rateLimiterMock,
+        animeMock.id
       );
     });
 
-    describe("when anilist doesn't return info about the next airing id", () => {
-      beforeEach(async () => {
-        mockSearchByScheduleId.mockResolvedValueOnce(null);
-        await manager.checkNextEpisode();
-      });
+    it("should delete all subscriptions and call onDelete if anime information is not found", async () => {
+      (getFullAiringSchedule as jest.Mock).mockResolvedValueOnce(null);
 
-      it("should just get the next episode from anilist", () => {
-        expect(spySetNextEpisodeOrDelete).toHaveBeenCalled();
-      });
+      await animeManager.checkNextEpisode();
+
+      expect(deleteAllSubscriptionsForId).toHaveBeenCalledWith(animeMock.id);
+      expect(onDeleteMock).toHaveBeenCalledWith(animeMock.id);
     });
 
-    describe("when next airing time is in the future", () => {
-      beforeEach(async () => {
-        mockSearchByScheduleId.mockResolvedValueOnce({
-          AiringSchedule: { timeUntilAiring: 600 },
-        });
-        await manager.checkNextEpisode();
-      });
+    it("should notify new episode if a new episode is available and update the timer", async () => {
+      await animeManager.checkNextEpisode();
 
-      it("should just get the next episode from anilist", () => {
-        expect(spySetTimer).toHaveBeenCalledWith(600);
-      });
+      expect(animeManager["notifyNewEpisode"]).toHaveBeenCalledWith(
+        mockInfoWithSchedule,
+        mockNextEpisode2,
+        mockNextEpisode3
+      );
     });
 
-    describe("when next airing time is in the past", () => {
-      it("should send the message if it aired less than MIN_TIME_TO_NOTIFY ago", async () => {
-        mockSearchByScheduleId.mockResolvedValueOnce({
-          AiringSchedule: { timeUntilAiring: -600 },
-        });
-        await manager.checkNextEpisode();
-        expect(spyNotifyNewEpisode).toHaveBeenCalled();
-        expect(spySetNextEpisodeOrDelete).toHaveBeenCalled();
+    it("should set the timer", async () => {
+      await animeManager.checkNextEpisode();
+
+      expect(animeManager["setTimer"]).toHaveBeenCalledWith(
+        mockNextEpisode3.timeUntilAiring
+      );
+    });
+
+    it("should delete all subscriptions and call onDelete if anime status is not in (NOT_YET_RELEASED, RELEASING, HIATUS)", async () => {
+      (getFullAiringSchedule as jest.Mock).mockResolvedValueOnce({
+        Media: {
+          ...mockInfoWithSchedule,
+          status: MediaStatus.FINISHED,
+        },
       });
 
-      it("should not send the message if it aired longer than MIN_TIME_TO_NOTIFY ago", async () => {
-        mockSearchByScheduleId.mockResolvedValueOnce({
-          AiringSchedule: { timeUntilAiring: -60000000 },
-        });
-        await manager.checkNextEpisode();
-        expect(spyNotifyNewEpisode).not.toHaveBeenCalled();
-        expect(spySetNextEpisodeOrDelete).toHaveBeenCalled();
+      await animeManager.checkNextEpisode();
+
+      expect(deleteAllSubscriptionsForId).toHaveBeenCalledWith(animeMock.id);
+      expect(onDeleteMock).toHaveBeenCalledWith(animeMock.id);
+    });
+  });
+
+  describe("getLastAndNextEpisode", () => {
+    it("should return the last and next episode info from the given airing schedule", () => {
+      expect(
+        getLastAndNextEpisode(mockInfoWithSchedule.airingSchedule)
+      ).toEqual({
+        last: mockNextEpisode2,
+        next: mockNextEpisode3,
       });
+    });
+    it("should return last as null", () => {
+      expect(
+        getLastAndNextEpisode({ nodes: [mockNextEpisode3] }).last
+      ).toBeNull();
+    });
+    it("should return next as null", () => {
+      expect(
+        getLastAndNextEpisode({ nodes: [mockNextEpisode2] }).next
+      ).toBeNull();
     });
   });
 });

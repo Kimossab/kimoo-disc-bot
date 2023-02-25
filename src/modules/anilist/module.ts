@@ -6,8 +6,13 @@ import channelCommand from "./commands/channel.command";
 import scheduleCommand from "./commands/schedule.command";
 import searchCommand from "./commands/search.command";
 import subCommand from "./commands/sub.command";
-import { getAllAnimeNotifications } from "./database";
-import { AnimeManager } from "./helpers/anime-manager";
+import {
+  getAllAnimeLastAiring,
+  getAllAnimeNotifications,
+  setAnimeLastAiring,
+} from "./database";
+import { getFullAiringSchedule } from "./graphql/graphql";
+import { AnimeManager, getLastAndNextEpisode } from "./helpers/anime-manager";
 import { AnilistRateLimit } from "./helpers/rate-limiter";
 
 export default class AnilistModule extends BaseModule {
@@ -44,7 +49,28 @@ export default class AnilistModule extends BaseModule {
       return;
     }
 
-    const ani = await getAllAnimeNotifications();
+    const ani = await getAllAnimeLastAiring();
+
+    // MIGRATION
+    const allNotif = await getAllAnimeNotifications();
+
+    for (const notif of allNotif) {
+      if (!ani.find(({ id }) => id === notif.id)) {
+        this.logger.log("migrating", { notif });
+        const schedule = await getFullAiringSchedule(
+          this.rateLimiter,
+          notif.id
+        );
+
+        if (schedule) {
+          const { last } = getLastAndNextEpisode(schedule.Media.airingSchedule);
+
+          ani.push(await setAnimeLastAiring(notif.id, last?.episode));
+        }
+      }
+    }
+
+    // END MIGRATION
 
     for (const anime of ani) {
       if (!this.animeList.find((a) => a.id === anime.id)) {

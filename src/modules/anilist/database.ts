@@ -5,6 +5,9 @@ import AnimeNotification, {
   IAnimeNotification,
   IAnimeNotificationDocument,
 } from "./models/animeNotification.model";
+import LastAiredNotification, {
+  ILastAiredNotificationDocument,
+} from "./models/LastAiredNotification.model";
 
 const getSubscription = async (
   server: string,
@@ -31,6 +34,60 @@ export const addSubscription = async (
   }
 };
 
+export const getAllSubscriptionsForAnime = async (
+  id: number
+): Promise<IAnilistSubscription[]> => AnilistSubscription.find({ id });
+
+export const deleteAllSubscriptionsForId = async (
+  id: number
+): Promise<void> => {
+  await AnilistSubscription.deleteMany({
+    id,
+  });
+  await LastAiredNotification.deleteMany({
+    id,
+  });
+};
+
+export const getUserSubs = async (
+  server: string,
+  user: string
+): Promise<IAnilistSubscription[]> =>
+  AnilistSubscription.find({
+    server,
+    user,
+  });
+
+export const getAllAnimeLastAiring = async (): Promise<
+  ILastAiredNotificationDocument[]
+> => LastAiredNotification.find();
+
+export const setAnimeLastAiring = async (
+  id: number,
+  lastAired?: number
+): Promise<ILastAiredNotificationDocument> => {
+  if (!(await LastAiredNotification.findOne({ id }))) {
+    const animeLastAired = new LastAiredNotification();
+    animeLastAired.id = id;
+    animeLastAired.lastAired = lastAired || null;
+    animeLastAired.lastUpdated = new Date();
+    await animeLastAired.save();
+  }
+
+  return (await LastAiredNotification.findOne({ id }))!;
+};
+
+export const updateAnimeLastAiring = async (id: number, lastAired: number) => {
+  await LastAiredNotification.findOneAndUpdate(
+    { id },
+    {
+      lastAired: lastAired,
+      lastUpdated: new Date(),
+    }
+  );
+};
+
+// TEMPORARY
 export const getNextAiring = async (
   animeId: number
 ): Promise<IAnimeNotificationDocument | null> =>
@@ -60,27 +117,3 @@ export const setNextAiring = async (
 export const getAllAnimeNotifications = async (): Promise<
   IAnimeNotification[]
 > => AnimeNotification.find();
-
-export const getAllSubscriptionsForAnime = async (
-  id: number
-): Promise<IAnilistSubscription[]> => AnilistSubscription.find({ id });
-
-export const deleteAllSubscriptionsForId = async (
-  id: number
-): Promise<void> => {
-  await AnilistSubscription.deleteMany({
-    id,
-  });
-  await AnimeNotification.deleteMany({
-    id,
-  });
-};
-
-export const getUserSubs = async (
-  server: string,
-  user: string
-): Promise<IAnilistSubscription[]> =>
-  AnilistSubscription.find({
-    server,
-    user,
-  });

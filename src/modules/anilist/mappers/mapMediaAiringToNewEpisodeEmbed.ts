@@ -1,11 +1,11 @@
 import { Embed, EmbedField } from "@/types/discord";
 
-import { MediaForAiring } from "../types/graphql";
+import { InfoWithSchedule, NextEpisode } from "../types/graphql";
 
 export const mapMediaAiringToNewEpisodeEmbed = (
-  data: MediaForAiring,
-  episode: number,
-  airingAt: number
+  data: InfoWithSchedule,
+  { episode, airingAt }: NextEpisode,
+  nextEpisodeInfo: NextEpisode | null
 ): Embed => {
   const fields: EmbedField[] = [];
   fields.push({
@@ -13,10 +13,10 @@ export const mapMediaAiringToNewEpisodeEmbed = (
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
     inline: false,
   });
-  if (data.nextAiringEpisode) {
+  if (nextEpisodeInfo) {
     fields.push({
       name: "Next episode",
-      value: `#${data.nextAiringEpisode.episode} - <t:${data.nextAiringEpisode.airingAt}:R>`,
+      value: `#${nextEpisodeInfo.episode} - <t:${nextEpisodeInfo.airingAt}:R>`,
       inline: false,
     });
   }

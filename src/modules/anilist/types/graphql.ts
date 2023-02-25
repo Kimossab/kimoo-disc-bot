@@ -78,7 +78,7 @@ interface Name {
   name: string;
 }
 
-interface Nodes<T> {
+export interface Nodes<T> {
   nodes: T[] | null;
 }
 
@@ -101,7 +101,7 @@ interface RelationEdges<T> {
   }[];
 }
 
-interface MediaCoverImage {
+export interface MediaCoverImage {
   extraLarge: string;
   large: string;
   medium: string;
@@ -178,11 +178,21 @@ export interface MediaForAiring {
   id: number;
   title: MediaTitle;
   isAdult: boolean;
-  nextAiringEpisode: NextEpisode | null;
+  airingSchedule: Nodes<NextEpisode>;
   coverImage: MediaCoverImage;
   siteUrl: string;
 }
 export type NextAiringWithTitle = MediaForAiring & NextAiring;
+
+export interface InfoWithSchedule {
+  id: number;
+  status: MediaStatus;
+  title: MediaTitle;
+  isAdult: boolean;
+  coverImage: MediaCoverImage;
+  siteUrl: string;
+  airingSchedule: Nodes<NextEpisode>;
+}
 
 export interface MediaSubbedInfo extends NextAiringEpisode {
   title: MediaTitle;
