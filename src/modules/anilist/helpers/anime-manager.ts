@@ -1,18 +1,54 @@
+import {
+  deleteAllSubscriptionsForId,
+  getAllSubscriptionsForAnime,
+  updateAnimeLastAiring,
+} from "#anilist/database";
+import { getFullAiringSchedule } from "#anilist/graphql/graphql";
+import { mapMediaAiringToNewEpisodeEmbed } from "#anilist/mappers/mapMediaAiringToNewEpisodeEmbed";
+import { ILastAiredNotificationDocument } from "#anilist/models/LastAiredNotification.model";
+import {
+  InfoWithSchedule,
+  MediaStatus,
+  NextEpisode,
+} from "#anilist/types/graphql";
+
 import { getServerAnimeChannel } from "@/bot/database";
 import { sendMessage } from "@/discord/rest";
 import { ILogger } from "@/helper/logger";
 
-import {
-  deleteAllSubscriptionsForId,
-  getAllSubscriptionsForAnime,
-  setNextAiring,
-} from "../database";
-import { getNextAiringEpisode, searchByScheduleId } from "../graphql/graphql";
-import { mapMediaAiringToNewEpisodeEmbed } from "../mappers/mapMediaAiringToNewEpisodeEmbed";
-import { IAnimeNotification } from "../models/animeNotification.model";
-import { AiringSchedule } from "../types/graphql";
-import { MAX_TIMER, MIN_TIME_TO_NOTIFY } from "./anime-manager-config";
+import { MAX_TIMER } from "./anime-manager-config";
 import { IAnilistRateLimit } from "./rate-limiter";
+
+interface LastAndNextEpisodeInfo {
+  last: NextEpisode | null;
+  next: NextEpisode | null;
+}
+
+export const getLastAndNextEpisode = (
+  scheduleInformation: InfoWithSchedule["airingSchedule"]
+): LastAndNextEpisodeInfo => {
+  return (scheduleInformation.nodes ?? []).reduce<LastAndNextEpisodeInfo>(
+    (res, info) => {
+      if (
+        info.timeUntilAiring <= 0 &&
+        (!res.last || res.last.timeUntilAiring < info.timeUntilAiring)
+      ) {
+        res.last = info;
+      }
+      if (
+        info.timeUntilAiring > 0 &&
+        (!res.next || res.next.timeUntilAiring > info.timeUntilAiring)
+      ) {
+        res.next = info;
+      }
+      return res;
+    },
+    {
+      last: null,
+      next: null,
+    }
+  );
+};
 
 export class AnimeManager {
   private timer: NodeJS.Timeout | undefined;
@@ -24,75 +60,74 @@ export class AnimeManager {
   constructor(
     private logger: ILogger,
     private rateLimiter: IAnilistRateLimit,
-    private anime: IAnimeNotification,
+    private anime: ILastAiredNotificationDocument,
     private onDelete: (id: number) => void
   ) {}
 
   public async checkNextEpisode() {
-    if (!this.anime.nextAiring) {
-      this.logger.log(
-        "Next airing episode not available in the database",
-        this.anime.id
-      );
-      await this.setNextEpisodeOrDelete();
-      return;
-    }
-
-    const scheduleInfo = await searchByScheduleId(
+    const animeInformation = await getFullAiringSchedule(
       this.rateLimiter,
-      this.anime.nextAiring
+      this.anime.id
     );
 
-    if (!scheduleInfo) {
-      this.logger.log("No info found for airing id from Anilist", {
-        nextAiring: this.anime.nextAiring,
-        id: this.anime.id,
-      });
-      await this.setNextEpisodeOrDelete();
+    if (!animeInformation) {
+      //todo: to change to info
+      this.logger.error(
+        "No info about the anime found (either removed by anilist or finished airing) - deleting from database",
+        {
+          animeInfo: this.anime,
+        }
+      );
+      await deleteAllSubscriptionsForId(this.anime.id);
+      this.onDelete(this.anime.id);
       return;
     }
 
-    const { timeUntilAiring } = scheduleInfo.AiringSchedule;
+    const { last, next } = getLastAndNextEpisode(
+      animeInformation.Media.airingSchedule
+    );
 
-    if (timeUntilAiring <= 0) {
-      if (timeUntilAiring < MIN_TIME_TO_NOTIFY) {
-        this.logger.log(
-          "Next episode aired too long ago, not notifying",
-          scheduleInfo.AiringSchedule
-        );
-      } else {
-        this.logger.log(
-          "Next episode aired already in the past",
-          scheduleInfo.AiringSchedule
-        );
-        await this.notifyNewEpisode(scheduleInfo.AiringSchedule);
+    if (last && last.episode !== this.anime.lastAired) {
+      await this.notifyNewEpisode(animeInformation.Media, last, next);
+    }
 
-        // await setNextAiring(
-        //   this.anime.id,
-        //   media.nextAiringEpisode?.id || null
-        // );
-        // this.setTimer(
-        //   media.nextAiringEpisode?.timeUntilAiring
-        // );
-      }
+    if (next) {
+      this.setTimer(next.timeUntilAiring);
+    }
 
-      await this.setNextEpisodeOrDelete();
-    } else {
-      this.setTimer(timeUntilAiring);
+    if (
+      ![
+        MediaStatus.NOT_YET_RELEASED,
+        MediaStatus.RELEASING,
+        MediaStatus.HIATUS,
+      ].includes(animeInformation.Media.status)
+    ) {
+      this.logger.error(
+        "Anime status not one of (NOT_YET_RELEASED,RELEASING,HIATUS) - assuming it's over - deleting from db",
+        animeInformation
+      );
+      await deleteAllSubscriptionsForId(this.anime.id);
+      this.onDelete(this.anime.id);
     }
   }
 
   private notifyNewEpisode = async (
-    animeInfo: AiringSchedule
+    animeInfo: InfoWithSchedule,
+    episodeInfo: NextEpisode,
+    nextEpisodeInfo: NextEpisode | null
   ): Promise<void> => {
-    this.logger.log("Notifying for new episode", animeInfo);
+    this.logger.log("Notifying for new episode", {
+      name: animeInfo.title,
+      episodeInfo,
+      nextEpisodeInfo,
+    });
 
     const embed = mapMediaAiringToNewEpisodeEmbed(
-      animeInfo.media,
-      animeInfo.episode,
-      animeInfo.airingAt
+      animeInfo,
+      episodeInfo,
+      nextEpisodeInfo
     );
-    const subs = await getAllSubscriptionsForAnime(animeInfo.media.id);
+    const subs = await getAllSubscriptionsForAnime(animeInfo.id);
 
     const servers = subs.map((s) => s.server);
     const uniqServers = [...new Set(servers)];
@@ -108,47 +143,8 @@ export class AnimeManager {
         await sendMessage(channel, userMentions, [embed]);
       }
     }
-  };
 
-  private setNextEpisodeOrDelete = async () => {
-    const animeInfo = await getNextAiringEpisode(
-      this.rateLimiter,
-      this.anime.id
-    );
-
-    // this means the anime has ended, safe to delete
-    if (!animeInfo) {
-      this.logger.log(
-        "No info about the anime found (either removed by anilist or finished airing) - deleting from database",
-        this.anime.id
-      );
-      await deleteAllSubscriptionsForId(this.anime.id);
-      this.onDelete(this.anime.id);
-      return;
-    }
-
-    // if (!animeInfo.Media.nextAiringEpisode) {
-    //   await setNextAiring(this.anime.id, null);
-    //   this.setTimer();
-    //   this.logger.log(
-    //     "Next episode not found. Possibly not aired yet",
-    //     {
-    //       id: this.anime.id,
-    //       nextEpisode: animeInfo.Media,
-    //     }
-    //   );
-    //   return;
-    // }
-
-    const nextEpisode = animeInfo.Media.nextAiringEpisode;
-
-    this.logger.log("Setting next episode in the database", {
-      id: this.anime.id,
-      nextEpisode,
-    });
-    await setNextAiring(this.anime.id, nextEpisode?.id ?? null);
-
-    this.setTimer(nextEpisode?.timeUntilAiring);
+    await updateAnimeLastAiring(animeInfo.id, episodeInfo.episode);
   };
 
   private setTimer = (time: number = MAX_TIMER) => {

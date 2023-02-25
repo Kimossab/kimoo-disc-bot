@@ -1,6 +1,8 @@
-export const searchForAiringScheduleGraphql = `query ($search: String) {
-  Media(search: $search, type: ANIME, status_in: [NOT_YET_RELEASED, RELEASING]) {
+export const getFullAiringScheduleGraphql = `
+query ($id: Int) {
+  Media(id: $id, type: ANIME, status_in: [NOT_YET_RELEASED, RELEASING]) {
     id
+    status,
     title {
       romaji
       english

@@ -1,19 +1,17 @@
 import { IAnilistRateLimit } from "../helpers/rate-limiter";
 import {
-  AiringScheduleResponse,
+  InfoWithSchedule,
   MediaForAiring,
   MediaList,
   MediaResponse,
   MediaSubbed,
   MediaType,
-  NextAiring,
   NextAiringWithTitle,
   PageResponse,
 } from "../types/graphql";
 import { getAiringScheduleGraphql } from "./queries/getAiringScheduleGraphql";
-import { getNextAiringGraphql } from "./queries/getNextAiringGraphql";
+import { getFullAiringScheduleGraphql } from "./queries/getFullAiringScheduleGraphql";
 import { searchByIdsGraphql } from "./queries/searchByIdsGraphql";
-import { searchByScheduleIdGraphql } from "./queries/searchByScheduleIdGraphql";
 import { searchByTypeGraphql } from "./queries/searchByTypeGraphql";
 import { searchForAiringScheduleGraphql } from "./queries/searchForAiringScheduleGraphql";
 import { searchGraphql } from "./queries/searchGraphql";
@@ -58,19 +56,6 @@ export const searchForAiringSchedule = async (
   );
 };
 
-export const searchByScheduleId = async (
-  rateLimiter: IAnilistRateLimit,
-  id: number
-): Promise<AiringScheduleResponse | null> => {
-  return await rateLimiter.request<AiringScheduleResponse>(
-    "searchByScheduleId",
-    searchByScheduleIdGraphql,
-    {
-      id,
-    }
-  );
-};
-
 export const searchForUser = async (
   rateLimiter: IAnilistRateLimit,
   ids: number[]
@@ -84,19 +69,6 @@ export const searchForUser = async (
   );
 };
 
-export const getNextAiringEpisode = async (
-  rateLimiter: IAnilistRateLimit,
-  id: number
-): Promise<MediaResponse<NextAiring> | null> => {
-  return await rateLimiter.request<MediaResponse<NextAiring>>(
-    "getNextAiring",
-    getNextAiringGraphql,
-    {
-      id,
-    }
-  );
-};
-
 export const getAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
   search: string
@@ -106,6 +78,19 @@ export const getAiringSchedule = async (
     getAiringScheduleGraphql,
     {
       search,
+    }
+  );
+};
+
+export const getFullAiringSchedule = async (
+  rateLimiter: IAnilistRateLimit,
+  id: number
+): Promise<MediaResponse<InfoWithSchedule> | null> => {
+  return await rateLimiter.request<MediaResponse<InfoWithSchedule>>(
+    "getFullAiringScheduleGraphql",
+    getFullAiringScheduleGraphql,
+    {
+      id,
     }
   );
 };

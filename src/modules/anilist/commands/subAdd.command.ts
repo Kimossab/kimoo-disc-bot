@@ -11,9 +11,9 @@ import {
   CommandHandler,
 } from "@/types/discord";
 
-import { addSubscription, setNextAiring } from "../database";
+import { addSubscription, setAnimeLastAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
-import { AnimeManager } from "../helpers/anime-manager";
+import { AnimeManager, getLastAndNextEpisode } from "../helpers/anime-manager";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
 import { mapMediaAiringToEmbed } from "../mappers/mapMediaAiringToEmbed";
 
@@ -64,10 +64,11 @@ export const handler = (
         animeInfo.Media.id
       );
 
-      const nextAiring = animeInfo.Media.nextAiringEpisode;
-      const nextAiringInfo = await setNextAiring(
+      const { last } = getLastAndNextEpisode(animeInfo.Media.airingSchedule);
+
+      const nextAiringInfo = await setAnimeLastAiring(
         animeInfo.Media.id,
-        nextAiring?.id || null
+        last?.episode
       );
 
       if (!animeList.find((anime) => anime.id === animeInfo.Media.id)) {

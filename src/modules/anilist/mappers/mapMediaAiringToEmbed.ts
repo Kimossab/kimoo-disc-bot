@@ -1,3 +1,5 @@
+import { getLastAndNextEpisode } from "#anilist/helpers/anime-manager";
+
 import { Embed, EmbedField } from "@/types/discord";
 
 import { MediaForAiring } from "../types/graphql";
@@ -9,10 +11,12 @@ export const mapMediaAiringToEmbed = (data: MediaForAiring): Embed => {
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
     inline: false,
   });
-  if (data.nextAiringEpisode) {
+
+  const { next } = getLastAndNextEpisode(data.airingSchedule);
+  if (next) {
     fields.push({
       name: "Next episode",
-      value: `#${data.nextAiringEpisode.episode} - <t:${data.nextAiringEpisode.airingAt}:R>`,
+      value: `#${next.episode} - <t:${next.airingAt}:R>`,
       inline: false,
     });
   }
