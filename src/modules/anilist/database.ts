@@ -66,25 +66,34 @@ export const setAnimeLastAiring = async (
   id: number,
   lastAired?: number
 ): Promise<ILastAiredNotificationDocument> => {
-  if (!(await LastAiredNotification.findOne({ id }))) {
-    const animeLastAired = new LastAiredNotification();
-    animeLastAired.id = id;
-    animeLastAired.lastAired = lastAired || null;
-    animeLastAired.lastUpdated = new Date();
-    await animeLastAired.save();
+  const lastAiredNotif = await LastAiredNotification.findOne({ id });
+
+  if (lastAiredNotif) {
+    return lastAiredNotif;
   }
 
-  return (await LastAiredNotification.findOne({ id }))!;
+  const animeLastAired = new LastAiredNotification();
+  animeLastAired.id = id;
+  animeLastAired.lastAired = lastAired || null;
+  animeLastAired.lastUpdated = new Date();
+  return await animeLastAired.save();
 };
 
-export const updateAnimeLastAiring = async (id: number, lastAired: number) => {
-  await LastAiredNotification.findOneAndUpdate(
+export const updateAnimeLastAiring = async (
+  id: number,
+  lastAired: number
+): Promise<ILastAiredNotificationDocument> => {
+  const data = await LastAiredNotification.findOneAndUpdate(
     { id },
     {
       lastAired: lastAired,
       lastUpdated: new Date(),
     }
   );
+  if (!data) {
+    throw new Error(`Unable to update last aired: ${id}`);
+  }
+  return data;
 };
 
 // TEMPORARY

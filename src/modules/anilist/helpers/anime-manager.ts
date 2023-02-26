@@ -88,11 +88,11 @@ export class AnimeManager {
     );
 
     if (last && last.episode !== this.anime.lastAired) {
+      this.logger.log("Last aired episode is diferent from database", {
+        db: this.anime,
+        last,
+      });
       await this.notifyNewEpisode(animeInformation.Media, last, next);
-    }
-
-    if (next) {
-      this.setTimer(next.timeUntilAiring);
     }
 
     if (
@@ -108,7 +108,10 @@ export class AnimeManager {
       );
       await deleteAllSubscriptionsForId(this.anime.id);
       this.onDelete(this.anime.id);
+      return;
     }
+
+    this.setTimer(next?.timeUntilAiring);
   }
 
   private notifyNewEpisode = async (
@@ -117,6 +120,7 @@ export class AnimeManager {
     nextEpisodeInfo: NextEpisode | null
   ): Promise<void> => {
     this.logger.log("Notifying for new episode", {
+      id: animeInfo.id,
       name: animeInfo.title,
       episodeInfo,
       nextEpisodeInfo,
@@ -144,7 +148,7 @@ export class AnimeManager {
       }
     }
 
-    await updateAnimeLastAiring(animeInfo.id, episodeInfo.episode);
+    this.anime = await updateAnimeLastAiring(animeInfo.id, episodeInfo.episode);
   };
 
   private setTimer = (time: number = MAX_TIMER) => {

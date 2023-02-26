@@ -1,4 +1,8 @@
-import { deleteAllSubscriptionsForId } from "#anilist/database";
+import {
+  deleteAllSubscriptionsForId,
+  getAllSubscriptionsForAnime,
+  updateAnimeLastAiring,
+} from "#anilist/database";
 import { getFullAiringSchedule } from "#anilist/graphql/graphql";
 import { ILastAiredNotificationDocument } from "#anilist/models/LastAiredNotification.model";
 import {
@@ -44,7 +48,7 @@ const mockNextEpisode1: NextEpisode = {
 const mockNextEpisode2: NextEpisode = {
   id: 2,
   airingAt: Date.now() / 1000 - 1, // 1 second ago
-  timeUntilAiring: 1,
+  timeUntilAiring: -1,
   episode: 2,
 };
 
@@ -83,11 +87,26 @@ const mockInfoWithSchedule: InfoWithSchedule = {
   Media: mockInfoWithSchedule,
 });
 
+(getAllSubscriptionsForAnime as jest.Mock).mockResolvedValue([
+  { id: 123, user: "123", server: "123" },
+  { id: 124, user: "124", server: "124" },
+]);
+(updateAnimeLastAiring as jest.Mock).mockResolvedValue({
+  ...animeMock,
+  lastAired: 2,
+  lastUpdated: new Date(),
+});
+
 describe("AnimeManager", () => {
   let animeManager: AnimeManager;
 
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(global, "setTimeout");
 
     animeManager = new AnimeManager(
       loggerMock,
@@ -97,29 +116,16 @@ describe("AnimeManager", () => {
     );
   });
 
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   describe("constructor", () => {
     it("should set the anime, logger, rateLimiter, and onDelete properties", () => {
       expect(animeManager["anime"]).toBe(animeMock);
       expect(animeManager["logger"]).toBe(loggerMock);
       expect(animeManager["rateLimiter"]).toBe(rateLimiterMock);
       expect(animeManager["onDelete"]).toBe(onDeleteMock);
-    });
-  });
-
-  describe("getLastAndNextEpisode", () => {
-    let mockGetLastAndNextEpisode: jest.SpyInstance;
-    beforeEach(() => {
-      mockGetLastAndNextEpisode = jest.spyOn(
-        animeManager as any,
-        "getLastAndNextEpisode"
-      );
-    });
-
-    it("should return the correct values", () => {
-      expect(mockGetLastAndNextEpisode.mock.results[0]).toEqual({
-        last: mockNextEpisode2,
-        next: mockNextEpisode3,
-      });
     });
   });
 
@@ -142,21 +148,12 @@ describe("AnimeManager", () => {
       expect(onDeleteMock).toHaveBeenCalledWith(animeMock.id);
     });
 
-    it("should notify new episode if a new episode is available and update the timer", async () => {
-      await animeManager.checkNextEpisode();
-
-      expect(animeManager["notifyNewEpisode"]).toHaveBeenCalledWith(
-        mockInfoWithSchedule,
-        mockNextEpisode2,
-        mockNextEpisode3
-      );
-    });
-
     it("should set the timer", async () => {
       await animeManager.checkNextEpisode();
 
-      expect(animeManager["setTimer"]).toHaveBeenCalledWith(
-        mockNextEpisode3.timeUntilAiring
+      expect(setTimeout).toHaveBeenCalledWith(
+        expect.any(Function),
+        mockNextEpisode3.timeUntilAiring * 1000
       );
     });
 
