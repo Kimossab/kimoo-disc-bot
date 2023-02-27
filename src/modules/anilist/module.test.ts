@@ -1,4 +1,4 @@
-import { getAllAnimeNotifications } from "./database";
+import { getAllAnimeLastAiring } from "./database";
 import { AnimeManager } from "./helpers/anime-manager";
 import AnilistModule from "./module";
 
@@ -14,10 +14,9 @@ jest.mock("@/helper/logger");
   checkNextEpisode: jest.fn(),
 }));
 
-(getAllAnimeNotifications as jest.Mock).mockResolvedValue([
+(getAllAnimeLastAiring as jest.Mock).mockResolvedValue([
   {
     id: 123456,
-    nextAiring: 987654,
   },
 ]);
 describe("Anilist Module", () => {
@@ -31,7 +30,7 @@ describe("Anilist Module", () => {
     });
 
     it("should not get data from the database", () => {
-      expect(getAllAnimeNotifications).not.toHaveBeenCalled();
+      expect(getAllAnimeLastAiring).not.toHaveBeenCalled();
     });
   });
 
@@ -45,7 +44,7 @@ describe("Anilist Module", () => {
 
     describe(".setUp", () => {
       it("should get all the anime notifications", () => {
-        expect(getAllAnimeNotifications).toHaveBeenCalled();
+        expect(getAllAnimeLastAiring).toHaveBeenCalled();
       });
 
       it("should create a new manager", () => {

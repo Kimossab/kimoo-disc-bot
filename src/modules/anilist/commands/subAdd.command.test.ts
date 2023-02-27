@@ -4,7 +4,7 @@ import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
 import { CommandInteractionDataOption, Interaction } from "@/types/discord";
 
-import { addSubscription, setNextAiring } from "../database";
+import { addSubscription } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
 import { AnimeManager } from "../helpers/anime-manager";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
@@ -20,12 +20,6 @@ const mockLogger = { log: jest.fn() } as unknown as Logger;
 (getApplication as jest.Mock).mockReturnValue({
   id: "123456789",
 });
-
-(setNextAiring as jest.Mock).mockResolvedValue({
-  id: 456789,
-  nextAiring: {},
-});
-
 (AnimeManager as jest.Mock).mockImplementation((...props) => ({
   props,
   id: props[2].id,
@@ -138,8 +132,6 @@ describe("Anilist schedule command", () => {
     ).handler(mockData, {
       options: [{ name: "anime", value: "abcd" }],
     } as CommandInteractionDataOption);
-
-    expect(setNextAiring).toHaveBeenCalledWith(123456789, 456789);
   });
 
   it("should not add a new entry to the animeList object", async () => {

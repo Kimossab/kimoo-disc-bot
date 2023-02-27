@@ -1,10 +1,6 @@
 import AnilistSubscription, {
   IAnilistSubscription,
 } from "./models/AnilistSubscription.model";
-import AnimeNotification, {
-  IAnimeNotification,
-  IAnimeNotificationDocument,
-} from "./models/animeNotification.model";
 import LastAiredNotification, {
   ILastAiredNotificationDocument,
 } from "./models/LastAiredNotification.model";
@@ -62,6 +58,11 @@ export const getAllAnimeLastAiring = async (): Promise<
   ILastAiredNotificationDocument[]
 > => LastAiredNotification.find();
 
+export const getAnimeLastAiringById = async (
+  id: number
+): Promise<ILastAiredNotificationDocument | null> =>
+  LastAiredNotification.findOne({ id });
+
 export const setAnimeLastAiring = async (
   id: number,
   lastAired?: number
@@ -95,34 +96,3 @@ export const updateAnimeLastAiring = async (
   }
   return data;
 };
-
-// TEMPORARY
-export const getNextAiring = async (
-  animeId: number
-): Promise<IAnimeNotificationDocument | null> =>
-  AnimeNotification.findOne({
-    id: animeId,
-  });
-
-export const setNextAiring = async (
-  animeId: number,
-  nextAiring: number | null
-): Promise<IAnimeNotification> => {
-  const info = await getNextAiring(animeId);
-
-  if (!info) {
-    const nextAir = new AnimeNotification();
-    nextAir.id = animeId;
-    nextAir.nextAiring = nextAiring;
-    await nextAir.save();
-    return nextAir;
-  }
-
-  info.nextAiring = nextAiring;
-  await info.save();
-  return info;
-};
-
-export const getAllAnimeNotifications = async (): Promise<
-  IAnimeNotification[]
-> => AnimeNotification.find();

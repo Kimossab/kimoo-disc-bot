@@ -1,6 +1,7 @@
 import {
   deleteAllSubscriptionsForId,
   getAllSubscriptionsForAnime,
+  getAnimeLastAiringById,
   updateAnimeLastAiring,
 } from "#anilist/database";
 import { getFullAiringSchedule } from "#anilist/graphql/graphql";
@@ -32,7 +33,7 @@ const rateLimiterMock = {
   request: jest.fn(),
 };
 
-const animeMock = {
+const animeLastAiredMock = {
   id: 123,
   lastAired: 1,
   lastUpdated: new Date(),
@@ -91,11 +92,8 @@ const mockInfoWithSchedule: InfoWithSchedule = {
   { id: 123, user: "123", server: "123" },
   { id: 124, user: "124", server: "124" },
 ]);
-(updateAnimeLastAiring as jest.Mock).mockResolvedValue({
-  ...animeMock,
-  lastAired: 2,
-  lastUpdated: new Date(),
-});
+(updateAnimeLastAiring as jest.Mock).mockResolvedValue({});
+(getAnimeLastAiringById as jest.Mock).mockResolvedValue(animeLastAiredMock);
 
 describe("AnimeManager", () => {
   let animeManager: AnimeManager;
@@ -111,7 +109,7 @@ describe("AnimeManager", () => {
     animeManager = new AnimeManager(
       loggerMock,
       rateLimiterMock,
-      animeMock,
+      123,
       onDeleteMock
     );
   });
@@ -122,7 +120,7 @@ describe("AnimeManager", () => {
 
   describe("constructor", () => {
     it("should set the anime, logger, rateLimiter, and onDelete properties", () => {
-      expect(animeManager["anime"]).toBe(animeMock);
+      expect(animeManager["animeId"]).toBe(123);
       expect(animeManager["logger"]).toBe(loggerMock);
       expect(animeManager["rateLimiter"]).toBe(rateLimiterMock);
       expect(animeManager["onDelete"]).toBe(onDeleteMock);
@@ -133,10 +131,7 @@ describe("AnimeManager", () => {
     it("should get full airing schedule for the anime", async () => {
       await animeManager.checkNextEpisode();
 
-      expect(getFullAiringSchedule).toHaveBeenCalledWith(
-        rateLimiterMock,
-        animeMock.id
-      );
+      expect(getFullAiringSchedule).toHaveBeenCalledWith(rateLimiterMock, 123);
     });
 
     it("should delete all subscriptions and call onDelete if anime information is not found", async () => {
@@ -144,8 +139,8 @@ describe("AnimeManager", () => {
 
       await animeManager.checkNextEpisode();
 
-      expect(deleteAllSubscriptionsForId).toHaveBeenCalledWith(animeMock.id);
-      expect(onDeleteMock).toHaveBeenCalledWith(animeMock.id);
+      expect(deleteAllSubscriptionsForId).toHaveBeenCalledWith(123);
+      expect(onDeleteMock).toHaveBeenCalledWith(123);
     });
 
     it("should set the timer", async () => {
@@ -167,8 +162,8 @@ describe("AnimeManager", () => {
 
       await animeManager.checkNextEpisode();
 
-      expect(deleteAllSubscriptionsForId).toHaveBeenCalledWith(animeMock.id);
-      expect(onDeleteMock).toHaveBeenCalledWith(animeMock.id);
+      expect(deleteAllSubscriptionsForId).toHaveBeenCalledWith(123);
+      expect(onDeleteMock).toHaveBeenCalledWith(123);
     });
   });
 

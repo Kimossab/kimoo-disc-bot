@@ -66,16 +66,13 @@ export const handler = (
 
       const { last } = getLastAndNextEpisode(animeInfo.Media.airingSchedule);
 
-      const nextAiringInfo = await setAnimeLastAiring(
-        animeInfo.Media.id,
-        last?.episode
-      );
+      await setAnimeLastAiring(animeInfo.Media.id, last?.episode);
 
       if (!animeList.find((anime) => anime.id === animeInfo.Media.id)) {
         const animeManager = new AnimeManager(
           logger,
           rateLimiter,
-          nextAiringInfo,
+          animeInfo.Media.id,
           removeAnime
         );
         animeManager.checkNextEpisode();
