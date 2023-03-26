@@ -5,7 +5,10 @@ import {
 } from "#achievement/database";
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { checkAdmin, stringReplacer } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -15,6 +18,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
@@ -41,6 +45,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       if (!checkAdmin(data.guild_id, data.member)) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.common.no_permission,

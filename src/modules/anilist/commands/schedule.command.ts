@@ -1,6 +1,9 @@
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
@@ -9,6 +12,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 import { getAiringSchedule } from "../graphql/graphql";
@@ -42,6 +46,10 @@ const handler = (
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { query } = getOptions<ScheduleCommandOptions>(
         ["query"],
         option.options

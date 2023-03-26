@@ -195,6 +195,7 @@ export interface InfoWithSchedule {
 }
 
 export interface MediaSubbedInfo extends NextAiringEpisode {
+  id: string;
   title: MediaTitle;
   siteUrl: string;
 }

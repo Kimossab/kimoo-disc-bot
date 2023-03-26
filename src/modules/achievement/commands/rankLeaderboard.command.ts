@@ -2,6 +2,7 @@ import { getServerAchievementLeaderboard } from "#achievement/database";
 import { updateServerLeaderboardPage } from "#achievement/pagination";
 import { CommandInfo } from "#base-module";
 
+import { createInteractionResponse } from "@/discord/rest";
 import { chunkArray } from "@/helper/common";
 import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
@@ -10,6 +11,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
@@ -23,6 +25,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const allAch = await getServerAchievementLeaderboard(data.guild_id);
 
       const chunks = chunkArray<achievement.serverLeaderboard>(allAch, 10);

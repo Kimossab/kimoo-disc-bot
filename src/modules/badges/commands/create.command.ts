@@ -2,7 +2,10 @@ import { checkName, createBadge } from "#badges/database";
 import { createdBadgeEmbed } from "#badges/helper";
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { deleteFile, moveFile } from "@/helper/common";
 import { downloadImage } from "@/helper/images";
 import Logger from "@/helper/logger";
@@ -13,6 +16,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 import { getAverageColor } from "fast-average-color-node";
@@ -44,6 +48,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { name, image } = getOptions<CreateCommandOptions>(
         ["name", "image"],
         option.options

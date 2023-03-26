@@ -1,7 +1,10 @@
 import { deleteBadge } from "#badges/database";
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { deleteFile } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -11,6 +14,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 interface NameOption {
@@ -34,6 +38,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { name } = getOptions<NameOption>(["name"], option.options);
       if (!name) {
         await editOriginalInteractionResponse(app.id, data.token, {

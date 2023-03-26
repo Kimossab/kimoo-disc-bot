@@ -45,6 +45,18 @@ export const deleteAllSubscriptionsForId = async (
   });
 };
 
+export const deleteUserSubscriptionForIds = async (
+  user: string,
+  server: string,
+  id: number[]
+): Promise<void> => {
+  await AnilistSubscription.deleteMany({
+    user,
+    server,
+    id,
+  });
+};
+
 export const getUserSubs = async (
   server: string,
   user: string

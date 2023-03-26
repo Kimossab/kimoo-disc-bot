@@ -52,7 +52,7 @@ describe("InteractionPagination", () => {
             type: ComponentType.ActionRow,
             components: [
               {
-                type: ComponentType.SelectMenu,
+                type: ComponentType.StringSelect,
                 custom_id: "pagination.select",
                 options: Array.from(Array(5)).map((value, index) => {
                   return {

@@ -70,7 +70,7 @@ export class InteractionPagination<T = unknown> {
         label: "◀",
       };
       const pageSelector: Component = {
-        type: ComponentType.SelectMenu,
+        type: ComponentType.StringSelect,
         custom_id: "pagination.select",
         options: Array.from(Array(this.data.length)).map((_value, index) => {
           return {

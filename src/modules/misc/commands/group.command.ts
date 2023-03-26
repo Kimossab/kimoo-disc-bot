@@ -1,6 +1,9 @@
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { randomNum, stringReplacer } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
@@ -10,6 +13,7 @@ import {
   ApplicationCommandOptionType,
   CommandHandler,
   Embed,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 interface GroupCommandOptions {
@@ -59,6 +63,10 @@ const handler = (): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { groups, values } = getOptions<GroupCommandOptions>(
         ["groups", "values"],
         option.options

@@ -1,7 +1,10 @@
 import { CommandInfo } from "#base-module";
 import renderDonut from "#misc/donut";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import Logger from "@/helper/logger";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
@@ -9,6 +12,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 interface DonutCommandOptions {
@@ -40,6 +44,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { a, b } = getOptions<DonutCommandOptions>(
         ["a", "b"],
         option.options

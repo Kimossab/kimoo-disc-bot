@@ -5,6 +5,10 @@ export type CommandHandler = (
   data: Interaction,
   option: CommandInteractionDataOption
 ) => Promise<void>;
+export type ComponentCommandHandler = (
+  data: Interaction,
+  subCommand: string[]
+) => Promise<void>;
 export type SingleCommandHandler = (data: Interaction) => Promise<void>;
 
 /** [Get Gateway Bot](https://discord.com/developers/docs/topics/gateway#get-gateway-bot-json-response) */
@@ -181,7 +185,7 @@ export interface Channel {
   /** the id of this channel */
   id: snowflake;
   /** the [type of channel](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) */
-  type: ChannelTypes;
+  type: ChannelType;
   /** the id of the guild (may be missing for some channel objects received over gateway guild dispatches) */
   guild_id?: snowflake;
   /** sorting position of the channel */
@@ -267,32 +271,6 @@ export interface DefaultReaction {
   emoji_id: snowflake | null;
   /** the unicode character of the emoji */
   emoji_name: string | null;
-}
-
-/** [Channel Types](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) */
-export enum ChannelTypes {
-  /** a text channel within a server */
-  GUILD_TEXT = 0,
-  /** a direct message between users */
-  DM = 1,
-  /** a voice channel within a server */
-  GUILD_VOICE = 2,
-  /** a direct message between multiple users */
-  GROUP_DM = 3,
-  /** an [organizational category](https://support.discord.com/hc/en-us/articles/115001580171-Channel-Categories-101) that contains up to 50 channels */
-  GUILD_CATEGORY = 4,
-  /** a channel that [users can follow and crosspost into their own server](https://support.discord.com/hc/en-us/articles/360032008192) */
-  GUILD_NEWS = 5,
-  /** a channel in which game developers can [sell their game on Discord](https://discord.com/developers/docs/game-and-server-management/special-channels) */
-  GUILD_STORE = 6,
-  /** a temporary sub-channel within a GUILD_NEWS channel */
-  GUILD_NEWS_THREAD = 10,
-  /** a temporary sub-channel within a GUILD_TEXT channel */
-  GUILD_PUBLIC_THREAD = 11,
-  /** a temporary sub-channel within a GUILD_TEXT channel that is only viewable by those invited and those with the MANAGE_THREADS permission */
-  GUILD_PRIVATE_THREAD = 12,
-  /** a voice channel for [hosting events with an audience](https://support.discord.com/hc/en-us/articles/1500005513722) */
-  GUILD_STAGE_VOICE = 13,
 }
 
 /** [Overwrite Structure](https://discord.com/developers/docs/resources/channel#overwrite-object) */
@@ -391,6 +369,10 @@ export enum MessageFlags {
   EPHEMERAL = 1 << 6,
   /** this message is an Interaction Response and the bot is "thinking" */
   LOADING = 1 << 7,
+  /** this message failed to mention some roles and add their members to the thread */
+  FAILED_TO_MENTION_SOME_ROLES_IN_THREAD = 1 << 8,
+  /** this message will not trigger push and desktop notifications */
+  SUPPRESS_NOTIFICATIONS = 1 << 12,
 }
 
 /** [Edit Message](https://discord.com/developers/docs/resources/channel#edit-message) */
@@ -525,7 +507,7 @@ export interface ChannelMention {
   /** id of the guild containing the channel */
   guild_id: snowflake;
   /** the type of channel */
-  type: ChannelTypes;
+  type: ChannelType;
   /** the name of the channel */
   name: string;
 }
@@ -779,10 +761,16 @@ export enum InteractionType {
   APPLICATION_COMMAND = 2,
   MESSAGE_COMPONENT = 3,
   APPLICATION_COMMAND_AUTOCOMPLETE = 4,
+  MODAL_SUBMIT = 5,
 }
 
 /** [Component Structure](https://discord.com/developers/docs/interactions/message-components#component-object) */
-export type Component = Button | SelectMenu | ActionRow;
+export type Component =
+  | Button
+  | StringSelectMenu
+  | ChannelSelectMenu
+  | SelectMenu
+  | ActionRow;
 
 /** [Component Types](https://discord.com/developers/docs/interactions/message-components#component-object-component-types) */
 export enum ComponentType {
@@ -790,8 +778,18 @@ export enum ComponentType {
   ActionRow = 1,
   /** A button object */
   Button = 2,
-  /** A select menu for picking from choices */
-  SelectMenu = 3,
+  /** Select menu for picking from defined text options */
+  StringSelect = 3,
+  /** Text input object */
+  TextInput = 4,
+  /** Select menu for users */
+  UserSelect = 5,
+  /** Select menu for roles */
+  RoleSelect = 6,
+  /** Select menu for mentionables (users and roles) */
+  MentionableSelect = 7,
+  /** Select menu for channels */
+  ChannelSelect = 8,
 }
 
 /** [Button Structure](https://discord.com/developers/docs/interactions/message-components#button-object) */
@@ -828,12 +826,14 @@ export enum ButtonStyle {
 
 /** [Select Menu Structure](https://discord.com/developers/docs/interactions/message-components#select-menu-object) */
 export interface SelectMenu {
-  /** 3 for a select menu */
-  type: ComponentType.SelectMenu;
+  type:
+    | ComponentType.StringSelect
+    | ComponentType.UserSelect
+    | ComponentType.RoleSelect
+    | ComponentType.MentionableSelect
+    | ComponentType.ChannelSelect;
   /** a developer-defined identifier for the button, max 100 characters */
   custom_id: string;
-  /** the choices in the select, max 25 */
-  options: SelectOption[];
   /** custom placeholder text if nothing is selected, max 100 characters */
   placeholder?: string;
   /** the minimum number of items that must be chosen; default 1, min 0, max 25 */
@@ -842,6 +842,16 @@ export interface SelectMenu {
   max_values?: integer;
   /** disable the select, default false */
   disabled?: boolean;
+}
+export interface StringSelectMenu extends SelectMenu {
+  type: ComponentType.StringSelect;
+  /** the choices in the select, max 25 */
+  options: SelectOption[];
+}
+export interface ChannelSelectMenu extends SelectMenu {
+  type: ComponentType.ChannelSelect;
+  /** the choices in the select, max 25 */
+  channel_types: ChannelType[];
 }
 
 /** [Select Option Structure](https://discord.com/developers/docs/interactions/message-components#select-menu-object-select-option-structure) */
@@ -942,12 +952,33 @@ export interface Interaction {
 }
 
 /** [Interaction Response](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object) */
-export interface InteractionResponse {
-  /** the type of response */
-  type: InteractionCallbackType;
-  /** an optional response message */
-  data?: InteractionCallbackData;
-}
+export type InteractionResponse =
+  | {
+      /** the type of response */
+      type: InteractionCallbackType.MODAL;
+      /** an optional response message */
+      data?: InteractionCallbackModalData;
+    }
+  | {
+      /** the type of response */
+      type: InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT;
+      /** an optional response message */
+      data?: InteractionCallbackAutoCompleteData;
+    }
+  | {
+      /** the type of response */
+      type: InteractionCallbackType.PONG;
+    }
+  | {
+      /** the type of response */
+      type:
+        | InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
+        | InteractionCallbackType.UPDATE_MESSAGE
+        | InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        | InteractionCallbackType.DEFERRED_UPDATE_MESSAGE;
+      /** an optional response message */
+      data?: InteractionCallbackData;
+    };
 
 /** [Interaction Callback Type](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-interaction-callback-type) */
 export enum InteractionCallbackType {
@@ -963,6 +994,8 @@ export enum InteractionCallbackType {
   UPDATE_MESSAGE = 7,
   /** respond to an autocomplete interaction with suggested choices */
   APPLICATION_COMMAND_AUTOCOMPLETE_RESULT = 8,
+  /** respond to an interaction with a popup modal */
+  MODAL = 9,
 }
 
 export enum InteractionCallbackDataFlags {
@@ -986,6 +1019,31 @@ export interface InteractionCallbackData {
   components?: Component[];
   /** attachment objects with filename and description */
   attachments?: Partial<Attachment>[];
+}
+
+/** [Interaction Callback Auto Complete Data](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-autocomplete) */
+export interface InteractionCallbackAutoCompleteData {
+  /**a developer-defined identifier for the modal, max 100 characters */
+  choices: CommandOptionChoice[];
+}
+
+/** [Interaction Callback Modal Data](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-modal) */
+export interface InteractionCallbackModalData {
+  /**a developer-defined identifier for the modal, max 100 characters */
+  custom_id: string;
+  /** the title of the popup modal, max 45 characters */
+  title: string;
+  /** between 1 and 5 (inclusive) components that make up the modal */
+  components?: Component[];
+}
+
+export interface CommandOptionChoice {
+  /** 1-100 character choice name */
+  name: string;
+  /** Values follow the same restrictions as name */
+  name_localizations?: Localization;
+  /** Value for the choice, up to 100 characters if string */
+  value: string | number;
 }
 
 export enum AvailableLocales {
@@ -1134,6 +1192,10 @@ export enum ChannelType {
   GUILD_PRIVATE_THREAD = 12,
   /** a voice channel for hosting events with an audience */
   GUILD_STAGE_VOICE = 13,
+  /** the channel in a hub containing the listed servers */
+  GUILD_DIRECTORY = 14,
+  /** 	Channel that can only contain threads */
+  GUILD_FORUM = 15,
 }
 
 /** [Interaction Data Structure](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-data-structure) */

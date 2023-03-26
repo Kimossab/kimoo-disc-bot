@@ -1,6 +1,9 @@
 import BaseModule from "#/base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { FANDOM_LINKS } from "@/helper/constants";
 import {
   CreatePageCallback,
@@ -12,6 +15,7 @@ import { addPagination, getApplication } from "@/state/store";
 import {
   ApplicationCommandOptionType,
   AvailableLocales,
+  InteractionCallbackType,
   SingleCommandHandler,
 } from "@/types/discord";
 
@@ -61,6 +65,10 @@ export default class FandomModule extends BaseModule {
   private commandHandler: SingleCommandHandler = async (data) => {
     const app = getApplication();
     if (app && app.id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { fandom, query } = getOptions<CommandOptions>(
         ["fandom", "query"],
         data.data?.options

@@ -1,6 +1,11 @@
 import Logger from "@/helper/logger";
 
-import axios, { AxiosInstance, AxiosRequestConfig, Method } from "axios";
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  Method,
+} from "axios";
 
 interface RateLimitObject {
   limit: number;
@@ -61,9 +66,7 @@ export default class RestRateLimitHandler {
     }
   };
 
-  private handleHeaders(
-    headers: Record<string, string | string[] | undefined>
-  ): RateLimitObject {
+  private handleHeaders(headers: AxiosResponse["headers"]): RateLimitObject {
     return {
       limit: Number(headers["x-ratelimit-limit"]),
       remaining: Number(headers["x-ratelimit-remaining"]),

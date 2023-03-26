@@ -3,6 +3,7 @@ import { updateListBadgesPage } from "#badges/helper";
 import { IBadge } from "#badges/models/badges.model";
 import { CommandInfo } from "#base-module";
 
+import { createInteractionResponse } from "@/discord/rest";
 import { chunkArray } from "@/helper/common";
 import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
@@ -11,6 +12,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
@@ -24,6 +26,10 @@ const handler = (logger: Logger): CommandHandler => {
     const app = getApplication();
 
     if (app && app.id && data.guild_id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const badges = await getAllBadges(data.guild_id);
 
       const chunks = chunkArray<IBadge>(badges, 9);
