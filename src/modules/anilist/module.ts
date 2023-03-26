@@ -54,7 +54,7 @@ export default class AnilistModule extends BaseModule {
           anime.id,
           this.removeAnime
         );
-        // animeManager.checkNextEpisode();
+        animeManager.checkNextEpisode();
         this.animeList.push(animeManager);
       }
     }
