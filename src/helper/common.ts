@@ -166,3 +166,11 @@ export const deleteFile = async (file: string): Promise<boolean> =>
       resolve(!err);
     });
   });
+
+export const limitString = (str: string, limit: number) => {
+  if (str.length > limit) {
+    return str.slice(0, limit - 4) + " (…)";
+  }
+
+  return str;
+};

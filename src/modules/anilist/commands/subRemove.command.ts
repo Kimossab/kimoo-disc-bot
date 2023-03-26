@@ -13,7 +13,7 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { chunkArray } from "@/helper/common";
+import { chunkArray, limitString } from "@/helper/common";
 import Logger from "@/helper/logger";
 import { getApplication } from "@/state/store";
 import {
@@ -76,9 +76,9 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
             type: ComponentType.StringSelect,
             custom_id: `anilist.sub.remove.anime.selected.${index}`,
             options: chunk.map<SelectOption>((a) => ({
-              label: a.title.english || a.title.romaji,
+              label: limitString(a.title.english || a.title.romaji, 100),
               value: a.id.toString(),
-              description: a.title.romaji,
+              description: limitString(a.title.romaji, 100),
             })),
             max_values: chunk.length,
             min_values: 1,

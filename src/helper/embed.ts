@@ -1,12 +1,6 @@
 import { EmbedField } from "@/types/discord";
 
-const limitString = (str: string, limit: number) => {
-  if (str.length > limit) {
-    return str.slice(0, limit - 6) + " (...)";
-  }
-
-  return str;
-};
+import { limitString } from "./common";
 
 export const createEmbedFieldList = (
   title: string,
