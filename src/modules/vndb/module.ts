@@ -1,11 +1,15 @@
 import BaseModule from "#/base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { InteractionPagination } from "@/helper/interaction-pagination";
 import { getOptions } from "@/helper/modules";
 import { addPagination, getApplication } from "@/state/store";
 import {
   ApplicationCommandOptionType,
+  InteractionCallbackType,
   SingleCommandHandler,
 } from "@/types/discord";
 
@@ -43,6 +47,10 @@ export default class VNDBModule extends BaseModule {
   private handleSearchCommand: SingleCommandHandler = async (data) => {
     const app = getApplication();
     if (app && app.id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { search } = getOptions<{
         search: string;
       }>(["search"], data.data?.options);

@@ -1,6 +1,9 @@
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { chunkArray } from "@/helper/common";
 import {
   CreatePageCallback,
@@ -12,6 +15,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 import { getUserSubs } from "../database";
@@ -44,6 +48,10 @@ const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
   return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const subs = await getUserSubs(data.guild_id, data.member.user?.id || "");
 
       if (subs.length === 0) {

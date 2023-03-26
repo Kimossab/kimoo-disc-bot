@@ -1,6 +1,9 @@
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { snowflakeToDate, stringReplacer } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -9,6 +12,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
@@ -22,6 +26,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const serverDate = snowflakeToDate(data.guild_id);
       const birthdayString = `${serverDate.getDate()}/${
         serverDate.getMonth() + 1

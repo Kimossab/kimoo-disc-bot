@@ -1,3 +1,5 @@
+import BaseModule from "#base-module";
+
 import { InteractionPagination } from "@/helper/interaction-pagination";
 import {
   Application,
@@ -35,6 +37,8 @@ export enum ActionName {
   GetDiscordSession = "GET_DISCORD_SESSION",
   GetDiscordLastS = "GET_DISCORD_LAST_S",
   GetPagination = "GET_PAGINATION",
+
+  SetModules = "SET_MODULES",
 }
 
 interface ActionData {
@@ -139,6 +143,10 @@ export interface Actions extends Record<string, ActionData> {
     payload: Interaction;
     response: void;
   };
+  [ActionName.SetModules]: {
+    payload: BaseModule[];
+    response: void;
+  };
 }
 
 export interface State {
@@ -151,6 +159,7 @@ export interface State {
   discordSessionId: string | null;
   discordLastS: number | null;
   resumeGatewayUrl: string;
+  modules: BaseModule[];
 
   readyCallback: (() => void) | null;
   commandExecutedCallback: ((_: Interaction) => void)[];

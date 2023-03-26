@@ -15,6 +15,7 @@ const state: State = {
   commandExecutedCallback: [],
   messageReactionCallback: [],
   resumeGatewayUrl: "",
+  modules: [],
 };
 
 type StateActions = {
@@ -120,19 +121,30 @@ const actions: StateActions = {
     }
 
     if (data.type === InteractionType.MESSAGE_COMPONENT) {
-      if (data.message && data.data?.custom_id?.startsWith("pagination.")) {
-        const pagination = getPagination(data.message.id);
-        if (pagination) {
-          pagination.handlePage(data.id, data.token, data.data);
+      if (data.message && data.data?.custom_id) {
+        for (const module of state.modules) {
+          if (data.data.custom_id.startsWith(module.name)) {
+            module.interactionComponentExecute(data);
+            return;
+          }
         }
-      } else {
-        throw new Error("Unexpected component interaction");
+
+        if (data.data.custom_id.startsWith("pagination.")) {
+          const pagination = getPagination(data.message.id);
+          if (pagination) {
+            pagination.handlePage(data.id, data.token, data.data);
+          }
+        } else {
+          throw new Error("Unexpected component interaction");
+        }
       }
+
       return;
     }
 
     throw new Error("Unknown interaction type");
   },
+  [ActionName.SetModules]: (payload) => (state.modules = payload),
 };
 
 export const setUser = actions[ActionName.SetUser];
@@ -159,3 +171,4 @@ export const getPagination = actions[ActionName.GetPagination];
 export const getDiscordLastS = actions[ActionName.GetDiscordLastS];
 export const setReadyData = actions[ActionName.SetReadyData];
 export const commandExecuted = actions[ActionName.CommandExecuted];
+export const setModules = actions[ActionName.SetModules];

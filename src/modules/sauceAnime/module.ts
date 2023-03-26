@@ -1,11 +1,15 @@
 import BaseModule from "#/base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
 import {
   ApplicationCommandType,
   AvailableLocales,
+  InteractionCallbackType,
   Message,
   SingleCommandHandler,
 } from "@/types/discord";
@@ -36,6 +40,10 @@ export default class SauceAnimeModule extends BaseModule {
   private commandHandler: SingleCommandHandler = async (data) => {
     const app = getApplication();
     if (app && app.id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       this.logger.log("sauce command", data);
 
       const msgs = Object.values(

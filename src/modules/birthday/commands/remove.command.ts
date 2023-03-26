@@ -1,7 +1,10 @@
 import { CommandInfo } from "#base-module";
 import { getUserBirthday } from "#birthday/database";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { checkAdmin } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -11,6 +14,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 interface RemoveCommandOptions {
@@ -35,6 +39,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const isAdmin = await checkAdmin(data.guild_id, data.member);
 
       let user = (data.member || data).user?.id;

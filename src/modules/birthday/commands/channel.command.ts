@@ -2,7 +2,10 @@ import { CommandInfo } from "#base-module";
 import { getServersBirthdayInfo } from "#birthday/database";
 
 import { setServerBirthdayChannel } from "@/bot/database";
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { stringReplacer } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -12,6 +15,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 interface ChannelOption {
@@ -35,6 +39,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { channel } = getOptions<ChannelOption>(
         ["channel"],
         option.options

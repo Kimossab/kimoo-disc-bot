@@ -1,7 +1,10 @@
 import { CommandInfo } from "#base-module";
 
 import { getServerBirthdayRole, setServerBirthdayRole } from "@/bot/database";
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { stringReplacer } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
 import Logger from "@/helper/logger";
@@ -12,6 +15,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 interface RoleCommandOptions {
@@ -35,6 +39,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { role } = getOptions<RoleCommandOptions>(["role"], option.options);
 
       if (role) {

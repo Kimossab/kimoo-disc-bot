@@ -3,7 +3,10 @@ import { IUserAchievement } from "#achievement/models/user-achievement.model";
 import { updateUserAchievementsPage } from "#achievement/pagination";
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { chunkArray } from "@/helper/common";
 import { InteractionPagination } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
@@ -14,6 +17,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
@@ -33,6 +37,10 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const user = option
         ? getOptionValue<string>(option.options, "user")
         : null;

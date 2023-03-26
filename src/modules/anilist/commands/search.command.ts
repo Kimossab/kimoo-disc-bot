@@ -1,6 +1,9 @@
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import {
   CreatePageCallback,
   InteractionPagination,
@@ -14,6 +17,7 @@ import {
   ApplicationCommandOptionType,
   CommandHandler,
   Embed,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
@@ -68,6 +72,10 @@ const handler = (
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { query, type } = getOptions<SearchCommandOptions>(
         ["query", "type"],
         option.options

@@ -13,7 +13,10 @@ import {
 } from "#achievement/helper";
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { stringReplacer } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
 import messageList from "@/helper/messages";
@@ -23,6 +26,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 interface GiveCommandOptions {
@@ -54,6 +58,10 @@ const handler = (): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const { user, achievement } = getOptions<GiveCommandOptions>(
         ["user", "achievement"],
         option.options

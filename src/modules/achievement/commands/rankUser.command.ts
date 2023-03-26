@@ -6,7 +6,10 @@ import {
 } from "#achievement/helper";
 import { CommandInfo } from "#base-module";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import messageList from "@/helper/messages";
 import { getOptionValue } from "@/helper/modules";
 import { getApplication } from "@/state/store";
@@ -14,6 +17,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
@@ -33,6 +37,10 @@ const handler = (): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
+
       const optUser = getOptionValue<string>(option.options, "user");
 
       const user = optUser || data.member.user?.id || "unknown-id";

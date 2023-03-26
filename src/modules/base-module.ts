@@ -1,9 +1,5 @@
 import { compareCommands } from "@/commands";
-import {
-  createCommand,
-  createInteractionResponse,
-  editOriginalInteractionResponse,
-} from "@/discord/rest";
+import { createCommand, createInteractionResponse } from "@/discord/rest";
 import { checkAdmin } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -15,8 +11,10 @@ import {
   ApplicationCommandType,
   AvailableLocales,
   CommandHandler,
+  ComponentCommandHandler,
   CreateGlobalApplicationCommand,
   Interaction,
+  InteractionCallbackDataFlags,
   InteractionCallbackType,
   Localization,
   SingleCommandHandler,
@@ -25,11 +23,13 @@ import {
 export interface CommandInfo {
   definition: ApplicationCommandOption;
   handler: CommandHandler;
+  componentHandler?: ComponentCommandHandler;
   isAdmin?: boolean;
 }
 interface SingleCommandInfo {
   definition: CreateGlobalApplicationCommand;
   handler: SingleCommandHandler;
+  componentHandler?: ComponentCommandHandler;
   isAdmin?: boolean;
 }
 
@@ -75,17 +75,17 @@ export default class BaseModule {
     ) {
       const app = getApplication();
       if (app && app.id) {
-        await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-        });
-
         if (this.singleCommand) {
           if (
             this.singleCommand.isAdmin &&
             !checkAdmin(data.guild_id, data.member)
           ) {
-            await editOriginalInteractionResponse(app.id, data.token, {
-              content: messageList.common.no_permission,
+            await createInteractionResponse(data.id, data.token, {
+              type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+              data: {
+                flags: InteractionCallbackDataFlags.EPHEMERAL,
+                content: messageList.common.no_permission,
+              },
             });
             return;
           }
@@ -100,8 +100,12 @@ export default class BaseModule {
               this.commandList[cmd].isAdmin &&
               !checkAdmin(data.guild_id, data.member)
             ) {
-              await editOriginalInteractionResponse(app.id, data.token, {
-                content: messageList.common.no_permission,
+              await createInteractionResponse(data.id, data.token, {
+                type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+                data: {
+                  flags: InteractionCallbackDataFlags.EPHEMERAL,
+                  content: messageList.common.no_permission,
+                },
               });
               return;
             }
@@ -117,11 +121,63 @@ export default class BaseModule {
           options?.options,
           options?.value
         );
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.common.internal_error,
+        await createInteractionResponse(data.id, data.token, {
+          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionCallbackDataFlags.EPHEMERAL,
+            content: messageList.common.internal_error,
+          },
         });
       }
     }
+  };
+
+  public interactionComponentExecute = async (
+    data: Interaction
+  ): Promise<void> => {
+    if (data.data && data.data.custom_id) {
+      const app = getApplication();
+      if (app && app.id) {
+        if (this.singleCommand) {
+          if (!this.singleCommand.componentHandler) {
+            this.logger.error("Unexpected Component", data);
+            return;
+          }
+          return this.singleCommand.componentHandler(data, []);
+        }
+
+        const idSplit = data.data.custom_id.split(".");
+
+        for (const cmd of Object.keys(this.commandList)) {
+          if (idSplit[1] === cmd) {
+            const command = this.commandList[cmd];
+
+            if (!command.componentHandler) {
+              this.logger.error("Unexpected Component", data);
+              return;
+            }
+
+            return command.componentHandler(data, idSplit.slice(2));
+          }
+        }
+
+        const options = data.data?.options?.[0];
+        this.logger.error(
+          "UNKNOWN COMMAND",
+          options?.name,
+          options?.options,
+          options?.value
+        );
+        await createInteractionResponse(data.id, data.token, {
+          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionCallbackDataFlags.EPHEMERAL,
+            content: messageList.common.internal_error,
+          },
+        });
+      }
+    }
+    this.logger.log("component interaction", data);
   };
 
   public get name() {

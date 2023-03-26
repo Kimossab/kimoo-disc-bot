@@ -1,7 +1,10 @@
 import { CommandInfo } from "#base-module";
 import { getBirthdaysByMonth, getUserBirthday } from "#birthday/database";
 
-import { editOriginalInteractionResponse } from "@/discord/rest";
+import {
+  createInteractionResponse,
+  editOriginalInteractionResponse,
+} from "@/discord/rest";
 import { stringReplacer } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
 import Logger from "@/helper/logger";
@@ -14,6 +17,7 @@ import {
   ApplicationCommandOptionType,
   CommandHandler,
   Interaction,
+  InteractionCallbackType,
 } from "@/types/discord";
 
 interface GetCommandOptions {
@@ -48,6 +52,9 @@ const handleGetMonthCommand = async (
   if (!data.guild_id) {
     return Promise.resolve();
   }
+  await createInteractionResponse(data.id, data.token, {
+    type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+  });
 
   const bd = await getBirthdaysByMonth(data.guild_id, month);
 

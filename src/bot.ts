@@ -25,6 +25,7 @@ import Logger from "./helper/logger";
 import {
   getApplication,
   setCommandExecutedCallback,
+  setModules,
   setReadyCallback,
 } from "./state/store";
 import {
@@ -76,6 +77,8 @@ const ready = async () => {
   _logger.log("Discord says Ready");
 
   const activeModules = modules.filter((module) => module.active);
+
+  setModules(activeModules);
 
   for (const module of activeModules) {
     module.setUp();
