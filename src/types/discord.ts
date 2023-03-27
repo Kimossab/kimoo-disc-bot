@@ -999,8 +999,8 @@ export enum InteractionCallbackType {
 }
 
 export enum InteractionCallbackDataFlags {
-  /** only the user receiving the message can see it */
-  EPHEMERAL = 1 << 6,
+  EPHEMERAL = MessageFlags.EPHEMERAL,
+  SUPPRESS_EMBEDS = MessageFlags.SUPPRESS_EMBEDS,
 }
 
 /** [Interaction Callback Data](https://discord.com/developers/docs/interactions/receiving-and-responding#responding-to-an-interaction) */
