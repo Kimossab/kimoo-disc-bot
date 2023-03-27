@@ -6,7 +6,12 @@ import {
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { addPagination } from "@/state/store";
-import { Application, Interaction } from "@/types/discord";
+import {
+  Application,
+  ButtonStyle,
+  ComponentType,
+  Interaction,
+} from "@/types/discord";
 
 import { traceMoeEmbed } from "./mapper";
 import { requestTraceMoe } from "./request";
@@ -18,6 +23,19 @@ const traceMoeUpdatePage: CreatePageCallback<TraceMoe.resultData> = async (
 ) => ({
   data: {
     embeds: [traceMoeEmbed(data, page, total)],
+    components: [
+      {
+        type: ComponentType.ActionRow,
+        components: [
+          {
+            type: ComponentType.Button,
+            style: ButtonStyle.Secondary,
+            custom_id: "sauce.select",
+            label: "Show to everyone",
+          },
+        ],
+      },
+    ],
   },
 });
 

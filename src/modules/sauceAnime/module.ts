@@ -9,6 +9,8 @@ import { getApplication } from "@/state/store";
 import {
   ApplicationCommandType,
   AvailableLocales,
+  ComponentCommandHandler,
+  InteractionCallbackDataFlags,
   InteractionCallbackType,
   Message,
   SingleCommandHandler,
@@ -34,6 +36,7 @@ export default class SauceAnimeModule extends BaseModule {
         type: ApplicationCommandType.MESSAGE,
       },
       handler: this.commandHandler,
+      componentHandler: this.componentHandler,
     };
   }
 
@@ -42,9 +45,10 @@ export default class SauceAnimeModule extends BaseModule {
     if (app && app.id) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
       });
-
-      this.logger.log("sauce command", data);
 
       const msgs = Object.values(
         data.data?.resolved?.messages ?? {}
@@ -60,6 +64,20 @@ export default class SauceAnimeModule extends BaseModule {
       const url = msgs[0].attachments[0].url;
 
       handleTraceMoe(data, url, app, this.logger);
+    }
+  };
+
+  private componentHandler: ComponentCommandHandler = async (data) => {
+    const app = getApplication();
+    if (app && app.id && data.message && data.channel_id) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: data.message.content,
+          embeds: [{ ...data.message.embeds[0], footer: undefined }],
+          components: [],
+        },
+      });
     }
   };
 }

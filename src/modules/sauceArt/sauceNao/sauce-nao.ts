@@ -7,7 +7,13 @@ import {
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { addPagination } from "@/state/store";
-import { Application, Embed, Interaction } from "@/types/discord";
+import {
+  Application,
+  ButtonStyle,
+  ComponentType,
+  Embed,
+  Interaction,
+} from "@/types/discord";
 
 import { mapSauceNaoResultToData } from "./mapper";
 import { requestSauceNao } from "./request";
@@ -84,6 +90,19 @@ const sauceNaoUpdatePage: CreatePageCallback<SauceNao.data> = async (
 ) => ({
   data: {
     embeds: [sauceNaoEmbed(data, page, total)],
+    components: [
+      {
+        type: ComponentType.ActionRow,
+        components: [
+          {
+            type: ComponentType.Button,
+            style: ButtonStyle.Secondary,
+            custom_id: "sauceArt.select",
+            label: "Show to everyone",
+          },
+        ],
+      },
+    ],
   },
 });
 

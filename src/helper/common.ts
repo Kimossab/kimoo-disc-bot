@@ -167,9 +167,13 @@ export const deleteFile = async (file: string): Promise<boolean> =>
     });
   });
 
-export const limitString = (str: string, limit: number) => {
+export const limitString = (str: string, limit: number, ellipsis = true) => {
   if (str.length > limit) {
-    return str.slice(0, limit - 4) + " (…)";
+    if (ellipsis) {
+      return str.slice(0, limit - 4) + " (…)";
+    } else {
+      return str.slice(0, limit);
+    }
   }
 
   return str;
