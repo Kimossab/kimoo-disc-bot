@@ -6,7 +6,7 @@ import {
   ButtonStyle,
   ComponentType,
   InteractionCallbackType,
-  InteractionData,
+  MessageComponentInteractionData,
 } from "@/types/discord";
 
 import { InteractionPagination } from "./interaction-pagination";
@@ -106,7 +106,7 @@ describe("InteractionPagination", () => {
           pagination.handlePage("INTERACTION_ID", TOKEN, {
             custom_id,
             values,
-          } as InteractionData)
+          } as MessageComponentInteractionData)
         ).resolves.toBe(undefined);
         expect(mockCreatePage).toHaveBeenCalledWith(
           expectedPage + 1,
@@ -126,7 +126,7 @@ describe("InteractionPagination", () => {
           pagination.handlePage("INTERACTION_ID", TOKEN, {
             custom_id,
             values,
-          } as InteractionData)
+          } as MessageComponentInteractionData)
         ).rejects.toThrow(expectedValue);
         expect(createInteractionResponse).not.toHaveBeenCalled();
       }

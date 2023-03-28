@@ -25,6 +25,7 @@ import {
   ComponentType,
   InteractionCallbackDataFlags,
   InteractionCallbackType,
+  MessageComponentInteractionData,
   SelectOption,
 } from "@/types/discord";
 
@@ -101,13 +102,15 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
 };
 
 const componentHandler = (
-  logger: Logger,
+  _logger: Logger,
   removeAnime: (id: number) => void
 ): ComponentCommandHandler => {
-  return async (data, subCmd) => {
+  return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
-      const values = data.data?.values?.map(Number) ?? [];
+      const values =
+        (data.data as MessageComponentInteractionData)?.values?.map(Number) ??
+        [];
 
       await deleteUserSubscriptionForIds(
         data.member.user?.id ?? "fakeid",

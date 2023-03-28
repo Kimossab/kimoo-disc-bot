@@ -1,4 +1,10 @@
-import { InteractionType } from "@/types/discord";
+import {
+  Interaction,
+  InteractionData,
+  InteractionType,
+  MessageComponentInteractionData,
+  ModalSubmitInteractionData,
+} from "@/types/discord";
 
 import { ActionName, Actions, State } from "./types";
 
@@ -112,34 +118,30 @@ const actions: StateActions = {
   },
   [ActionName.CommandExecuted]: (data) => {
     if (data.type === InteractionType.APPLICATION_COMMAND) {
-      const callback = state.commandExecutedCallback;
-
-      for (const cb of callback) {
-        cb(data);
-      }
-      return;
+      return handleApplicationCommand(data as Interaction<InteractionData>);
     }
 
-    if (data.type === InteractionType.MESSAGE_COMPONENT) {
-      if (data.message && data.data?.custom_id) {
-        for (const module of state.modules) {
-          if (data.data.custom_id.startsWith(module.name)) {
-            module.interactionComponentExecute(data);
-            return;
-          }
-        }
+    if (
+      data.type === InteractionType.MESSAGE_COMPONENT ||
+      data.type === InteractionType.MODAL_SUBMIT
+    ) {
+      const componentData = data as Interaction<
+        MessageComponentInteractionData | ModalSubmitInteractionData
+      >;
 
-        if (data.data.custom_id.startsWith("pagination.")) {
-          const pagination = getPagination(data.message.id);
-          if (pagination) {
-            pagination.handlePage(data.id, data.token, data.data);
-          }
-        } else {
-          throw new Error("Unexpected component interaction");
-        }
+      if (componentData.data?.custom_id.startsWith("pagination.")) {
+        return handlePaginationComponent(
+          componentData as Interaction<MessageComponentInteractionData>
+        );
       }
 
-      return;
+      for (const module of state.modules) {
+        if (componentData.data?.custom_id.startsWith(module.name)) {
+          module.interactionComponentExecute(componentData);
+          return;
+        }
+      }
+      throw new Error("Unexpected component interaction");
     }
 
     throw new Error("Unknown interaction type");
@@ -172,3 +174,21 @@ export const getDiscordLastS = actions[ActionName.GetDiscordLastS];
 export const setReadyData = actions[ActionName.SetReadyData];
 export const commandExecuted = actions[ActionName.CommandExecuted];
 export const setModules = actions[ActionName.SetModules];
+
+const handleApplicationCommand = (data: Interaction<InteractionData>) => {
+  const callback = state.commandExecutedCallback;
+
+  for (const cb of callback) {
+    cb(data);
+  }
+};
+const handlePaginationComponent = (
+  componentData: Interaction<MessageComponentInteractionData>
+) => {
+  const pagination = getPagination(componentData.message?.id || "");
+  pagination?.handlePage(
+    componentData.id,
+    componentData.token,
+    componentData.data as MessageComponentInteractionData
+  );
+};

@@ -6,10 +6,14 @@ export type CommandHandler = (
   option: CommandInteractionDataOption
 ) => Promise<void>;
 export type ComponentCommandHandler = (
-  data: Interaction,
+  data: Interaction<
+    ModalSubmitInteractionData | MessageComponentInteractionData
+  >,
   subCommand: string[]
 ) => Promise<void>;
-export type SingleCommandHandler = (data: Interaction) => Promise<void>;
+export type SingleCommandHandler = (
+  data: Interaction<InteractionData>
+) => Promise<void>;
 
 /** [Get Gateway Bot](https://discord.com/developers/docs/topics/gateway#get-gateway-bot-json-response) */
 export interface GatewayBot {
@@ -347,7 +351,7 @@ export interface EditWebhookMessage {
   /** allowed mentions for the message */
   allowed_mentions?: AllowedMentions | null;
   /** the components to include with the message */
-  components?: Component[] | null;
+  components?: ActionRow[] | null;
   /** attached files to keep and possible descriptions for new files */
   attachments?: Partial<Attachment>[] | null;
 }
@@ -770,7 +774,7 @@ export type Component =
   | StringSelectMenu
   | ChannelSelectMenu
   | SelectMenu
-  | ActionRow;
+  | TextInput;
 
 /** [Component Types](https://discord.com/developers/docs/interactions/message-components#component-object-component-types) */
 export enum ComponentType {
@@ -872,6 +876,35 @@ export interface ActionRow {
   type: ComponentType.ActionRow;
   components: Component[];
 }
+/** [Text Input Structure](https://discord.com/developers/docs/interactions/message-components#text-inputs-text-input-structure) */
+export interface TextInput {
+  type: ComponentType.TextInput;
+  /** Developer-defined identifier for the input; max 100 characters */
+  custom_id: string;
+  /** The Text Input Style */
+  style: TextInputStyle;
+  /** Label for this component; max 45 characters */
+  label: string;
+  /** Minimum input length for a text input; min 0, max 4000 */
+  min_length?: number;
+  /** Maximum input length for a text input; min 1, max 4000 */
+  max_length?: number;
+  /** Whether this component is required to be filled (defaults to true) */
+  required?: boolean;
+  /** Pre-filled value for this component; max 4000 characters */
+  value?: string;
+  /** Custom placeholder text if the input is empty; max 100 characters */
+  placeholder?: string;
+}
+
+/** [Text Input Styles](https://discord.com/developers/docs/interactions/message-components#text-inputs-text-input-styles) */
+export enum TextInputStyle {
+  /** Single-line input */
+  Short = 1,
+  /** Multi-line input */
+  Paragraph = 2,
+}
+
 /** [Sticker Item Structure](https://discord.com/developers/docs/resources/sticker#sticker-item-object) */
 export interface StickerItem {
   /** id of the sticker */
@@ -926,7 +959,15 @@ export enum StickerType {
 }
 
 /** [Interaction Structure](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object) */
-export interface Interaction {
+export interface Interaction<
+  T extends
+    | InteractionData
+    | MessageComponentInteractionData
+    | ModalSubmitInteractionData =
+    | InteractionData
+    | MessageComponentInteractionData
+    | ModalSubmitInteractionData
+> {
   /** id of the interaction */
   id: snowflake;
   /** id of the application this interaction is for */
@@ -934,7 +975,7 @@ export interface Interaction {
   /** the type of interaction */
   type: InteractionType;
   /** the command data payload */
-  data?: InteractionData;
+  data?: T;
   /** the guild it was sent from */
   guild_id?: snowflake;
   /** the channel it was sent from */
@@ -949,6 +990,12 @@ export interface Interaction {
   version: integer;
   /** for components, the message they were attached to */
   message?: Message;
+  /** Bitwise set of permissions the app or bot has within the channel the interaction was sent from */
+  app_permissions?: string;
+  /** Selected language of the invoking user */
+  locale?: AvailableLocales;
+  /** Guild's preferred locale, if invoked in a guild */
+  guild_locale?: AvailableLocales;
 }
 
 /** [Interaction Response](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object) */
@@ -1016,7 +1063,7 @@ export interface InteractionCallbackData {
   /** interaction callback data flags */
   flags?: integer;
   /** message components */
-  components?: Component[];
+  components?: ActionRow[];
   /** attachment objects with filename and description */
   attachments?: Partial<Attachment>[];
 }
@@ -1034,7 +1081,7 @@ export interface InteractionCallbackModalData {
   /** the title of the popup modal, max 45 characters */
   title: string;
   /** between 1 and 5 (inclusive) components that make up the modal */
-  components?: Component[];
+  components?: ActionRow[];
 }
 
 export interface CommandOptionChoice {
@@ -1198,7 +1245,7 @@ export enum ChannelType {
   GUILD_FORUM = 15,
 }
 
-/** [Interaction Data Structure](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-data-structure) */
+/** [Interaction Data Structure](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-data) */
 export interface InteractionData {
   /** the [ID](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure) of the invoked command */
   id: snowflake;
@@ -1218,6 +1265,24 @@ export interface InteractionData {
   values?: SelectOption[];
   /** id the of user or message targetted by a [user](https://discord.com/developers/docs/interactions/application-commands#user-commands) or [message](https://discord.com/developers/docs/interactions/application-commands#message-commands) command */
   target_id?: snowflake;
+}
+
+/** [Message Component Data Structure](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-message-component-data-structure) */
+export interface MessageComponentInteractionData {
+  /** the custom_id of the component */
+  custom_id: string;
+  /** the type of the component */
+  component_type: integer;
+  /** values the user selected in a select menu component */
+  values?: SelectOption[];
+}
+
+/** [Modal Submit Data Structure](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-modal-submit-data-structure) */
+export interface ModalSubmitInteractionData {
+  /** the custom_id of the modal */
+  custom_id: string;
+  /** the values submitted by the user */
+  components: (TextInput | ActionRow)[];
 }
 
 /** [Application Command Types](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types) */
