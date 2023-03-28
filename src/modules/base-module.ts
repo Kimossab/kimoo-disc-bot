@@ -16,7 +16,10 @@ import {
   Interaction,
   InteractionCallbackDataFlags,
   InteractionCallbackType,
+  InteractionData,
   Localization,
+  MessageComponentInteractionData,
+  ModalSubmitInteractionData,
   SingleCommandHandler,
 } from "@/types/discord";
 
@@ -66,7 +69,9 @@ export default class BaseModule {
     return this.singleCommand.definition;
   }
 
-  private interactionExecuted = async (data: Interaction): Promise<void> => {
+  private interactionExecuted = async (
+    data: Interaction<InteractionData>
+  ): Promise<void> => {
     if (
       data.data &&
       (data.data?.name === this.name ||
@@ -132,18 +137,29 @@ export default class BaseModule {
     }
   };
 
+  private executeOrLog(
+    handler: ComponentCommandHandler | undefined,
+    data: Interaction<
+      ModalSubmitInteractionData | MessageComponentInteractionData
+    >
+  ) {
+    if (!handler) {
+      this.logger.error("Unexpected Component", data);
+      return;
+    }
+    return handler(data, []);
+  }
+
   public interactionComponentExecute = async (
-    data: Interaction
+    data: Interaction<
+      MessageComponentInteractionData | ModalSubmitInteractionData
+    >
   ): Promise<void> => {
     if (data.data && data.data.custom_id) {
       const app = getApplication();
       if (app && app.id) {
         if (this.singleCommand) {
-          if (!this.singleCommand.componentHandler) {
-            this.logger.error("Unexpected Component", data);
-            return;
-          }
-          return this.singleCommand.componentHandler(data, []);
+          return this.executeOrLog(this.singleCommand.componentHandler, data);
         }
 
         const idSplit = data.data.custom_id.split(".");
@@ -152,32 +168,20 @@ export default class BaseModule {
           if (idSplit[1] === cmd) {
             const command = this.commandList[cmd];
 
-            if (!command.componentHandler) {
-              this.logger.error("Unexpected Component", data);
-              return;
-            }
-
-            return command.componentHandler(data, idSplit.slice(2));
+            return this.executeOrLog(command.componentHandler, data);
           }
         }
-
-        const options = data.data?.options?.[0];
-        this.logger.error(
-          "UNKNOWN COMMAND",
-          options?.name,
-          options?.options,
-          options?.value
-        );
-        await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionCallbackDataFlags.EPHEMERAL,
-            content: messageList.common.internal_error,
-          },
-        });
       }
     }
-    this.logger.log("component interaction", data);
+
+    this.logger.error("UNKNOWN INTERACTION COMPONENT", data?.data);
+    await createInteractionResponse(data.id, data.token, {
+      type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        flags: InteractionCallbackDataFlags.EPHEMERAL,
+        content: messageList.common.internal_error,
+      },
+    });
   };
 
   public get name() {

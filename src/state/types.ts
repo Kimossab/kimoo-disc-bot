@@ -6,8 +6,11 @@ import {
   Guild,
   GuildMember,
   Interaction,
+  InteractionData,
+  MessageComponentInteractionData,
   MessageReactionAdd,
   MessageReactionRemove,
+  ModalSubmitInteractionData,
   Ready,
   User,
 } from "@/types/discord";
@@ -65,7 +68,7 @@ export interface Actions extends Record<string, ActionData> {
     response: void;
   };
   [ActionName.SetCommandExecutedCallback]: {
-    payload: (data: Interaction) => void;
+    payload: (data: Interaction<InteractionData>) => void;
     response: void;
   };
   [ActionName.SetReactionCallback]: {
@@ -140,7 +143,11 @@ export interface Actions extends Record<string, ActionData> {
     response: void;
   };
   [ActionName.CommandExecuted]: {
-    payload: Interaction;
+    payload: Interaction<
+      | InteractionData
+      | MessageComponentInteractionData
+      | ModalSubmitInteractionData
+    >;
     response: void;
   };
   [ActionName.SetModules]: {
@@ -162,7 +169,7 @@ export interface State {
   modules: BaseModule[];
 
   readyCallback: (() => void) | null;
-  commandExecutedCallback: ((_: Interaction) => void)[];
+  commandExecutedCallback: ((_: Interaction<InteractionData>) => void)[];
   messageReactionCallback: ((
     _: MessageReactionAdd | MessageReactionRemove,
     remove: boolean

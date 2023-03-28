@@ -10,6 +10,7 @@ import VNDBModule from "#/vndb/module";
 import SauceAnimeModule from "#sauceAnime/module";
 import SauceArtModule from "#sauceArt/module";
 import SettingsModule from "#settings/module";
+import VotingModule from "#voting/module";
 
 import {
   createInteractionResponse,
@@ -58,6 +59,7 @@ const toggles = {
   MISC_MODULE: process.env.MISC_MODULE === "true",
   VNDB_MODULE: process.env.VNDB_MODULE === "true",
   ANILIST_MODULE: process.env.ANILIST_MODULE === "true",
+  VOTING_MODULE: process.env.VOTING_MODULE === "true",
 };
 
 const modules = [
@@ -71,6 +73,7 @@ const modules = [
   new MiscModule(toggles.MISC_MODULE),
   new VNDBModule(toggles.VNDB_MODULE),
   new AnilistModule(toggles.ANILIST_MODULE),
+  new VotingModule(toggles.VOTING_MODULE),
 ];
 
 const ready = async () => {

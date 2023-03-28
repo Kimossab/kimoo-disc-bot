@@ -11,8 +11,8 @@ import {
   EditWebhookMessage,
   InteractionCallbackData,
   InteractionCallbackType,
-  InteractionData,
   Message,
+  MessageComponentInteractionData,
   snowflake,
 } from "@/types/discord";
 
@@ -118,7 +118,7 @@ export class InteractionPagination<T = unknown> {
   public async handlePage(
     id: string,
     token: string,
-    data: InteractionData
+    data: MessageComponentInteractionData
   ): Promise<void> {
     const move = data.custom_id?.split(".")[1];
     if (move === "next") {
