@@ -141,13 +141,14 @@ export default class BaseModule {
     handler: ComponentCommandHandler | undefined,
     data: Interaction<
       ModalSubmitInteractionData | MessageComponentInteractionData
-    >
+    >,
+    cmdData: string[] = []
   ) {
     if (!handler) {
       this.logger.error("Unexpected Component", data);
       return;
     }
-    return handler(data, []);
+    return handler(data, cmdData);
   }
 
   public interactionComponentExecute = async (
@@ -163,12 +164,15 @@ export default class BaseModule {
         }
 
         const idSplit = data.data.custom_id.split(".");
-
         for (const cmd of Object.keys(this.commandList)) {
           if (idSplit[1] === cmd) {
             const command = this.commandList[cmd];
 
-            return this.executeOrLog(command.componentHandler, data);
+            return this.executeOrLog(
+              command.componentHandler,
+              data,
+              idSplit.slice(2)
+            );
           }
         }
       }

@@ -105,16 +105,13 @@ const createPollMessageData = (poll: IPoll): EditWebhookMessage => ({
   ],
 });
 
-const handler = (logger: Logger): CommandHandler => {
+const handler = (_logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.member && data.member.user) {
-      logger.log(
-        "responsecreated",
-        await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-        })
-      );
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
 
       const {
         question,
@@ -172,7 +169,7 @@ const handler = (logger: Logger): CommandHandler => {
     }
   };
 };
-const componentHandler = (logger: Logger): ComponentCommandHandler => {
+const componentHandler = (_logger: Logger): ComponentCommandHandler => {
   const addCommand = async (
     poll: IPoll,
     data: Interaction<MessageComponentInteractionData>
@@ -223,13 +220,18 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     optionChosen: number,
     poll: IPoll,
     data: Interaction<MessageComponentInteractionData>
-  ) => {
+  ): Promise<boolean> => {
     const userId = data.member?.user?.id || "";
+
+    const userVotes = poll.options.reduce(
+      (acc, opt) => acc + (opt.votes.find((v) => v === userId)?.length || 0),
+      0
+    );
 
     const option = poll.options[optionChosen];
 
     if (!option.votes.includes(userId)) {
-      if (!poll.multipleChoice) {
+      if (!poll.multipleChoice && userVotes > 0) {
         await createInteractionResponse(data.id, data.token, {
           type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
@@ -237,17 +239,18 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
             flags: InteractionCallbackDataFlags.EPHEMERAL,
           },
         });
-        return;
+        return false;
       }
       option.votes.push(userId);
     } else {
       option.votes = option.votes.filter((v) => v !== userId);
     }
+
+    return true;
   };
 
   return async (data, subCmd) => {
     const poll = await getPoll(data.message?.id || "");
-
     if (!poll) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -281,10 +284,11 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       return;
     }
 
+    let success = true;
     if (subCmd.length === 1 && subCmd[0] === "modal") {
       modalCommand(poll, data.data as ModalSubmitInteractionData);
     } else {
-      await choiceCommand(
+      success = await choiceCommand(
         Number(subCmd[0]),
         poll,
         data as Interaction<MessageComponentInteractionData>
@@ -292,10 +296,12 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     }
 
     await poll.save();
-    await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.UPDATE_MESSAGE,
-      data: createPollMessageData(poll) as InteractionCallbackData,
-    });
+    if (success) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.UPDATE_MESSAGE,
+        data: createPollMessageData(poll) as InteractionCallbackData,
+      });
+    }
   };
 };
 
