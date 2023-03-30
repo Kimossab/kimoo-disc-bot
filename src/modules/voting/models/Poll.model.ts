@@ -9,6 +9,7 @@ export interface IPoll {
     votes: string[];
   }[];
   multipleChoice: boolean;
+  usersCanAddAnswers: boolean;
   days: number;
   startAt: Date;
 }
@@ -26,6 +27,7 @@ const PollSchema: Schema = new mongoose.Schema({
     }),
   ],
   multipleChoice: Boolean,
+  usersCanAddAnswers: Boolean,
   days: Number,
   startAt: Date,
 });

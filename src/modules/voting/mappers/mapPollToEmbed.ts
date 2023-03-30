@@ -19,6 +19,9 @@ export const mapPollToEmbed = (poll: IPoll): Embed => {
       { values: [], responses: [] }
     );
 
+  const daysInSeconds = poll.days * 60 * 60 * 24;
+  const endingDate = Math.floor(+poll.startAt / 1000) + daysInSeconds;
+
   const embed: Embed = {
     title: poll.question,
     fields: [
@@ -34,9 +37,7 @@ export const mapPollToEmbed = (poll: IPoll): Embed => {
       },
       {
         name: "Ending",
-        value: `<t:${Math.floor(
-          +poll.startAt.setDate(poll.startAt.getDate() + 1) / 1000
-        )}:R>`,
+        value: `<t:${endingDate}:R>`,
         inline: false,
       },
     ],

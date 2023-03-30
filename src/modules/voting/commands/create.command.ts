@@ -2,6 +2,7 @@ import { CommandInfo } from "#base-module";
 import { createVoting, getPoll } from "#voting/database";
 import { mapPollToComponents } from "#voting/mappers/mapPollToComponents";
 import { mapPollToEmbed } from "#voting/mappers/mapPollToEmbed";
+import { mapPollToSettingsEmbed } from "#voting/mappers/mapPollToSettingsEmbed";
 import { IPoll } from "#voting/models/Poll.model";
 
 import {
@@ -17,6 +18,7 @@ import {
   ApplicationCommandOptionType,
   ButtonStyle,
   CommandHandler,
+  Component,
   ComponentCommandHandler,
   ComponentType,
   EditWebhookMessage,
@@ -30,6 +32,8 @@ import {
   TextInputStyle,
 } from "@/types/discord";
 
+const MAX_OPTIONS_PER_POLL = 25;
+
 interface CreateCommandOptions {
   question: string;
   option_1: string;
@@ -37,6 +41,7 @@ interface CreateCommandOptions {
   option_3?: string;
   option_4?: string;
   multiple_choice?: boolean;
+  free_new_answer?: boolean;
   days?: number;
 }
 
@@ -84,6 +89,11 @@ const definition: ApplicationCommandOption = {
       name: "days",
       description: "How many days should the poll run for. (Default 1 day)",
     },
+    {
+      name: "free_new_answer",
+      description: "Whether the users add a new answer. (Defaults to false)",
+      type: ApplicationCommandOptionType.BOOLEAN,
+    },
   ],
 };
 
@@ -98,14 +108,27 @@ const createPollMessageData = (poll: IPoll): EditWebhookMessage => ({
           type: ComponentType.Button,
           style: ButtonStyle.Secondary,
           custom_id: `voting.create.add`,
-          label: "New Answer",
+          emoji: {
+            id: null,
+            name: "➕",
+          },
+        },
+        {
+          type: ComponentType.Button,
+          style: ButtonStyle.Secondary,
+          custom_id: `voting.create.settings`,
+          label: "",
+          emoji: {
+            id: null,
+            name: "⚙",
+          },
         },
       ],
     },
   ],
 });
 
-const handler = (_logger: Logger): CommandHandler => {
+const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.member && data.member.user) {
@@ -120,6 +143,7 @@ const handler = (_logger: Logger): CommandHandler => {
         option_3,
         option_4,
         multiple_choice,
+        free_new_answer,
         days,
       } = getOptions<CreateCommandOptions>(
         [
@@ -129,6 +153,7 @@ const handler = (_logger: Logger): CommandHandler => {
           "option_3",
           "option_4",
           "multiple_choice",
+          "free_new_answer",
           "days",
         ],
         option.options
@@ -152,6 +177,7 @@ const handler = (_logger: Logger): CommandHandler => {
         hash,
         multipleChoice: multiple_choice ?? false,
         startAt: new Date(),
+        usersCanAddAnswers: !!free_new_answer,
         options: options.map((o) => ({
           text: o,
           votes: [],
@@ -165,62 +191,219 @@ const handler = (_logger: Logger): CommandHandler => {
       );
 
       poll.hash = message?.id || hash;
+
+      logger.log("New poll created", poll);
+
       await poll.save();
     }
   };
 };
-const componentHandler = (_logger: Logger): ComponentCommandHandler => {
-  const addCommand = async (
-    poll: IPoll,
-    data: Interaction<MessageComponentInteractionData>
+
+type ComponentHandler<
+  T extends ModalSubmitInteractionData | MessageComponentInteractionData,
+  E = void
+> = (poll: IPoll, data: Interaction<T>, extra: E) => Promise<boolean>;
+
+const componentHandler = (logger: Logger): ComponentCommandHandler => {
+  const hasExpired = (poll: IPoll): boolean => {
+    const daysInSeconds = poll.days * 60 * 60 * 24 * 1000;
+    const endingDate = +poll.startAt + daysInSeconds;
+
+    return +new Date() > endingDate;
+  };
+
+  const addCommand: ComponentHandler<MessageComponentInteractionData> = async (
+    poll,
+    data
   ) => {
-    if (poll.creator !== data.member?.user?.id) {
+    if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content:
-            "You are not the creator of the poll so you can't add new options.",
+          content: "This poll has expired",
           flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
+      });
+    } else if (poll.options.length === MAX_OPTIONS_PER_POLL) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `A poll can't have more than ${MAX_OPTIONS_PER_POLL} answers`,
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
+      });
+    } else {
+      if (!poll.usersCanAddAnswers && poll.creator !== data.member?.user?.id) {
+        await createInteractionResponse(data.id, data.token, {
+          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content:
+              "You are not the creator of the poll so you can't add new options.",
+            flags: InteractionCallbackDataFlags.EPHEMERAL,
+          },
+        });
+      }
+
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.MODAL,
+        data: {
+          custom_id: `voting.create.modal`,
+          title: "Add new option",
+          components: [
+            {
+              type: ComponentType.ActionRow,
+              components: [
+                {
+                  type: ComponentType.TextInput,
+                  custom_id: `voting.create.new_opt`,
+                  style: TextInputStyle.Short,
+                  label: "Option text",
+                  min_length: 1,
+                },
+              ],
+            },
+          ],
         },
       });
     }
 
-    await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.MODAL,
-      data: {
-        custom_id: `voting.create.modal`,
-        title: "Add new option",
-        components: [
-          {
-            type: ComponentType.ActionRow,
-            components: [
-              {
-                type: ComponentType.TextInput,
-                custom_id: `voting.create.new_opt`,
-                style: TextInputStyle.Short,
-                label: "Option text",
-                min_length: 1,
-              },
-            ],
-          },
-        ],
-      },
-    });
+    return false;
   };
 
-  const modalCommand = (poll: IPoll, modalData: ModalSubmitInteractionData) => {
+  const modalCommand: ComponentHandler<ModalSubmitInteractionData> = async (
+    poll,
+    data
+  ) => {
+    if (hasExpired(poll)) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "This poll has expired",
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
+      });
+      return false;
+    }
+
+    if (poll.options.length === MAX_OPTIONS_PER_POLL) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `A poll can't have more than ${MAX_OPTIONS_PER_POLL} answers`,
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
+      });
+      return false;
+    }
+
     const newOption =
-      ((modalData.components[0] as ActionRow).components[0] as TextInput)
+      ((data.data!.components[0] as ActionRow).components[0] as TextInput)
         .value || "";
 
     poll.options.push({ text: newOption, votes: [] });
+
+    return true;
   };
 
-  const choiceCommand = async (
-    optionChosen: number,
-    poll: IPoll,
-    data: Interaction<MessageComponentInteractionData>
-  ): Promise<boolean> => {
+  const settingsCommand: ComponentHandler<
+    MessageComponentInteractionData
+  > = async (poll, data) => {
+    const components: ActionRow[] = mapPollToComponents(poll, "setOpt");
+
+    if (!hasExpired(poll) && poll.options.length < MAX_OPTIONS_PER_POLL) {
+      components.push({
+        type: ComponentType.ActionRow,
+        components: [
+          {
+            type: ComponentType.Button,
+            style: ButtonStyle.Secondary,
+            custom_id: `voting.create.add`,
+            emoji: {
+              id: null,
+              name: "➕",
+            },
+          },
+        ],
+      });
+    }
+    await createInteractionResponse(data.id, data.token, {
+      type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        flags: InteractionCallbackDataFlags.EPHEMERAL,
+        content: "",
+        embeds: [mapPollToSettingsEmbed(poll)],
+        components,
+      },
+    });
+    return false;
+  };
+
+  const settingsOptionCommand: ComponentHandler<
+    MessageComponentInteractionData,
+    string[]
+  > = async (poll, data, optionSelected) => {
+    const opt = Number(optionSelected[1]);
+    const isNumber = !isNaN(opt);
+
+    const components: ActionRow[] = mapPollToComponents(poll, "setOpt");
+    const extraComponents: Component[] = [];
+
+    if (!hasExpired(poll) && poll.options.length < MAX_OPTIONS_PER_POLL) {
+      extraComponents.push({
+        type: ComponentType.Button,
+        style: ButtonStyle.Secondary,
+        custom_id: `voting.create.add`,
+        emoji: {
+          id: null,
+          name: "➕",
+        },
+      });
+    }
+
+    const embed = mapPollToSettingsEmbed(poll, isNumber ? opt : undefined);
+    if (isNumber) {
+      extraComponents.push({
+        type: ComponentType.Button,
+        style: ButtonStyle.Secondary,
+        custom_id: `voting.create.setOpt.all`,
+        label: "Show All",
+      });
+    }
+
+    if (extraComponents.length > 0) {
+      components.push({
+        type: ComponentType.ActionRow,
+        components: extraComponents,
+      });
+    }
+
+    await createInteractionResponse(data.id, data.token, {
+      type: InteractionCallbackType.UPDATE_MESSAGE,
+      data: {
+        flags: InteractionCallbackDataFlags.EPHEMERAL,
+        content: "",
+        embeds: [embed],
+        components,
+      },
+    });
+    return false;
+  };
+
+  const choiceCommand: ComponentHandler<
+    MessageComponentInteractionData,
+    number
+  > = async (poll, data, optionChosen): Promise<boolean> => {
+    if (hasExpired(poll)) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "This poll has expired",
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
+      });
+      return false;
+    }
+
     const userId = data.member?.user?.id || "";
 
     const userVotes = poll.options.reduce(
@@ -249,8 +432,25 @@ const componentHandler = (_logger: Logger): ComponentCommandHandler => {
     return true;
   };
 
+  type cHandler = ComponentHandler<
+    MessageComponentInteractionData | ModalSubmitInteractionData,
+    unknown
+  >;
+
+  const componentHandlers: Record<string, cHandler> = {
+    "add": addCommand as cHandler,
+    "modal": modalCommand as cHandler,
+    "settings": settingsCommand as cHandler,
+    "setOpt": settingsOptionCommand as cHandler,
+  };
+
   return async (data, subCmd) => {
-    const poll = await getPoll(data.message?.id || "");
+    const poll = await getPoll(
+      data.message?.message_reference?.message_id || data.message?.id || ""
+    );
+
+    logger.log("Component interaction", subCmd);
+
     if (!poll) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -262,41 +462,24 @@ const componentHandler = (_logger: Logger): ComponentCommandHandler => {
       return;
     }
 
-    const endingDate = poll.startAt.setDate(poll.startAt.getDate() + 1);
+    let needsToUpdateResponse = false;
 
-    if (+new Date() > endingDate) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: "This poll has expired",
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-        },
-      });
-
-      return;
-    }
-
-    if (subCmd.length === 1 && subCmd[0] === "add") {
-      await addCommand(
+    if (Object.keys(componentHandlers).includes(subCmd[0])) {
+      needsToUpdateResponse = await componentHandlers[subCmd[0]](
         poll,
-        data as Interaction<MessageComponentInteractionData>
+        data,
+        subCmd
       );
-      return;
-    }
-
-    let success = true;
-    if (subCmd.length === 1 && subCmd[0] === "modal") {
-      modalCommand(poll, data.data as ModalSubmitInteractionData);
     } else {
-      success = await choiceCommand(
-        Number(subCmd[0]),
+      needsToUpdateResponse = await choiceCommand(
         poll,
-        data as Interaction<MessageComponentInteractionData>
+        data as Interaction<MessageComponentInteractionData>,
+        Number(subCmd[0])
       );
     }
 
     await poll.save();
-    if (success) {
+    if (needsToUpdateResponse) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.UPDATE_MESSAGE,
         data: createPollMessageData(poll) as InteractionCallbackData,
