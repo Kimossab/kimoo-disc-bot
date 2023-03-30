@@ -61,6 +61,11 @@ export const mapPollToSettingsEmbed = (
         value: poll.multipleChoice ? "Yes" : "No",
         inline: false,
       },
+      {
+        name: "Users can add new answers?",
+        value: poll.usersCanAddAnswers ? "Yes" : "No",
+        inline: false,
+      },
     ],
     footer: {
       text: "Select an option below to see who voted on it.",
