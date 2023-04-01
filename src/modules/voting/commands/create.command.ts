@@ -331,7 +331,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       data: {
         flags: InteractionCallbackDataFlags.EPHEMERAL,
         content: "",
-        embeds: [mapPollToSettingsEmbed(poll)],
+        embeds: [mapPollToSettingsEmbed(poll, data.member?.user?.id || "")],
         components,
       },
     });
@@ -360,7 +360,11 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       });
     }
 
-    const embed = mapPollToSettingsEmbed(poll, isNumber ? opt : undefined);
+    const embed = mapPollToSettingsEmbed(
+      poll,
+      data.member?.user?.id || "",
+      isNumber ? opt : undefined
+    );
     if (isNumber) {
       extraComponents.push({
         type: ComponentType.Button,

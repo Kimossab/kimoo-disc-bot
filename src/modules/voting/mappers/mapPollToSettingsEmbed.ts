@@ -4,6 +4,7 @@ import { Embed } from "@/types/discord";
 
 export const mapPollToSettingsEmbed = (
   poll: IPoll,
+  user: string,
   singleResponse?: number
 ): Embed => {
   let values: string[] = [];
@@ -33,8 +34,14 @@ export const mapPollToSettingsEmbed = (
     responses = res.responses;
   }
 
+  const userVotes = poll.options
+    .filter((o) => o.votes.includes(user))
+    .map((o) => `\`${o.text}\``)
+    .join(" ");
+
   const embed: Embed = {
     title: poll.question,
+    description: `Your votes: ${userVotes}`,
     fields: [
       {
         name: "Option",
