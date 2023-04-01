@@ -390,7 +390,7 @@ export interface EditMessage {
   /** allowed mentions for the message */
   allowed_mentions?: AllowedMentions | null;
   /** the components to include with the message */
-  components?: Component[] | null;
+  components?: ActionRow[] | null;
   /** attached files to keep and possible descriptions for new files */
   attachments?: Attachment[] | null;
 }

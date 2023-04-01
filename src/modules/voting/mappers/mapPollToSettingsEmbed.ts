@@ -1,51 +1,43 @@
 import { IPoll } from "#voting/models/Poll.model";
 
-import { Embed } from "@/types/discord";
+import { Embed, EmbedField } from "@/types/discord";
+
+const votingEmbedFields = (
+  poll: IPoll,
+  singleResponse: number
+): EmbedField[] => {
+  const option = poll.options[singleResponse];
+
+  const responses = option.votes.map((v) => `<@${v}>`).join("\n");
+
+  return [
+    {
+      name: option.text,
+      value: responses || "No votes",
+    },
+  ];
+};
 
 export const mapPollToSettingsEmbed = (
   poll: IPoll,
+  user: string,
   singleResponse?: number
 ): Embed => {
-  let values: string[] = [];
-  let responses: (number | string)[] = [];
-
-  if (singleResponse !== undefined) {
-    const option = poll.options[singleResponse];
-
-    values = [option.text];
-    responses = [option.votes.map((v) => `<@${v}>`).join("\n")];
-  } else {
-    const res = (JSON.parse(JSON.stringify(poll.options)) as IPoll["options"])
-      .sort((a, b) => b.votes.length - a.votes.length)
-      .reduce<{
-        values: string[];
-        responses: number[];
-      }>(
-        (acc, option) => {
-          acc.values.push(option.text);
-          acc.responses.push(option.votes.length);
-          return acc;
-        },
-        { values: [], responses: [] }
-      );
-
-    values = res.values;
-    responses = res.responses;
-  }
+  const userVotes = poll.options
+    .filter((o) => o.votes.includes(user))
+    .map((o) => `\`${o.text}\``)
+    .join(" ");
 
   const embed: Embed = {
     title: poll.question,
-    fields: [
-      {
-        name: "Option",
-        value: values.join("\n"),
-        inline: true,
-      },
-      {
-        name: "Responses",
-        value: responses.join("\n"),
-        inline: true,
-      },
+    description: `Your votes: ${
+      userVotes || "no votes"
+    }.\n\nClick in one of the blue buttons below to see who voted in that option.`,
+  };
+  if (singleResponse !== undefined) {
+    embed.fields = votingEmbedFields(poll, singleResponse);
+  } else {
+    embed.fields = [
       {
         name: "Creation Date",
         value: `<t:${Math.floor(+poll.startAt / 1000)}>`,
@@ -66,11 +58,13 @@ export const mapPollToSettingsEmbed = (
         value: poll.usersCanAddAnswers ? "Yes" : "No",
         inline: false,
       },
-    ],
-    footer: {
-      text: "Select an option below to see who voted on it.",
-    },
-  };
+      {
+        name: "Poll creator",
+        value: `<@${poll.creator}>`,
+        inline: false,
+      },
+    ];
+  }
 
   return embed;
 };

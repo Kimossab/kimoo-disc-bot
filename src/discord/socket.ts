@@ -26,7 +26,6 @@ import {
   Status,
 } from "@/types/discord";
 
-import { editMessage, sendMessage } from "./rest";
 import WebSocket from "ws";
 
 class Socket {
@@ -160,13 +159,6 @@ class Socket {
           seq: lastS || 0,
         },
       });
-
-      // setTimeout(() => {
-      //   if (!this.resumed) {
-      //     this.logger.log("Did not resume.");
-      //     this.identify();
-      //   }
-      // }, 20000);
     } else {
       this.identify();
     }
@@ -283,45 +275,8 @@ class Socket {
     }
   }
 
-  private async handleDM(data: Message): Promise<void> {
-    if (data.author.id === "108208089987051520") {
-      const sendMessageRegex =
-        /^sudo\smessage\s(?<channel>\d*)\s(?<content>(.|\n)*)/gm;
-      const sendMatch = sendMessageRegex.exec(data.content);
-
-      if (sendMatch && sendMatch.groups?.channel && sendMatch.groups?.content) {
-        const message = await sendMessage(
-          sendMatch.groups.channel,
-          `${sendMatch.groups.content}\n[stuff](https://www.livechart.me/anime/1235)`
-        );
-        await sendMessage(
-          data.channel_id,
-          message ? "Message sent successfully" : "Failed to send message"
-        );
-        return;
-      }
-
-      const editMessageRegex =
-        /^sudo\sedit\s(?<channel>\d*)\s(?<message>\d*)\s(?<content>(.|\n)*)/gm;
-      const editMatch = editMessageRegex.exec(data.content);
-
-      if (
-        editMatch &&
-        editMatch.groups?.channel &&
-        editMatch.groups?.message &&
-        editMatch.groups?.content
-      ) {
-        const message = await editMessage(
-          editMatch.groups.channel,
-          editMatch.groups.message,
-          editMatch.groups.content
-        );
-        await sendMessage(
-          data.channel_id,
-          message ? "Message edited successfully" : "Failed to edit message"
-        );
-      }
-    }
+  private async handleDM(_data: Message): Promise<void> {
+    this.logger.log("New DM", _data);
   }
 }
 
