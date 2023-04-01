@@ -1,6 +1,10 @@
 import { CommandInfo } from "#base-module";
 import { createVoting, getPoll } from "#voting/database";
-import { mapPollToComponents } from "#voting/mappers/mapPollToComponents";
+import { hasExpired } from "#voting/helpers";
+import {
+  mapPollToComponents,
+  PollMessageType,
+} from "#voting/mappers/mapPollToComponents";
 import { mapPollToEmbed } from "#voting/mappers/mapPollToEmbed";
 import { mapPollToSettingsEmbed } from "#voting/mappers/mapPollToSettingsEmbed";
 import { IPoll } from "#voting/models/Poll.model";
@@ -16,9 +20,7 @@ import {
   ActionRow,
   ApplicationCommandOption,
   ApplicationCommandOptionType,
-  ButtonStyle,
   CommandHandler,
-  Component,
   ComponentCommandHandler,
   ComponentType,
   EditWebhookMessage,
@@ -99,33 +101,7 @@ const definition: ApplicationCommandOption = {
 
 const createPollMessageData = (poll: IPoll): EditWebhookMessage => ({
   embeds: [mapPollToEmbed(poll)],
-  components: [
-    ...mapPollToComponents(poll),
-    {
-      type: ComponentType.ActionRow,
-      components: [
-        {
-          type: ComponentType.Button,
-          style: ButtonStyle.Secondary,
-          custom_id: `voting.create.add`,
-          emoji: {
-            id: null,
-            name: "➕",
-          },
-        },
-        {
-          type: ComponentType.Button,
-          style: ButtonStyle.Secondary,
-          custom_id: `voting.create.settings`,
-          label: "",
-          emoji: {
-            id: null,
-            name: "⚙",
-          },
-        },
-      ],
-    },
-  ],
+  components: mapPollToComponents(poll, PollMessageType.VOTE),
 });
 
 const handler = (logger: Logger): CommandHandler => {
@@ -205,13 +181,6 @@ type ComponentHandler<
 > = (poll: IPoll, data: Interaction<T>, extra: E) => Promise<boolean>;
 
 const componentHandler = (logger: Logger): ComponentCommandHandler => {
-  const hasExpired = (poll: IPoll): boolean => {
-    const daysInSeconds = poll.days * 60 * 60 * 24 * 1000;
-    const endingDate = +poll.startAt + daysInSeconds;
-
-    return +new Date() > endingDate;
-  };
-
   const addCommand: ComponentHandler<MessageComponentInteractionData> = async (
     poll,
     data
@@ -308,31 +277,14 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   const settingsCommand: ComponentHandler<
     MessageComponentInteractionData
   > = async (poll, data) => {
-    const components: ActionRow[] = mapPollToComponents(poll, "setOpt");
-
-    if (!hasExpired(poll) && poll.options.length < MAX_OPTIONS_PER_POLL) {
-      components.push({
-        type: ComponentType.ActionRow,
-        components: [
-          {
-            type: ComponentType.Button,
-            style: ButtonStyle.Secondary,
-            custom_id: `voting.create.add`,
-            emoji: {
-              id: null,
-              name: "➕",
-            },
-          },
-        ],
-      });
-    }
+    const userId = data.member?.user?.id || "";
     await createInteractionResponse(data.id, data.token, {
       type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
         flags: InteractionCallbackDataFlags.EPHEMERAL,
         content: "",
-        embeds: [mapPollToSettingsEmbed(poll, data.member?.user?.id || "")],
-        components,
+        embeds: [mapPollToSettingsEmbed(poll, userId)],
+        components: mapPollToComponents(poll, PollMessageType.SETTINGS, userId),
       },
     });
     return false;
@@ -344,42 +296,16 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   > = async (poll, data, optionSelected) => {
     const opt = Number(optionSelected[1]);
     const isNumber = !isNaN(opt);
+    const optSelected = isNumber ? opt : undefined;
 
-    const components: ActionRow[] = mapPollToComponents(poll, "setOpt");
-    const extraComponents: Component[] = [];
-
-    if (!hasExpired(poll) && poll.options.length < MAX_OPTIONS_PER_POLL) {
-      extraComponents.push({
-        type: ComponentType.Button,
-        style: ButtonStyle.Secondary,
-        custom_id: `voting.create.add`,
-        emoji: {
-          id: null,
-          name: "➕",
-        },
-      });
-    }
-
-    const embed = mapPollToSettingsEmbed(
+    const userId = data.member?.user?.id || "";
+    const components: ActionRow[] = mapPollToComponents(
       poll,
-      data.member?.user?.id || "",
-      isNumber ? opt : undefined
+      PollMessageType.SETTINGS,
+      userId,
+      optSelected
     );
-    if (isNumber) {
-      extraComponents.push({
-        type: ComponentType.Button,
-        style: ButtonStyle.Secondary,
-        custom_id: `voting.create.setOpt.all`,
-        label: "Show All",
-      });
-    }
-
-    if (extraComponents.length > 0) {
-      components.push({
-        type: ComponentType.ActionRow,
-        components: extraComponents,
-      });
-    }
+    const embed = mapPollToSettingsEmbed(poll, userId, optSelected);
 
     await createInteractionResponse(data.id, data.token, {
       type: InteractionCallbackType.UPDATE_MESSAGE,
@@ -416,7 +342,6 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     );
 
     const option = poll.options[optionChosen];
-
     if (!option.votes.includes(userId)) {
       if (!poll.multipleChoice && userVotes > 0) {
         await createInteractionResponse(data.id, data.token, {
