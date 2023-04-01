@@ -47,28 +47,15 @@ export const sendMessage = (
   );
 };
 
-/**
- * Edits a message on discord
- * @param channel Channel id
- * @param message Message id
- * @param content Message
- * @param embed Embed data
- */
 export const editMessage = (
   channel: string,
   message: string,
-  content: string,
-  embed: Embed[] | null = null
+  data: EditMessage
 ): Promise<Message | null> => {
-  const messageData: EditMessage = { content };
-  if (embed) {
-    messageData.embeds = embed;
-  }
-
   return rateLimiter.request<Message>(
     "PATCH",
     `/channels/${channel}/messages/${message}`,
-    messageData
+    data
   );
 };
 

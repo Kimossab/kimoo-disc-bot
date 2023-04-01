@@ -30,7 +30,9 @@ export const mapPollToSettingsEmbed = (
 
   const embed: Embed = {
     title: poll.question,
-    description: `Your votes: ${userVotes}.\n\nClick in one of the blue buttons below to see who voted in that option.`,
+    description: `Your votes: ${
+      userVotes || "no votes"
+    }.\n\nClick in one of the blue buttons below to see who voted in that option.`,
   };
   if (singleResponse !== undefined) {
     embed.fields = votingEmbedFields(poll, singleResponse);

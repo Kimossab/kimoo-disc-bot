@@ -11,6 +11,7 @@ import { IPoll } from "#voting/models/Poll.model";
 
 import {
   createInteractionResponse,
+  editMessage,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
 import Logger from "@/helper/logger";
@@ -99,9 +100,14 @@ const definition: ApplicationCommandOption = {
   ],
 };
 
-const createPollMessageData = (poll: IPoll): EditWebhookMessage => ({
-  embeds: [mapPollToEmbed(poll)],
-  components: mapPollToComponents(poll, PollMessageType.VOTE),
+const createPollMessageData: {
+  (poll: IPoll): EditWebhookMessage;
+  (poll: IPoll, user: string): EditWebhookMessage;
+} = (poll: IPoll, user?: string): EditWebhookMessage => ({
+  embeds: [user ? mapPollToSettingsEmbed(poll, user) : mapPollToEmbed(poll)],
+  components: user
+    ? mapPollToComponents(poll, PollMessageType.SETTINGS, user)
+    : mapPollToComponents(poll, PollMessageType.VOTE),
 });
 
 const handler = (logger: Logger): CommandHandler => {
@@ -319,6 +325,45 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     return false;
   };
 
+  const removeCommand: ComponentHandler<
+    MessageComponentInteractionData,
+    string[]
+  > = async (poll, data, optionSelected) => {
+    if (hasExpired(poll)) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "This poll has expired",
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
+      });
+      return false;
+    }
+
+    const opt = Number(optionSelected[1]);
+    const isNumber = !isNaN(opt);
+    const optSelected = isNumber ? opt : 0;
+
+    const userId = data.member?.user?.id || "";
+
+    if (userId !== poll.creator) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+          content: "Only the creator of the poll can remove an option",
+        },
+      });
+    }
+
+    poll.options = [
+      ...poll.options.slice(0, optSelected),
+      ...poll.options.slice(optSelected + 1),
+    ];
+
+    return true;
+  };
+
   const choiceCommand: ComponentHandler<
     MessageComponentInteractionData,
     number
@@ -370,6 +415,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     "add": addCommand as cHandler,
     "modal": modalCommand as cHandler,
     "settings": settingsCommand as cHandler,
+    "remove": removeCommand as cHandler,
     "setOpt": settingsOptionCommand as cHandler,
   };
 
@@ -377,6 +423,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     const poll = await getPoll(
       data.message?.message_reference?.message_id || data.message?.id || ""
     );
+    const isOriginalMessage = !data.message?.message_reference;
 
     logger.log("Component interaction", subCmd);
 
@@ -408,11 +455,29 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     }
 
     await poll.save();
+
     if (needsToUpdateResponse) {
+      const responseData = (
+        isOriginalMessage
+          ? createPollMessageData(poll)
+          : createPollMessageData(poll, data.member?.user?.id || "")
+      ) as InteractionCallbackData;
+
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.UPDATE_MESSAGE,
-        data: createPollMessageData(poll) as InteractionCallbackData,
+        data: responseData,
       });
+
+      if (!isOriginalMessage) {
+        await editMessage(
+          data.channel_id ?? "",
+          data.message?.message_reference?.message_id ?? "",
+          {
+            ...createPollMessageData(poll),
+            attachments: undefined,
+          }
+        );
+      }
     }
   };
 };

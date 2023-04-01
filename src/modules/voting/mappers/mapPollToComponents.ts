@@ -21,7 +21,7 @@ interface MapPollToComponents {
 
 const prefixMap = new Map([
   [PollMessageType.VOTE, ""],
-  [PollMessageType.SETTINGS, "setOpt"],
+  [PollMessageType.SETTINGS, "setOpt."],
 ]);
 
 export const mapPollToComponents: MapPollToComponents = (
@@ -41,7 +41,7 @@ export const mapPollToComponents: MapPollToComponents = (
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
         disabled: singleResponse === i,
-        custom_id: `voting.create.${prefixMap.get(type)}.${i++}`,
+        custom_id: `voting.create.${prefixMap.get(type)}${i++}`,
         label: option.text,
       })),
     });
@@ -69,10 +69,11 @@ export const mapPollToComponents: MapPollToComponents = (
       components: [],
     };
 
-    if (
-      !hasExpired(poll) &&
-      (user === poll.creator || poll.usersCanAddAnswers)
-    ) {
+    const isPollEditable = !hasExpired(poll) && user === poll.creator;
+    const canAddAnswers =
+      !hasExpired(poll) && (user === poll.creator || poll.usersCanAddAnswers);
+
+    if (canAddAnswers) {
       actionRow.components.push({
         type: ComponentType.Button,
         style: ButtonStyle.Secondary,
@@ -91,6 +92,15 @@ export const mapPollToComponents: MapPollToComponents = (
         custom_id: `voting.create.setOpt.all`,
         label: "Unselect options",
       });
+
+      if (isPollEditable) {
+        actionRow.components.push({
+          type: ComponentType.Button,
+          style: ButtonStyle.Danger,
+          custom_id: `voting.create.remove.${singleResponse}`,
+          label: `Remove this option`,
+        });
+      }
     }
 
     if (actionRow.components.length) {
