@@ -34,19 +34,21 @@ export const mapPollToComponents: MapPollToComponents = (
 
   let i = 0;
   const chunks = chunkArray(poll.options, 5);
-  for (const chunk of chunks) {
-    components.push({
-      type: ComponentType.ActionRow,
-      components: chunk.map((option) => ({
-        type: ComponentType.Button,
-        style: ButtonStyle.Primary,
-        disabled: singleResponse === i,
-        custom_id: `voting.create.${prefixMap.get(type)}${i++}`,
-        label: option.text,
-      })),
-    });
-  }
 
+  if (!hasExpired(poll)) {
+    for (const chunk of chunks) {
+      components.push({
+        type: ComponentType.ActionRow,
+        components: chunk.map((option) => ({
+          type: ComponentType.Button,
+          style: ButtonStyle.Primary,
+          disabled: singleResponse === i,
+          custom_id: `voting.create.${prefixMap.get(type)}${i++}`,
+          label: option.text,
+        })),
+      });
+    }
+  }
   if (type === PollMessageType.VOTE) {
     components.push({
       type: ComponentType.ActionRow,
@@ -103,6 +105,22 @@ export const mapPollToComponents: MapPollToComponents = (
       }
     }
 
+    if (isPollEditable) {
+      actionRow.components.push(
+        {
+          type: ComponentType.Button,
+          style: ButtonStyle.Danger,
+          custom_id: `voting.create.close`,
+          label: `Close the poll`,
+        },
+        {
+          type: ComponentType.Button,
+          style: ButtonStyle.Danger,
+          custom_id: `voting.create.reset`,
+          label: `Reset votes`,
+        }
+      );
+    }
     if (actionRow.components.length) {
       components.push(actionRow);
     }

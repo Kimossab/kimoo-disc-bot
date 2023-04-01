@@ -103,12 +103,23 @@ const definition: ApplicationCommandOption = {
 const createPollMessageData: {
   (poll: IPoll): EditWebhookMessage;
   (poll: IPoll, user: string): EditWebhookMessage;
-} = (poll: IPoll, user?: string): EditWebhookMessage => ({
-  embeds: [user ? mapPollToSettingsEmbed(poll, user) : mapPollToEmbed(poll)],
-  components: user
+} = (poll: IPoll, user?: string): EditWebhookMessage => {
+  const embeds = [
+    user ? mapPollToSettingsEmbed(poll, user) : mapPollToEmbed(poll),
+  ];
+  const components = user
     ? mapPollToComponents(poll, PollMessageType.SETTINGS, user)
-    : mapPollToComponents(poll, PollMessageType.VOTE),
-});
+    : mapPollToComponents(poll, PollMessageType.VOTE);
+
+  const response: EditWebhookMessage = {
+    embeds,
+  };
+
+  if (components.length) {
+    response.components = components;
+  }
+  return response;
+};
 
 const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
@@ -406,6 +417,68 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     return true;
   };
 
+  const closeCommand: ComponentHandler<
+    MessageComponentInteractionData
+  > = async (poll, data) => {
+    if (hasExpired(poll)) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "This poll has expired",
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
+      });
+      return false;
+    }
+
+    const userId = data.member?.user?.id || "";
+
+    if (userId !== poll.creator) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+          content: "Only the creator of the poll can close the poll",
+        },
+      });
+    }
+
+    poll.days = 0;
+
+    return true;
+  };
+
+  const resetCommand: ComponentHandler<
+    MessageComponentInteractionData
+  > = async (poll, data) => {
+    if (hasExpired(poll)) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: "This poll has expired",
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
+      });
+      return false;
+    }
+
+    const userId = data.member?.user?.id || "";
+
+    if (userId !== poll.creator) {
+      await createInteractionResponse(data.id, data.token, {
+        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+          content: "Only the creator of the poll can reset the poll",
+        },
+      });
+    }
+
+    poll.options = poll.options.map((o) => ({ text: o.text, votes: [] }));
+
+    return true;
+  };
+
   type cHandler = ComponentHandler<
     MessageComponentInteractionData | ModalSubmitInteractionData,
     unknown
@@ -416,13 +489,15 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     "modal": modalCommand as cHandler,
     "settings": settingsCommand as cHandler,
     "remove": removeCommand as cHandler,
+    "close": closeCommand as cHandler,
+    "reset": resetCommand as cHandler,
     "setOpt": settingsOptionCommand as cHandler,
   };
 
   return async (data, subCmd) => {
-    const poll = await getPoll(
-      data.message?.message_reference?.message_id || data.message?.id || ""
-    );
+    const messageId =
+      data.message?.message_reference?.message_id || data.message?.id || "";
+    const poll = await getPoll(messageId);
     const isOriginalMessage = !data.message?.message_reference;
 
     logger.log("Component interaction", subCmd);
@@ -467,17 +542,13 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionCallbackType.UPDATE_MESSAGE,
         data: responseData,
       });
+    }
 
-      if (!isOriginalMessage) {
-        await editMessage(
-          data.channel_id ?? "",
-          data.message?.message_reference?.message_id ?? "",
-          {
-            ...createPollMessageData(poll),
-            attachments: undefined,
-          }
-        );
-      }
+    if (!isOriginalMessage || !needsToUpdateResponse) {
+      await editMessage(data.channel_id ?? "", messageId, {
+        ...createPollMessageData(poll),
+        attachments: undefined,
+      });
     }
   };
 };
