@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface IAchievement extends Document {
+export interface IAchievement {
   id: number;
   name: string;
   description: string;

@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface IAnilistSubscription extends Document {
+export interface IAnilistSubscription {
   id: number;
   user: string;
   server: string;
