@@ -2,7 +2,6 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { checkAdmin } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getApplication, setCommandExecutedCallback } from "@/state/store";
@@ -45,7 +44,6 @@ jest.mock("./helper/logger");
 }));
 
 jest.mock("./helper/common");
-const mockCheckAdmin = checkAdmin as jest.Mock;
 
 describe("Base Module", () => {
   let module: BaseModule;
