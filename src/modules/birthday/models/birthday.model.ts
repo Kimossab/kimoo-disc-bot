@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface IBirthday extends Document {
+export interface IBirthday {
   day: number;
   month: number;
   year: number | null;

@@ -35,19 +35,8 @@ export const saveGuild = async (id: string): Promise<void> => {
  * @param server Server id to set the channel
  * @param channel Channel id for anime notifications
  */
-export const setServerAnimeChannel = async (
-  server: string,
-  channel: string
-): Promise<void> => {
-  const settings: Nullable<IServerSettings> = await ServerSettings.findOne({
-    serverId: server,
-  });
-
-  if (settings) {
-    settings.animeChannel = channel;
-    settings.save();
-  }
-};
+export const setServerAnimeChannel = async (server: string, channel: string) =>
+  ServerSettings.updateOne({ serverId: server }, { animeChannel: channel });
 
 /**
  * Get the anime channel id for a server
@@ -56,7 +45,7 @@ export const setServerAnimeChannel = async (
 export const getServerAnimeChannel = async (
   id: string
 ): Promise<Nullable<string>> => {
-  const server: Nullable<IServerSettings> = await ServerSettings.findOne({
+  const server = await ServerSettings.findOne({
     serverId: id,
   });
 
@@ -71,14 +60,13 @@ export const getServerAnimeChannel = async (
 export const setServerBirthdayChannel = async (
   server: string,
   channel: string
-): Promise<void> => {
-  await ServerSettings.updateOne(
+) =>
+  ServerSettings.updateOne(
     {
       serverId: server,
     },
     { birthdayChannel: channel }
   );
-};
 
 /**
  * Get the birthday channel id for a server
@@ -87,24 +75,20 @@ export const setServerBirthdayChannel = async (
 export const getServerBirthdayChannel = async (
   id: string
 ): Promise<Nullable<string>> => {
-  const server: Nullable<IServerSettings> = await ServerSettings.findOne({
+  const server = await ServerSettings.findOne({
     serverId: id,
   });
 
   return server?.birthdayChannel;
 };
 
-export const setServerBirthdayRole = async (
-  server: string,
-  role: string
-): Promise<void> => {
-  await ServerSettings.updateOne(
+export const setServerBirthdayRole = async (server: string, role: string) =>
+  ServerSettings.updateOne(
     {
       serverId: server,
     },
     { birthdayRole: role }
   );
-};
 
 export const getServerBirthdayRole = async (
   id: string
@@ -120,14 +104,13 @@ export const getServerBirthdayRole = async (
  * Updates the year of last time a server was wished a happy birthday
  * @param server Server id to set the value
  */
-export const updateServerLastWishes = async (server: string): Promise<void> => {
-  await ServerSettings.updateOne(
+export const updateServerLastWishes = async (server: string) =>
+  ServerSettings.updateOne(
     {
       serverId: server,
     },
     { lastBirthdayWishes: new Date().getFullYear() }
   );
-};
 
 /**
  * Gets the last year a server was wished a happy birthday
@@ -148,17 +131,13 @@ export const getLastServerBirthdayWishes = async (
  * @param server Server id to set the role
  * @param role Role id that should be used as admin
  */
-export const setAdminRole = async (
-  server: string,
-  role: string
-): Promise<void> => {
-  await ServerSettings.updateOne(
+export const setAdminRole = async (server: string, role: string) =>
+  ServerSettings.updateOne(
     {
       serverId: server,
     },
     { adminRole: role }
   );
-};
 
 /**
  * Gets the role that's used to check for admin permissions for bot commands

@@ -5,7 +5,7 @@ import {
   createRank,
   createUserAchievement,
   deleteAchievement,
-  deleteRank,
+  deleteRankByName,
   getAchievement,
   getAchievementById,
   getAllUserAchievements,
@@ -18,7 +18,6 @@ import {
   updateAchievement,
 } from "./database";
 import { achievementListFixtures, rankListFixtures } from "./fixtures";
-import { IAchievement } from "./models/achievement.model";
 import MongoMemoryServer from "mongodb-memory-server-core";
 
 let mongod: MongoMemoryServer;
@@ -129,17 +128,18 @@ describe("Achievement database", () => {
   describe("User Achievements", () => {
     const USER_ID = "123";
 
-    let achievement: IAchievement;
+    let achievement: any;
 
     beforeEach(async () => {
-      achievement = (await getAchievementById(
+      achievement = await getAchievementById(
         achievementListFixtures[0].server,
         1
-      )) as IAchievement;
+      );
       await createUserAchievement(
         achievementListFixtures[0].server,
         USER_ID,
-        achievement
+        achievement,
+        achievement._id
       );
     });
 
@@ -222,7 +222,7 @@ describe("Achievement database", () => {
 
     it("should delete without throwing errors", async () => {
       await expect(
-        deleteRank(rankListFixtures[0].server, rankListFixtures[0].name)
+        deleteRankByName(rankListFixtures[0].server, rankListFixtures[0].name)
       ).resolves.not.toThrow();
 
       const ranks = await getServerRanks(rankListFixtures[0].server);

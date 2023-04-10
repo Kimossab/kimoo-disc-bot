@@ -99,10 +99,7 @@ export const checkBadgeUser = async (
   return userHasBadge !== null;
 };
 
-export const deleteBadge = async (
-  badgeName: string,
-  server: string
-): Promise<IBadge | null> => {
+export const deleteBadge = async (badgeName: string, server: string) => {
   const badge = await Badge.findOne({
     name: badgeName,
     server,
@@ -117,5 +114,10 @@ export const deleteBadge = async (
     server,
   });
 
-  return await badge.delete();
+  await Badge.deleteOne({
+    server: badge.server,
+    name: badge.name,
+  });
+
+  return badge;
 };

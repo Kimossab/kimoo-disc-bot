@@ -20,6 +20,7 @@ import {
   getBirthdays,
   getOldBirthdayWithRole,
   getServersBirthdayInfo,
+  removeBirthdayWithRole,
   setBirthdayWithRole,
   updateLastWishes,
 } from "./database";
@@ -98,7 +99,7 @@ export default class BirthdayModule extends BaseModule {
           );
         }
       }
-      await toRemove.delete();
+      await removeBirthdayWithRole(toRemove);
     }
 
     if (todayBirthDays.length > 0) {

@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface IBirthdayWithRole extends Document {
+export interface IBirthdayWithRole {
   day: number;
   month: number;
   users: string[];

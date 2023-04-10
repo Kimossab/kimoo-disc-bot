@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface IAchievementRank extends Document {
+export interface IAchievementRank {
   server: string;
   name: string;
   points: number;

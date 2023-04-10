@@ -82,7 +82,7 @@ const handler = (): CommandHandler => {
         return;
       }
 
-      const userAch = await getUserAchievement(data.guild_id, user, ach);
+      const userAch = await getUserAchievement(data.guild_id, user, ach._id);
       if (userAch) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: stringReplacer(messageList.achievements.already_got, {
@@ -95,7 +95,7 @@ const handler = (): CommandHandler => {
         return;
       }
 
-      await createUserAchievement(data.guild_id, user, ach);
+      await createUserAchievement(data.guild_id, user, ach, ach._id);
 
       const achievements = await getAllUserAchievements(data.guild_id, user);
       const serverRanks = await getServerRanks(data.guild_id);

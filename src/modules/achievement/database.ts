@@ -5,19 +5,15 @@ import AchievementRank, {
 import UserAchievement, {
   IUserAchievement,
 } from "./models/user-achievement.model";
-import { PipelineStage } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 
 const getHighestId = async (server: string): Promise<number> => {
-  const ach: Nullable<IAchievement> = await Achievement.findOne(
-    { server },
-    null,
-    {
-      sort: {
-        id: -1,
-      },
-      limit: 1,
-    }
-  );
+  const ach = await Achievement.findOne({ server }, null, {
+    sort: {
+      id: -1,
+    },
+    limit: 1,
+  });
 
   return ach ? ach.id : 0;
 };
@@ -64,18 +60,13 @@ export const getAchievement = async (
     name,
   });
 
-export const getAchievementById = async (
-  server: string,
-  id: number
-): Promise<IAchievement | null> =>
+export const getAchievementById = async (server: string, id: number) =>
   Achievement.findOne({
     server,
     id,
   });
 
-export const getServerAchievements = async (
-  server: string
-): Promise<IAchievement[]> =>
+export const getServerAchievements = async (server: string) =>
   Achievement.find({
     server,
   });
@@ -87,7 +78,7 @@ export const updateAchievement = async (
   image: Nullable<string>,
   description: Nullable<string>,
   points: Nullable<number>
-): Promise<Nullable<IAchievement>> => {
+) => {
   const ach = await getAchievementById(server, id);
   if (ach) {
     if (server) {
@@ -112,26 +103,20 @@ export const updateAchievement = async (
   return ach;
 };
 
-export const deleteAchievement = async (
-  server: string,
-  id: number
-): Promise<void> => {
-  const ach = await getAchievementById(server, id);
-  if (ach) {
-    await ach.delete();
-  }
+export const deleteAchievement = async (server: string, id: number) => {
+  return Achievement.deleteOne({ server, id });
 };
 
 // USER ACHIEVEMENTS
 export const getUserAchievement = async (
   server: string,
   user: string,
-  achievement: IAchievement
-): Promise<IUserAchievement | null> =>
+  achievementId: Types.ObjectId
+) =>
   UserAchievement.findOne({
     server,
     user,
-    achievement: achievement._id,
+    achievement: achievementId,
   });
 
 export const getAllUserAchievements = async (
@@ -228,9 +213,10 @@ export const getServerAchievementLeaderboard = async (
 export const createUserAchievement = async (
   server: string,
   user: string,
-  achievement: IAchievement
+  achievement: IAchievement,
+  achievementId: Types.ObjectId
 ): Promise<void> => {
-  if (!(await getUserAchievement(server, user, achievement))) {
+  if (!(await getUserAchievement(server, user, achievementId))) {
     const uAch = new UserAchievement();
     uAch.user = user;
     uAch.server = server;
@@ -241,14 +227,16 @@ export const createUserAchievement = async (
 };
 
 // RANKS
-export const getRankByName = async (
-  server: string,
-  name: string
-): Promise<IAchievementRank | null> =>
+export const getRankByName = async (server: string, name: string) =>
   AchievementRank.findOne({
     server,
     name,
   });
+export const deleteRank = async (rank: IAchievementRank) =>
+  AchievementRank.deleteOne(rank);
+
+export const deleteRankByName = async (server: string, name: string) =>
+  AchievementRank.deleteOne({ server, name });
 
 export const getRankByPoints = async (
   server: string,
@@ -278,15 +266,4 @@ export const createRank = async (
   rank.points = points;
 
   await rank.save();
-};
-
-export const deleteRank = async (
-  server: string,
-  name: string
-): Promise<void> => {
-  const rank = await getRankByName(server, name);
-
-  if (rank) {
-    rank.delete();
-  }
 };

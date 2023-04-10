@@ -1,5 +1,5 @@
 import { CommandInfo } from "#base-module";
-import { getUserBirthday } from "#birthday/database";
+import { deleteUserBirthday, getUserBirthday } from "#birthday/database";
 
 import {
   createInteractionResponse,
@@ -59,7 +59,7 @@ const handler = (logger: Logger): CommandHandler => {
       const bd = await getUserBirthday(data.guild_id, user || "");
 
       if (bd) {
-        await bd.delete();
+        await deleteUserBirthday(bd);
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.birthday.remove_success,
         });

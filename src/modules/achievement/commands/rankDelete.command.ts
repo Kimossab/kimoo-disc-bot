@@ -1,4 +1,4 @@
-import { deleteRank } from "#achievement/database";
+import { deleteRankByName } from "#achievement/database";
 import { CommandInfo } from "#base-module";
 
 import {
@@ -52,7 +52,7 @@ const handler = (logger: Logger): CommandHandler => {
         return;
       }
 
-      await deleteRank(data.guild_id, name);
+      await deleteRankByName(data.guild_id, name);
 
       await editOriginalInteractionResponse(app.id, data.token, {
         content: messageList.achievements.rank_deleted,

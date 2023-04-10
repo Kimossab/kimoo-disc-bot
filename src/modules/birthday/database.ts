@@ -66,6 +66,9 @@ export const getUserBirthday = async (
     user,
   });
 
+export const deleteUserBirthday = async (data: IBirthday) =>
+  await Birthday.deleteOne(data);
+
 /**
  * Gets the birthday of a month in a server
  * @param server Server where to look for
@@ -162,4 +165,8 @@ export const getOldBirthdayWithRole = async (
   return await BirthdayWithRole.find({
     $or: [{ day: { $ne: day } }, { month: { $ne: month } }],
   });
+};
+
+export const removeBirthdayWithRole = (data: IBirthdayWithRole) => {
+  return BirthdayWithRole.deleteOne(data);
 };

@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface IServerSettings extends Document {
+export interface IServerSettings {
   serverId: string;
   language: "EN" | "PT";
   adminRole: string | null;

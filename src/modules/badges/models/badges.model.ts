@@ -1,9 +1,12 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { ObjectId, Schema } from "mongoose";
 
-export interface IBadge extends Document {
+interface _IBadge {
   name: string;
   server: string;
   fileExtension: string;
+}
+export interface IBadge extends _IBadge {
+  _id: ObjectId;
 }
 
 const BadgeSchema: Schema<IBadge> = new mongoose.Schema<IBadge>({
