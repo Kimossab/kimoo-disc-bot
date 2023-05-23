@@ -57,12 +57,16 @@ export default class RestRateLimitHandler {
 
   private handleErrors = (place: string, e: ErrorType): void => {
     if (isErrorData(e)) {
-      this._logger.error(
-        `[${place}] ${e.data.code} - ${e.data.message}`,
-        e.data.errors
-      );
+      this._logger.error(e.data.message, {
+        place,
+        code: e.data.code,
+        errors: e.data.errors,
+      });
     } else {
-      this._logger.error(`[${place}] ${e.message}`, JSON.stringify(e));
+      this._logger.error(e.message, {
+        place,
+        errors: e,
+      });
     }
   };
 
@@ -74,18 +78,6 @@ export default class RestRateLimitHandler {
       resetAfter: Number(headers["x-ratelimit-reset-after"]),
       bucket: headers["x-ratelimit-bucket"] as string,
     };
-  }
-
-  private logMessage(
-    path: string,
-    bucket: string,
-    remaining: number,
-    limit: number,
-    reset: number,
-    message?: string
-  ): string {
-    const s = `[${path}][${bucket}][${remaining}/${limit}][${reset} s]`;
-    return message ? `${s} ${message}` : s;
   }
 
   private async checkQueue(bucket: string) {
@@ -119,21 +111,17 @@ export default class RestRateLimitHandler {
 
       const parsedHeaders = this.handleHeaders(response.headers);
 
-      this._logger.info(
-        this.logMessage(
-          path,
-          parsedHeaders.bucket,
-          parsedHeaders.remaining,
-          parsedHeaders.limit,
-          parsedHeaders.resetAfter
-        )
-      );
+      this._logger.info("Success request", {
+        path,
+        ...parsedHeaders,
+      });
       callback(response ? response.data : null);
 
       if (parsedHeaders.remaining === 0) {
-        this._logger.info(
-          `[${bucket}] Rate Limit Waiting ${parsedHeaders.resetAfter}s before requesting again`
-        );
+        this._logger.info("Rate Limit. Waiting...", {
+          myBucket: bucket,
+          ...parsedHeaders,
+        });
         setTimeout(() => {
           this.busyBucket[bucket] = false;
           this.checkQueue(bucket);
@@ -150,14 +138,11 @@ export default class RestRateLimitHandler {
 
         const parsedHeaders = this.handleHeaders(e.response.headers);
         this._logger.error(
-          this.logMessage(
+          `Rate limited - made a request - Bucket: ${bucket}`,
+          {
             path,
-            parsedHeaders.bucket,
-            parsedHeaders.remaining,
-            parsedHeaders.limit,
-            parsedHeaders.resetAfter,
-            `Rate limited - made a request - Bucket: ${bucket}`
-          )
+            ...parsedHeaders,
+          }
         );
 
         this.queueBucket[bucket].unshift(req);

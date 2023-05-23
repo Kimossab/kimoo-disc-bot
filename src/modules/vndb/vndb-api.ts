@@ -46,7 +46,7 @@ export class VNDBApi {
 
   // EVENTS
   private onConnect(): void {
-    this.logger.info("[Connected]");
+    this.logger.info("Connected");
     this.login();
   }
 
@@ -71,14 +71,14 @@ export class VNDBApi {
     if (data.startsWith("error")) {
       const sData = data.substring(6);
       this.queueResolve(null);
-      this.logger.error("[RECEIVED ERROR]", JSON.parse(sData));
+      this.logger.error("RECEIVED ERROR", JSON.parse(sData));
     } else {
       this.queueResolve(data);
     }
   }
 
   private OnEnd(): void {
-    this.logger.info("[Disconnected]");
+    this.logger.info("Disconnected");
   }
 
   // COMMANDS
@@ -93,7 +93,7 @@ export class VNDBApi {
         },
       }),
       (data): void => {
-        this.logger.info(`[LOGIN RESPONSE] ${data}`);
+        this.logger.info(`LOGIN RESPONSE`, { data });
       }
     );
   }
@@ -130,10 +130,10 @@ export class VNDBApi {
           }
           const parsed: ReturnData.data<vndb_get_vn> = JSON.parse(data);
 
-          this.logger.info("[SEARCH RESULT] OK");
+          this.logger.info("SEARCH RESULT OK");
           resolve(parsed.items);
         } else {
-          this.logger.info("[SEARCH RESULT] NO DATA");
+          this.logger.info("SEARCH RESULT NO DATA");
           resolve(null);
         }
       });
@@ -162,19 +162,21 @@ export class VNDBApi {
       callback,
     });
 
-    this.logger.info(`[ADD QUEUE] ${command.toString()}`);
+    this.logger.info("ADD QUEUE", { command: command.toString() });
 
     this.checkQueue();
   }
 
   private checkQueue(): void {
     if (!this.waitingReply && this.queue.length > 0) {
-      this.logger.info(`[SENDING COMMAND] ${this.queue[0].command.toString()}`);
+      this.logger.info(`SENDING COMMAND`, {
+        command: this.queue[0].command.toString(),
+      });
       this.client.write(this.queue[0].command);
       this.waitingReply = true;
 
       this.commandTimeout = setTimeout(() => {
-        this.logger.error("[COMMAND TIMEOUT]", this.queue[0]);
+        this.logger.error("COMMAND TIMEOUT", this.queue[0]);
 
         this.queueResolve(null);
 

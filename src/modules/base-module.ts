@@ -94,6 +94,7 @@ export default class BaseModule {
             });
             return;
           }
+          this.logger.info("CMD Executed", { data: data.data });
           return this.singleCommand.handler(data);
         }
 
@@ -115,6 +116,7 @@ export default class BaseModule {
               return;
             }
 
+            this.logger.info("CMD Executed", { cmd, data: cmdData });
             return this.commandList[cmd].handler(data, cmdData);
           }
         }

@@ -64,19 +64,18 @@ export class AnilistRateLimit implements IAnilistRateLimit {
 
   private handleErrors = (place: string, e: ErrorType): void => {
     if (isErrorData(e)) {
-      this._logger.error(
-        `[${place}] ${e.data.code} - ${e.data.message}`,
-        e.data.errors
-      );
+      this._logger.error(e.data.message, e.data.errors, place, e.data.code);
     } else {
-      this._logger.error(`[${place}] ${e.message}`, JSON.stringify(e));
+      this._logger.error(e.message, place, e);
     }
   };
 
   private logSuccess(name: string, headers: AxiosResponse["headers"]) {
-    this._logger.info(
-      `[${name}][${headers[X_RATELIMIT_REMAINING]} / ${headers[X_RATELIMIT_LIMIT]}] Success.`
-    );
+    this._logger.info("Successful request", {
+      name,
+      remaining: headers[X_RATELIMIT_REMAINING],
+      limit: headers[X_RATELIMIT_LIMIT],
+    });
   }
 
   private async checkQueue() {
@@ -118,9 +117,10 @@ export class AnilistRateLimit implements IAnilistRateLimit {
             timeoutTime = TIMEOUT;
           }
 
-          this._logger.error(
-            `[${request.name}] Rate limited. Next request in ${timeoutTime}ms`
-          );
+          this._logger.error(`Rate limited`, {
+            name: request.name,
+            timeoutTime,
+          });
 
           setTimeout(() => {
             this.checkQueue();
