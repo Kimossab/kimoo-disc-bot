@@ -39,10 +39,10 @@ class Socket {
   private resumed = false;
 
   public connect(gateway: string) {
-    this.logger.log("starting connection");
+    this.logger.info("starting connection");
 
     this.resumed = false;
-    this.logger.log(`Gateway: ${gateway}`);
+    this.logger.info(`Gateway: ${gateway}`);
     this.client = new WebSocket(gateway);
 
     this.client.on("connection", (e: unknown) => {
@@ -61,11 +61,11 @@ class Socket {
 
   // EVENTS
   private onConnection(e: unknown) {
-    this.logger.log("Socket connected", e);
+    this.logger.info("Socket connected", e);
   }
 
   private onClose(e: unknown) {
-    this.logger.log("Socket closed - Restarting in 2 seconds", e);
+    this.logger.info("Socket closed - Restarting in 2 seconds", e);
 
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
@@ -86,7 +86,7 @@ class Socket {
 
   private onOpen() {
     this.hbAck = true;
-    this.logger.log("Socket opened");
+    this.logger.info("Socket opened");
   }
 
   private onMessage(d: string): void {
@@ -101,7 +101,7 @@ class Socket {
         this.sendHeartbeat();
         break;
       case OpCode.Reconnect:
-        this.logger.log('Received "reconnect"', data.d);
+        this.logger.info('Received "reconnect"', data.d);
         this.client?.close();
         break;
       case OpCode.InvalidSession:
@@ -110,7 +110,7 @@ class Socket {
           setDiscordLastS(null);
         }
 
-        this.logger.log(
+        this.logger.info(
           'Received "invalid_session", restarting socket connection.',
           data.d
         );
@@ -124,14 +124,14 @@ class Socket {
         this.hbAck = true;
         break;
       default:
-        this.logger.log("Unknown op code", data);
+        this.logger.info("Unknown op code", data);
         break;
     }
   }
 
   // DISCORD EVENTS
   private onHello(data: Hello): void {
-    this.logger.log("Received Hello");
+    this.logger.info("Received Hello");
 
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
@@ -139,13 +139,14 @@ class Socket {
 
     this.hbInterval = setInterval(() => {
       this.sendHeartbeat();
+      this.logger.info("hb", { heartbeat_interval: data.heartbeat_interval });
     }, data.heartbeat_interval);
 
     const sessionId = getDiscordSession();
     const lastS = getDiscordLastS();
 
     if (sessionId) {
-      this.logger.log("Invoking resume", {
+      this.logger.info("Invoking resume", {
         token: process.env.TOKEN,
         session_id: sessionId,
         seq: lastS || 0,
@@ -198,7 +199,7 @@ class Socket {
         break;
       case GatewayEvent.Resumed:
         this.resumed = true;
-        this.logger.log("resumed", event.d);
+        this.logger.info("resumed", event.d);
         break;
     }
   }
@@ -224,7 +225,7 @@ class Socket {
 
   public randomPresence(): void {
     const randomPresence = randomNum(0, PRESENCE_STRINGS.length);
-    this.logger.log(
+    this.logger.info(
       `Updating bot presence to "${PRESENCE_STRINGS[randomPresence]}"`
     );
     this.sendEvent({
@@ -244,7 +245,7 @@ class Socket {
   }
 
   private identify(): void {
-    this.logger.log("Identifying...");
+    this.logger.info("Identifying...");
 
     const payload: IdentifyPayload = {
       op: OpCode.Identify,
@@ -276,7 +277,7 @@ class Socket {
   }
 
   private async handleDM(_data: Message): Promise<void> {
-    this.logger.log("New DM", _data);
+    this.logger.info("New DM", _data);
   }
 }
 

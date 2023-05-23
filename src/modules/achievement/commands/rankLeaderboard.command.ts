@@ -42,7 +42,7 @@ const handler = (logger: Logger): CommandHandler => {
       await pagination.create(data.token);
       addPagination(pagination as InteractionPagination);
 
-      logger.log(
+      logger.info(
         `Get server rank leaderboard in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
       );
     }

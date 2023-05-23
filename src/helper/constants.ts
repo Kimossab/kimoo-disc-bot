@@ -22,17 +22,6 @@ export const PRESENCE_STRINGS = [
   "My favorite type of magic - Lesbomancy",
 ];
 
-enum colors {
-  black = 0,
-  red = 1,
-  green = 2,
-  yellow = 3,
-  blue = 4,
-  magenta = 5,
-  cyan = 6,
-  white = 7,
-}
-
 // fandom
 export const FANDOM_LINKS: Record<string, string> = {
   // Sword Art Online
@@ -73,13 +62,11 @@ export const FANDOM_LINKS: Record<string, string> = {
 };
 
 // discord
-const no_mentions: AllowedMentions = {
+export const no_mentions: AllowedMentions = {
   parse: [],
   roles: [],
   users: [],
   replied_user: false,
 };
-
-export { colors, no_mentions };
 
 export const DISCORD_TOKEN_TTL = 15 * 60 * 1000; // 15 mins

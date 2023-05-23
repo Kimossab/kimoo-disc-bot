@@ -13,7 +13,7 @@ mongoose.set("strictQuery", true);
 const mongoConnect = async (url: string): Promise<void> => {
   try {
     await mongoose.connect(url);
-    _logger.log("Successfully connected to the database.");
+    _logger.info("Successfully connected to the database.");
   } catch (e) {
     _logger.error(`Could not connect to the database (${url}).`, e);
   }

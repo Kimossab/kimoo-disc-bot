@@ -18,6 +18,10 @@ declare global {
       ANILIST_MODULE: "true" | "false";
       VOTING_MODULE: "true" | "false";
       OWNER_DM_CHANNEL?: string;
+      ENV: string;
+      LOKI_HOST: string;
+      LOKI_APP: string;
+      LOKI_BASIC_AUTH: string;
     }
   }
 }

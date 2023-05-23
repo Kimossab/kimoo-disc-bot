@@ -25,7 +25,8 @@ jest.mock("@/bot/database");
 const onDeleteMock = jest.fn();
 
 const loggerMock: ILogger = {
-  log: jest.fn(),
+  info: jest.fn(),
+  debug: jest.fn(),
   error: jest.fn(),
 };
 

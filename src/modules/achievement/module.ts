@@ -14,7 +14,7 @@ export default class AchievementModule extends BaseModule {
     super("achievements", isActive);
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 

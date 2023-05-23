@@ -58,7 +58,7 @@ const handler = (logger: Logger): CommandHandler => {
         content: messageList.achievements.rank_deleted,
       });
 
-      logger.log(
+      logger.info(
         `Delete rank ${name} in ${data.guild_id} by ${data.member?.user?.username}#${data.member?.user?.discriminator}`
       );
     }

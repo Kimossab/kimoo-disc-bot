@@ -107,7 +107,7 @@ const handler = (logger: Logger): CommandHandler => {
         `badges/${badge._id}${badge.fileExtension}`
       );
 
-      logger.log(
+      logger.info(
         `Given badge ${name} to ${user} in ` +
           `${data.guild_id} by ${(data.member || data).user?.username}#${
             (data.member || data).user?.discriminator

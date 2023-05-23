@@ -80,7 +80,7 @@ const handleGetMonthCommand = async (
     allowed_mentions: no_mentions,
   });
 
-  logger.log(
+  logger.info(
     `Birthday for month ${month} requested in ${data.guild_id} by ` +
       `${data.member?.user?.username}#${data.member?.user?.discriminator}`
   );
@@ -113,7 +113,7 @@ const handler = (logger: Logger): CommandHandler => {
           }),
           allowed_mentions: no_mentions,
         });
-        logger.log(
+        logger.info(
           `Birthday requested in ${data.guild_id} by ${
             (data.member || data).user?.username
           }#${(data.member || data).user?.discriminator}`

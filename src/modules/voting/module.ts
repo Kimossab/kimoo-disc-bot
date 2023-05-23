@@ -9,7 +9,7 @@ export default class VotingModule extends BaseModule {
     super("voting", isActive);
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 

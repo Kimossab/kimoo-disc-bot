@@ -101,7 +101,7 @@ const handler = (logger: Logger): CommandHandler => {
         }),
       });
 
-      logger.log(
+      logger.info(
         `Updated achievement ${achievement.id} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`,
         achievement
       );

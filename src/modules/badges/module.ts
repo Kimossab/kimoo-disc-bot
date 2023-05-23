@@ -13,7 +13,7 @@ export default class BadgesModule extends BaseModule {
     super("badges", isActive);
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 

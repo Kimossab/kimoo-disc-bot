@@ -51,6 +51,8 @@
     "fast-average-color-node": "^2.6.0",
     "form-data": "^4.0.0",
     "mongoose": "^7.0.3",
+    "winston": "^3.8.2",
+    "winston-loki": "^6.0.6",
     "ws": "^8.11.0"
   },
   "lint-staged": {

@@ -234,7 +234,7 @@ export const mapSauceNaoResultToData = (
         break;
       }
       default: {
-        logger?.log("fallback", data);
+        logger?.info("fallback", data);
         parsed.fallback = JSON.stringify(data);
       }
     }

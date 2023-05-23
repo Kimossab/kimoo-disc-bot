@@ -119,7 +119,7 @@ export default class RestRateLimitHandler {
 
       const parsedHeaders = this.handleHeaders(response.headers);
 
-      this._logger.log(
+      this._logger.info(
         this.logMessage(
           path,
           parsedHeaders.bucket,
@@ -131,7 +131,7 @@ export default class RestRateLimitHandler {
       callback(response ? response.data : null);
 
       if (parsedHeaders.remaining === 0) {
-        this._logger.log(
+        this._logger.info(
           `[${bucket}] Rate Limit Waiting ${parsedHeaders.resetAfter}s before requesting again`
         );
         setTimeout(() => {

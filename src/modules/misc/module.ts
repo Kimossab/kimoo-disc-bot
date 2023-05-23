@@ -10,7 +10,7 @@ export default class MiscModule extends BaseModule {
     super("misc", isActive);
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 

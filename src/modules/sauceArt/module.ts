@@ -23,7 +23,7 @@ export default class SauceArtModule extends BaseModule {
     super("sauceArt", isActive, "Sauce (art)");
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 

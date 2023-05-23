@@ -46,7 +46,7 @@ export class VNDBApi {
 
   // EVENTS
   private onConnect(): void {
-    this.logger.log("[Connected]");
+    this.logger.info("[Connected]");
     this.login();
   }
 
@@ -78,7 +78,7 @@ export class VNDBApi {
   }
 
   private OnEnd(): void {
-    this.logger.log("[Disconnected]");
+    this.logger.info("[Disconnected]");
   }
 
   // COMMANDS
@@ -93,7 +93,7 @@ export class VNDBApi {
         },
       }),
       (data): void => {
-        this.logger.log(`[LOGIN RESPONSE] ${data}`);
+        this.logger.info(`[LOGIN RESPONSE] ${data}`);
       }
     );
   }
@@ -130,10 +130,10 @@ export class VNDBApi {
           }
           const parsed: ReturnData.data<vndb_get_vn> = JSON.parse(data);
 
-          this.logger.log("[SEARCH RESULT] OK");
+          this.logger.info("[SEARCH RESULT] OK");
           resolve(parsed.items);
         } else {
-          this.logger.log("[SEARCH RESULT] NO DATA");
+          this.logger.info("[SEARCH RESULT] NO DATA");
           resolve(null);
         }
       });
@@ -162,14 +162,14 @@ export class VNDBApi {
       callback,
     });
 
-    this.logger.log(`[ADD QUEUE] ${command.toString()}`);
+    this.logger.info(`[ADD QUEUE] ${command.toString()}`);
 
     this.checkQueue();
   }
 
   private checkQueue(): void {
     if (!this.waitingReply && this.queue.length > 0) {
-      this.logger.log(`[SENDING COMMAND] ${this.queue[0].command.toString()}`);
+      this.logger.info(`[SENDING COMMAND] ${this.queue[0].command.toString()}`);
       this.client.write(this.queue[0].command);
       this.waitingReply = true;
 

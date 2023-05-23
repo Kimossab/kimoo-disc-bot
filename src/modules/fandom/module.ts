@@ -31,7 +31,7 @@ export default class FandomModule extends BaseModule {
     super("wiki", isActive);
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 
@@ -86,7 +86,7 @@ export default class FandomModule extends BaseModule {
       const links = await requestFandom(fandomSlug, query);
 
       if (links) {
-        this.logger.log("links", links);
+        this.logger.info("links", links);
         const pagination = new InteractionPagination(
           app.id,
           links,
@@ -101,7 +101,7 @@ export default class FandomModule extends BaseModule {
         });
       }
 
-      this.logger.log(
+      this.logger.info(
         `${query} queried for ${fandom} in ${data.guild_id} by ` +
           `${(data.member || data).user?.username}#${
             (data.member || data).user?.discriminator

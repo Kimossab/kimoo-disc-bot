@@ -21,7 +21,7 @@ export default class VNDBModule extends BaseModule {
   constructor(isActive: boolean) {
     super("vn", isActive);
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 

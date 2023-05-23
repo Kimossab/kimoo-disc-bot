@@ -23,7 +23,7 @@ export default class SauceAnimeModule extends BaseModule {
     super("sauce", isActive, "Sauce (anime)");
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 

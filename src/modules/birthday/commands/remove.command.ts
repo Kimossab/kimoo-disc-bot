@@ -63,7 +63,7 @@ const handler = (logger: Logger): CommandHandler => {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.birthday.remove_success,
         });
-        logger.log(
+        logger.info(
           `Removed user ${user} birthday in ${data.guild_id} by ` +
             `${(data.member || data).user?.username}#${
               (data.member || data).user?.discriminator

@@ -18,7 +18,7 @@ export default class AnilistModule extends BaseModule {
     super("anilist", isActive);
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 

@@ -185,7 +185,7 @@ const handler = (logger: Logger): CommandHandler => {
 
       poll.hash = message?.id || hash;
 
-      logger.log("New poll created", poll);
+      logger.info("New poll created", poll);
 
       await poll.save();
     }
@@ -517,7 +517,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     const poll = await getPoll(messageId);
 
-    logger.log("Component interaction", subCmd);
+    logger.info("Component interaction", subCmd);
 
     if (!poll) {
       await createInteractionResponse(data.id, data.token, {

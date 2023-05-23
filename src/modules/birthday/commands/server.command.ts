@@ -41,7 +41,7 @@ const handler = (logger: Logger): CommandHandler => {
         }),
       });
 
-      logger.log(
+      logger.info(
         `Get server birthday date in ${data.guild_id} by ` +
           `${(data.member || data).user?.username}#${
             (data.member || data).user?.discriminator

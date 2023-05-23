@@ -82,7 +82,7 @@ const handler = (logger: Logger): CommandHandler => {
         }),
       });
 
-      logger.log(
+      logger.info(
         `Add user ${user} birthday to ${birthdayString} in ${data.guild_id} by ` +
           `${(data.member || data).user?.username}#${
             (data.member || data).user?.discriminator

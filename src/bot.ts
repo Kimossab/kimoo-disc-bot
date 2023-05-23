@@ -43,10 +43,10 @@ let hasStarted = false;
 // this is necessary mainly for ping/pong
 const commandExecuted = async (data: Interaction) => {
   if (data && data.type === InteractionType.PING) {
+    _logger.info("Got Ping");
     await createInteractionResponse(data.id, data.token, {
       type: InteractionCallbackType.PONG,
     });
-    _logger.log("Got Ping");
   }
 };
 
@@ -77,7 +77,7 @@ const modules = [
 ];
 
 const ready = async () => {
-  _logger.log("Discord says Ready");
+  _logger.info("Discord says Ready");
 
   const activeModules = modules.filter((module) => module.active);
 
@@ -103,7 +103,7 @@ const ready = async () => {
 
     for (const cmd of commandsToRemove) {
       if (cmd.id) {
-        _logger.log("Deleting command", cmd.name);
+        _logger.info("Deleting command", cmd.name);
         deleteCommand(app.id, cmd.id);
       }
     }
@@ -123,14 +123,14 @@ const ready = async () => {
     hasStarted = true;
   }
 
-  _logger.log("All set");
+  _logger.info("All set");
 };
 
 const updateBotPresence = () => {
   socket.randomPresence();
 
   const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);
-  _logger.log(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
+  _logger.info(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
   setTimeout(updateBotPresence, time);
 };
 
@@ -146,7 +146,7 @@ const main = async (): Promise<void> => {
   }
 
   if (gateway.session_start_limit.remaining === 0) {
-    _logger.log(
+    _logger.info(
       `SESSION START LIMIT REACHED (is 0). RESTARTING IN ${gateway.session_start_limit.reset_after}ms`,
       gateway
     );
@@ -155,10 +155,10 @@ const main = async (): Promise<void> => {
   }
 
   const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);
-  _logger.log(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
+  _logger.info(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
   setTimeout(updateBotPresence, time);
 
-  _logger.log(
+  _logger.info(
     `${gateway.session_start_limit.remaining}/${gateway.session_start_limit.remaining} sessions available`
   );
 

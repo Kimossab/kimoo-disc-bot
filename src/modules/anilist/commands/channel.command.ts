@@ -56,7 +56,7 @@ const handler = (logger: Logger): CommandHandler => {
             channel: `<#${channel}>`,
           }),
         });
-        logger.log(
+        logger.info(
           `Set Anime channel to ${channel} in ${data.guild_id} by ` +
             `${(data.member || data).user?.username}#${
               (data.member || data).user?.discriminator
@@ -69,7 +69,7 @@ const handler = (logger: Logger): CommandHandler => {
             channel: `<#${ch}>`,
           }),
         });
-        logger.log(
+        logger.info(
           `Get anime channel in ${data.guild_id} by ${
             (data.member || data).user?.username
           }#${(data.member || data).user?.discriminator}`

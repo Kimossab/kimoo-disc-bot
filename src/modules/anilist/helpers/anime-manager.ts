@@ -89,7 +89,7 @@ export class AnimeManager {
     );
 
     if (last && last.episode !== lastAiredDb?.lastAired) {
-      this.logger.log("Last aired episode is diferent from database", {
+      this.logger.info("Last aired episode is diferent from database", {
         db: lastAiredDb,
         last,
       });
@@ -120,7 +120,7 @@ export class AnimeManager {
     episodeInfo: NextEpisode,
     nextEpisodeInfo: NextEpisode | null
   ): Promise<void> => {
-    this.logger.log("Notifying for new episode", {
+    this.logger.info("Notifying for new episode", {
       id: animeInfo.id,
       name: animeInfo.title,
       episodeInfo,
@@ -154,7 +154,7 @@ export class AnimeManager {
 
   private setTimer = (time: number = MAX_TIMER) => {
     const timeToAir = Math.min(time * 1000, MAX_TIMER);
-    this.logger.log(`Set timeout for ${this.animeId} with ${timeToAir}ms`);
+    this.logger.info(`Set timeout for ${this.animeId} with ${timeToAir}ms`);
 
     if (this.timer) {
       clearTimeout(this.timer);

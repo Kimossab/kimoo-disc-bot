@@ -65,7 +65,7 @@ const handler = (logger: Logger): CommandHandler => {
         content: `Badge ${name} deleted`,
       });
 
-      logger.log(
+      logger.info(
         `Delete badge ${name} by ${(data.member || data).user?.id} in ${
           data.guild_id
         } by ${(data.member || data).user?.username}#${

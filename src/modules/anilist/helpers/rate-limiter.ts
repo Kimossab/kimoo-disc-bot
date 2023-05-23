@@ -74,7 +74,7 @@ export class AnilistRateLimit implements IAnilistRateLimit {
   };
 
   private logSuccess(name: string, headers: AxiosResponse["headers"]) {
-    this._logger.log(
+    this._logger.info(
       `[${name}][${headers[X_RATELIMIT_REMAINING]} / ${headers[X_RATELIMIT_LIMIT]}] Success.`
     );
   }

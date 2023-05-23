@@ -74,7 +74,7 @@ const handler = (logger: Logger): CommandHandler => {
         content: `Here's your donut:\n\`\`\`\n${donut}\`\`\``,
       });
 
-      logger.log(
+      logger.info(
         `Donut was requested in ${data.guild_id} by ${
           (data.member || data).user?.username
         }#${(data.member || data).user?.discriminator}`

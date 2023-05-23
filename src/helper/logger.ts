@@ -1,77 +1,49 @@
 /* eslint-disable no-console */
-import { colors } from "./constants";
-import util from "util";
+import { createLogger, format, transports } from "winston";
+import LokiTransport from "winston-loki";
 
-let currentColor = 1;
 export interface ILogger {
-  log(message: string | null | undefined, ...data: unknown[]): void;
+  info(message: string, ...data: unknown[]): void;
+  debug(message: string, ...data: unknown[]): void;
   error(message: string, ...data: unknown[]): void;
 }
-/**
- * Class that handles logging of stuff
- */
+
 class Logger implements ILogger {
-  private _color = colors.white;
+  private _winston;
 
-  private _module;
-
-  constructor(module: string, color?: colors) {
-    this._module = module;
-    if (color !== undefined) {
-      this._color = color;
-    } else {
-      this._color = currentColor++;
-
-      if (currentColor > 9) {
-        currentColor = 1;
-      }
-    }
+  constructor(module: string) {
+    this._winston = createLogger({
+      level: process.env.ENV == "prod" ? "info" : "silly",
+      defaultMeta: { module },
+      transports: [
+        new LokiTransport({
+          host: process.env.LOKI_HOST,
+          labels: { app: process.env.LOKI_APP, module, env: process.env.ENV },
+          basicAuth: process.env.LOKI_BASIC_AUTH,
+          json: true,
+          format: format.json(),
+          replaceTimestamp: true,
+          onConnectionError: (err) => console.error(err),
+        }),
+        new transports.Console({
+          format: format.combine(
+            format.timestamp(),
+            format.simple(),
+            format.colorize()
+          ),
+        }),
+      ],
+    });
   }
 
-  /**
-   * Prints the log on the console and all the variables given
-   * @param message Message to write
-   * @param data Variables to log
-   */
-  public log(message: string | null | undefined, ...data: unknown[]): void {
-    const timeString = new Date().toLocaleTimeString();
-    const colStr = `\x1b[${90 + this._color}m`;
-
-    console.log(
-      `${colStr}[${timeString}][${this._module}]`,
-      message,
-      "\x1b[0m"
-    );
-    if (data.length) {
-      for (const d of data) {
-        console.log(`${colStr}•\x1b[0m`, util.inspect(d, false, null, true));
-      }
-    }
+  public info(message: string, ...data: unknown[]) {
+    this._winston.info(message, ...data);
   }
-
-  /**
-   * Prints the log as an error on the console and all the variables given
-   * @param message Message to write
-   * @param data Variables to log
-   */
-  public error(message: string, ...data: unknown[]): void {
-    const timeString = new Date().toLocaleTimeString();
-    const colStr = `\x1b[5;${90 + colors.white};${100 + colors.red}m`;
-
-    console.log(
-      `${colStr}[${timeString}][${this._module}]`,
-      message,
-      "\x1b[0m"
-    );
-    if (data.length) {
-      for (const d of data) {
-        console.log(
-          `${colStr}•`,
-          util.inspect(d, false, null, true),
-          "\x1b[0m"
-        );
-      }
-    }
+  public debug(message: string, ...data: unknown[]) {
+    this._winston.debug(message, ...data);
+  }
+  public error(message: string, ...data: unknown[]) {
+    this._winston.error(message, ...data);
   }
 }
 

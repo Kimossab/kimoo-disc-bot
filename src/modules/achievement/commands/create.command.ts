@@ -90,7 +90,7 @@ const handler = (logger: Logger): CommandHandler => {
         }),
       });
 
-      logger.log(
+      logger.info(
         `Create achievement ${name} in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
       );
     }

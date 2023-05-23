@@ -53,7 +53,7 @@ const handler = (logger: Logger): CommandHandler => {
           }),
           allowed_mentions: no_mentions,
         });
-        logger.log(
+        logger.info(
           `Set birthday role ${role} in ${data.guild_id} by ${
             (data.member || data).user?.username
           }#${(data.member || data).user?.discriminator}`
@@ -73,7 +73,7 @@ const handler = (logger: Logger): CommandHandler => {
             allowed_mentions: no_mentions,
           });
         }
-        logger.log(
+        logger.info(
           `Get birthday role in ${data.guild_id} by ${
             (data.member || data).user?.username
           }#${(data.member || data).user?.discriminator}`

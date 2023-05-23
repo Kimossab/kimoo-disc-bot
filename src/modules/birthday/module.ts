@@ -33,7 +33,7 @@ export default class BirthdayModule extends BaseModule {
     super("birthday", isActive);
 
     if (!isActive) {
-      this.logger.log("Module deactivated");
+      this.logger.info("Module deactivated");
       return;
     }
 
@@ -53,7 +53,7 @@ export default class BirthdayModule extends BaseModule {
   }
 
   private async checkBirthdays() {
-    this.logger.log("Checking birthdays");
+    this.logger.info("Checking birthdays");
 
     if (this.checkTimeout) {
       clearTimeout(this.checkTimeout);
@@ -86,7 +86,7 @@ export default class BirthdayModule extends BaseModule {
 
     const rolesToRemove = await getOldBirthdayWithRole(day, month);
 
-    this.logger.log("Roles to Remove", rolesToRemove);
+    this.logger.info("Roles to Remove", rolesToRemove);
 
     for (const toRemove of rolesToRemove) {
       if (serverChannels[toRemove.server].role) {
@@ -103,7 +103,7 @@ export default class BirthdayModule extends BaseModule {
     }
 
     if (todayBirthDays.length > 0) {
-      this.logger.log("Today's birthdays", todayBirthDays);
+      this.logger.info("Today's birthdays", todayBirthDays);
 
       const serverBirthdays: Record<string, IBirthday[]> = {};
 
@@ -153,7 +153,7 @@ export default class BirthdayModule extends BaseModule {
       (60 - minutes - 1) * 60 * 1000 + // m to next h
       ((hours >= 12 ? 24 : 12) - hours - 1) * 60 * 60 * 1000; // h to next 12/24
 
-    this.logger.log(`next check in ${time} milliseconds`);
+    this.logger.info(`next check in ${time} milliseconds`);
     this.checkTimeout = setTimeout(() => this.checkBirthdays(), time);
   }
 

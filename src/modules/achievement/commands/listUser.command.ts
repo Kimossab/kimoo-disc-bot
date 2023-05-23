@@ -70,7 +70,7 @@ const handler = (logger: Logger): CommandHandler => {
       await pagination.create(data.token);
       addPagination(pagination as InteractionPagination);
 
-      logger.log(
+      logger.info(
         `List user ${userId} achievements in ${data.guild_id} by ${data.member.user?.username}#${data.member.user?.discriminator}`
       );
     }

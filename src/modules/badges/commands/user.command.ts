@@ -68,7 +68,7 @@ const handler = (logger: Logger): CommandHandler => {
       await pagination.create(data.token);
       addPagination(pagination as InteractionPagination);
 
-      logger.log(
+      logger.info(
         `List badges for user ${userId} by ${
           (data.member || data).user?.id
         } in ${data.guild_id} by ${(data.member || data).user?.username}#${

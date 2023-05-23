@@ -218,7 +218,7 @@ export default class BaseModule {
       !discordCommand ||
       !compareCommands(this.commandDefinition, discordCommand)
     ) {
-      this.logger.log("Creating command");
+      this.logger.info("Creating command");
       await createCommand(appId, this.commandDefinition);
     }
   }
