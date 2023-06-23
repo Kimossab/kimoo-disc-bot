@@ -1,10 +1,7 @@
 import "dotenv/config";
 
-import AchievementModule from "#/achievement/module";
 import AnilistModule from "#/anilist/module";
-import BadgesModule from "#/badges/module";
 import BirthdayModule from "#/birthday/module";
-import FandomModule from "#/fandom/module";
 import MiscModule from "#/misc/module";
 import VNDBModule from "#/vndb/module";
 import SauceAnimeModule from "#sauceAnime/module";
@@ -52,9 +49,6 @@ const commandExecuted = async (data: Interaction) => {
 
 const toggles = {
   BIRTHDAY_MODULE: process.env.BIRTHDAY_MODULE === "true",
-  ACHIEVEMENT_MODULE: process.env.ACHIEVEMENT_MODULE === "true",
-  BADGES_MODULE: process.env.BADGES_MODULE === "true",
-  FANDOM_MODULE: process.env.FANDOM_MODULE === "true",
   SAUCE_MODULE: process.env.SAUCE_MODULE === "true",
   MISC_MODULE: process.env.MISC_MODULE === "true",
   VNDB_MODULE: process.env.VNDB_MODULE === "true",
@@ -65,9 +59,6 @@ const toggles = {
 const modules = [
   new SettingsModule(),
   new BirthdayModule(toggles.BIRTHDAY_MODULE),
-  new AchievementModule(toggles.ACHIEVEMENT_MODULE),
-  new BadgesModule(toggles.BADGES_MODULE),
-  new FandomModule(toggles.FANDOM_MODULE),
   new SauceArtModule(toggles.SAUCE_MODULE),
   new SauceAnimeModule(toggles.SAUCE_MODULE),
   new MiscModule(toggles.MISC_MODULE),

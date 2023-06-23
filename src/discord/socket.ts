@@ -8,7 +8,6 @@ import {
   getDiscordLastS,
   getDiscordSession,
   getResumeGateway,
-  setChannelLastAttachment,
   setDiscordLastS,
   setDiscordSession,
   setReadyData,
@@ -185,13 +184,6 @@ class Socket {
         }
         break;
       case GatewayEvent.MessageCreate:
-        if (event.d.attachments.length > 0) {
-          setChannelLastAttachment({
-            channel: event.d.channel_id,
-            attachment: event.d.attachments[event.d.attachments.length - 1].url,
-          });
-        }
-
         if (!event.d.guild_id) {
           this.handleDM(event.d);
         }

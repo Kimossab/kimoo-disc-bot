@@ -1,5 +1,3 @@
-import achievementModel from "#/achievement/models/achievement.model";
-
 import Logger from "./logger";
 import mongoose from "mongoose";
 
@@ -17,7 +15,6 @@ const mongoConnect = async (url: string): Promise<void> => {
   } catch (e) {
     _logger.error(`Could not connect to the database (${url}).`, e);
   }
-  achievementModel.createCollection();
 };
 
 export default mongoConnect;

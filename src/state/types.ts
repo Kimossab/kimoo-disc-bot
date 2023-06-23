@@ -22,7 +22,6 @@ export enum ActionName {
   SetReadyCallback = "SET_READY_CALLBACK",
   SetCommandExecutedCallback = "SET_COMMAND_EXECUTED_CALLBACK",
   SetReactionCallback = "SET_REACTION_CALLBACK",
-  SetChannelLastAttachment = "SET_CHANNEL_LAST_ATTACHMENT",
   SetDiscordSession = "SET_DISCORD_SESSION",
   SetDiscordLastS = "SET_DISCORD_LAST_S",
   AddGuild = "ADD_GUILD",
@@ -34,7 +33,6 @@ export enum ActionName {
   CommandExecuted = "COMMAND_EXECUTED",
 
   GetApplication = "GET_APPLICATION",
-  GetChannelLastAttachment = "GET_CHANNEL_LAST_ATTACHMENT",
   GetGuilds = "GET_GUILDS",
   GetResumeGateway = "GET_RESUME_GATEWAY",
   GetDiscordSession = "GET_DISCORD_SESSION",
@@ -78,13 +76,6 @@ export interface Actions extends Record<string, ActionData> {
     ) => void;
     response: void;
   };
-  [ActionName.SetChannelLastAttachment]: {
-    payload: {
-      channel: string;
-      attachment: string;
-    };
-    response: void;
-  };
   [ActionName.SetDiscordSession]: {
     payload: string | null;
     response: void;
@@ -113,10 +104,6 @@ export interface Actions extends Record<string, ActionData> {
   [ActionName.GetApplication]: {
     payload: undefined;
     response: State["application"];
-  };
-  [ActionName.GetChannelLastAttachment]: {
-    payload: string | undefined;
-    response: string;
   };
   [ActionName.GetGuilds]: {
     payload: undefined;
@@ -162,7 +149,6 @@ export interface State {
   application: Partial<Application> | null;
   guilds: Guild[];
   allPaginations: InteractionPagination[];
-  channelLastAttachment: Record<string, string>;
   discordSessionId: string | null;
   discordLastS: number | null;
   resumeGatewayUrl: string;
