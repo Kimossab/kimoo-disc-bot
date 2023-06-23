@@ -55,6 +55,8 @@ const handleTraceMoe = async (
     return;
   }
 
+  logger.debug("trace moe response", traceMoe.result);
+
   const pagination = new InteractionPagination(
     app.id ?? "",
     traceMoe.result,

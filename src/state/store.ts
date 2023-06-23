@@ -16,7 +16,6 @@ const state: State = {
   allPaginations: [],
   discordSessionId: null,
   discordLastS: null,
-  channelLastAttachment: {},
   readyCallback: null,
   commandExecutedCallback: [],
   messageReactionCallback: [],
@@ -60,10 +59,6 @@ const actions: StateActions = {
     state.messageReactionCallback.push(payload);
     return state;
   },
-  [ActionName.SetChannelLastAttachment]: ({ channel, attachment }) => {
-    state.channelLastAttachment[channel] = attachment;
-    return state;
-  },
   [ActionName.SetDiscordSession]: (payload) => {
     state.discordSessionId = payload;
     return state;
@@ -98,8 +93,6 @@ const actions: StateActions = {
     return state;
   },
   [ActionName.GetApplication]: () => state.application,
-  [ActionName.GetChannelLastAttachment]: (channel) =>
-    channel ? state.channelLastAttachment[channel] : "",
   [ActionName.GetGuilds]: () => state.guilds,
   [ActionName.GetResumeGateway]: () => state.resumeGatewayUrl,
   [ActionName.GetDiscordSession]: () => state.discordSessionId,
@@ -158,14 +151,10 @@ export const setCommandExecutedCallback =
   actions[ActionName.SetCommandExecutedCallback];
 export const setReactionCallback = actions[ActionName.SetReactionCallback];
 export const addPagination = actions[ActionName.AddPagination];
-export const setChannelLastAttachment =
-  actions[ActionName.SetChannelLastAttachment];
 export const setDiscordSession = actions[ActionName.SetDiscordSession];
 export const setDiscordLastS = actions[ActionName.SetDiscordLastS];
 export const removePagination = actions[ActionName.RemovePagination];
 export const getApplication = actions[ActionName.GetApplication];
-export const getChannelLastAttachment =
-  actions[ActionName.GetChannelLastAttachment];
 export const getGuilds = actions[ActionName.GetGuilds];
 export const getResumeGateway = actions[ActionName.GetResumeGateway];
 export const getDiscordSession = actions[ActionName.GetDiscordSession];

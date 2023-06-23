@@ -150,19 +150,37 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     graphql: string,
     variables: Record<string, unknown>
   ): Promise<AxiosResponse<Response<T>>> {
-    const response = await axios.post<string, AxiosResponse<Response<T>>>(
-      ANILIST_GRAPHQL,
-      JSON.stringify({
-        query: graphql,
-        variables: variables,
-      }),
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+    try {
+      const response = await axios.post<string, AxiosResponse<Response<T>>>(
+        ANILIST_GRAPHQL,
+        JSON.stringify({
+          query: graphql,
+          variables: variables,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+      this._logger.info("Anilist request", {
+        graphql,
+        variables,
+        response: {
+          data: response.data,
+          status: response.status,
+          headers: response.headers,
         },
-      }
-    );
-    return response;
+      });
+      return response;
+    } catch (e) {
+      this._logger.error("Anilist request", {
+        graphql,
+        variables,
+        exception: e,
+      });
+      throw e;
+    }
   }
 }

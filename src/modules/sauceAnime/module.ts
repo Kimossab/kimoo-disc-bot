@@ -50,18 +50,28 @@ export default class SauceAnimeModule extends BaseModule {
         },
       });
 
-      const msgs = Object.values(
-        data.data?.resolved?.messages ?? {}
-      ) as Message[];
+      const msgs = (
+        Object.values(data.data?.resolved?.messages ?? {}) as Message[]
+      )
+        .map((m) => {
+          if (m.attachments.length) {
+            return m.attachments[0].url || null;
+          }
+          if (m.embeds.length) {
+            return m.embeds.find((e) => e.type === "image")?.url || null;
+          }
+          return null;
+        })
+        .filter((m) => m !== null);
 
-      if (!msgs.length || !msgs[0].attachments.length) {
+      if (!msgs.length) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.sauce.image_not_found,
         });
         return;
       }
 
-      const url = msgs[0].attachments[0].url;
+      const url = msgs[0]!;
 
       handleTraceMoe(data, url, app, this.logger);
     }

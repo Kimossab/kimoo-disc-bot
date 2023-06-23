@@ -7,21 +7,10 @@ export const traceMoeEmbed = (
   page: number,
   total: number
 ): Embed => {
-  let title: string[] = [];
-
-  if (item.anilist.title?.english) {
-    title.push(item.anilist.title.english);
-  }
-
-  if (item.anilist.title?.romaji) {
-    title.push(item.anilist.title.romaji);
-  }
-
-  if (item.anilist.title?.native) {
-    title.push(item.anilist.title.native);
-  }
-
-  title = title.filter((elem, index, self) => index === self.indexOf(elem));
+  const title =
+    item.anilist.title.romaji ||
+    item.anilist.title.english ||
+    item.anilist.title.native;
 
   const description: string[] = [];
 
@@ -31,7 +20,7 @@ export const traceMoeEmbed = (
   description.push(`@${formatSecondsIntoMinutes(item.from)}`);
 
   const embed: Embed = {
-    title: title.length ? title.join(" - ") : "UNKNOWN",
+    title: title || "UNKNOWN",
     description: description.join(" "),
     color: 3035554,
     url: `https://myanimelist.net/anime/${item.anilist.idMal}`,
@@ -55,7 +44,11 @@ export const traceMoeEmbed = (
   if (item.anilist.synonyms?.length > 0) {
     embed.fields?.push({
       name: messageList.sauce.other_names,
-      value: item.anilist.synonyms.join(" | "),
+      value: [
+        item.anilist.title.romaji,
+        item.anilist.title.english,
+        item.anilist.title.native,
+      ].join("\n"),
     });
   }
 
@@ -63,6 +56,5 @@ export const traceMoeEmbed = (
     name: "⠀",
     value: `[Video](${item.video})`,
   });
-
   return embed;
 };
