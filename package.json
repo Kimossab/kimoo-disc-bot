@@ -19,7 +19,7 @@
   "devDependencies": {
     "@jagi/jest-transform-graphql": "^1.0.2",
     "@types/request": "^2.48.8",
-    "@types/ws": "^8.5.4",
+    "@types/ws": "^8.5.5",
     "@typescript-eslint/eslint-plugin": "^5.60.0",
     "@typescript-eslint/parser": "^5.60.0",
     "casual": "^1.6.2",
