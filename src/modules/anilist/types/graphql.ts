@@ -121,6 +121,12 @@ interface MediaTitle {
   userPreferred: string;
 }
 
+export interface Trailer {
+  id: string;
+  site: string;
+  thumbnail: string;
+}
+
 interface Media {
   id: number;
   idMal: number | null;
@@ -136,7 +142,9 @@ interface Media {
   duration: number | null;
   volumes: number | null;
   isLicensed: boolean;
+  countryOfOrigin: string;
   source: MediaSource | null;
+  trailer: Trailer | null;
   updatedAt: number;
   coverImage: MediaCoverImage;
   genres: string[] | null;
@@ -151,8 +159,8 @@ interface Media {
   siteUrl: string;
 }
 
-export interface MediaList {
-  media: Media[];
+export interface MediaList<T = Media> {
+  media: T[];
 }
 
 interface PageInfo {
@@ -228,3 +236,30 @@ export interface AiringScheduleResponse {
 export interface Response<T> {
   data: T;
 }
+
+export type UpcomingMedia = MediaList<
+  Pick<
+    Media,
+    | "id"
+    | "idMal"
+    | "title"
+    | "format"
+    | "description"
+    | "startDate"
+    | "episodes"
+    | "duration"
+    | "countryOfOrigin"
+    | "source"
+    | "trailer"
+    | "updatedAt"
+    | "coverImage"
+    | "genres"
+    | "studios"
+    | "isAdult"
+    | "nextAiringEpisode"
+    | "externalLinks"
+    | "siteUrl"
+  > & {
+    tags: { name: string; isMediaSpoiler: boolean }[];
+  }
+>;

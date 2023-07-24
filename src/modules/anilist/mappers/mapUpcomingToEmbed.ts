@@ -1,6 +1,7 @@
 import {
   cleanUpDescription,
-  formatReleasingDate,
+  dateToString,
+  formatTrailerLink,
 } from "#anilist/mappers/helperMappers";
 
 import { stringReplacer } from "@/helper/common";
@@ -12,20 +13,17 @@ import {
   createFooter,
   createTitle,
 } from "@/helper/embed";
+import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { Embed, EmbedField } from "@/types/discord";
 
-import { MediaList, PageResponse } from "../types/graphql";
-import {
-  formatMapper,
-  relationMapper,
-  seasonMapper,
-  sourceMapper,
-  statusMapper,
-  typeMapper,
-} from "./enumMapper";
+import { PageResponse, UpcomingMedia } from "../types/graphql";
+import { formatMapper, sourceMapper } from "./enumMapper";
 
-export const mapMediaToEmbed = (data: PageResponse<MediaList>): Embed[] => {
+export const mapUpcomingToEmbed = (
+  logger: Logger,
+  data: PageResponse<UpcomingMedia>
+): Embed[] => {
   return data.Page.media.map((media, index) => {
     const fields: EmbedField[] = [];
 
@@ -35,17 +33,16 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): Embed[] => {
           `• ${media.title.native}`,
           `• ${media.title.romaji}`,
         ]),
-        createEmbedField("Type", typeMapper[media.type], true),
-        createEmbedField("Format", formatMapper[media.format], true),
-        createEmbedField("Status", statusMapper[media.status], true),
+        createEmbedField(
+          "Format",
+          media.format ? formatMapper[media.format] : "N/A",
+          true
+        ),
       ]
     );
-    const dates = formatReleasingDate(media.startDate, media.endDate);
-    if (dates) {
-      fields.push(createEmbedField("Airing Dates", dates, true));
-    }
-    if (media.season) {
-      fields.push(createEmbedField("Season", seasonMapper[media.season], true));
+    const date = dateToString(media.startDate);
+    if (date) {
+      fields.push(createEmbedField("Start Date", date, true));
     }
     if (media.episodes) {
       fields.push(
@@ -57,15 +54,12 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): Embed[] => {
         createEmbedField("Duration", media.duration.toString(), true)
       );
     }
-    if (media.volumes) {
-      fields.push(createEmbedField("Volumes", media.volumes.toString(), true));
-    }
     if (media.source) {
       fields.push(createEmbedField("Source", sourceMapper[media.source], true));
     }
-    if (media.averageScore) {
+    if (media.countryOfOrigin) {
       fields.push(
-        createEmbedField("Average score", media.averageScore.toString(), true)
+        createEmbedField("Country of Origin", media.countryOfOrigin, true)
       );
     }
     if (media.nextAiringEpisode) {
@@ -89,19 +83,15 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): Embed[] => {
     if (media.genres?.length) {
       fields.push(createEmbedField("Genres", media.genres.join(", ")));
     }
-    if (media.relations.edges.length) {
-      const relationTextList = media.relations.edges.map(
-        (relation) =>
-          `• ${relationMapper[relation.relationType]} (${
-            formatMapper[relation.node.format]
-          }): [${
-            relation.node.title.english ||
-            relation.node.title.romaji ||
-            relation.node.title.native
-          }](${relation.node.siteUrl})`
+    if (media.tags?.length) {
+      fields.push(
+        createEmbedField(
+          "Tags",
+          media.tags
+            .map((tag) => (tag.isMediaSpoiler ? `||${tag.name}||` : tag.name))
+            .join(", ")
+        )
       );
-
-      fields.push(...createEmbedFieldList("Relations", relationTextList));
     }
 
     if (media.idMal || media.externalLinks?.length) {
@@ -119,6 +109,17 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): Embed[] => {
           true
         )
       );
+    }
+
+    if (media.trailer) {
+      const link = formatTrailerLink(media.trailer);
+      if (!link.startsWith("http")) {
+        logger.error("UNKNOWN SITE for formatting", {
+          trailer: media.trailer,
+          animeId: media.id,
+        });
+      }
+      fields.push(createEmbedField("Trailer", link, true));
     }
 
     const embed: Embed = {
