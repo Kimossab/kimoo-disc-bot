@@ -6,7 +6,6 @@ import {
   ActionRow,
   Button,
   ButtonStyle,
-  Component,
   ComponentType,
   EditWebhookMessage,
   InteractionCallbackData,
@@ -15,6 +14,8 @@ import {
   MessageComponentInteractionData,
   snowflake,
 } from "@/types/discord";
+
+import { chunkArray } from "./common";
 
 export type CreatePageCallback<T> = (
   page: number,
@@ -69,17 +70,23 @@ export class InteractionPagination<T = unknown> {
         custom_id: "pagination.previous",
         label: "◀",
       };
-      const pageSelector: Component = {
-        type: ComponentType.StringSelect,
-        custom_id: "pagination.select",
-        options: Array.from(Array(this.data.length)).map((_value, index) => {
-          return {
-            label: `Page ${index + 1}`,
-            value: index.toString(),
-            default: index === this.currentPage,
-          };
-        }),
-      };
+      const chunks = chunkArray(this.data, 25);
+      const pageSelector: ActionRow[] = chunks.map((chunk, pIdx) => ({
+        type: ComponentType.ActionRow,
+        components: [
+          {
+            type: ComponentType.StringSelect,
+            custom_id: `pagination.select.${pIdx}`,
+            options: Array.from(Array(chunk.length)).map((_value, index) => {
+              return {
+                label: `Page ${index + 1 + pIdx * 25}`,
+                value: (index + pIdx * 25).toString(),
+                default: index + pIdx * 25 === this.currentPage,
+              };
+            }),
+          },
+        ],
+      }));
       const buttonRight: Button = {
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
@@ -92,10 +99,7 @@ export class InteractionPagination<T = unknown> {
       };
       pageData.components = [
         ...(pageData.components ?? []),
-        {
-          type: ComponentType.ActionRow,
-          components: [pageSelector],
-        },
+        ...pageSelector,
         actionRow,
       ];
     }

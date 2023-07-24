@@ -4,13 +4,16 @@ import {
   MediaForAiring,
   MediaList,
   MediaResponse,
+  MediaSeason,
   MediaSubbed,
   MediaType,
   NextAiringWithTitle,
   PageResponse,
+  UpcomingMedia,
 } from "../types/graphql";
 import { getAiringScheduleGraphql } from "./queries/getAiringScheduleGraphql";
 import { getFullAiringScheduleGraphql } from "./queries/getFullAiringScheduleGraphql";
+import { getUpcoming } from "./queries/getUpcoming";
 import { searchByIdsGraphql } from "./queries/searchByIdsGraphql";
 import { searchByTypeGraphql } from "./queries/searchByTypeGraphql";
 import { searchForAiringScheduleGraphql } from "./queries/searchForAiringScheduleGraphql";
@@ -91,6 +94,19 @@ export const getFullAiringSchedule = async (
     getFullAiringScheduleGraphql,
     {
       id,
+    }
+  );
+};
+
+export const getUpcomingAnime = async (
+  rateLimiter: IAnilistRateLimit,
+  season: MediaSeason
+): Promise<PageResponse<UpcomingMedia> | null> => {
+  return await rateLimiter.request<PageResponse<UpcomingMedia>>(
+    "getUpcoming",
+    getUpcoming,
+    {
+      season,
     }
   );
 };
