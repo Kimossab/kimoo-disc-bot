@@ -1,7 +1,7 @@
 import Logger from "@/helper/logger";
 
 import { Response } from "../types/graphql";
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 const X_RATELIMIT_LIMIT = "x-ratelimit-limit";
 const X_RATELIMIT_REMAINING = "x-ratelimit-remaining";
@@ -78,14 +78,18 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     });
   }
 
-  private async checkQueue() {
+  private getNextInQueue() {
     if (this.queue.length === 0) {
       this.timerActive = false;
-      return;
+      return null;
     }
     this.timerActive = true;
 
-    const request = this.queue.shift();
+    return this.queue.shift();
+  }
+
+  private async checkQueue() {
+    const request = this.getNextInQueue();
 
     if (!request) {
       return;
@@ -106,32 +110,8 @@ export class AnilistRateLimit implements IAnilistRateLimit {
           e.response?.status === 429 &&
           !!e.response.headers[X_RATELIMIT_RESET]
         ) {
-          const nextRequest = Number(e.response.headers[X_RATELIMIT_RESET]);
-
-          this.queue.unshift(request);
-
-          const now = +new Date();
-
-          let timeoutTime = nextRequest - now;
-          if (nextRequest <= now) {
-            timeoutTime = TIMEOUT;
-          }
-
-          this._logger.error(`Rate limited`, {
-            name: request.name,
-            timeoutTime,
-          });
-
-          setTimeout(() => {
-            this.checkQueue();
-          }, timeoutTime);
-
-          //no need to callback because we're going to request again
-
-          return;
+          return this.rateLimited(e, request);
         }
-
-        request.callback(null);
 
         if (e.response?.status !== 404) {
           this.handleErrors(request.name, e);
@@ -139,11 +119,38 @@ export class AnilistRateLimit implements IAnilistRateLimit {
       } else {
         this.handleErrors(request.name, e as ErrorType);
       }
+      request.callback(null);
     }
 
     setTimeout(() => {
       this.checkQueue();
     }, TIMEOUT);
+  }
+
+  private rateLimited(
+    e: AxiosError<{ headers: Record<string, string> }, unknown>,
+    request: RequestData<unknown>
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const nextRequest = Number(e.response!.headers[X_RATELIMIT_RESET]);
+
+    this.queue.unshift(request);
+
+    const now = +new Date();
+
+    let timeoutTime = nextRequest - now;
+    if (nextRequest <= now) {
+      timeoutTime = TIMEOUT;
+    }
+
+    this._logger.error(`Rate limited`, {
+      name: request.name,
+      timeoutTime,
+    });
+
+    setTimeout(() => {
+      this.checkQueue();
+    }, timeoutTime);
   }
 
   private async doRequest<T>(

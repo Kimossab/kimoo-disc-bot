@@ -32,23 +32,8 @@ export const mapPollToComponents: MapPollToComponents = (
 ) => {
   const components: ActionRow[] = [];
 
-  let i = 0;
-  const chunks = chunkArray(poll.options, 5);
+  addOptionsComponents(poll, type, components, singleResponse);
 
-  if (!hasExpired(poll)) {
-    for (const chunk of chunks) {
-      components.push({
-        type: ComponentType.ActionRow,
-        components: chunk.map((option) => ({
-          type: ComponentType.Button,
-          style: ButtonStyle.Primary,
-          disabled: singleResponse === i,
-          custom_id: `voting.create.${prefixMap.get(type)}${i++}`,
-          label: option.text,
-        })),
-      });
-    }
-  }
   if (type === PollMessageType.VOTE) {
     components.push({
       type: ComponentType.ActionRow,
@@ -66,6 +51,19 @@ export const mapPollToComponents: MapPollToComponents = (
       ],
     });
   } else if (type === PollMessageType.SETTINGS) {
+    addSettingsComponents(poll, user, singleResponse, components);
+  }
+
+  return components;
+};
+
+const addSettingsComponents = (
+  poll: IPoll,
+  user: string | undefined,
+  singleResponse: number | undefined,
+  components: ActionRow[]
+) => {
+  {
     const actionRow: ActionRow = {
       type: ComponentType.ActionRow,
       components: [],
@@ -125,6 +123,29 @@ export const mapPollToComponents: MapPollToComponents = (
       components.push(actionRow);
     }
   }
+};
 
-  return components;
+const addOptionsComponents = (
+  poll: IPoll,
+  type: PollMessageType,
+  components: ActionRow[],
+  singleResponse: number | undefined
+) => {
+  let i = 0;
+  const chunks = chunkArray(poll.options, 5);
+
+  if (type === PollMessageType.SETTINGS || !hasExpired(poll)) {
+    for (const chunk of chunks) {
+      components.push({
+        type: ComponentType.ActionRow,
+        components: chunk.map((option) => ({
+          type: ComponentType.Button,
+          style: ButtonStyle.Primary,
+          disabled: singleResponse === i,
+          custom_id: `voting.create.${prefixMap.get(type)}${i++}`,
+          label: option.text,
+        })),
+      });
+    }
+  }
 };

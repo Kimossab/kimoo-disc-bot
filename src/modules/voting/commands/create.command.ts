@@ -194,7 +194,7 @@ const handler = (logger: Logger): CommandHandler => {
 
 type ComponentHandler<
   T extends ModalSubmitInteractionData | MessageComponentInteractionData,
-  E = void
+  E = void,
 > = (
   poll: IPoll,
   data: Interaction<T>,

@@ -67,10 +67,6 @@ const actions: StateActions = {
     state.discordLastS = payload;
     return state;
   },
-  [ActionName.AddGuild]: (payload) => {
-    state.guilds.push(payload);
-    return state;
-  },
   [ActionName.AddGuildMembers]: ({ guild: guildId, members, clean }) => {
     const guild = state.guilds.find((g) => g.id === guildId);
     if (!guild) {
