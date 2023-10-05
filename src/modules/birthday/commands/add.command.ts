@@ -5,7 +5,7 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { stringReplacer } from "@/helper/common";
+import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
@@ -76,7 +76,7 @@ const handler = (logger: Logger): CommandHandler => {
 
       const birthdayString = `${day}/${month}${year ? `/${year}` : ""}`;
       await editOriginalInteractionResponse(app.id, data.token, {
-        content: stringReplacer(messageList.birthday.set_success, {
+        content: interpolator(messageList.birthday.set_success, {
           user: `<@${user}>`,
           date: birthdayString,
         }),
@@ -84,9 +84,8 @@ const handler = (logger: Logger): CommandHandler => {
 
       logger.info(
         `Add user ${user} birthday to ${birthdayString} in ${data.guild_id} by ` +
-          `${(data.member || data).user?.username}#${
-            (data.member || data).user?.discriminator
-          }`
+          `${(data.member || data).user?.username}#${(data.member || data).user
+            ?.discriminator}`
       );
     }
   };

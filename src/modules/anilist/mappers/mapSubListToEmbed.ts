@@ -1,4 +1,4 @@
-import { stringReplacer } from "@/helper/common";
+import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { Embed } from "@/types/discord";
 
@@ -27,7 +27,7 @@ export const mapSubListToEmbed = (
 
   if (total > 1) {
     embed.footer = {
-      text: stringReplacer(messageList.common.page, {
+      text: interpolator(messageList.common.page, {
         page,
         total,
       }),

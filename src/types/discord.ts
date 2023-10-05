@@ -966,7 +966,7 @@ export interface Interaction<
     | ModalSubmitInteractionData =
     | InteractionData
     | MessageComponentInteractionData
-    | ModalSubmitInteractionData
+    | ModalSubmitInteractionData,
 > {
   /** id of the interaction */
   id: snowflake;

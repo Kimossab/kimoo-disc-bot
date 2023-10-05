@@ -18,7 +18,7 @@ export enum string_constants {
  * @param str Original string
  * @param replace Object with the replaces
  */
-export const stringReplacer = (
+export const interpolator = (
   str: string,
   replace: Record<string, string | number>
 ): string => {

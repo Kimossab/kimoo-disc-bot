@@ -4,7 +4,7 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { snowflakeToDate, stringReplacer } from "@/helper/common";
+import { interpolator, snowflakeToDate } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
@@ -36,16 +36,15 @@ const handler = (logger: Logger): CommandHandler => {
       }/${serverDate.getFullYear()}`;
 
       await editOriginalInteractionResponse(app.id, data.token, {
-        content: stringReplacer(messageList.birthday.server, {
+        content: interpolator(messageList.birthday.server, {
           date: birthdayString,
         }),
       });
 
       logger.info(
         `Get server birthday date in ${data.guild_id} by ` +
-          `${(data.member || data).user?.username}#${
-            (data.member || data).user?.discriminator
-          }`
+          `${(data.member || data).user?.username}#${(data.member || data).user
+            ?.discriminator}`
       );
     }
   };

@@ -1,6 +1,6 @@
 {
   "name": "kimoo-disc-bot",
-  "version": "2.6.0",
+  "version": "2.19.0",
   "description": "Kimossab's Discord Bot",
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",

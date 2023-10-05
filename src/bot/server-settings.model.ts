@@ -10,6 +10,8 @@ export interface IServerSettings {
   birthdayChannel: string | null;
   lastBirthdayWishes: number | null;
   birthdayRole: string | null;
+  //self-role
+  roleChannel: string | null;
 }
 
 const ServerSettingsSchema: Schema = new mongoose.Schema({
@@ -20,6 +22,7 @@ const ServerSettingsSchema: Schema = new mongoose.Schema({
   birthdayChannel: String,
   lastBirthdayWishes: Number,
   birthdayRole: String,
+  roleChannel: String,
 });
 
 export default mongoose.model<IServerSettings>(

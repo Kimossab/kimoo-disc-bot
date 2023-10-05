@@ -1,5 +1,5 @@
 import { editOriginalInteractionResponse } from "@/discord/rest";
-import { stringReplacer } from "@/helper/common";
+import { interpolator } from "@/helper/common";
 import {
   CreatePageCallback,
   InteractionPagination,
@@ -29,7 +29,7 @@ const sauceNaoEmbed = (
     color: 3035554,
     fields: [],
     footer: {
-      text: stringReplacer(messageList.common.page, {
+      text: interpolator(messageList.common.page, {
         page,
         total,
       }),

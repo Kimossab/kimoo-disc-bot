@@ -150,3 +150,16 @@ export const getAdminRole = async (id: string): Promise<Nullable<string>> => {
 
   return server?.adminRole;
 };
+
+export const setServerRoleChannel = async (server: string, channel: string) =>
+  ServerSettings.updateOne({ serverId: server }, { roleChannel: channel });
+
+export const getServerRoleChannel = async (
+  id: string
+): Promise<Nullable<string>> => {
+  const server = await ServerSettings.findOne({
+    serverId: id,
+  });
+
+  return server?.roleChannel;
+};

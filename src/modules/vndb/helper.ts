@@ -1,4 +1,4 @@
-import { stringReplacer } from "@/helper/common";
+import { interpolator } from "@/helper/common";
 import { CreatePageCallback } from "@/helper/interaction-pagination";
 import messageList from "@/helper/messages";
 import { Embed } from "@/types/discord";
@@ -110,7 +110,7 @@ export const vndbSearchEmbed = (
       },
     ],
     footer: {
-      text: stringReplacer(messageList.common.page, {
+      text: interpolator(messageList.common.page, {
         page,
         total,
       }),

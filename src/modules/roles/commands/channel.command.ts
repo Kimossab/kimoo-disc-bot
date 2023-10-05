@@ -1,12 +1,11 @@
 import { CommandInfo } from "#base-module";
 
-import { getServerAnimeChannel, setServerAnimeChannel } from "@/bot/database";
+import { getServerRoleChannel, setServerRoleChannel } from "@/bot/database";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
-import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
@@ -14,6 +13,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
+  InteractionCallbackDataFlags,
   InteractionCallbackType,
 } from "@/types/discord";
 
@@ -23,25 +23,26 @@ interface ChannelCommandOptions {
 
 const definition: ApplicationCommandOption = {
   name: "channel",
-  description:
-    "Sets the channel where the anime notification messages are sent to",
+  description: messageList.roles.channel.description,
   type: ApplicationCommandOptionType.SUB_COMMAND,
   options: [
     {
       name: "channel",
-      description:
-        "The channel where the anime notification messages are sent to",
+      description: messageList.roles.channel.option,
       type: ApplicationCommandOptionType.CHANNEL,
     },
   ],
 };
 
-const handler = (logger: Logger): CommandHandler => {
+const handler = (): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
-    if (app && app.id && data.guild_id) {
+    if (app?.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          flags: InteractionCallbackDataFlags.EPHEMERAL,
+        },
       });
 
       const { channel } = getOptions<ChannelCommandOptions>(
@@ -50,35 +51,32 @@ const handler = (logger: Logger): CommandHandler => {
       );
 
       if (channel) {
-        await setServerAnimeChannel(data.guild_id, channel);
+        await setServerRoleChannel(data.guild_id, channel);
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: interpolator(messageList.anilist.channel_set_success, {
+          content: interpolator(messageList.roles.channel.set_success, {
             channel: `<#${channel}>`,
           }),
         });
-        logger.info(
-          `Set Anime channel to ${channel} in ${data.guild_id} by ` +
-            `${(data.member || data).user?.username}#${(data.member || data)
-              .user?.discriminator}`
-        );
       } else {
-        const ch = await getServerAnimeChannel(data.guild_id);
+        const ch = await getServerRoleChannel(data.guild_id);
+        if (!ch) {
+          await editOriginalInteractionResponse(app.id, data.token, {
+            content: messageList.roles.errors.no_channel,
+          });
+          return;
+        }
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: interpolator(messageList.anilist.server_channel, {
+          content: interpolator(messageList.roles.channel.get, {
             channel: `<#${ch}>`,
           }),
         });
-        logger.info(
-          `Get anime channel in ${data.guild_id} by ${(data.member || data).user
-            ?.username}#${(data.member || data).user?.discriminator}`
-        );
       }
     }
   };
 };
 
-export default (logger: Logger): CommandInfo => ({
+export default (): CommandInfo => ({
   definition,
-  handler: handler(logger),
+  handler: handler(),
   isAdmin: true,
 });

@@ -1,4 +1,4 @@
-import { formatSecondsIntoMinutes, stringReplacer } from "@/helper/common";
+import { formatSecondsIntoMinutes, interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { Embed } from "@/types/discord";
 
@@ -34,7 +34,7 @@ export const traceMoeEmbed = (
       url: item.image,
     },
     footer: {
-      text: stringReplacer(messageList.common.page, {
+      text: interpolator(messageList.common.page, {
         page,
         total,
       }),

@@ -5,7 +5,7 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { stringReplacer } from "@/helper/common";
+import { interpolator } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -48,21 +48,21 @@ const handler = (logger: Logger): CommandHandler => {
       if (role) {
         await setServerBirthdayRole(data.guild_id, role);
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: stringReplacer(messageList.birthday.set_role, {
+          content: interpolator(messageList.birthday.set_role, {
             role: `<@&${role}>`,
           }),
           allowed_mentions: no_mentions,
         });
         logger.info(
-          `Set birthday role ${role} in ${data.guild_id} by ${
-            (data.member || data).user?.username
-          }#${(data.member || data).user?.discriminator}`
+          `Set birthday role ${role} in ${data.guild_id} by ${(
+            data.member || data
+          ).user?.username}#${(data.member || data).user?.discriminator}`
         );
       } else {
         const role = await getServerBirthdayRole(data.guild_id);
         if (role) {
           await editOriginalInteractionResponse(app.id, data.token, {
-            content: stringReplacer(messageList.birthday.server_role, {
+            content: interpolator(messageList.birthday.server_role, {
               role: `<@&${role}>`,
             }),
             allowed_mentions: no_mentions,
@@ -74,9 +74,8 @@ const handler = (logger: Logger): CommandHandler => {
           });
         }
         logger.info(
-          `Get birthday role in ${data.guild_id} by ${
-            (data.member || data).user?.username
-          }#${(data.member || data).user?.discriminator}`
+          `Get birthday role in ${data.guild_id} by ${(data.member || data).user
+            ?.username}#${(data.member || data).user?.discriminator}`
         );
       }
     }

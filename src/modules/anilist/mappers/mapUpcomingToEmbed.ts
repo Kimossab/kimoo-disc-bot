@@ -4,7 +4,7 @@ import {
   formatTrailerLink,
 } from "#anilist/mappers/helperMappers";
 
-import { stringReplacer } from "@/helper/common";
+import { interpolator } from "@/helper/common";
 import {
   createAuthorName,
   createDescription,
@@ -143,7 +143,7 @@ export const mapUpcomingToEmbed = (
     if (data.Page.media.length > 1) {
       embed.footer = {
         text: createFooter(
-          stringReplacer(messageList.common.page, {
+          interpolator(messageList.common.page, {
             page: index + 1,
             total: data.Page.media.length,
           })
