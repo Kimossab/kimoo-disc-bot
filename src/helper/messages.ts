@@ -70,5 +70,32 @@ const messageList = {
     channel_set_success: "Anime channel set successfully to <channel>",
     server_channel: "Server's anime channel: <channel>",
   },
+  roles: {
+    channel: {
+      description:
+        "Sets the channel where the self assigned roles will show up.",
+      option: "The channel where the self assigned roles will show up",
+      set_success: "Roles channel set successfully to <channel>",
+      get: "Server's role channel: <channel>",
+    },
+    add: {
+      description: "Adds a new role for self assignment.",
+      role: "Role to be self assigned.",
+      category: "Category this role belongs to.",
+      icon: "Emoji name to represent this role.",
+      success: "Added role successfully.",
+      given: "You were given the role <role> successfully.",
+    },
+    info: {
+      category: "# <category> Roles",
+    },
+    errors: {
+      no_channel: "This server doesn't have a defined channel for roles.",
+      too_many_roles:
+        "The category <category> has too many roles, please use a different category.",
+      duplicate: "The role is already in the category.",
+      failure: "An unknown error occurred, try again or contact a moderator.",
+    },
+  },
 };
 export default messageList;

@@ -5,7 +5,7 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { stringReplacer } from "@/helper/common";
+import { interpolator } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -70,7 +70,7 @@ const handleGetMonthCommand = async (
   }
 
   if (message === "") {
-    message = stringReplacer(messageList.birthday.found_zero, {
+    message = interpolator(messageList.birthday.found_zero, {
       month,
     });
   }
@@ -107,16 +107,15 @@ const handler = (logger: Logger): CommandHandler => {
           bd.year ? `/${bd.year}` : ""
         }`;
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: stringReplacer(messageList.birthday.user, {
+          content: interpolator(messageList.birthday.user, {
             user: `<@${requestedUser}>`,
             date: birthdayString,
           }),
           allowed_mentions: no_mentions,
         });
         logger.info(
-          `Birthday requested in ${data.guild_id} by ${
-            (data.member || data).user?.username
-          }#${(data.member || data).user?.discriminator}`
+          `Birthday requested in ${data.guild_id} by ${(data.member || data)
+            .user?.username}#${(data.member || data).user?.discriminator}`
         );
       } else {
         await editOriginalInteractionResponse(app.id, data.token, {

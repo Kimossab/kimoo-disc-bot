@@ -62,7 +62,7 @@ export interface Actions extends Record<string, ActionData> {
     response: void;
   };
   [ActionName.SetReadyCallback]: {
-    payload: () => void;
+    payload: () => Promise<void>;
     response: void;
   };
   [ActionName.SetCommandExecutedCallback]: {

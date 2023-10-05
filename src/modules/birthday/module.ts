@@ -4,8 +4,8 @@ import {
   getLastServerBirthdayWishes,
   updateServerLastWishes,
 } from "@/bot/database";
-import { addRole, removeRole, sendMessage } from "@/discord/rest";
-import { getDayInfo, snowflakeToDate, stringReplacer } from "@/helper/common";
+import { giveRole, removeRole, sendMessage } from "@/discord/rest";
+import { getDayInfo, interpolator, snowflakeToDate } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getGuilds } from "@/state/store";
 import { AvailableLocales } from "@/types/discord";
@@ -71,7 +71,7 @@ export default class BirthdayModule extends BaseModule {
       if (serverDate.getDate() == day && serverDate.getMonth() + 1 === month) {
         const lastWishes = await getLastServerBirthdayWishes(s);
         if (!lastWishes || lastWishes < year) {
-          const message = stringReplacer(messageList.birthday.server_bday, {
+          const message = interpolator(messageList.birthday.server_bday, {
             age: (year - serverDate.getFullYear()).toString(),
             name: serversData.find((server) => server.id === s)?.name || "",
           });
@@ -130,7 +130,7 @@ export default class BirthdayModule extends BaseModule {
               message += ` (${year - bd.year})`;
             }
 
-            await addRole(
+            await giveRole(
               server,
               bd.user,
               serverChannels[server].role,

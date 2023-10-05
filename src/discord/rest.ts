@@ -5,9 +5,11 @@ import {
   EditMessage,
   EditWebhookMessage,
   Embed,
+  Emoji,
   GatewayBot,
   InteractionResponse,
   Message,
+  Role,
 } from "@/types/discord";
 
 import RestRateLimitHandler from "./rest-rate-limit-handler";
@@ -178,7 +180,7 @@ export const editOriginalInteractionResponse = (
   );
 };
 
-export const addRole = (
+export const giveRole = (
   guildId: string,
   userId: string,
   roleId: string,
@@ -220,4 +222,12 @@ export const removeRole = (
     undefined,
     headers
   );
+};
+
+export const getRoles = (guildId: string): Promise<Role[] | null> => {
+  return rateLimiter.request("GET", `/guilds/${guildId}/roles`);
+};
+
+export const getEmojis = (guildId: string): Promise<Emoji[] | null> => {
+  return rateLimiter.request("GET", `/guilds/${guildId}/emojis`);
 };

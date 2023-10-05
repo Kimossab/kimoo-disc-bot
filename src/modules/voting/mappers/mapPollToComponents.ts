@@ -63,65 +63,63 @@ const addSettingsComponents = (
   singleResponse: number | undefined,
   components: ActionRow[]
 ) => {
-  {
-    const actionRow: ActionRow = {
-      type: ComponentType.ActionRow,
-      components: [],
-    };
+  const actionRow: ActionRow = {
+    type: ComponentType.ActionRow,
+    components: [],
+  };
 
-    const isPollEditable = !hasExpired(poll) && user === poll.creator;
-    const canAddAnswers =
-      !hasExpired(poll) && (user === poll.creator || poll.usersCanAddAnswers);
+  const isPollEditable = !hasExpired(poll) && user === poll.creator;
+  const canAddAnswers =
+    !hasExpired(poll) && (user === poll.creator || poll.usersCanAddAnswers);
 
-    if (canAddAnswers) {
-      actionRow.components.push({
-        type: ComponentType.Button,
-        style: ButtonStyle.Secondary,
-        custom_id: `voting.create.add`,
-        emoji: {
-          id: null,
-          name: "➕",
-        },
-      });
-    }
+  if (canAddAnswers) {
+    actionRow.components.push({
+      type: ComponentType.Button,
+      style: ButtonStyle.Secondary,
+      custom_id: `voting.create.add`,
+      emoji: {
+        id: null,
+        name: "➕",
+      },
+    });
+  }
 
-    if (singleResponse !== undefined) {
-      actionRow.components.push({
-        type: ComponentType.Button,
-        style: ButtonStyle.Secondary,
-        custom_id: `voting.create.setOpt.all`,
-        label: "Unselect options",
-      });
-
-      if (isPollEditable) {
-        actionRow.components.push({
-          type: ComponentType.Button,
-          style: ButtonStyle.Danger,
-          custom_id: `voting.create.remove.${singleResponse}`,
-          label: `Remove this option`,
-        });
-      }
-    }
+  if (singleResponse !== undefined) {
+    actionRow.components.push({
+      type: ComponentType.Button,
+      style: ButtonStyle.Secondary,
+      custom_id: `voting.create.setOpt.all`,
+      label: "Unselect options",
+    });
 
     if (isPollEditable) {
-      actionRow.components.push(
-        {
-          type: ComponentType.Button,
-          style: ButtonStyle.Danger,
-          custom_id: `voting.create.close`,
-          label: `Close the poll`,
-        },
-        {
-          type: ComponentType.Button,
-          style: ButtonStyle.Danger,
-          custom_id: `voting.create.reset`,
-          label: `Reset votes`,
-        }
-      );
+      actionRow.components.push({
+        type: ComponentType.Button,
+        style: ButtonStyle.Danger,
+        custom_id: `voting.create.remove.${singleResponse}`,
+        label: `Remove this option`,
+      });
     }
-    if (actionRow.components.length) {
-      components.push(actionRow);
-    }
+  }
+
+  if (isPollEditable) {
+    actionRow.components.push(
+      {
+        type: ComponentType.Button,
+        style: ButtonStyle.Danger,
+        custom_id: `voting.create.close`,
+        label: `Close the poll`,
+      },
+      {
+        type: ComponentType.Button,
+        style: ButtonStyle.Danger,
+        custom_id: `voting.create.reset`,
+        label: `Reset votes`,
+      }
+    );
+  }
+  if (actionRow.components.length) {
+    components.push(actionRow);
   }
 };
 

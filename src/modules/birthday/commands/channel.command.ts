@@ -6,7 +6,7 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { stringReplacer } from "@/helper/common";
+import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
@@ -51,28 +51,26 @@ const handler = (logger: Logger): CommandHandler => {
       if (channel) {
         await setServerBirthdayChannel(data.guild_id, channel);
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: stringReplacer(messageList.birthday.channel_set_success, {
+          content: interpolator(messageList.birthday.channel_set_success, {
             channel: `<#${channel}>`,
           }),
         });
         logger.info(
           `Set birthday channel to ${channel} in ${data.guild_id} by ` +
-            `${(data.member || data).user?.username}#${
-              (data.member || data).user?.discriminator
-            }`
+            `${(data.member || data).user?.username}#${(data.member || data)
+              .user?.discriminator}`
         );
       } else {
         const ch = await getServersBirthdayInfo();
         const { channel } = ch[data.guild_id];
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: stringReplacer(messageList.birthday.servers_channel, {
+          content: interpolator(messageList.birthday.servers_channel, {
             channel: `<#${channel}>`,
           }),
         });
         logger.info(
-          `Get birthday channel in ${data.guild_id} by ${
-            (data.member || data).user?.username
-          }#${(data.member || data).user?.discriminator}`
+          `Get birthday channel in ${data.guild_id} by ${(data.member || data)
+            .user?.username}#${(data.member || data).user?.discriminator}`
         );
       }
     }

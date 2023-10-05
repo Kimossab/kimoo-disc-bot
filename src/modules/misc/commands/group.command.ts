@@ -4,7 +4,7 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { randomNum, stringReplacer } from "@/helper/common";
+import { interpolator, randomNum } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
@@ -48,7 +48,7 @@ const groupEmbed = (groups: string[][]): Embed => {
     embed.fields = [
       ...(embed.fields ?? []),
       {
-        name: stringReplacer(messageList.misc.group, {
+        name: interpolator(messageList.misc.group, {
           index: Number(index) + 1,
         }),
         value: groups[index].join(" | "),
