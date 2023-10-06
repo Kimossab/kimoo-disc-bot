@@ -20,6 +20,7 @@ import {
   ApplicationCommandOptionType,
   CommandHandler,
   ComponentCommandHandler,
+  Emoji,
   InteractionCallbackDataFlags,
   InteractionCallbackType,
 } from "@/types/discord";
@@ -117,14 +118,14 @@ const handler = (
         return;
       }
 
-      let emoji: string | null = null;
+      let emoji: Emoji | undefined;
 
       if (icon) {
         const emojis = await getEmojis(data.guild_id);
-        emoji = emojis?.find((e) => e.name === icon)?.id ?? null;
+        emoji = emojis?.find((e) => e.name === icon);
       }
 
-      await addRole(data.guild_id, roleCat, role, emoji);
+      await addRole(data.guild_id, roleCat, role, emoji ? icon : null);
       await editOriginalInteractionResponse(app.id, data.token, {
         content: messageList.roles.add.success,
       });

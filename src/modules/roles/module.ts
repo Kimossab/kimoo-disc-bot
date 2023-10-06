@@ -1,7 +1,7 @@
 import BaseModule from "#base-module";
 
 import { getServerRoleChannel } from "@/bot/database";
-import { editMessage, getRoles } from "@/discord/rest";
+import { editMessage, getEmojis, getRoles } from "@/discord/rest";
 import { chunkArray, interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
 import {
@@ -43,6 +43,7 @@ export default class RoleModule extends BaseModule {
     }
 
     const roles = await getRoles(guild);
+    const emojis = await getEmojis(guild);
 
     if (!roles) {
       return;
@@ -58,14 +59,19 @@ export default class RoleModule extends BaseModule {
             type: ComponentType.Button,
             style: ButtonStyle.Primary,
             custom_id: `role.add.${category.category}.${role.role}`,
-            label: roles.find((r) => r.id === role.role)?.name ?? "test",
+            label: roles.find((r) => r.id === role.role)?.name,
           };
 
-          if (role.icon) {
-            component.emoji = {
-              id: role.icon,
-              name: null,
-            };
+          if (role.icon && emojis) {
+            const emoji = emojis?.find((e) => e.name === role.icon);
+            if (!emoji) {
+              this.logger.error("Emoji not found", { role });
+            } else {
+              component.emoji = {
+                id: emoji?.id,
+                name: null,
+              };
+            }
           }
 
           return component;
