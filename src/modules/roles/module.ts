@@ -57,7 +57,7 @@ export default class RoleModule extends BaseModule {
         components: chunk.map((role) => {
           const component: Button = {
             type: ComponentType.Button,
-            style: ButtonStyle.Primary,
+            style: ButtonStyle.Secondary,
             custom_id: `role.add.${category.category}.${role.role}`,
             label: roles.find((r) => r.id === role.role)?.name,
           };
