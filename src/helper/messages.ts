@@ -85,9 +85,10 @@ const messageList = {
       icon: "Emoji name to represent this role.",
       success: "Added role successfully.",
       given: "You were given the role <role> successfully.",
+      removed: "You removed the role <role> successfully.",
     },
     info: {
-      category: "# <category> Roles",
+      category: "# <category>",
     },
     errors: {
       no_channel: "This server doesn't have a defined channel for roles.",

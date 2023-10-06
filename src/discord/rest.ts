@@ -7,6 +7,7 @@ import {
   Embed,
   Emoji,
   GatewayBot,
+  GuildMember,
   InteractionResponse,
   Message,
   Role,
@@ -230,4 +231,11 @@ export const getRoles = (guildId: string): Promise<Role[] | null> => {
 
 export const getEmojis = (guildId: string): Promise<Emoji[] | null> => {
   return rateLimiter.request("GET", `/guilds/${guildId}/emojis`);
+};
+
+export const getGuildMember = (
+  guildId: string,
+  memberId: string
+): Promise<GuildMember | null> => {
+  return rateLimiter.request("GET", `/guilds/${guildId}/members/${memberId}`);
 };
