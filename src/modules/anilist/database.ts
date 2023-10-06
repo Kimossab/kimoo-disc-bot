@@ -1,19 +1,17 @@
-import AnilistSubscription, {
-  IAnilistSubscription,
-} from "./models/AnilistSubscription.model";
-import LastAiredNotification, {
-  ILastAiredNotificationDocument,
-} from "./models/LastAiredNotification.model";
+import prisma from "@/database";
+import { AnilistSubscription, LastAiredNotification } from "@prisma/client";
 
 const getSubscription = async (
   server: string,
   user: string,
   id: number
-): Promise<IAnilistSubscription | null> =>
-  AnilistSubscription.findOne({
-    server,
-    user,
-    id,
+): Promise<AnilistSubscription | null> =>
+  await prisma.anilistSubscription.findFirst({
+    where: {
+      serverId: server,
+      user,
+      animeId: id,
+    },
   });
 
 export const addSubscription = async (
@@ -22,87 +20,102 @@ export const addSubscription = async (
   id: number
 ): Promise<void> => {
   if (!(await getSubscription(server, user, id))) {
-    const sub = new AnilistSubscription();
-    sub.id = id;
-    sub.server = server;
-    sub.user = user;
-    await sub.save();
+    await prisma.anilistSubscription.create({
+      data: {
+        serverId: server,
+        user,
+        animeId: id,
+      },
+    });
   }
 };
 
 export const getAllSubscriptionsForAnime = async (
   id: number
-): Promise<IAnilistSubscription[]> => AnilistSubscription.find({ id });
+): Promise<AnilistSubscription[]> =>
+  await prisma.anilistSubscription.findMany({ where: { animeId: id } });
 
 export const deleteAllSubscriptionsForId = async (
   id: number
 ): Promise<void> => {
-  await AnilistSubscription.deleteMany({
-    id,
+  await prisma.lastAiredNotification.deleteMany({
+    where: { animeId: id },
   });
-  await LastAiredNotification.deleteMany({
-    id,
+  await prisma.anilistSubscription.deleteMany({
+    where: {
+      animeId: id,
+    },
   });
 };
 
 export const deleteUserSubscriptionForIds = async (
   user: string,
   server: string,
-  id: number[]
+  ids: number[]
 ): Promise<void> => {
-  await AnilistSubscription.deleteMany({
-    user,
-    server,
-    id,
-  });
+  for (const id of ids) {
+    await prisma.anilistSubscription.deleteMany({
+      where: {
+        user,
+        serverId: server,
+        animeId: id,
+      },
+    });
+  }
 };
 
 export const getUserSubs = async (
   server: string,
   user: string
-): Promise<IAnilistSubscription[]> =>
-  AnilistSubscription.find({
-    server,
-    user,
+): Promise<AnilistSubscription[]> =>
+  await prisma.anilistSubscription.findMany({
+    where: {
+      serverId: server,
+      user,
+    },
   });
 
 export const getAllAnimeLastAiring = async (): Promise<
-  ILastAiredNotificationDocument[]
-> => LastAiredNotification.find();
+  LastAiredNotification[]
+> => await prisma.lastAiredNotification.findMany();
 
 export const getAnimeLastAiringById = async (
   id: number
-): Promise<ILastAiredNotificationDocument | null> =>
-  LastAiredNotification.findOne({ id });
+): Promise<LastAiredNotification | null> =>
+  await prisma.lastAiredNotification.findFirst({ where: { animeId: id } });
 
 export const setAnimeLastAiring = async (
   id: number,
   lastAired?: number
-): Promise<ILastAiredNotificationDocument> => {
-  const lastAiredNotif = await LastAiredNotification.findOne({ id });
+): Promise<LastAiredNotification> => {
+  const lastAiredNotification = await prisma.lastAiredNotification.findFirst({
+    where: { animeId: id },
+  });
 
-  if (lastAiredNotif) {
-    return lastAiredNotif;
+  if (lastAiredNotification) {
+    return lastAiredNotification;
   }
 
-  const animeLastAired = new LastAiredNotification();
-  animeLastAired.id = id;
-  animeLastAired.lastAired = lastAired || null;
-  animeLastAired.lastUpdated = new Date();
-  return await animeLastAired.save();
+  return await prisma.lastAiredNotification.create({
+    data: {
+      animeId: id,
+      lastAired: lastAired ?? null,
+      lastUpdated: new Date(),
+    },
+  });
 };
 
 export const updateAnimeLastAiring = async (
   id: number,
   lastAired: number
-): Promise<ILastAiredNotificationDocument> => {
-  const data = await LastAiredNotification.findOneAndUpdate(
-    { id },
-    {
+): Promise<LastAiredNotification> => {
+  const data = await prisma.lastAiredNotification.update({
+    where: { animeId: id },
+    data: {
       lastAired: lastAired,
       lastUpdated: new Date(),
-    }
-  );
+    },
+  });
   if (!data) {
     throw new Error(`Unable to update last aired: ${id}`);
   }

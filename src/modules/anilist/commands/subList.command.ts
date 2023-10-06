@@ -22,7 +22,6 @@ import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
 import { mapSubListToEmbed } from "../mappers/mapSubListToEmbed";
-import { IAnilistSubscription } from "../models/AnilistSubscription.model";
 import { MediaSubbedInfo } from "../types/graphql";
 
 const definition: ApplicationCommandOption = {
@@ -61,14 +60,14 @@ const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
 
         return;
       }
-      const subsChunk = chunkArray<IAnilistSubscription>(subs, 25);
+      const subsChunk = chunkArray(subs, 25);
 
       const animeInfo = [];
 
       for (const chunk of subsChunk) {
         const info = await searchForUser(
           rateLimiter,
-          chunk.map((s) => s.id)
+          chunk.map((s) => s.animeId)
         );
         if (info && info.Page.media.length > 0) {
           animeInfo.push(...info.Page.media);

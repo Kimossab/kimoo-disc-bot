@@ -6,7 +6,6 @@ import {
 } from "#anilist/database";
 import { searchForUser } from "#anilist/graphql/graphql";
 import { AnilistRateLimit } from "#anilist/helpers/rate-limiter";
-import { IAnilistSubscription } from "#anilist/models/AnilistSubscription.model";
 import { CommandInfo } from "#base-module";
 
 import {
@@ -57,14 +56,14 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
         return;
       }
 
-      const subsChunk = chunkArray<IAnilistSubscription>(subs, 25);
+      const subsChunk = chunkArray(subs, 25);
 
       const animeInfo = [];
 
       for (const chunk of subsChunk) {
         const info = await searchForUser(
           rateLimiter,
-          chunk.map((s) => s.id)
+          chunk.map((s) => s.animeId)
         );
         if (info && info.Page.media.length > 0) {
           animeInfo.push(...info.Page.media);

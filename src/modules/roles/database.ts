@@ -1,17 +1,21 @@
-import RoleCategory, { IRoleCategory } from "./models/RoleCategory.model";
+import prisma from "@/database";
 
-export const getRoleCategory = async (
-  server: string,
-  category: string
-): Promise<IRoleCategory | null> =>
-  RoleCategory.findOne({
-    server,
-    category,
+export const getRoleCategory = async (server: string, category: string) =>
+  await prisma.roleCategory.findFirst({
+    where: {
+      serverId: server,
+      category,
+    },
+    include: {
+      roles: true,
+    },
   });
 
-export const getRoleCategoriesByServer = async (
-  server: string
-): Promise<IRoleCategory[]> => RoleCategory.find({ server });
+export const getRoleCategoriesByServer = async (server: string) =>
+  await prisma.roleCategory.findMany({
+    where: { serverId: server },
+    include: { roles: true },
+  });
 
 export const addRoleCategory = async (
   server: string,
@@ -19,12 +23,13 @@ export const addRoleCategory = async (
   message: string
 ): Promise<void> => {
   if (!(await getRoleCategory(server, category))) {
-    const cat = new RoleCategory();
-    cat.server = server;
-    cat.category = category;
-    cat.message = message;
-    cat.roles = [];
-    await cat.save();
+    await prisma.roleCategory.create({
+      data: {
+        serverId: server,
+        category,
+        message,
+      },
+    });
   }
 };
 
@@ -34,8 +39,15 @@ export const addRole = async (
   role: string,
   icon: string | null
 ): Promise<void> => {
-  await RoleCategory.updateOne(
-    { server, category },
-    { $push: { roles: { role, icon } } }
-  );
+  const roleCategory = await getRoleCategory(server, category);
+  if (!roleCategory) {
+    throw Error("Role category not found.");
+  }
+  await prisma.role.create({
+    data: {
+      roleCategoryId: roleCategory.id,
+      id: role,
+      icon,
+    },
+  });
 };

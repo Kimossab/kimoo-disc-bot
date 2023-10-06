@@ -1,14 +1,16 @@
-import { IPoll } from "#voting/models/Poll.model";
+import { CompletePoll } from "#voting/database";
 
 import { Embed, EmbedField } from "@/types/discord";
 
 const votingEmbedFields = (
-  poll: IPoll,
+  poll: CompletePoll,
   singleResponse: number
 ): EmbedField[] => {
-  const option = poll.options[singleResponse];
+  const option = poll.pollOptions[singleResponse];
 
-  const responses = option.votes.map((v) => `<@${v}>`).join("\n");
+  const responses = option.pollOptionVotes
+    .map((v) => `<@${v.user}>`)
+    .join("\n");
 
   return [
     {
@@ -19,12 +21,12 @@ const votingEmbedFields = (
 };
 
 export const mapPollToSettingsEmbed = (
-  poll: IPoll,
+  poll: CompletePoll,
   user: string,
   singleResponse?: number
 ): Embed => {
-  const userVotes = poll.options
-    .filter((o) => o.votes.includes(user))
+  const userVotes = poll.pollOptions
+    .filter((o) => o.pollOptionVotes.map((o) => o.user).includes(user))
     .map((o) => `\`${o.text}\``)
     .join(" ");
 

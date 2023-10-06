@@ -35,7 +35,7 @@ export default class AnilistModule extends BaseModule {
         this.removeAnime
       ),
       schedule: scheduleCommand(this.logger, this.rateLimiter),
-      channel: channelCommand(this.logger),
+      channel: channelCommand(),
       upcoming: upcomingCommand(this.logger, this.rateLimiter),
     };
   }
@@ -49,11 +49,11 @@ export default class AnilistModule extends BaseModule {
     const ani = await getAllAnimeLastAiring();
 
     for (const anime of ani) {
-      if (!this.animeList.find((a) => a.id === anime.id)) {
+      if (!this.animeList.find((a) => a.id === anime.animeId)) {
         const animeManager = new AnimeManager(
           this.logger,
           this.rateLimiter,
-          anime.id,
+          anime.animeId,
           this.removeAnime
         );
         animeManager.checkNextEpisode();

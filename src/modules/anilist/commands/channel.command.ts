@@ -1,12 +1,11 @@
 import { CommandInfo } from "#base-module";
 
-import { getServerAnimeChannel, setServerAnimeChannel } from "@/bot/database";
+import { getServer, setServerAnimeChannel } from "@/database";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
 } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
-import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
@@ -36,10 +35,10 @@ const definition: ApplicationCommandOption = {
   ],
 };
 
-const handler = (logger: Logger): CommandHandler => {
+const handler = (): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
-    if (app && app.id && data.guild_id) {
+    if (app?.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
       });
@@ -56,29 +55,20 @@ const handler = (logger: Logger): CommandHandler => {
             channel: `<#${channel}>`,
           }),
         });
-        logger.info(
-          `Set Anime channel to ${channel} in ${data.guild_id} by ` +
-            `${(data.member || data).user?.username}#${(data.member || data)
-              .user?.discriminator}`
-        );
       } else {
-        const ch = await getServerAnimeChannel(data.guild_id);
+        const ch = (await getServer(data.guild_id))?.animeChannel;
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.anilist.server_channel, {
             channel: `<#${ch}>`,
           }),
         });
-        logger.info(
-          `Get anime channel in ${data.guild_id} by ${(data.member || data).user
-            ?.username}#${(data.member || data).user?.discriminator}`
-        );
       }
     }
   };
 };
 
-export default (logger: Logger): CommandInfo => ({
+export default (): CommandInfo => ({
   definition,
-  handler: handler(logger),
+  handler: handler(),
   isAdmin: true,
 });

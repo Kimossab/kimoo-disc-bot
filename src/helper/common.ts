@@ -1,4 +1,4 @@
-import { getAdminRole } from "@/bot/database";
+import { getServer } from "@/database";
 import { getGuilds } from "@/state/store";
 import {
   GuildMember,
@@ -100,7 +100,7 @@ export const checkAdmin = async (
     return true;
   }
 
-  const role = await getAdminRole(server);
+  const role = (await getServer(server))?.adminRole;
 
   if (!role) {
     return false;

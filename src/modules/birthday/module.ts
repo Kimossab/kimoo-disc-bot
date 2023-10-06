@@ -1,14 +1,12 @@
 import BaseModule from "#/base-module";
 
-import {
-  getLastServerBirthdayWishes,
-  updateServerLastWishes,
-} from "@/bot/database";
+import { getServer, updateServerLastWishes } from "@/database";
 import { giveRole, removeRole, sendMessage } from "@/discord/rest";
 import { getDayInfo, interpolator, snowflakeToDate } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getGuilds } from "@/state/store";
 import { AvailableLocales } from "@/types/discord";
+import { Birthday } from "@prisma/client";
 
 import addCommand from "./commands/add.command";
 import channelCommand from "./commands/channel.command";
@@ -24,7 +22,6 @@ import {
   setBirthdayWithRole,
   updateLastWishes,
 } from "./database";
-import { IBirthday } from "./models/birthday.model";
 
 export default class BirthdayModule extends BaseModule {
   private checkTimeout: NodeJS.Timeout | null = null;
@@ -45,7 +42,7 @@ export default class BirthdayModule extends BaseModule {
     this.commandList = {
       channel: channelCommand(this.logger),
       add: addCommand(this.logger),
-      remove: removeCommand(this.logger),
+      remove: removeCommand(),
       get: getCommand(this.logger),
       server: serverCommand(this.logger),
       role: roleCommand(this.logger),
@@ -69,7 +66,7 @@ export default class BirthdayModule extends BaseModule {
     for (const s in serverChannels) {
       const serverDate = snowflakeToDate(s);
       if (serverDate.getDate() == day && serverDate.getMonth() + 1 === month) {
-        const lastWishes = await getLastServerBirthdayWishes(s);
+        const lastWishes = (await getServer(s))?.lastBirthdayWishes;
         if (!lastWishes || lastWishes < year) {
           const message = interpolator(messageList.birthday.server_bday, {
             age: (year - serverDate.getFullYear()).toString(),
@@ -89,29 +86,29 @@ export default class BirthdayModule extends BaseModule {
     this.logger.info("Roles to Remove", rolesToRemove);
 
     for (const toRemove of rolesToRemove) {
-      if (serverChannels[toRemove.server].role) {
-        for (const user of toRemove.users) {
+      if (serverChannels[toRemove.serverId].role) {
+        for (const { user } of toRemove.birthdayWithRoleUsers) {
           await removeRole(
-            toRemove.server,
+            toRemove.serverId,
             user,
-            serverChannels[toRemove.server].role,
+            serverChannels[toRemove.serverId].role,
             "Birthday Over"
           );
         }
       }
-      await removeBirthdayWithRole(toRemove);
+      await removeBirthdayWithRole(toRemove.id);
     }
 
     if (todayBirthDays.length > 0) {
       this.logger.info("Today's birthdays", todayBirthDays);
 
-      const serverBirthdays: Record<string, IBirthday[]> = {};
+      const serverBirthdays: Record<string, Birthday[]> = {};
 
       for (const birthday of todayBirthDays) {
-        if (!serverBirthdays[birthday.server]) {
-          serverBirthdays[birthday.server] = [birthday];
+        if (!serverBirthdays[birthday.serverId]) {
+          serverBirthdays[birthday.serverId] = [birthday];
         } else {
-          serverBirthdays[birthday.server].push(birthday);
+          serverBirthdays[birthday.serverId].push(birthday);
         }
       }
 

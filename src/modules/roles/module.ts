@@ -1,6 +1,6 @@
 import BaseModule from "#base-module";
 
-import { getServerRoleChannel } from "@/bot/database";
+import { getServer } from "@/database";
 import { editMessage, getEmojis, getRoles } from "@/discord/rest";
 import { chunkArray, interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
@@ -42,7 +42,7 @@ export default class RoleModule extends BaseModule {
 
   private async updateRoleMessages(guild: string) {
     const categories = await getRoleCategoriesByServer(guild);
-    const channel = await getServerRoleChannel(guild);
+    const channel = (await getServer(guild))?.roleChannel;
 
     if (!channel) {
       return;
@@ -64,8 +64,8 @@ export default class RoleModule extends BaseModule {
           const component: Button = {
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
-            custom_id: `role.add.${category.category}.${role.role}`,
-            label: roles.find((r) => r.id === role.role)?.name,
+            custom_id: `role.add.${category.category}.${role.id}`,
+            label: roles.find((r) => r.id === role.id)?.name,
           };
 
           if (role.icon && emojis) {

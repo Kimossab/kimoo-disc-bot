@@ -1,6 +1,6 @@
 import { CommandInfo } from "#base-module";
 
-import { getAdminRole, setAdminRole } from "@/bot/database";
+import { getServer, setAdminRole } from "@/database";
 import { createInteractionResponse } from "@/discord/rest";
 import {
   ApplicationCommandOption,
@@ -51,7 +51,7 @@ const handler = (): CommandHandler => {
         },
       });
     } else {
-      const role = await getAdminRole(data.guild_id);
+      const role = (await getServer(data.guild_id))?.adminRole;
       if (role) {
         await createInteractionResponse(data.id, data.token, {
           type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,

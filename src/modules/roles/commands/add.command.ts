@@ -1,7 +1,7 @@
 import { CommandInfo } from "#base-module";
 import { addRole, addRoleCategory, getRoleCategory } from "#roles/database";
 
-import { getServerRoleChannel } from "@/bot/database";
+import { getServer } from "@/database";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
@@ -64,7 +64,7 @@ const handler = (
   return async (data, option) => {
     const app = getApplication();
     if (app?.id && data.guild_id) {
-      const channel = await getServerRoleChannel(data.guild_id);
+      const channel = (await getServer(data.guild_id))?.roleChannel;
 
       if (!channel) {
         await createInteractionResponse(data.id, data.token, {
@@ -113,7 +113,7 @@ const handler = (
         }
 
         await addRoleCategory(data.guild_id, roleCat, message?.id);
-      } else if (catData.roles.find((r) => r.role === role)) {
+      } else if (catData.roles.find((r) => r.id === role)) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.roles.errors.duplicate,
         });
@@ -161,7 +161,7 @@ const componentHandler = (
     };
 
     const category = await getRoleCategory(data.guild_id, subCmd[0]);
-    const catRole = category?.roles.find((r) => r.role === subCmd[1]);
+    const catRole = category?.roles.find((r) => r.id === subCmd[1]);
     if (!catRole) {
       await sendResponse(messageList.roles.errors.failure, true);
       logger.error("Category or role doesn't exist on the DB");
@@ -169,7 +169,7 @@ const componentHandler = (
     }
 
     const serverRoles = await getRoles(data.guild_id);
-    const role = serverRoles?.find((r) => r.id === catRole.role);
+    const role = serverRoles?.find((r) => r.id === catRole.id);
     if (!role) {
       await sendResponse(messageList.roles.errors.failure, true);
       logger.error("Role doesn't exist on the server");

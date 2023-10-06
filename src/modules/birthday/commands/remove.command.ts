@@ -6,7 +6,6 @@ import {
   editOriginalInteractionResponse,
 } from "@/discord/rest";
 import { checkAdmin } from "@/helper/common";
-import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
@@ -35,7 +34,7 @@ const definition: ApplicationCommandOption = {
   ],
 };
 
-const handler = (logger: Logger): CommandHandler => {
+const handler = (): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
@@ -59,16 +58,10 @@ const handler = (logger: Logger): CommandHandler => {
       const bd = await getUserBirthday(data.guild_id, user || "");
 
       if (bd) {
-        await deleteUserBirthday(bd);
+        await deleteUserBirthday(bd.id);
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.birthday.remove_success,
         });
-        logger.info(
-          `Removed user ${user} birthday in ${data.guild_id} by ` +
-            `${(data.member || data).user?.username}#${
-              (data.member || data).user?.discriminator
-            }`
-        );
       } else {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.birthday.not_found,
@@ -78,7 +71,7 @@ const handler = (logger: Logger): CommandHandler => {
   };
 };
 
-export default (logger: Logger): CommandInfo => ({
+export default (): CommandInfo => ({
   definition,
-  handler: handler(logger),
+  handler: handler(),
 });
