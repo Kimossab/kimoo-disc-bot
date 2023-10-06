@@ -30,7 +30,9 @@ export default class RoleModule extends BaseModule {
 
     this.commandList = {
       channel: channelCommand(),
-      add: addCommand(this.logger, this.updateRoleMessages),
+      add: addCommand(this.logger, (guild: string) =>
+        this.updateRoleMessages(guild)
+      ),
     };
   }
 
