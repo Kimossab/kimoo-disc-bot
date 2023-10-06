@@ -6,8 +6,10 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse,
   getEmojis,
+  getGuildMember,
   getRoles,
   giveRole,
+  removeRole,
   sendMessage,
 } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
@@ -144,58 +146,55 @@ const componentHandler = (
       return;
     }
 
-    const category = await getRoleCategory(data.guild_id!, subCmd[0]);
-    if (!category) {
+    const sendResponse = async (msg: string, updateRoles: boolean = false) => {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           flags: InteractionCallbackDataFlags.EPHEMERAL,
-          content: messageList.roles.errors.failure,
+          content: msg,
         },
       });
-      logger.error("Category doesn't exist on the DB");
-      await updateRoleMessages(data.guild_id);
-      return;
-    }
 
-    const catRole = category.roles.find((r) => r.role === subCmd[1]);
+      if (updateRoles) {
+        await updateRoleMessages(data.guild_id!);
+      }
+    };
+
+    const category = await getRoleCategory(data.guild_id, subCmd[0]);
+    const catRole = category?.roles.find((r) => r.role === subCmd[1]);
     if (!catRole) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-          content: messageList.roles.errors.failure,
-        },
-      });
-      logger.error("Role doesn't exist on the DB");
-      await updateRoleMessages(data.guild_id);
+      await sendResponse(messageList.roles.errors.failure, true);
+      logger.error("Category or role doesn't exist on the DB");
       return;
     }
 
     const serverRoles = await getRoles(data.guild_id);
     const role = serverRoles?.find((r) => r.id === catRole.role);
     if (!role) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-          content: messageList.roles.errors.failure,
-        },
-      });
+      await sendResponse(messageList.roles.errors.failure, true);
       logger.error("Role doesn't exist on the server");
-      await updateRoleMessages(data.guild_id);
       return;
     }
 
-    await giveRole(data.guild_id, data.member.user.id, role.id);
+    const member = await getGuildMember(data.guild_id, data.member.user.id);
 
-    await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        flags: InteractionCallbackDataFlags.EPHEMERAL,
-        content: interpolator(messageList.roles.add.given, { role: role.name }),
-      },
-    });
+    if (member?.roles.find((r) => r === role.id)) {
+      await removeRole(data.guild_id, data.member.user.id, role.id);
+
+      await sendResponse(
+        interpolator(messageList.roles.add.removed, {
+          role: role.name,
+        })
+      );
+    } else {
+      await giveRole(data.guild_id, data.member.user.id, role.id);
+
+      await sendResponse(
+        interpolator(messageList.roles.add.given, {
+          role: role.name,
+        })
+      );
+    }
   };
 };
 export default (
