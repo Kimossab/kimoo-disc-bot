@@ -14,6 +14,7 @@ import {
 
 import addCommand from "./commands/add.command";
 import channelCommand from "./commands/channel.command";
+import refreshCommand from "./commands/refresh.command";
 import { getRoleCategoriesByServer } from "./database";
 
 export default class RoleModule extends BaseModule {
@@ -31,6 +32,9 @@ export default class RoleModule extends BaseModule {
     this.commandList = {
       channel: channelCommand(),
       add: addCommand(this.logger, (guild: string) =>
+        this.updateRoleMessages(guild)
+      ),
+      refresh: refreshCommand((guild: string) =>
         this.updateRoleMessages(guild)
       ),
     };

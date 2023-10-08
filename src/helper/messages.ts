@@ -78,6 +78,10 @@ const messageList = {
       set_success: "Roles channel set successfully to <channel>",
       get: "Server's role channel: <channel>",
     },
+    refresh: {
+      description: "Refreshes the buttons for self assigned roles.",
+      success: "Updated roles buttons successfully.",
+    },
     add: {
       description: "Adds a new role for self assignment.",
       role: "Role to be self assigned.",
