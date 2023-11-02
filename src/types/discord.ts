@@ -85,6 +85,8 @@ export interface User {
   username: string;
   /** the user's 4-digit discord-tag */
   discriminator: string;
+  /** the user's display name, if it is set. For bots, this is the application name */
+  global_name: string | null;
   /** the user's [avatar hash](https://discord.com/developers/docs/reference#image-formatting) */
   avatar: string | null;
   /** whether the user belongs to an OAuth2 application */
