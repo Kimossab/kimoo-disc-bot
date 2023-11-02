@@ -2,6 +2,7 @@ import BaseModule from "#/base-module";
 
 import { AvailableLocales } from "@/types/discord";
 
+import avatarCommand from "./commands/avatar.command";
 import donutCommand from "./commands/donut.command";
 import groupCommand from "./commands/group.command";
 
@@ -20,6 +21,7 @@ export default class MiscModule extends BaseModule {
     this.commandList = {
       group: groupCommand(),
       donut: donutCommand(this.logger),
+      avatar: avatarCommand(),
     };
   }
 }
