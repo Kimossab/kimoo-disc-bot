@@ -1,8 +1,8 @@
-import { IGiveaway } from "#giveaway/models/Giveaway.model";
+import { CompleteGiveaway } from "#giveaway/database";
 
 import { Embed } from "@/types/discord";
 
-export const mapGiveawayToEmbed = (giveaway: IGiveaway): Embed => {
+export const mapGiveawayToEmbed = (giveaway: CompleteGiveaway): Embed => {
   const embed: Embed = {
     title: "Giveaway 🎁",
     fields: [
@@ -24,10 +24,12 @@ export const mapGiveawayToEmbed = (giveaway: IGiveaway): Embed => {
     ],
   };
 
-  if (giveaway.winner) {
+  const winner = giveaway.participants.find((p) => p.isWinner);
+
+  if (winner) {
     embed.fields!.push({
       name: "Winner",
-      value: `<@${giveaway.winner}>`,
+      value: `<@${winner.userId}>`,
       inline: false,
     });
   } else {

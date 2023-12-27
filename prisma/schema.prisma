@@ -29,6 +29,7 @@ model Server {
   birthdayWithRoles    BirthdayWithRole[]
   birthdays            Birthday[]
   roleCategories       RoleCategory[]
+  giveaways            Giveaway[]
 }
 
 // Anilist
@@ -118,4 +119,26 @@ model PollOptionVotes {
   pollOptionId String
 
   @@id([user, pollOptionId])
+}
+
+// Giveaway
+model Giveaway {
+  id           String                @id @default(uuid())
+  serverId     String
+  channelId    String
+  hash         String                @unique
+  creatorId    String
+  endAt        DateTime
+  prize        String
+  participants GiveawayParticipant[]
+  server       Server                @relation(fields: [serverId], references: [id])
+}
+
+model GiveawayParticipant {
+  id         String   @id @default(uuid())
+  userId     String
+  canWin     Boolean  @default(true)
+  isWinner   Boolean  @default(false)
+  giveawayId String
+  giveaway   Giveaway @relation(fields: [giveawayId], references: [id])
 }

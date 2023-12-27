@@ -1,5 +1,4 @@
-import { getGiveawayById } from "#giveaway/database";
-import { IGiveaway, IGiveawayDocument } from "#giveaway/models/Giveaway.model";
+import { CompleteGiveaway, getGiveaway, setWinner } from "#giveaway/database";
 
 import { editMessage, sendMessage } from "@/discord/rest";
 import { randomNum } from "@/helper/common";
@@ -9,17 +8,17 @@ import { createGiveawayMessageData } from "./createGiveawayMessage";
 
 export class GiveawayManager {
   private timer: NodeJS.Timeout | undefined;
-  private giveawayId: string;
+  private giveawayHash: string;
 
   public get id(): string {
-    return this.giveawayId;
+    return this.giveawayHash;
   }
   constructor(
     private logger: ILogger,
-    giveaway: IGiveawayDocument,
+    giveaway: CompleteGiveaway,
     private onFinish: (id: string) => void
   ) {
-    this.giveawayId = giveaway._id;
+    this.giveawayHash = giveaway.hash;
 
     const time = +giveaway.endAt - +new Date();
     logger.info(`created timer with ${time}ms`);
@@ -27,26 +26,26 @@ export class GiveawayManager {
   }
 
   private async finish() {
-    const giveaway = await getGiveawayById(this.giveawayId);
+    let giveaway = await getGiveaway(this.giveawayHash);
     this.logger.info("Giveaway has ended", { giveaway });
 
-    const winner = randomNum(0, giveaway!.participants.length - 1);
+    const winnerIdx = randomNum(0, giveaway!.participants.length - 1);
+    const winner = giveaway!.participants[winnerIdx];
+    await setWinner(winner.id);
 
-    giveaway!.winner = giveaway!.participants[winner];
-
-    await giveaway!.save();
-
+    giveaway = await getGiveaway(this.giveawayHash);
     await announceVictor(giveaway!);
 
-    this.onFinish(this.giveawayId);
+    this.onFinish(this.giveawayHash);
   }
 }
 
-export const announceVictor = async (giveaway: IGiveaway) => {
+export const announceVictor = async (giveaway: CompleteGiveaway) => {
+  const winner = giveaway.participants.find((p) => p.isWinner)?.userId;
   await sendMessage(
     giveaway.channelId,
-    giveaway.winner
-      ? `Congratulations <@${giveaway.winner}> you won \`${giveaway.prize}\` given by <@${giveaway.creatorId}>`
+    winner
+      ? `Congratulations <@${winner}> you won \`${giveaway.prize}\` given by <@${giveaway.creatorId}>`
       : `There's no participants to win.`,
     undefined,
     {

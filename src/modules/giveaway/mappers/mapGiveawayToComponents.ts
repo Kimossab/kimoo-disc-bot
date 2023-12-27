@@ -1,8 +1,10 @@
-import { IGiveaway } from "#giveaway/models/Giveaway.model";
+import { CompleteGiveaway } from "#giveaway/database";
 
 import { ActionRow, ButtonStyle, ComponentType } from "@/types/discord";
 
-export const mapGiveawayToComponents = (giveaway: IGiveaway): ActionRow[] => {
+export const mapGiveawayToComponents = (
+  giveaway: CompleteGiveaway
+): ActionRow[] => {
   if (giveaway.endAt < new Date()) {
     return [
       {

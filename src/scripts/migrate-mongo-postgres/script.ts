@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import AnilistSubscriptionModel from "./AnilistSubscription.model";
 import birthdayModel from "./birthday.model";
 import birthdayWithRoleModel from "./birthday-with-role.model";
+import GiveawayModel from "./Giveaway.model";
 import LastAiredNotificationModel from "./LastAiredNotification.model";
 import PollModel from "./Poll.model";
 import RoleCategoryModel from "./RoleCategory.model";
@@ -25,7 +26,7 @@ export const run = async () => {
         ran: null,
         meta: {
           progress: 0,
-          total: 5,
+          total: 6,
         },
       },
     });
@@ -65,7 +66,7 @@ export const run = async () => {
         data: {
           meta: {
             progress: 1,
-            total: 5,
+            total: 6,
           },
         },
       });
@@ -102,14 +103,13 @@ export const run = async () => {
         data: {
           meta: {
             progress: 2,
-            total: 5,
+            total: 6,
           },
         },
       });
     });
+    logger.info("Anilist migrated.");
   }
-
-  logger.info("Anilist migrated.");
 
   // BIRTHDAYS
   if ((script.meta as { progress: number }).progress < 3) {
@@ -149,13 +149,13 @@ export const run = async () => {
         data: {
           meta: {
             progress: 3,
-            total: 5,
+            total: 6,
           },
         },
       });
     });
+    logger.info("Birthdays migrated.");
   }
-  logger.info("Birthdays migrated.");
 
   // ROLES
   if ((script.meta as { progress: number }).progress < 4) {
@@ -185,56 +185,95 @@ export const run = async () => {
         data: {
           meta: {
             progress: 4,
-            total: 5,
+            total: 6,
           },
         },
       });
     });
 
     logger.info("Roles migrated.");
+  }
 
-    if ((script.meta as { progress: number }).progress < 5) {
-      await prisma.$transaction(async (tx) => {
-        // POLLS
-        const polls = await PollModel.find();
-        for (const poll of polls) {
-          await tx.poll.create({
-            data: {
-              hash: poll.hash,
-              creator: poll.creator,
-              question: poll.question,
-              multipleChoice: poll.multipleChoice,
-              usersCanAddAnswers: poll.usersCanAddAnswers ?? false,
-              days: poll.days,
-              startAt: poll.startAt,
-              pollOptions: {
-                create: poll.options.map((option) => ({
-                  text: option.text,
-                  pollOptionVotes: {
-                    create: option.votes.map((vote) => ({
-                      user: vote,
-                    })),
-                  },
-                })),
-              },
-            },
-          });
-        }
-        await tx.scripts.update({
-          where: {
-            id: script?.id,
-          },
+  // POLLS
+  if ((script.meta as { progress: number }).progress < 5) {
+    await prisma.$transaction(async (tx) => {
+      // POLLS
+      const polls = await PollModel.find();
+      for (const poll of polls) {
+        await tx.poll.create({
           data: {
-            meta: {
-              progress: 5,
-              total: 5,
+            hash: poll.hash,
+            creator: poll.creator,
+            question: poll.question,
+            multipleChoice: poll.multipleChoice,
+            usersCanAddAnswers: poll.usersCanAddAnswers ?? false,
+            days: poll.days,
+            startAt: poll.startAt,
+            pollOptions: {
+              create: poll.options.map((option) => ({
+                text: option.text,
+                pollOptionVotes: {
+                  create: option.votes.map((vote) => ({
+                    user: vote,
+                  })),
+                },
+              })),
             },
           },
         });
+      }
+      await tx.scripts.update({
+        where: {
+          id: script?.id,
+        },
+        data: {
+          meta: {
+            progress: 5,
+            total: 6,
+          },
+        },
       });
-    }
+    });
+    logger.info("Polls migrated.");
   }
-  logger.info("Polls migrated.");
+
+  // GIVEAWAYS
+  if ((script.meta as { progress: number }).progress < 6) {
+    await prisma.$transaction(async (tx) => {
+      const giveaways = await GiveawayModel.find();
+      for (const giveaway of giveaways) {
+        await tx.giveaway.create({
+          data: {
+            serverId: giveaway.serverId,
+            hash: giveaway.hash,
+            channelId: giveaway.channelId,
+            creatorId: giveaway.creatorId,
+            endAt: giveaway.endAt,
+            prize: giveaway.prize,
+            participants: {
+              create: giveaway.participants.map((participant) => ({
+                userId: participant,
+                canWin: true,
+                isWinner: giveaway.winner == participant,
+              })),
+            },
+          },
+        });
+      }
+      await tx.scripts.update({
+        where: {
+          id: script?.id,
+        },
+        data: {
+          meta: {
+            progress: 6,
+            total: 6,
+          },
+        },
+      });
+    });
+    logger.info("Giveaways migrated.");
+  }
 
   // END
   await mongoose.disconnect();

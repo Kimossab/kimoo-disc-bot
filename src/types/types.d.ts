@@ -250,3 +250,5 @@ declare interface DayInfo {
   seconds: number;
   milliseconds: number;
 }
+
+declare type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;

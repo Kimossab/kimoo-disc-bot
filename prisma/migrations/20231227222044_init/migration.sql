@@ -122,11 +122,38 @@ CREATE TABLE "PollOptionVotes" (
     CONSTRAINT "PollOptionVotes_pkey" PRIMARY KEY ("user","pollOptionId")
 );
 
+-- CreateTable
+CREATE TABLE "Giveaway" (
+    "id" TEXT NOT NULL,
+    "serverId" TEXT NOT NULL,
+    "channelId" TEXT NOT NULL,
+    "hash" TEXT NOT NULL,
+    "creatorId" TEXT NOT NULL,
+    "endAt" TIMESTAMP(3) NOT NULL,
+    "prize" TEXT NOT NULL,
+
+    CONSTRAINT "Giveaway_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GiveawayParticipant" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "canWin" BOOLEAN NOT NULL DEFAULT true,
+    "isWinner" BOOLEAN NOT NULL DEFAULT false,
+    "giveawayId" TEXT NOT NULL,
+
+    CONSTRAINT "GiveawayParticipant_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Server_id_key" ON "Server"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "LastAiredNotification_animeId_key" ON "LastAiredNotification"("animeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Giveaway_hash_key" ON "Giveaway"("hash");
 
 -- AddForeignKey
 ALTER TABLE "AnilistSubscription" ADD CONSTRAINT "AnilistSubscription_serverId_fkey" FOREIGN KEY ("serverId") REFERENCES "Server"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -151,3 +178,9 @@ ALTER TABLE "PollOption" ADD CONSTRAINT "PollOption_pollId_fkey" FOREIGN KEY ("p
 
 -- AddForeignKey
 ALTER TABLE "PollOptionVotes" ADD CONSTRAINT "PollOptionVotes_pollOptionId_fkey" FOREIGN KEY ("pollOptionId") REFERENCES "PollOption"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Giveaway" ADD CONSTRAINT "Giveaway_serverId_fkey" FOREIGN KEY ("serverId") REFERENCES "Server"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GiveawayParticipant" ADD CONSTRAINT "GiveawayParticipant_giveawayId_fkey" FOREIGN KEY ("giveawayId") REFERENCES "Giveaway"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
