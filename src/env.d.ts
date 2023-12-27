@@ -16,6 +16,7 @@ declare global {
       ANILIST_MODULE: "true" | "false";
       VOTING_MODULE: "true" | "false";
       ROLES_MODULE: "true" | "false";
+      GIVEAWAY_MODULE: "true" | "false";
       OWNER_DM_CHANNEL?: string;
       ENV: string;
       LOKI_HOST: string;

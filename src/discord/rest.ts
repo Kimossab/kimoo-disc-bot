@@ -10,6 +10,7 @@ import {
   GuildMember,
   InteractionResponse,
   Message,
+  MessageReference,
   Role,
 } from "@/types/discord";
 
@@ -35,13 +36,18 @@ export const getGatewayBot = (): Promise<GatewayBot | null> =>
 export const sendMessage = (
   channel: string,
   content?: string,
-  embeds?: Embed[]
+  embeds?: Embed[],
+  reference?: MessageReference
 ): Promise<Message | null> => {
   if (!content && !embeds) {
     throw new Error("No content or embed provided");
   }
 
-  const message: CreateMessage = { content, embeds };
+  const message: CreateMessage = {
+    content,
+    embeds,
+    message_reference: reference,
+  };
 
   return rateLimiter.request<Message>(
     "POST",

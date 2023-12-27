@@ -4,6 +4,7 @@ import AnilistModule from "#/anilist/module";
 import BirthdayModule from "#/birthday/module";
 import MiscModule from "#/misc/module";
 import VNDBModule from "#/vndb/module";
+import GiveawayModule from "#giveaway/module";
 import RoleModule from "#roles/module";
 import SauceAnimeModule from "#sauceAnime/module";
 import SauceArtModule from "#sauceArt/module";
@@ -56,6 +57,7 @@ const toggles = {
   ANILIST_MODULE: process.env.ANILIST_MODULE === "true",
   VOTING_MODULE: process.env.VOTING_MODULE === "true",
   ROLES_MODULE: process.env.ROLES_MODULE === "true",
+  GIVEAWAY_MODULE: process.env.GIVEAWAY_MODULE === "true",
 };
 
 const modules = [
@@ -68,6 +70,7 @@ const modules = [
   new AnilistModule(toggles.ANILIST_MODULE),
   new VotingModule(toggles.VOTING_MODULE),
   new RoleModule(toggles.ROLES_MODULE),
+  new GiveawayModule(toggles.GIVEAWAY_MODULE),
 ];
 
 const ready = async () => {
