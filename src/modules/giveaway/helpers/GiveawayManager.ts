@@ -21,8 +21,10 @@ export class GiveawayManager {
     this.giveawayHash = giveaway.hash;
 
     const time = +giveaway.endAt - +new Date();
-    logger.info(`created timer with ${time}ms`);
-    this.timer = setTimeout(() => this.finish(), time);
+    logger.info(`created timer with ${time}ms`, { giveaway });
+    this.timer = setTimeout(async () => {
+      await this.finish();
+    }, time);
   }
 
   private async finish() {

@@ -529,6 +529,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     logger.info("Component interaction", subCmd);
 
     if (!poll) {
+      logger.error("Poll not found", { data, subCmd, messageId });
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {

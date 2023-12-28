@@ -109,6 +109,7 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
     logger.info("Component interaction", subCmd);
 
     if (!giveaway) {
+      logger.error("Giveaway not found.", { data, messageId, subCmd });
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {

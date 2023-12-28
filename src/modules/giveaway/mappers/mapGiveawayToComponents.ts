@@ -13,7 +13,7 @@ export const mapGiveawayToComponents = (
           {
             type: ComponentType.Button,
             style: ButtonStyle.Danger,
-            custom_id: `voting.create.reshuffle`,
+            custom_id: `giveaway.create.reshuffle`,
             label: "Reshuffle",
           },
         ],
