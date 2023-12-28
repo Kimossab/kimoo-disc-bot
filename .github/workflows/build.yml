@@ -36,6 +36,7 @@ jobs:
           name: node-v${{ matrix.node-version }}-release
           path: |
             build
+            prisma
             package-lock.json
             package.json
 
