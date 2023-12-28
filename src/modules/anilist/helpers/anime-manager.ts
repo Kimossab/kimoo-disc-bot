@@ -12,7 +12,7 @@ import {
   NextEpisode,
 } from "#anilist/types/graphql";
 
-import { getServerAnimeChannel } from "@/bot/database";
+import { getServer } from "@/database";
 import { sendMessage } from "@/discord/rest";
 import { ILogger } from "@/helper/logger";
 
@@ -88,7 +88,7 @@ export class AnimeManager {
       animeInformation.Media.airingSchedule
     );
 
-    if (last && last.episode !== lastAiredDb?.lastAired) {
+    if (last && last.episode !== Number(lastAiredDb?.lastAired)) {
       this.logger.info("Last aired episode is diferent from database", {
         db: lastAiredDb,
         last,
@@ -134,14 +134,15 @@ export class AnimeManager {
     );
     const subs = await getAllSubscriptionsForAnime(animeInfo.id);
 
-    const servers = subs.map((s) => s.server);
+    const servers = subs.map((s) => s.serverId);
     const uniqServers = [...new Set(servers)];
 
     for (const server of uniqServers) {
-      const channel = await getServerAnimeChannel(server);
+      const channel = (await getServer(server))?.animeChannel;
+
       if (channel) {
         const userMentions = subs
-          .filter((s) => s.server === server)
+          .filter((s) => s.serverId === server)
           .map((s) => `<@${s.user}>`)
           .join("\n");
 

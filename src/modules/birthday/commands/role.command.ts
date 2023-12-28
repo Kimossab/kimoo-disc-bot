@@ -1,6 +1,6 @@
 import { CommandInfo } from "#base-module";
 
-import { getServerBirthdayRole, setServerBirthdayRole } from "@/bot/database";
+import { getServer, setServerBirthdayRole } from "@/database";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
@@ -59,7 +59,7 @@ const handler = (logger: Logger): CommandHandler => {
           ).user?.username}#${(data.member || data).user?.discriminator}`
         );
       } else {
-        const role = await getServerBirthdayRole(data.guild_id);
+        const role = (await getServer(data.guild_id))?.birthdayRole;
         if (role) {
           await editOriginalInteractionResponse(app.id, data.token, {
             content: interpolator(messageList.birthday.server_role, {

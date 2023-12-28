@@ -1,4 +1,4 @@
-import Logger from "./logger";
+import Logger from "../../helper/logger";
 import mongoose from "mongoose";
 
 const _logger = new Logger("database");

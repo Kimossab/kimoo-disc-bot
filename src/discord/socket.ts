@@ -1,4 +1,4 @@
-import { saveGuild } from "@/bot/database";
+import { saveGuild } from "@/database";
 import { randomNum } from "@/helper/common";
 import { PRESENCE_STRINGS } from "@/helper/constants";
 import Logger from "@/helper/logger";
@@ -27,7 +27,7 @@ import {
 
 import WebSocket from "ws";
 
-class Socket {
+export class Socket {
   private logger = new Logger("socket");
   private hbInterval: NodeJS.Timeout | null = null;
 
@@ -164,7 +164,7 @@ class Socket {
     }
   }
 
-  private onEvent(event: DispatchPayload): void {
+  private async onEvent(event: DispatchPayload): Promise<void> {
     switch (event.t) {
       case GatewayEvent.Ready:
         setDiscordSession(event.d.session_id);
@@ -174,7 +174,7 @@ class Socket {
       case GatewayEvent.GuildCreate:
         addGuild(event.d);
 
-        saveGuild(event.d.id);
+        await saveGuild(event.d.id);
         break;
       case GatewayEvent.InteractionCreate:
         try {
@@ -272,5 +272,3 @@ class Socket {
     this.logger.info("New DM", _data);
   }
 }
-
-export default new Socket();

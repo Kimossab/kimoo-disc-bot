@@ -1,7 +1,7 @@
 import { CommandInfo } from "#base-module";
 import { getServersBirthdayInfo } from "#birthday/database";
 
-import { setServerBirthdayChannel } from "@/bot/database";
+import { setServerBirthdayChannel } from "@/database";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,

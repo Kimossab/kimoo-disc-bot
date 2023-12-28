@@ -1,19 +1,19 @@
-import { IPoll } from "#voting/models/Poll.model";
+import { CompletePoll } from "#voting/database";
 
 import { Embed } from "@/types/discord";
 
-export const mapPollToEmbed = (poll: IPoll): Embed => {
+export const mapPollToEmbed = (poll: CompletePoll): Embed => {
   const { values, responses } = (
-    JSON.parse(JSON.stringify(poll.options)) as IPoll["options"]
+    JSON.parse(JSON.stringify(poll.pollOptions)) as CompletePoll["pollOptions"]
   )
-    .sort((a, b) => b.votes.length - a.votes.length)
+    .sort((a, b) => b.pollOptionVotes.length - a.pollOptionVotes.length)
     .reduce<{
       values: string[];
       responses: number[];
     }>(
       (acc, option) => {
         acc.values.push(option.text);
-        acc.responses.push(option.votes.length);
+        acc.responses.push(option.pollOptionVotes.length);
         return acc;
       },
       { values: [], responses: [] }

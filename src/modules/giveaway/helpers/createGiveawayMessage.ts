@@ -1,11 +1,11 @@
+import { CompleteGiveaway } from "#giveaway/database";
 import { mapGiveawayToComponents } from "#giveaway/mappers/mapGiveawayToComponents";
 import { mapGiveawayToEmbed } from "#giveaway/mappers/mapGiveawayToEmbed";
-import { IGiveaway } from "#giveaway/models/Giveaway.model";
 
 import { EditWebhookMessage } from "@/types/discord";
 
 export const createGiveawayMessageData = (
-  giveaway: IGiveaway
+  giveaway: CompleteGiveaway
 ): EditWebhookMessage => {
   const embeds = [mapGiveawayToEmbed(giveaway)];
   const components = mapGiveawayToComponents(giveaway);

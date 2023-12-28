@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Scripts {
+  id   String    @id @default(uuid())
+  name String
+  ran  DateTime?
+  meta Json
+}
+
+model Server {
+  id                   String                @id @unique
+  adminRole            String?
+  animeChannel         String?
+  birthdayChannel      String?
+  lastBirthdayWishes   Int?
+  birthdayRole         String?
+  roleChannel          String?
+  anilistSubscriptions AnilistSubscription[]
+  birthdayWithRoles    BirthdayWithRole[]
+  birthdays            Birthday[]
+  roleCategories       RoleCategory[]
+  giveaways            Giveaway[]
+}
+
+// Anilist
+model AnilistSubscription {
+  id       String @id @default(uuid())
+  animeId  Int
+  user     String
+  server   Server @relation(fields: [serverId], references: [id])
+  serverId String
+}
+
+model LastAiredNotification {
+  animeId     Int       @id @unique
+  lastAired   BigInt?
+  lastUpdated DateTime?
+}
+
+// Birthday
+model BirthdayWithRole {
+  id                    String                 @id @default(uuid())
+  day                   Int
+  month                 Int
+  server                Server                 @relation(fields: [serverId], references: [id])
+  birthdayWithRoleUsers BirthdayWithRoleUser[]
+  serverId              String
+}
+
+model BirthdayWithRoleUser {
+  id                 String           @id @default(uuid())
+  user               String
+  birthdayWithRole   BirthdayWithRole @relation(fields: [birthdayWithRoleId], references: [id])
+  birthdayWithRoleId String
+}
+
+model Birthday {
+  id         String @id @default(uuid())
+  day        Int
+  month      Int
+  year       Int?
+  user       String
+  server     Server @relation(fields: [serverId], references: [id])
+  lastWishes Int?
+  serverId   String
+}
+
+// Roles
+model RoleCategory {
+  id       String @id @default(uuid())
+  serverId String
+  server   Server @relation(fields: [serverId], references: [id])
+  category String
+  message  String
+  roles    Role[]
+}
+
+model Role {
+  id             String       @id
+  icon           String?
+  category       RoleCategory @relation(fields: [roleCategoryId], references: [id])
+  roleCategoryId String
+}
+
+// Polls
+model Poll {
+  id                 String       @id @default(uuid())
+  hash               String
+  creator            String
+  question           String
+  multipleChoice     Boolean
+  usersCanAddAnswers Boolean
+  days               Int
+  startAt            DateTime
+  pollOptions        PollOption[]
+}
+
+model PollOption {
+  id              String            @id @default(uuid())
+  text            String
+  poll            Poll              @relation(fields: [pollId], references: [id])
+  pollId          String
+  pollOptionVotes PollOptionVotes[]
+}
+
+model PollOptionVotes {
+  user         String
+  option       PollOption @relation(fields: [pollOptionId], references: [id])
+  pollOptionId String
+
+  @@id([user, pollOptionId])
+}
+
+// Giveaway
+model Giveaway {
+  id           String                @id @default(uuid())
+  serverId     String
+  channelId    String
+  hash         String                @unique
+  creatorId    String
+  endAt        DateTime
+  prize        String
+  participants GiveawayParticipant[]
+  server       Server                @relation(fields: [serverId], references: [id])
+}
+
+model GiveawayParticipant {
+  id         String   @id @default(uuid())
+  userId     String
+  canWin     Boolean  @default(true)
+  isWinner   Boolean  @default(false)
+  giveawayId String
+  giveaway   Giveaway @relation(fields: [giveawayId], references: [id])
+}

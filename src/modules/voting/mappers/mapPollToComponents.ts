@@ -1,5 +1,5 @@
+import { CompletePoll } from "#voting/database";
 import { hasExpired } from "#voting/helpers";
-import { IPoll } from "#voting/models/Poll.model";
 
 import { chunkArray } from "@/helper/common";
 import { ActionRow, ButtonStyle, ComponentType } from "@/types/discord";
@@ -10,9 +10,9 @@ export enum PollMessageType {
 }
 
 interface MapPollToComponents {
-  (poll: IPoll, type: PollMessageType.VOTE): ActionRow[];
+  (poll: CompletePoll, type: PollMessageType.VOTE): ActionRow[];
   (
-    poll: IPoll,
+    poll: CompletePoll,
     type: PollMessageType.SETTINGS,
     user: string,
     singleResponse?: number
@@ -58,7 +58,7 @@ export const mapPollToComponents: MapPollToComponents = (
 };
 
 const addSettingsComponents = (
-  poll: IPoll,
+  poll: CompletePoll,
   user: string | undefined,
   singleResponse: number | undefined,
   components: ActionRow[]
@@ -124,13 +124,13 @@ const addSettingsComponents = (
 };
 
 const addOptionsComponents = (
-  poll: IPoll,
+  poll: CompletePoll,
   type: PollMessageType,
   components: ActionRow[],
   singleResponse: number | undefined
 ) => {
   let i = 0;
-  const chunks = chunkArray(poll.options, 5);
+  const chunks = chunkArray(poll.pollOptions, 5);
 
   if (type === PollMessageType.SETTINGS || !hasExpired(poll)) {
     for (const chunk of chunks) {

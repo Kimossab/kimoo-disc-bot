@@ -18,10 +18,10 @@ import {
   getGatewayBot,
   sendMessage,
 } from "./discord/rest";
-import socket from "./discord/socket";
+import { Socket } from "./discord/socket";
 import { formatSecondsIntoMinutes, randomNum } from "./helper/common";
-import mongoConnect from "./helper/database";
 import Logger from "./helper/logger";
+import { run as scriptRun } from "./scripts/migrate-mongo-postgres/script";
 import {
   getApplication,
   setCommandExecutedCallback,
@@ -35,6 +35,8 @@ import {
 } from "./types/discord";
 
 const _logger = new Logger("bot");
+
+const socket = new Socket();
 
 let hasStarted = false;
 
@@ -132,10 +134,9 @@ const updateBotPresence = () => {
 };
 
 const main = async (): Promise<void> => {
+  await scriptRun();
   setReadyCallback(ready);
   setCommandExecutedCallback(commandExecuted);
-
-  await mongoConnect(process.env.DATABASE_URL);
 
   const gateway = await getGatewayBot();
   if (!gateway) {

@@ -1,5 +1,14 @@
 import { CommandInfo } from "#base-module";
-import { createVoting, getPoll } from "#voting/database";
+import {
+  CompletePoll,
+  createOption,
+  createOptionVote,
+  createVoting,
+  deleteAllVotes,
+  deleteOptionVote,
+  getPoll,
+  updateHash,
+} from "#voting/database";
 import { hasExpired } from "#voting/helpers";
 import {
   mapPollToComponents,
@@ -7,7 +16,6 @@ import {
 } from "#voting/mappers/mapPollToComponents";
 import { mapPollToEmbed } from "#voting/mappers/mapPollToEmbed";
 import { mapPollToSettingsEmbed } from "#voting/mappers/mapPollToSettingsEmbed";
-import { IPoll } from "#voting/models/Poll.model";
 
 import {
   createInteractionResponse,
@@ -101,9 +109,9 @@ const definition: ApplicationCommandOption = {
 };
 
 const createPollMessageData: {
-  (poll: IPoll): EditWebhookMessage;
-  (poll: IPoll, user: string): EditWebhookMessage;
-} = (poll: IPoll, user?: string): EditWebhookMessage => {
+  (poll: CompletePoll): EditWebhookMessage;
+  (poll: CompletePoll, user: string): EditWebhookMessage;
+} = (poll: CompletePoll, user?: string): EditWebhookMessage => {
   const embeds = [
     user ? mapPollToSettingsEmbed(poll, user) : mapPollToEmbed(poll),
   ];
@@ -124,7 +132,7 @@ const createPollMessageData: {
 const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
-    if (app && app.id && data.member && data.member.user) {
+    if (app?.id && data.member?.user) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
       });
@@ -163,19 +171,20 @@ const handler = (logger: Logger): CommandHandler => {
         options.push(option_4);
       }
 
-      const poll = await createVoting({
-        question,
-        creator: data.member.user.id,
-        days: days || 1,
-        hash,
-        multipleChoice: multiple_choice ?? false,
-        startAt: new Date(),
-        usersCanAddAnswers: !!free_new_answer,
-        options: options.map((o) => ({
+      const poll = await createVoting(
+        {
+          question,
+          creator: data.member.user.id,
+          days: days ?? 1,
+          hash,
+          multipleChoice: multiple_choice ?? false,
+          startAt: new Date(),
+          usersCanAddAnswers: !!free_new_answer,
+        },
+        options.map((o) => ({
           text: o,
-          votes: [],
-        })),
-      });
+        }))
+      );
 
       const message = await editOriginalInteractionResponse(
         app.id,
@@ -183,11 +192,9 @@ const handler = (logger: Logger): CommandHandler => {
         createPollMessageData(poll)
       );
 
-      poll.hash = message?.id || hash;
+      await updateHash(poll.id, message?.id ?? hash);
 
       logger.info("New poll created", poll);
-
-      await poll.save();
     }
   };
 };
@@ -196,7 +203,7 @@ type ComponentHandler<
   T extends ModalSubmitInteractionData | MessageComponentInteractionData,
   E = void,
 > = (
-  poll: IPoll,
+  poll: CompletePoll,
   data: Interaction<T>,
   extra: E
 ) => Promise<{ hasSentResponse: boolean; needsToUpdatePoll: boolean }>;
@@ -217,7 +224,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       return { hasSentResponse: true, needsToUpdatePoll: false };
     }
 
-    if (poll.options.length === MAX_OPTIONS_PER_POLL) {
+    if (poll.pollOptions.length === MAX_OPTIONS_PER_POLL) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
@@ -280,7 +287,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       return { hasSentResponse: true, needsToUpdatePoll: false };
     }
 
-    if (poll.options.length === MAX_OPTIONS_PER_POLL) {
+    if (poll.pollOptions.length === MAX_OPTIONS_PER_POLL) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
@@ -293,9 +300,9 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     const newOption =
       ((data.data!.components[0] as ActionRow).components[0] as TextInput)
-        .value || "";
+        .value ?? "";
 
-    poll.options.push({ text: newOption, votes: [] });
+    await createOption(poll.id, newOption);
 
     return { hasSentResponse: false, needsToUpdatePoll: true };
   };
@@ -380,9 +387,9 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       return { hasSentResponse: true, needsToUpdatePoll: false };
     }
 
-    poll.options = [
-      ...poll.options.slice(0, optSelected),
-      ...poll.options.slice(optSelected + 1),
+    poll.pollOptions = [
+      ...poll.pollOptions.slice(0, optSelected),
+      ...poll.pollOptions.slice(optSelected + 1),
     ];
 
     return { hasSentResponse: false, needsToUpdatePoll: true };
@@ -405,13 +412,15 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     const userId = data.member?.user?.id || "";
 
-    const userVotes = poll.options.reduce(
-      (acc, opt) => acc + (opt.votes.find((v) => v === userId)?.length || 0),
+    const userVotes = poll.pollOptions.reduce(
+      (acc, opt) =>
+        acc +
+        (opt.pollOptionVotes.filter((v) => v.user === userId)?.length || 0),
       0
     );
 
-    const option = poll.options[optionChosen];
-    if (!option.votes.includes(userId)) {
+    const option = poll.pollOptions[optionChosen];
+    if (!option.pollOptionVotes.map((v) => v.user).includes(userId)) {
       if (!poll.multipleChoice && userVotes > 0) {
         await createInteractionResponse(data.id, data.token, {
           type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -423,9 +432,9 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
         return { hasSentResponse: true, needsToUpdatePoll: false };
       }
-      option.votes.push(userId);
+      await createOptionVote(option.id, userId);
     } else {
-      option.votes = option.votes.filter((v) => v !== userId);
+      await deleteOptionVote(option.id, userId);
     }
 
     return { hasSentResponse: false, needsToUpdatePoll: true };
@@ -490,7 +499,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       return { hasSentResponse: true, needsToUpdatePoll: false };
     }
 
-    poll.options = poll.options.map((o) => ({ text: o.text, votes: [] }));
+    await deleteAllVotes(poll.id);
 
     return { hasSentResponse: false, needsToUpdatePoll: true };
   };
@@ -548,13 +557,16 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         Number(subCmd[0])
       ));
     }
+    const updatedPoll = await getPoll(messageId);
+    if (!updatedPoll) {
+      return;
+    }
 
     if (!messageHasBeenCreated) {
-      await poll.save();
       const responseData = (
         isOriginalMessage
-          ? createPollMessageData(poll)
-          : createPollMessageData(poll, data.member?.user?.id || "")
+          ? createPollMessageData(updatedPoll)
+          : createPollMessageData(updatedPoll, data.member?.user?.id || "")
       ) as InteractionCallbackData;
 
       await createInteractionResponse(data.id, data.token, {
@@ -565,7 +577,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     if (!isOriginalMessage && needsToUpdatePoll) {
       await editMessage(data.channel_id ?? "", messageId, {
-        ...createPollMessageData(poll),
+        ...createPollMessageData(updatedPoll),
         attachments: undefined,
       });
     }

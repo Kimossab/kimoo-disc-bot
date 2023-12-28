@@ -109,13 +109,6 @@ const handler = (
 
       await pagination.create(data.token);
       addPagination(pagination as InteractionPagination);
-
-      logger.info(
-        `Search Anime ${query} (${type}) in ${data.guild_id} by ` +
-          `${(data.member || data).user?.username}#${
-            (data.member || data).user?.discriminator
-          }`
-      );
     }
   };
 };

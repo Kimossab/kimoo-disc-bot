@@ -45,7 +45,7 @@ const handler = (
 ): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
-    if (app && app.id) {
+    if (app?.id) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
       });

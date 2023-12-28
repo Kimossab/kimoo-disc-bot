@@ -1,6 +1,6 @@
 import { CommandInfo } from "#base-module";
 
-import { getServerRoleChannel, setServerRoleChannel } from "@/bot/database";
+import { getServer, setServerRoleChannel } from "@/database";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
@@ -58,7 +58,7 @@ const handler = (): CommandHandler => {
           }),
         });
       } else {
-        const ch = await getServerRoleChannel(data.guild_id);
+        const ch = (await getServer(data.guild_id))?.roleChannel;
         if (!ch) {
           await editOriginalInteractionResponse(app.id, data.token, {
             content: messageList.roles.errors.no_channel,
