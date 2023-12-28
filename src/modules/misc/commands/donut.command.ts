@@ -75,9 +75,8 @@ const handler = (logger: Logger): CommandHandler => {
       });
 
       logger.info(
-        `Donut was requested in ${data.guild_id} by ${
-          (data.member || data).user?.username
-        }#${(data.member || data).user?.discriminator}`
+        `Donut was requested in ${data.guild_id} by ${(data.member || data).user
+          ?.username}#${(data.member || data).user?.discriminator}`
       );
     }
   };
