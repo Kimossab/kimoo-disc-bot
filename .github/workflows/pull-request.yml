@@ -1,0 +1,27 @@
+name: Build on pull request
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          cache: "npm"
+
+      - run: npm i
+        name: Install
+
+      - run: npm run lint
+        name: Lint
+
+      - run: npm run type:check
+        name: Type check
+
+      - run: npm run build
+        name: Build
