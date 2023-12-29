@@ -1,4 +1,4 @@
-import { PrismaClient, Server } from "@prisma/client";
+import { CommandHistory, Prisma, PrismaClient, Server } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -51,4 +51,14 @@ export const setServerRoleChannel = async (id: string, channel: string) =>
   await prisma.server.update({
     where: { id },
     data: { roleChannel: channel },
+  });
+
+export const saveCommandHistory = async (
+  commandHistory: Omit<CommandHistory, "id">
+) =>
+  await prisma.commandHistory.create({
+    data: {
+      ...commandHistory,
+      data: commandHistory.data ?? Prisma.JsonNull,
+    },
   });

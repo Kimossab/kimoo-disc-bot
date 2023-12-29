@@ -1,4 +1,5 @@
 import { compareCommands } from "@/commands";
+import { saveCommandHistory } from "@/database";
 import { createCommand, createInteractionResponse } from "@/discord/rest";
 import { checkAdmin } from "@/helper/common";
 import Logger from "@/helper/logger";
@@ -22,6 +23,7 @@ import {
   ModalSubmitInteractionData,
   SingleCommandHandler,
 } from "@/types/discord";
+import { JsonArray } from "@prisma/client/runtime/library";
 
 export interface CommandInfo {
   definition: ApplicationCommandOption;
@@ -79,11 +81,22 @@ export default class BaseModule {
       (data.user || (data.guild_id && data.member))
     ) {
       const app = getApplication();
-      if (app && app.id) {
+      if (app?.id) {
+        await saveCommandHistory({
+          serverId: data.guild_id ?? null,
+          channelId: data.channel_id ?? null,
+          command: data.data.name,
+          data: data.data!.options! as unknown as JsonArray,
+          dateTime: new Date(),
+          module: this.name,
+          isComponent: false,
+          userId: data.member?.user?.id ?? "",
+        });
+
         if (this.singleCommand) {
           if (
             this.singleCommand.isAdmin &&
-            !checkAdmin(data.guild_id, data.member)
+            !(await checkAdmin(data.guild_id, data.member))
           ) {
             await createInteractionResponse(data.id, data.token, {
               type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -104,7 +117,7 @@ export default class BaseModule {
           if (cmdData) {
             if (
               this.commandList[cmd].isAdmin &&
-              !checkAdmin(data.guild_id, data.member)
+              !(await checkAdmin(data.guild_id, data.member))
             ) {
               await createInteractionResponse(data.id, data.token, {
                 type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -158,9 +171,21 @@ export default class BaseModule {
       MessageComponentInteractionData | ModalSubmitInteractionData
     >
   ): Promise<void> => {
-    if (data.data && data.data.custom_id) {
+    if (data.data?.custom_id) {
       const app = getApplication();
-      if (app && app.id) {
+
+      await saveCommandHistory({
+        serverId: data.guild_id ?? null,
+        channelId: data.channel_id ?? null,
+        command: data.data.custom_id,
+        data: null,
+        dateTime: new Date(),
+        module: this.name,
+        isComponent: true,
+        userId: data.member?.user?.id ?? "",
+      });
+
+      if (app?.id) {
         if (this.singleCommand) {
           return this.executeOrLog(this.singleCommand.componentHandler, data);
         }
