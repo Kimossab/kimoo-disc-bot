@@ -30,6 +30,7 @@ model Server {
   birthdays            Birthday[]
   roleCategories       RoleCategory[]
   giveaways            Giveaway[]
+  commandHistory       CommandHistory[]
 }
 
 // Anilist
@@ -141,4 +142,17 @@ model GiveawayParticipant {
   isWinner   Boolean  @default(false)
   giveawayId String
   giveaway   Giveaway @relation(fields: [giveawayId], references: [id])
+}
+
+model CommandHistory {
+  id          String   @id @default(uuid())
+  serverId    String?
+  channelId   String?
+  userId      String
+  module      String
+  command     String
+  data        Json
+  dateTime    DateTime
+  isComponent Boolean
+  server      Server?  @relation(fields: [serverId], references: [id])
 }
