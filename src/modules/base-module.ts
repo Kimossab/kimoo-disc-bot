@@ -23,6 +23,7 @@ import {
   ModalSubmitInteractionData,
   SingleCommandHandler,
 } from "@/types/discord";
+import { Prisma } from "@prisma/client";
 import { JsonArray } from "@prisma/client/runtime/library";
 
 export interface CommandInfo {
@@ -97,6 +98,17 @@ export default class BaseModule {
         } catch (e) {
           this.logger.error("Failed to create command history", {
             error: e,
+            errorJson: JSON.stringify(e),
+            isPrismaClientKnownRequestError:
+              e instanceof Prisma.PrismaClientKnownRequestError,
+            isPrismaClientUnknownRequestError:
+              e instanceof Prisma.PrismaClientUnknownRequestError,
+            isPrismaClientRustPanicError:
+              e instanceof Prisma.PrismaClientRustPanicError,
+            isPrismaClientInitializationError:
+              e instanceof Prisma.PrismaClientInitializationError,
+            isPrismaClientValidationError:
+              e instanceof Prisma.PrismaClientValidationError,
             data: {
               serverId: data.guild_id ?? null,
               channelId: data.channel_id ?? null,
@@ -206,6 +218,17 @@ export default class BaseModule {
       } catch (e) {
         this.logger.error("Failed to create command history", {
           error: e,
+          errorJson: JSON.stringify(e),
+          isPrismaClientKnownRequestError:
+            e instanceof Prisma.PrismaClientKnownRequestError,
+          isPrismaClientUnknownRequestError:
+            e instanceof Prisma.PrismaClientUnknownRequestError,
+          isPrismaClientRustPanicError:
+            e instanceof Prisma.PrismaClientRustPanicError,
+          isPrismaClientInitializationError:
+            e instanceof Prisma.PrismaClientInitializationError,
+          isPrismaClientValidationError:
+            e instanceof Prisma.PrismaClientValidationError,
           data: {
             serverId: data.guild_id ?? null,
             channelId: data.channel_id ?? null,
