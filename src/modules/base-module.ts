@@ -82,16 +82,33 @@ export default class BaseModule {
     ) {
       const app = getApplication();
       if (app?.id) {
-        await saveCommandHistory({
-          serverId: data.guild_id ?? null,
-          channelId: data.channel_id ?? null,
-          command: data.data.name,
-          data: data.data!.options! as unknown as JsonArray,
-          dateTime: new Date(),
-          module: this.name,
-          isComponent: false,
-          userId: data.member?.user?.id ?? "",
-        });
+        try {
+          this.logger.debug("saving history");
+          await saveCommandHistory({
+            serverId: data.guild_id ?? null,
+            channelId: data.channel_id ?? null,
+            command: data.data.name,
+            data: data.data!.options! as unknown as JsonArray,
+            dateTime: new Date(),
+            module: this._name,
+            isComponent: false,
+            userId: data.member?.user?.id ?? "",
+          });
+        } catch (e) {
+          this.logger.error("Failed to create command history", {
+            error: e,
+            data: {
+              serverId: data.guild_id ?? null,
+              channelId: data.channel_id ?? null,
+              command: data.data.name,
+              data: data.data!.options! as unknown as JsonArray,
+              dateTime: new Date(),
+              module: this._name,
+              isComponent: false,
+              userId: data.member?.user?.id ?? "",
+            },
+          });
+        }
 
         if (this.singleCommand) {
           if (
@@ -174,16 +191,33 @@ export default class BaseModule {
     if (data.data?.custom_id) {
       const app = getApplication();
 
-      await saveCommandHistory({
-        serverId: data.guild_id ?? null,
-        channelId: data.channel_id ?? null,
-        command: data.data.custom_id,
-        data: null,
-        dateTime: new Date(),
-        module: this.name,
-        isComponent: true,
-        userId: data.member?.user?.id ?? "",
-      });
+      try {
+        this.logger.debug("saving history");
+        await saveCommandHistory({
+          serverId: data.guild_id ?? null,
+          channelId: data.channel_id ?? null,
+          command: data.data.custom_id,
+          data: null,
+          dateTime: new Date(),
+          module: this._name,
+          isComponent: true,
+          userId: data.member?.user?.id ?? "",
+        });
+      } catch (e) {
+        this.logger.error("Failed to create command history", {
+          error: e,
+          data: {
+            serverId: data.guild_id ?? null,
+            channelId: data.channel_id ?? null,
+            command: data.data.custom_id,
+            data: null,
+            dateTime: new Date(),
+            module: this._name,
+            isComponent: true,
+            userId: data.member?.user?.id ?? "",
+          },
+        });
+      }
 
       if (app?.id) {
         if (this.singleCommand) {
