@@ -16,7 +16,7 @@ import {
 } from "@/types/discord";
 
 import { getAiringSchedule } from "../graphql/graphql";
-import { AnilistRateLimit } from "../helpers/rate-limiter";
+import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapAiringScheduleToEmbed } from "../mappers/mapAiringScheduleToEmbed";
 import { MediaType } from "../types/graphql";
 
@@ -57,14 +57,14 @@ const handler = (
 
       const allData = await getAiringSchedule(rateLimiter, query);
 
-      if (!allData?.Media) {
+      if (allData.status !== RequestStatus.OK || !allData.data.Media) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.anilist.not_found,
         });
         return;
       }
 
-      const embed = mapAiringScheduleToEmbed(allData.Media);
+      const embed = mapAiringScheduleToEmbed(allData.data.Media);
       await editOriginalInteractionResponse(app.id, data.token, {
         content: "",
         embeds: [embed],

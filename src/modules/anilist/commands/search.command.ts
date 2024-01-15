@@ -21,7 +21,7 @@ import {
 } from "@/types/discord";
 
 import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
-import { AnilistRateLimit } from "../helpers/rate-limiter";
+import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapMediaToEmbed } from "../mappers/mapMediaToEmbed";
 import { MediaType } from "../types/graphql";
 
@@ -85,14 +85,14 @@ const handler = (
         ? searchByQueryAndType(rateLimiter, query, type)
         : searchByQuery(rateLimiter, query));
 
-      if (!allData) {
+      if (allData.status !== RequestStatus.OK) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.anilist.not_found,
         });
         return;
       }
 
-      const embedList = mapMediaToEmbed(allData);
+      const embedList = mapMediaToEmbed(allData.data);
 
       if (embedList.length === 0) {
         await editOriginalInteractionResponse(app.id, data.token, {

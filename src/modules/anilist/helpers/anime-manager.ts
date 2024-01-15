@@ -17,7 +17,7 @@ import { sendMessage } from "@/discord/rest";
 import { ILogger } from "@/helper/logger";
 
 import { MAX_TIMER } from "./anime-manager-config";
-import { IAnilistRateLimit } from "./rate-limiter";
+import { IAnilistRateLimit, RequestStatus } from "./rate-limiter";
 
 interface LastAndNextEpisodeInfo {
   last: NextEpisode | null;
@@ -70,7 +70,7 @@ export class AnimeManager {
       this.animeId
     );
 
-    if (!animeInformation) {
+    if (animeInformation.status === RequestStatus.Not_Found) {
       //todo: to change to info
       this.logger.error(
         "No info about the anime found (either removed by anilist or finished airing) - deleting from database",
@@ -81,19 +81,22 @@ export class AnimeManager {
       await deleteAllSubscriptionsForId(this.animeId);
       this.onDelete(this.animeId);
       return;
+    } else if (animeInformation.status !== RequestStatus.OK) {
+      this.setTimer(1 * 60 * 1000); // 1 minute
+      return;
     }
 
     const lastAiredDb = await getAnimeLastAiringById(this.animeId);
     const { last, next } = getLastAndNextEpisode(
-      animeInformation.Media.airingSchedule
+      animeInformation.data.Media.airingSchedule
     );
 
     if (last && last.episode !== Number(lastAiredDb?.lastAired)) {
-      this.logger.info("Last aired episode is diferent from database", {
+      this.logger.info("Last aired episode is different from database", {
         db: lastAiredDb,
         last,
       });
-      await this.notifyNewEpisode(animeInformation.Media, last, next);
+      await this.notifyNewEpisode(animeInformation.data.Media, last, next);
     }
 
     if (
@@ -101,7 +104,7 @@ export class AnimeManager {
         MediaStatus.NOT_YET_RELEASED,
         MediaStatus.RELEASING,
         MediaStatus.HIATUS,
-      ].includes(animeInformation.Media.status)
+      ].includes(animeInformation.data.Media.status)
     ) {
       this.logger.error(
         "Anime status not one of (NOT_YET_RELEASED,RELEASING,HIATUS) - assuming it's over - deleting from db",

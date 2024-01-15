@@ -5,7 +5,7 @@ import {
   getUserSubs,
 } from "#anilist/database";
 import { searchForUser } from "#anilist/graphql/graphql";
-import { AnilistRateLimit } from "#anilist/helpers/rate-limiter";
+import { AnilistRateLimit, RequestStatus } from "#anilist/helpers/rate-limiter";
 import { CommandInfo } from "#base-module";
 
 import {
@@ -65,8 +65,11 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
           rateLimiter,
           chunk.map((s) => s.animeId)
         );
-        if (info && info.Page.media.length > 0) {
-          animeInfo.push(...info.Page.media);
+        if (
+          info.status === RequestStatus.OK &&
+          info.data.Page.media.length > 0
+        ) {
+          animeInfo.push(...info.data.Page.media);
         }
       }
 

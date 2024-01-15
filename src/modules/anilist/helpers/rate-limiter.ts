@@ -10,11 +10,31 @@ const ANILIST_GRAPHQL = "https://graphql.anilist.co";
 
 const TIMEOUT = 667; // 1 request per each 667ms max
 
+export enum RequestStatus {
+  OK,
+  Error,
+  Not_Found,
+}
+
+interface RequestError {
+  status: RequestStatus.Error | RequestStatus.Not_Found;
+  message: string;
+  data: null | ErrorType;
+}
+
+type RequestResult<T> =
+  | {
+      status: RequestStatus.OK;
+      message?: string;
+      data: T;
+    }
+  | RequestError;
+
 interface RequestData<T = unknown> {
   name: string;
   graphql: string;
   variables: Record<string, unknown>;
-  callback: (data: T | null) => void;
+  callback: (data: RequestResult<T>) => void;
 }
 
 interface ErrorData {
@@ -28,7 +48,7 @@ interface ErrorData {
 type ErrorType = Error | ErrorData;
 
 const isErrorData = (error: Error | ErrorData): error is ErrorData => {
-  return Object.prototype.hasOwnProperty.call(error, "data");
+  return Object.hasOwn(error, "data");
 };
 
 export interface IAnilistRateLimit {
@@ -36,7 +56,7 @@ export interface IAnilistRateLimit {
     queryName: string,
     graphql: string,
     variables: Record<string, unknown>
-  ): Promise<T | null>;
+  ): Promise<RequestResult<T>>;
 }
 
 export class AnilistRateLimit implements IAnilistRateLimit {
@@ -48,13 +68,13 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     queryName: string,
     graphql: string,
     variables: Record<string, unknown>
-  ): Promise<T | null> {
-    return new Promise<T>((resolve) => {
+  ): Promise<RequestResult<T>> {
+    return new Promise<RequestResult<T>>((resolve) => {
       this.queue.push({
         name: queryName,
         graphql,
         variables,
-        callback: (data) => resolve(data as T),
+        callback: (data) => resolve(data as RequestResult<T>),
       });
       if (!this.timerActive) {
         this.checkQueue();
@@ -103,8 +123,18 @@ export class AnilistRateLimit implements IAnilistRateLimit {
 
       this.logSuccess(request.name, response.headers);
 
-      request.callback(response.data.data);
+      request.callback({
+        status: RequestStatus.OK,
+        message: "success",
+        data: response.data.data,
+      });
     } catch (e) {
+      const result: RequestError = {
+        status: RequestStatus.Error,
+        message: (e as Error).message ?? "Internal server error",
+        data: e as ErrorType,
+      };
+
       if (axios.isAxiosError(e)) {
         if (
           e.response?.status === 429 &&
@@ -113,13 +143,16 @@ export class AnilistRateLimit implements IAnilistRateLimit {
           return this.rateLimited(e, request);
         }
 
+        result.message = `${e.response?.status} - ${e.message}`;
         if (e.response?.status !== 404) {
           this.handleErrors(request.name, e);
+        } else {
+          result.status = RequestStatus.Not_Found;
         }
       } else {
         this.handleErrors(request.name, e as ErrorType);
       }
-      request.callback(null);
+      request.callback(result);
     }
 
     setTimeout(() => {
