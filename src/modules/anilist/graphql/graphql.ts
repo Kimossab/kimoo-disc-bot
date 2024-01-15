@@ -23,7 +23,7 @@ export const searchByQueryAndType = async (
   rateLimiter: IAnilistRateLimit,
   search: string,
   type?: MediaType
-): Promise<PageResponse<MediaList> | null> => {
+) => {
   return await rateLimiter.request<PageResponse<MediaList>>(
     "searchByQueryAndType",
     searchByTypeGraphql,
@@ -36,7 +36,7 @@ export const searchByQueryAndType = async (
 export const searchByQuery = async (
   rateLimiter: IAnilistRateLimit,
   search: string
-): Promise<PageResponse<MediaList> | null> => {
+) => {
   return await rateLimiter.request<PageResponse<MediaList>>(
     "searchByQuery",
     searchGraphql,
@@ -49,7 +49,7 @@ export const searchByQuery = async (
 export const searchForAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
   search: string
-): Promise<MediaResponse<MediaForAiring> | null> => {
+) => {
   return await rateLimiter.request<MediaResponse<MediaForAiring>>(
     "searchForAiringSchedule",
     searchForAiringScheduleGraphql,
@@ -62,7 +62,7 @@ export const searchForAiringSchedule = async (
 export const searchForUser = async (
   rateLimiter: IAnilistRateLimit,
   ids: number[]
-): Promise<PageResponse<MediaSubbed> | null> => {
+) => {
   return await rateLimiter.request<PageResponse<MediaSubbed>>(
     "searchForUser",
     searchByIdsGraphql,
@@ -75,7 +75,7 @@ export const searchForUser = async (
 export const getAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
   search: string
-): Promise<MediaResponse<NextAiringWithTitle> | null> => {
+) => {
   return await rateLimiter.request<MediaResponse<NextAiringWithTitle>>(
     "getAiringSchedule",
     getAiringScheduleGraphql,
@@ -88,7 +88,7 @@ export const getAiringSchedule = async (
 export const getFullAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
   id: number
-): Promise<MediaResponse<InfoWithSchedule> | null> => {
+) => {
   return await rateLimiter.request<MediaResponse<InfoWithSchedule>>(
     "getFullAiringScheduleGraphql",
     getFullAiringScheduleGraphql,
@@ -101,7 +101,7 @@ export const getFullAiringSchedule = async (
 export const getUpcomingAnime = async (
   rateLimiter: IAnilistRateLimit,
   season: MediaSeason
-): Promise<PageResponse<UpcomingMedia> | null> => {
+) => {
   return await rateLimiter.request<PageResponse<UpcomingMedia>>(
     "getUpcoming",
     getUpcoming,

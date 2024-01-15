@@ -18,7 +18,7 @@ import {
 import { addSubscription, setAnimeLastAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
 import { AnimeManager, getLastAndNextEpisode } from "../helpers/anime-manager";
-import { AnilistRateLimit } from "../helpers/rate-limiter";
+import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapMediaAiringToEmbed } from "../mappers/mapMediaAiringToEmbed";
 
 interface SubAddCommandOptions {
@@ -59,7 +59,7 @@ export const handler = (
 
       const animeInfo = await searchForAiringSchedule(rateLimiter, anime);
 
-      if (!animeInfo) {
+      if (animeInfo.status !== RequestStatus.OK) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.anilist.not_found,
         });
@@ -69,18 +69,20 @@ export const handler = (
       await addSubscription(
         data.guild_id,
         data.member.user?.id || "",
-        animeInfo.Media.id
+        animeInfo.data.Media.id
       );
 
-      const { last } = getLastAndNextEpisode(animeInfo.Media.airingSchedule);
+      const { last } = getLastAndNextEpisode(
+        animeInfo.data.Media.airingSchedule
+      );
 
-      await setAnimeLastAiring(animeInfo.Media.id, last?.episode);
+      await setAnimeLastAiring(animeInfo.data.Media.id, last?.episode);
 
-      if (!animeList.find((anime) => anime.id === animeInfo.Media.id)) {
+      if (!animeList.find((anime) => anime.id === animeInfo.data.Media.id)) {
         const animeManager = new AnimeManager(
           logger,
           rateLimiter,
-          animeInfo.Media.id,
+          animeInfo.data.Media.id,
           removeAnime
         );
         animeManager.checkNextEpisode();
@@ -89,7 +91,7 @@ export const handler = (
 
       await editOriginalInteractionResponse(app.id, data.token, {
         content: ``,
-        embeds: [mapMediaAiringToEmbed(animeInfo.Media)],
+        embeds: [mapMediaAiringToEmbed(animeInfo.data.Media)],
       });
     }
   };

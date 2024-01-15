@@ -1,5 +1,5 @@
 import { getUpcomingAnime } from "#anilist/graphql/graphql";
-import { AnilistRateLimit } from "#anilist/helpers/rate-limiter";
+import { AnilistRateLimit, RequestStatus } from "#anilist/helpers/rate-limiter";
 import { mapUpcomingToEmbed } from "#anilist/mappers/mapUpcomingToEmbed";
 import { MediaSeason } from "#anilist/types/graphql";
 import { CommandInfo } from "#base-module";
@@ -111,14 +111,14 @@ const handler = (
 
       const allData = await getUpcomingAnime(rateLimiter, season);
 
-      if (!allData) {
+      if (allData.status !== RequestStatus.OK) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: messageList.anilist.not_found,
         });
         return;
       }
 
-      const embedList = mapUpcomingToEmbed(logger, allData);
+      const embedList = mapUpcomingToEmbed(logger, allData.data);
 
       if (embedList.length === 0) {
         await editOriginalInteractionResponse(app.id, data.token, {
