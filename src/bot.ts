@@ -170,8 +170,7 @@ const terminate = (cause: string) => {
 
 process.on("SIGINT", () => terminate("SIGINT"));
 process.on("SIGTERM", () => terminate("SIGTERM"));
-process.on("SIGKILL", () => terminate("SIGKILL"));
-process.on("exit", () => terminate("SIGKILL"));
+process.on("exit", () => terminate("exit"));
 process.on("uncaughtExceptionMonitor", (reason, promise) => {
   _logger.error("Unhandled Rejection", reason, promise);
 });
