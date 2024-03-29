@@ -231,8 +231,9 @@ export class Socket {
         since: null,
         activities: [
           {
-            name: PRESENCE_STRINGS[randomPresence],
-            type: ActivityType.Game,
+            name: "I am present",
+            state: PRESENCE_STRINGS[randomPresence],
+            type: ActivityType.Custom,
           },
         ],
         status: Status.Online,
