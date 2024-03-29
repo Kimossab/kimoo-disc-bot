@@ -114,8 +114,9 @@ const handler = (logger: Logger): CommandHandler => {
           allowed_mentions: no_mentions,
         });
         logger.info(
-          `Birthday requested in ${data.guild_id} by ${(data.member || data)
-            .user?.username}#${(data.member || data).user?.discriminator}`
+          `Birthday requested in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       } else {
         await editOriginalInteractionResponse(app.id, data.token, {

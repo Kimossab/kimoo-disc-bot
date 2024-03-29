@@ -54,9 +54,9 @@ const handler = (logger: Logger): CommandHandler => {
           allowed_mentions: no_mentions,
         });
         logger.info(
-          `Set birthday role ${role} in ${data.guild_id} by ${(
-            data.member || data
-          ).user?.username}#${(data.member || data).user?.discriminator}`
+          `Set birthday role ${role} in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       } else {
         const role = (await getServer(data.guild_id))?.birthdayRole;
@@ -74,8 +74,9 @@ const handler = (logger: Logger): CommandHandler => {
           });
         }
         logger.info(
-          `Get birthday role in ${data.guild_id} by ${(data.member || data).user
-            ?.username}#${(data.member || data).user?.discriminator}`
+          `Get birthday role in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       }
     }
