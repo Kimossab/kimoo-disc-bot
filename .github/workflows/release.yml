@@ -66,8 +66,6 @@ jobs:
       - uses: actions/download-artifact@v4
       - name: Zip artifact for deployment
         run: |
-          (cd node-v16.x-release && zip -r "$OLDPWD/node-v16.x-release.zip" .)
-          (cd node-v17.x-release && zip -r "$OLDPWD/node-v17.x-release.zip" .)
           (cd node-v18.x-release && zip -r "$OLDPWD/node-v18.x-release.zip" .)
           (cd node-v19.x-release && zip -r "$OLDPWD/node-v19.x-release.zip" .)
           (cd node-v20.x-release && zip -r "$OLDPWD/node-v20.x-release.zip" .)
