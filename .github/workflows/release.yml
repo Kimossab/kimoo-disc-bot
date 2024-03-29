@@ -14,13 +14,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 17.x, 18.x, 19.x, 20.x, 21.x]
+        node-version: [18.x, 19.x, 20.x, 21.x]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
@@ -31,7 +31,7 @@ jobs:
         name: Build
 
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: node-v${{ matrix.node-version }}-release
           path: |
@@ -44,9 +44,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
       - name: Install dependencies
         run: npm install
       - run: npm run build
@@ -62,8 +62,8 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
       - name: Zip artifact for deployment
         run: |
           (cd node-v16.x-release && zip -r "$OLDPWD/node-v16.x-release.zip" .)
