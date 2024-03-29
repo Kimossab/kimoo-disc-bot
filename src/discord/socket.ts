@@ -58,6 +58,11 @@ export class Socket {
     });
   }
 
+  public disconnect() {
+    this.client?.close(1001);
+    this.hbInterval && clearTimeout(this.hbInterval);
+  }
+
   // EVENTS
   private onConnection(e: unknown) {
     this.logger.info("Socket connected", e);

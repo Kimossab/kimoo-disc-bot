@@ -20,46 +20,10 @@ export const PRESENCE_STRINGS = [
   "As you like, my pleasure",
   "I am *ATOMIC*",
   "My favorite type of magic - Lesbomancy",
+  "kuraiyo~ kowaiyo~",
+  "I ask you. Are you my master?",
+  "EXPLOSIOOOOOOONNNN",
 ];
-
-// fandom
-export const FANDOM_LINKS: Record<string, string> = {
-  // Sword Art Online
-  sao: "swordartonline",
-  // Accel World
-  aw: "accelworld",
-  // The Irregular At Magic High School
-  magichighschool: "mahouka-koukou-no-rettousei",
-  magichs: "mahouka-koukou-no-rettousei",
-  mahouka: "mahouka-koukou-no-rettousei",
-  irregular: "mahouka-koukou-no-rettousei",
-  // Re:Zero
-  rezero: "rezero",
-  // Overlord
-  overlord: "overlordmaruyama",
-  // Quintessential Quintuplets
-  quintuplets: "5hanayome",
-  "5toubun": "5hanayome",
-  quints: "5hanayome",
-  // Konosuba
-  konosuba: "konosuba",
-  // A Certain Magical Index
-  // A Certain Scientific Railgun
-  index: "toarumajutsunoindex",
-  railgun: "toarumajutsunoindex",
-  cientificrailgun: "toarumajutsunoindex",
-  magicalindex: "toarumajutsunoindex",
-  // Steins;Gate
-  "steins-gate": "steins-gate",
-  steinsgate: "steins-gate",
-  sg: "steins-gate",
-  // Fate series (Type Moon)
-  fateseries: "typemoon",
-  fate: "typemoon",
-  // Fate Grand Order
-  fgo: "fategrandorder",
-  arknights: "mrfz",
-};
 
 // discord
 export const no_mentions: AllowedMentions = {

@@ -32,6 +32,11 @@ export default class GiveawayModule extends BaseModule {
       ),
     };
   }
+  public close() {
+    super.close();
+    this.giveawayManagers.forEach((g) => g.close());
+    this.giveawayManagers = [];
+  }
 
   public async setUp(): Promise<void> {
     super.setUp();

@@ -13,7 +13,6 @@ declare global {
       FANDOM_MODULE: "true" | "false";
       SAUCE_MODULE: "true" | "false";
       MISC_MODULE: "true" | "false";
-      VNDB_MODULE: "true" | "false";
       ANILIST_MODULE: "true" | "false";
       VOTING_MODULE: "true" | "false";
       ROLES_MODULE: "true" | "false";

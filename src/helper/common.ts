@@ -54,10 +54,10 @@ export const isValidReactionUser = (
  * @param seconds Time in seconds
  */
 export const formatSecondsIntoMinutes = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const minsString = mins < 10 ? `0${mins}` : mins.toString();
+  const mins = Math.trunc(seconds / 60);
+  const minsString = mins.toString().padStart(2, "0");
   const secs = Math.trunc(seconds % 60);
-  const secsString = secs < 10 ? `0${secs}` : secs.toString();
+  const secsString = secs.toString().padStart(2, "0");
 
   return `${minsString}:${secsString}`;
 };

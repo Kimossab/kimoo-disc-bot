@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 17.x, 18.x, 19.x]
+        node-version: [16.x, 17.x, 18.x, 19.x, 20.x, 21.x]
 
     steps:
       - uses: actions/checkout@v3
@@ -70,5 +70,7 @@ jobs:
           (cd node-v17.x-release && zip -r "$OLDPWD/node-v17.x-release.zip" .)
           (cd node-v18.x-release && zip -r "$OLDPWD/node-v18.x-release.zip" .)
           (cd node-v19.x-release && zip -r "$OLDPWD/node-v19.x-release.zip" .)
+          (cd node-v20.x-release && zip -r "$OLDPWD/node-v20.x-release.zip" .)
+          (cd node-v21.x-release && zip -r "$OLDPWD/node-v21.x-release.zip" .)
       - name: Create Release
         run: gh release create ${{github.ref_name}} --generate-notes ./*.zip

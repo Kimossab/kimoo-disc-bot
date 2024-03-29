@@ -39,6 +39,9 @@ class Logger implements ILogger {
   public info(message: string, ...data: unknown[]) {
     this._winston.info(message, ...data);
   }
+  public warn(message: string, ...data: unknown[]) {
+    this._winston.warn(message, ...data);
+  }
   public debug(message: string, ...data: unknown[]) {
     this._winston.debug(message, ...data);
   }

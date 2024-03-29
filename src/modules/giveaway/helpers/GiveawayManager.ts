@@ -40,6 +40,10 @@ export class GiveawayManager {
 
     this.onFinish(this.giveawayHash);
   }
+
+  public close() {
+    this.timer && clearTimeout(this.timer);
+  }
 }
 
 export const announceVictor = async (giveaway: CompleteGiveaway) => {
