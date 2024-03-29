@@ -306,4 +306,8 @@ export default class BaseModule {
       await createCommand(appId, this.commandDefinition);
     }
   }
+
+  public close() {
+    this.isActive = false;
+  }
 }

@@ -64,6 +64,12 @@ export class AnimeManager {
     private onDelete: (id: number) => void
   ) {}
 
+  public stop() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+  }
+
   public async checkNextEpisode() {
     const animeInformation = await getFullAiringSchedule(
       this.rateLimiter,

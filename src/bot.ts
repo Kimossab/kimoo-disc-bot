@@ -3,7 +3,6 @@ import "dotenv/config";
 import AnilistModule from "#/anilist/module";
 import BirthdayModule from "#/birthday/module";
 import MiscModule from "#/misc/module";
-import VNDBModule from "#/vndb/module";
 import GiveawayModule from "#giveaway/module";
 import RoleModule from "#roles/module";
 import SauceAnimeModule from "#sauceAnime/module";
@@ -21,7 +20,6 @@ import {
 import { Socket } from "./discord/socket";
 import { formatSecondsIntoMinutes, randomNum } from "./helper/common";
 import Logger from "./helper/logger";
-import { run as scriptRun } from "./scripts/migrate-mongo-postgres/script";
 import {
   getApplication,
   setCommandExecutedCallback,
@@ -37,6 +35,7 @@ import {
 const _logger = new Logger("bot");
 
 const socket = new Socket();
+let presenceTimeout: NodeJS.Timeout | null = null;
 
 let hasStarted = false;
 
@@ -55,7 +54,6 @@ const toggles = {
   BIRTHDAY_MODULE: process.env.BIRTHDAY_MODULE === "true",
   SAUCE_MODULE: process.env.SAUCE_MODULE === "true",
   MISC_MODULE: process.env.MISC_MODULE === "true",
-  VNDB_MODULE: process.env.VNDB_MODULE === "true",
   ANILIST_MODULE: process.env.ANILIST_MODULE === "true",
   VOTING_MODULE: process.env.VOTING_MODULE === "true",
   ROLES_MODULE: process.env.ROLES_MODULE === "true",
@@ -68,7 +66,6 @@ const modules = [
   new SauceArtModule(toggles.SAUCE_MODULE),
   new SauceAnimeModule(toggles.SAUCE_MODULE),
   new MiscModule(toggles.MISC_MODULE),
-  new VNDBModule(toggles.VNDB_MODULE),
   new AnilistModule(toggles.ANILIST_MODULE),
   new VotingModule(toggles.VOTING_MODULE),
   new RoleModule(toggles.ROLES_MODULE),
@@ -130,11 +127,11 @@ const updateBotPresence = () => {
 
   const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);
   _logger.info(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
-  setTimeout(updateBotPresence, time);
+  presenceTimeout = setTimeout(updateBotPresence, time);
 };
 
 const main = async (): Promise<void> => {
-  await scriptRun();
+  _logger.info("Bot initializing....");
   setReadyCallback(ready);
   setCommandExecutedCallback(commandExecuted);
 
@@ -152,10 +149,6 @@ const main = async (): Promise<void> => {
     return;
   }
 
-  const time = randomNum(5 * 60 * 1000, 30 * 60 * 1000);
-  _logger.info(`updating presence in ${formatSecondsIntoMinutes(time / 1000)}`);
-  setTimeout(updateBotPresence, time);
-
   _logger.info(
     `${gateway.session_start_limit.remaining}/${gateway.session_start_limit.remaining} sessions available`
   );
@@ -163,5 +156,27 @@ const main = async (): Promise<void> => {
   const url = `${gateway.url}/?v=${process.env.API_V}&encoding=json`;
   socket.connect(url);
 };
+process.on("warning", (warning) => {
+  _logger.warn("Application warning caught", warning);
+});
+
+const terminate = (cause: string) => {
+  _logger.info(`Application termination ${cause}`);
+  if (presenceTimeout) {
+    clearTimeout(presenceTimeout);
+  }
+  socket.disconnect();
+};
+
+process.on("SIGINT", () => terminate("SIGINT"));
+process.on("SIGTERM", () => terminate("SIGTERM"));
+process.on("SIGKILL", () => terminate("SIGKILL"));
+process.on("exit", () => terminate("SIGKILL"));
+process.on("uncaughtExceptionMonitor", (reason, promise) => {
+  _logger.error("Unhandled Rejection", reason, promise);
+});
+process.on("warning", (warning) => {
+  _logger.warn("Application warning caught", warning);
+});
 
 main();

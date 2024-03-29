@@ -57,8 +57,9 @@ const handler = (logger: Logger): CommandHandler => {
         });
         logger.info(
           `Set birthday channel to ${channel} in ${data.guild_id} by ` +
-            `${(data.member || data).user?.username}#${(data.member || data)
-              .user?.discriminator}`
+            `${(data.member || data).user?.username}#${
+              (data.member || data).user?.discriminator
+            }`
         );
       } else {
         const ch = await getServersBirthdayInfo();
@@ -69,8 +70,9 @@ const handler = (logger: Logger): CommandHandler => {
           }),
         });
         logger.info(
-          `Get birthday channel in ${data.guild_id} by ${(data.member || data)
-            .user?.username}#${(data.member || data).user?.discriminator}`
+          `Get birthday channel in ${data.guild_id} by ${
+            (data.member || data).user?.username
+          }#${(data.member || data).user?.discriminator}`
         );
       }
     }

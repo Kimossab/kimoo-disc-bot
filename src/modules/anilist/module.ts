@@ -40,6 +40,13 @@ export default class AnilistModule extends BaseModule {
     };
   }
 
+  public close() {
+    super.close();
+    this.animeList.forEach((a) => a.stop());
+    this.animeList = [];
+    this.rateLimiter.clear();
+  }
+
   public async setUp(): Promise<void> {
     super.setUp();
     if (!this.isActive) {

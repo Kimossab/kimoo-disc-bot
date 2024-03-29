@@ -82,6 +82,11 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     });
   }
 
+  public clear() {
+    this.timerActive = false;
+    this.queue = [];
+  }
+
   private handleErrors = (place: string, e: ErrorType): void => {
     if (isErrorData(e)) {
       this._logger.error(e.data.message, e.data.errors, place, e.data.code);

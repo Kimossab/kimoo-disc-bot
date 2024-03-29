@@ -49,6 +49,11 @@ export default class BirthdayModule extends BaseModule {
     };
   }
 
+  public close() {
+    super.close();
+    this.clear();
+  }
+
   private async checkBirthdays() {
     this.logger.info("Checking birthdays");
 
@@ -88,12 +93,16 @@ export default class BirthdayModule extends BaseModule {
     for (const toRemove of rolesToRemove) {
       if (serverChannels[toRemove.serverId].role) {
         for (const { user } of toRemove.birthdayWithRoleUsers) {
-          await removeRole(
-            toRemove.serverId,
-            user,
-            serverChannels[toRemove.serverId].role,
-            "Birthday Over"
-          );
+          try {
+            await removeRole(
+              toRemove.serverId,
+              user,
+              serverChannels[toRemove.serverId].role,
+              "Birthday Over"
+            );
+          } catch (e) {
+            this.logger.error("removing role", e);
+          }
         }
       }
       await removeBirthdayWithRole(toRemove.id);
@@ -127,12 +136,14 @@ export default class BirthdayModule extends BaseModule {
               message += ` (${year - bd.year})`;
             }
 
-            await giveRole(
-              server,
-              bd.user,
-              serverChannels[server].role,
-              "Birthday"
-            );
+            if (serverChannels[server].role) {
+              await giveRole(
+                server,
+                bd.user,
+                serverChannels[server].role,
+                "Birthday"
+              );
+            }
           }
 
           await setBirthdayWithRole(day, month, usersCongratulated, server);
@@ -154,7 +165,7 @@ export default class BirthdayModule extends BaseModule {
     this.checkTimeout = setTimeout(() => this.checkBirthdays(), time);
   }
 
-  public clear(): void {
+  private clear(): void {
     this.checkTimeout && clearTimeout(this.checkTimeout);
   }
 }

@@ -58,6 +58,11 @@ export class Socket {
     });
   }
 
+  public disconnect() {
+    this.client?.close(1001);
+    this.hbInterval && clearTimeout(this.hbInterval);
+  }
+
   // EVENTS
   private onConnection(e: unknown) {
     this.logger.info("Socket connected", e);
@@ -226,8 +231,9 @@ export class Socket {
         since: null,
         activities: [
           {
-            name: PRESENCE_STRINGS[randomPresence],
-            type: ActivityType.Game,
+            name: "I am present",
+            state: PRESENCE_STRINGS[randomPresence],
+            type: ActivityType.Custom,
           },
         ],
         status: Status.Online,
