@@ -1,5 +1,4 @@
 import {
-  deleteAllSubscriptionsForId,
   getAllSubscriptionsForAnime,
   getAnimeLastAiringById,
   updateAnimeLastAiring,
@@ -84,7 +83,14 @@ export class AnimeManager {
           animeId: this.animeId,
         }
       );
-      await deleteAllSubscriptionsForId(this.animeId);
+
+      if (process.env.OWNER_DM_CHANNEL) {
+        await sendMessage(
+          process.env.OWNER_DM_CHANNEL,
+          `Deleting anilist ${this.animeId}`
+        );
+      }
+      // await deleteAllSubscriptionsForId(this.animeId);
       this.onDelete(this.animeId);
       return;
     } else if (animeInformation.status !== RequestStatus.OK) {
@@ -116,7 +122,13 @@ export class AnimeManager {
         "Anime status not one of (NOT_YET_RELEASED,RELEASING,HIATUS) - assuming it's over - deleting from db",
         animeInformation
       );
-      await deleteAllSubscriptionsForId(this.animeId);
+      if (process.env.OWNER_DM_CHANNEL) {
+        await sendMessage(
+          process.env.OWNER_DM_CHANNEL,
+          `Deleting anilist ${this.animeId}`
+        );
+      }
+      // await deleteAllSubscriptionsForId(this.animeId);
       this.onDelete(this.animeId);
       return;
     }

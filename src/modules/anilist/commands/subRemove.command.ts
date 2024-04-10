@@ -1,5 +1,4 @@
 import {
-  deleteAllSubscriptionsForId,
   deleteUserSubscriptionForIds,
   getAllSubscriptionsForAnime,
   getUserSubs,
@@ -11,6 +10,7 @@ import { CommandInfo } from "#base-module";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
+  sendMessage,
 } from "@/discord/rest";
 import { chunkArray, limitString } from "@/helper/common";
 import Logger from "@/helper/logger";
@@ -124,7 +124,13 @@ const componentHandler = (
         const subs = await getAllSubscriptionsForAnime(animeId);
 
         if (!subs.length) {
-          await deleteAllSubscriptionsForId(animeId);
+          if (process.env.OWNER_DM_CHANNEL) {
+            await sendMessage(
+              process.env.OWNER_DM_CHANNEL,
+              `Deleting anilist ${animeId}`
+            );
+          }
+          // await deleteAllSubscriptionsForId(animeId);
           removeAnime(animeId);
         }
       }
