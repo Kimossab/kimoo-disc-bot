@@ -12,25 +12,22 @@ export const mapSubListToEmbed = (
   const embed: Embed = {
     title: "Sub list",
     description: data
-      .map(
-        (m) =>
-          `• [${m.title.english || m.title.romaji || m.title.native}](${
-            m.siteUrl
-          }) | ${
-            m.nextAiringEpisode
-              ? `Ep. #${m.nextAiringEpisode.episode} <t:${m.nextAiringEpisode.airingAt}:R>`
-              : "Next episode unknown"
-          }\n`
-      )
-      .join(""),
+      .map((m) => `• [${m.title.english || m.title.romaji || m.title.native}](${
+        m.siteUrl
+      }) | ${
+        m.nextAiringEpisode
+          ? `Ep. #${m.nextAiringEpisode.episode} <t:${m.nextAiringEpisode.airingAt}:R>`
+          : "Next episode unknown"
+      }\n`)
+      .join("")
   };
 
   if (total > 1) {
     embed.footer = {
       text: interpolator(messageList.common.page, {
         page,
-        total,
-      }),
+        total
+      })
     };
   }
 

@@ -9,19 +9,19 @@ export const mapGiveawayToEmbed = (giveaway: CompleteGiveaway): Embed => {
       {
         name: "Prize",
         value: giveaway.prize,
-        inline: true,
+        inline: true
       },
       {
         name: "Given by",
         value: `<@${giveaway.creatorId}>`,
-        inline: true,
+        inline: true
       },
       {
         name: "Participants",
         value: giveaway.participants.length.toString(),
-        inline: true,
-      },
-    ],
+        inline: true
+      }
+    ]
   };
 
   const winner = giveaway.participants.find((p) => p.isWinner);
@@ -30,13 +30,13 @@ export const mapGiveawayToEmbed = (giveaway: CompleteGiveaway): Embed => {
     embed.fields!.push({
       name: "Winner",
       value: `<@${winner.userId}>`,
-      inline: false,
+      inline: false
     });
   } else {
     embed.fields!.push({
       name: "Ending",
       value: `<t:${Math.floor(+giveaway.endAt / 1000)}:R>`,
-      inline: false,
+      inline: false
     });
   }
 

@@ -3,7 +3,7 @@ import { CommandInfo } from "#base-module";
 import { getServer, setServerRoleChannel } from "@/database";
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
@@ -14,7 +14,7 @@ import {
   ApplicationCommandOptionType,
   CommandHandler,
   InteractionCallbackDataFlags,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface ChannelCommandOptions {
@@ -29,9 +29,9 @@ const definition: ApplicationCommandOption = {
     {
       name: "channel",
       description: messageList.roles.channel.option,
-      type: ApplicationCommandOptionType.CHANNEL,
-    },
-  ],
+      type: ApplicationCommandOptionType.CHANNEL
+    }
+  ]
 };
 
 const handler = (): CommandHandler => {
@@ -41,8 +41,8 @@ const handler = (): CommandHandler => {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-        },
+          flags: InteractionCallbackDataFlags.EPHEMERAL
+        }
       });
 
       const { channel } = getOptions<ChannelCommandOptions>(
@@ -54,21 +54,21 @@ const handler = (): CommandHandler => {
         await setServerRoleChannel(data.guild_id, channel);
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.roles.channel.set_success, {
-            channel: `<#${channel}>`,
-          }),
+            channel: `<#${channel}>`
+          })
         });
       } else {
         const ch = (await getServer(data.guild_id))?.roleChannel;
         if (!ch) {
           await editOriginalInteractionResponse(app.id, data.token, {
-            content: messageList.roles.errors.no_channel,
+            content: messageList.roles.errors.no_channel
           });
           return;
         }
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.roles.channel.get, {
-            channel: `<#${ch}>`,
-          }),
+            channel: `<#${ch}>`
+          })
         });
       }
     }
@@ -78,5 +78,5 @@ const handler = (): CommandHandler => {
 export default (): CommandInfo => ({
   definition,
   handler: handler(),
-  isAdmin: true,
+  isAdmin: true
 });

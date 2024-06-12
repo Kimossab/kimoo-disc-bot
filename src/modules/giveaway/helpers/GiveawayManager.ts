@@ -8,12 +8,14 @@ import { createGiveawayMessageData } from "./createGiveawayMessage";
 
 export class GiveawayManager {
   private timer: NodeJS.Timeout | undefined;
+
   private giveawayHash: string;
 
-  public get id(): string {
+  public get id (): string {
     return this.giveawayHash;
   }
-  constructor(
+
+  constructor (
     private logger: ILogger,
     giveaway: CompleteGiveaway,
     private onFinish: (id: string) => void
@@ -27,7 +29,7 @@ export class GiveawayManager {
     }, time);
   }
 
-  private async finish() {
+  private async finish () {
     let giveaway = await getGiveaway(this.giveawayHash);
     this.logger.info("Giveaway has ended", { giveaway });
 
@@ -41,7 +43,7 @@ export class GiveawayManager {
     this.onFinish(this.giveawayHash);
   }
 
-  public close() {
+  public close () {
     this.timer && clearTimeout(this.timer);
   }
 }
@@ -52,15 +54,15 @@ export const announceVictor = async (giveaway: CompleteGiveaway) => {
     giveaway.channelId,
     winner
       ? `Congratulations <@${winner}> you won \`${giveaway.prize}\` given by <@${giveaway.creatorId}>`
-      : `There's no participants to win.`,
+      : "There's no participants to win.",
     undefined,
     {
-      message_id: giveaway.hash,
+      message_id: giveaway.hash
     }
   );
 
   await editMessage(giveaway.channelId, giveaway.hash, {
     ...createGiveawayMessageData(giveaway),
-    attachments: undefined,
+    attachments: undefined
   });
 };

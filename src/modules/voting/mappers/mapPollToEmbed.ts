@@ -8,16 +8,17 @@ export const mapPollToEmbed = (poll: CompletePoll): Embed => {
   )
     .sort((a, b) => b.pollOptionVotes.length - a.pollOptionVotes.length)
     .reduce<{
-      values: string[];
-      responses: number[];
-    }>(
-      (acc, option) => {
-        acc.values.push(option.text);
-        acc.responses.push(option.pollOptionVotes.length);
-        return acc;
-      },
-      { values: [], responses: [] }
-    );
+    values: string[];
+    responses: number[];
+  }>(
+    (acc, option) => {
+      acc.values.push(option.text);
+      acc.responses.push(option.pollOptionVotes.length);
+      return acc;
+    },
+    { values: [],
+      responses: [] }
+  );
 
   const daysInSeconds = poll.days * 60 * 60 * 24;
   const endingDate = Math.floor(+poll.startAt / 1000) + daysInSeconds;
@@ -28,19 +29,19 @@ export const mapPollToEmbed = (poll: CompletePoll): Embed => {
       {
         name: "Option",
         value: values.join("\n"),
-        inline: true,
+        inline: true
       },
       {
         name: "Responses",
         value: responses.join("\n"),
-        inline: true,
+        inline: true
       },
       {
         name: "Ending",
         value: `<t:${endingDate}:R>`,
-        inline: false,
-      },
-    ],
+        inline: false
+      }
+    ]
   };
 
   return embed;

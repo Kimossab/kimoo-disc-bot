@@ -3,7 +3,7 @@ import { CommandInfo } from "#base-module";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
-  getGuildMember,
+  getGuildMember
 } from "@/discord/rest";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
@@ -11,7 +11,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface CommandOptions {
@@ -26,16 +26,16 @@ const definition: ApplicationCommandOption = {
     {
       name: "user",
       description: "Optional user to get the avatar",
-      type: ApplicationCommandOptionType.USER,
-    },
-  ],
+      type: ApplicationCommandOptionType.USER
+    }
+  ]
 };
 const handler = (): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app?.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const { user } = getOptions<CommandOptions>(["user"], option.options);
@@ -54,7 +54,7 @@ const handler = (): CommandHandler => {
       }
 
       await editOriginalInteractionResponse(app.id, data.token, {
-        content: `${username}'s avatar: https://cdn.discordapp.com/avatars/${userId}/${avatar}.png`,
+        content: `${username}'s avatar: https://cdn.discordapp.com/avatars/${userId}/${avatar}.png`
       });
     }
   };
@@ -62,5 +62,5 @@ const handler = (): CommandHandler => {
 
 export default (): CommandInfo => ({
   definition,
-  handler: handler(),
+  handler: handler()
 });

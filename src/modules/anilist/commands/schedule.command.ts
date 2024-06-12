@@ -2,7 +2,7 @@ import { CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -12,7 +12,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 import { getAiringSchedule } from "../graphql/graphql";
@@ -34,9 +34,9 @@ const definition: ApplicationCommandOption = {
       name: "query",
       description: "Query to search for",
       type: ApplicationCommandOptionType.STRING,
-      required: true,
-    },
-  ],
+      required: true
+    }
+  ]
 };
 
 const handler = (
@@ -47,7 +47,7 @@ const handler = (
     const app = getApplication();
     if (app?.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const { query } = getOptions<ScheduleCommandOptions>(
@@ -59,7 +59,7 @@ const handler = (
 
       if (allData.status !== RequestStatus.OK || !allData.data.Media) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found,
+          content: messageList.anilist.not_found
         });
         return;
       }
@@ -67,7 +67,7 @@ const handler = (
       const embed = mapAiringScheduleToEmbed(allData.data.Media);
       await editOriginalInteractionResponse(app.id, data.token, {
         content: "",
-        embeds: [embed],
+        embeds: [embed]
       });
     }
   };
@@ -78,5 +78,5 @@ export default (
   rateLimiter: AnilistRateLimit
 ): CommandInfo => ({
   definition,
-  handler: handler(logger, rateLimiter),
+  handler: handler(logger, rateLimiter)
 });

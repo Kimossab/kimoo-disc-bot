@@ -3,7 +3,7 @@ import { CommandInfo } from "#base-module";
 import { getServer, setServerAnimeChannel } from "@/database";
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
@@ -13,7 +13,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface ChannelCommandOptions {
@@ -30,9 +30,9 @@ const definition: ApplicationCommandOption = {
       name: "channel",
       description:
         "The channel where the anime notification messages are sent to",
-      type: ApplicationCommandOptionType.CHANNEL,
-    },
-  ],
+      type: ApplicationCommandOptionType.CHANNEL
+    }
+  ]
 };
 
 const handler = (): CommandHandler => {
@@ -40,7 +40,7 @@ const handler = (): CommandHandler => {
     const app = getApplication();
     if (app?.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const { channel } = getOptions<ChannelCommandOptions>(
@@ -52,15 +52,15 @@ const handler = (): CommandHandler => {
         await setServerAnimeChannel(data.guild_id, channel);
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.anilist.channel_set_success, {
-            channel: `<#${channel}>`,
-          }),
+            channel: `<#${channel}>`
+          })
         });
       } else {
         const ch = (await getServer(data.guild_id))?.animeChannel;
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.anilist.server_channel, {
-            channel: `<#${ch}>`,
-          }),
+            channel: `<#${ch}>`
+          })
         });
       }
     }
@@ -70,5 +70,5 @@ const handler = (): CommandHandler => {
 export default (): CommandInfo => ({
   definition,
   handler: handler(),
-  isAdmin: true,
+  isAdmin: true
 });

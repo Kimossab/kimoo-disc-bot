@@ -6,7 +6,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  ComponentCommandHandler,
+  ComponentCommandHandler
 } from "@/types/discord";
 
 import { AnimeManager } from "../helpers/anime-manager";
@@ -19,7 +19,7 @@ const definition: ApplicationCommandOption = {
   name: "sub",
   description: "Subscriptions commands",
   type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
-  options: [],
+  options: []
 };
 
 const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
@@ -62,7 +62,7 @@ export default (
   const subCommands: Record<string, CommandInfo> = {
     add: subAddCommand(logger, rateLimiter, animeList, removeAnime),
     remove: subRemoveCommand(logger, rateLimiter, removeAnime),
-    list: subListCommand(logger, rateLimiter),
+    list: subListCommand(logger, rateLimiter)
   };
 
   for (const cmd of Object.keys(subCommands)) {
@@ -72,6 +72,6 @@ export default (
   return {
     definition,
     handler: handler(subCommands),
-    componentHandler: componentHandler(logger, subCommands),
+    componentHandler: componentHandler(logger, subCommands)
   };
 };

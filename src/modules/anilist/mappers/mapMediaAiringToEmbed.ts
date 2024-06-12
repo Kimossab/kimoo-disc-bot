@@ -9,7 +9,7 @@ export const mapMediaAiringToEmbed = (data: MediaForAiring): Embed => {
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
-    inline: false,
+    inline: false
   });
 
   const { next } = getLastAndNextEpisode(data.airingSchedule);
@@ -17,21 +17,23 @@ export const mapMediaAiringToEmbed = (data: MediaForAiring): Embed => {
     fields.push({
       name: "Next episode",
       value: `#${next.episode} - <t:${next.airingAt}:R>`,
-      inline: false,
+      inline: false
     });
   }
 
   const embed: Embed = {
     title:
-      (data.isAdult ? "[**NSFW**] " : "") + "Subscription added successfully",
+      (data.isAdult
+        ? "[**NSFW**] "
+        : "") + "Subscription added successfully",
     url: data.siteUrl,
     color: parseInt(data.coverImage.color?.slice(1) || "FFFFFF", 16),
     fields,
     author: {
       name: "Anilist",
       icon_url: "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
-      url: "https://anilist.co/home",
-    },
+      url: "https://anilist.co/home"
+    }
   };
 
   if (!data.isAdult) {

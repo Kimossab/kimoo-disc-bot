@@ -15,7 +15,7 @@ export const createEmbedFieldList = (
       fields.push({
         name: title,
         value: fieldValue,
-        inline,
+        inline
       });
       fieldValue = "";
     }
@@ -25,7 +25,7 @@ export const createEmbedFieldList = (
   fields.push({
     name: title,
     value: fieldValue,
-    inline: false,
+    inline: false
   });
 
   return fields;
@@ -38,7 +38,7 @@ export const createEmbedField = (
 ): EmbedField => ({
   name: limitString(title, 256),
   value: limitString(data, 1024),
-  inline,
+  inline
 });
 
 export const createDescription = (description: string): string => {

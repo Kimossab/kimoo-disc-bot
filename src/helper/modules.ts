@@ -21,7 +21,9 @@ export const getOptionValue = <T extends CommandInteractionDataOption["value"]>(
 ): T | null => {
   const opt = options?.find((o) => o.name === name);
 
-  return opt ? (opt.value as T) : null;
+  return opt
+    ? (opt.value as T)
+    : null;
 };
 export const getOption = (
   options: CommandInteractionDataOption[] | undefined,

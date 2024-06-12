@@ -1,34 +1,32 @@
 import prisma from "@/database";
 
-export const getRoleCategory = async (server: string, category: string) =>
-  await prisma.roleCategory.findFirst({
-    where: {
-      serverId: server,
-      category,
-    },
-    include: {
-      roles: true,
-    },
-  });
+export const getRoleCategory = async (server: string, category: string) => await prisma.roleCategory.findFirst({
+  where: {
+    serverId: server,
+    category
+  },
+  include: {
+    roles: true
+  }
+});
 
-export const getRoleCategoriesByServer = async (server: string) =>
-  await prisma.roleCategory.findMany({
-    where: { serverId: server },
-    include: { roles: true },
-  });
+export const getRoleCategoriesByServer = async (server: string) => await prisma.roleCategory.findMany({
+  where: { serverId: server },
+  include: { roles: true }
+});
 
 export const addRoleCategory = async (
   server: string,
   category: string,
   message: string
 ): Promise<void> => {
-  if (!(await getRoleCategory(server, category))) {
+  if (!await getRoleCategory(server, category)) {
     await prisma.roleCategory.create({
       data: {
         serverId: server,
         category,
-        message,
-      },
+        message
+      }
     });
   }
 };
@@ -47,7 +45,7 @@ export const addRole = async (
     data: {
       roleCategoryId: roleCategory.id,
       id: role,
-      icon,
-    },
+      icon
+    }
   });
 };

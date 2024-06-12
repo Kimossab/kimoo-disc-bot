@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 // This file is a mess and it's supposed to be, I can't be arsed to handle all edge cases
 // I will make changes accordingly to the needs and errors as they arise
 // If you're reading this... good luck
@@ -17,7 +15,7 @@ export const mapSauceNaoResultToData = (
     similarity: Number(data.header.similarity),
     authorData: null,
     thumbnail: data.header.thumbnail,
-    url: null,
+    url: null
   };
   try {
     switch (data.header.index_id) {
@@ -36,13 +34,13 @@ export const mapSauceNaoResultToData = (
       case 6: {
         // pixiv
         parsed.site = "pixiv";
-        parsed.url = [
-          `https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`,
-        ];
+        parsed.url = [`https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`];
         parsed.name = data.data.title;
         parsed.authorData = {
-          authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`,
+          authorName: data.data.member_name
+            ? data.data.member_name
+            : null,
+          authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`
         };
         break;
       }
@@ -52,8 +50,10 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.title;
         parsed.authorData = {
-          authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: null,
+          authorName: data.data.member_name
+            ? data.data.member_name
+            : null,
+          authorUrl: null
         };
         break;
       }
@@ -61,10 +61,16 @@ export const mapSauceNaoResultToData = (
         // danbooru / gelbooru / sankaku
         parsed.site = "danbooru / gelbooru / sankaku";
         parsed.url = data.data.ext_urls;
-        parsed.name = data.data.material ? data.data.material : "";
+        parsed.name = data.data.material
+          ? data.data.material
+          : "";
         parsed.authorData = {
-          authorName: data.data.creator ? data.data.creator.toString() : null,
-          authorUrl: data.data.source ? data.data.source : null,
+          authorName: data.data.creator
+            ? data.data.creator.toString()
+            : null,
+          authorUrl: data.data.source
+            ? data.data.source
+            : null
         };
         break;
       }
@@ -74,8 +80,10 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.title!;
         parsed.authorData = {
-          authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: `https://nijie.info/members.php?id=${data.data.member_id}`,
+          authorName: data.data.member_name
+            ? data.data.member_name
+            : null,
+          authorUrl: `https://nijie.info/members.php?id=${data.data.member_id}`
         };
         break;
       }
@@ -85,8 +93,10 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.material!;
         parsed.authorData = {
-          authorName: data.data.creator ? data.data.creator.toString() : null,
-          authorUrl: null,
+          authorName: data.data.creator
+            ? data.data.creator.toString()
+            : null,
+          authorUrl: null
         };
         break;
       }
@@ -96,29 +106,29 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.source!;
         parsed.authorData = {
-          authorName: data.data.creator ? data.data.creator.toString() : null,
-          authorUrl: null,
+          authorName: data.data.creator
+            ? data.data.creator.toString()
+            : null,
+          authorUrl: null
         };
         break;
       }
       case 18: {
         // nhentai
         parsed.site = "nhentai";
-        const match = /\/nhentai\/(\d*)[^/]*(\/\d*)/gm.exec(
-          data.header.thumbnail
-        );
+        const match = (/\/nhentai\/(\d*)[^/]*(\/\d*)/gm).exec(data.header.thumbnail);
         if (match) {
           const path = match[1] + match[2];
           // parsed.thumbnail = `https://i.nhentai.net/galleries/${path}.jpg`;
           parsed.url = [
             `https://nhentai.net/g/${match[1]}`,
-            `https://nhentai.net/g/${path}`,
+            `https://nhentai.net/g/${path}`
           ];
         }
         parsed.name = (data.data.eng_name || data.data.jp_name)!;
         parsed.authorData = {
           authorName: (data.data.creator as string[]).join(","),
-          authorUrl: null,
+          authorUrl: null
         };
         break;
       }
@@ -128,8 +138,10 @@ export const mapSauceNaoResultToData = (
         parsed.url = data.data.ext_urls;
         parsed.name = data.data.title;
         parsed.authorData = {
-          authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: `https://medibang.com/author/${data.data.member_id}/`,
+          authorName: data.data.member_name
+            ? data.data.member_name
+            : null,
+          authorUrl: `https://medibang.com/author/${data.data.member_id}/`
         };
         break;
       }
@@ -154,8 +166,10 @@ export const mapSauceNaoResultToData = (
         parsed.name = data.data.material!;
         parsed.url = data.data.ext_urls;
         parsed.authorData = {
-          authorName: data.data.creator ? data.data.creator.toString() : null,
-          authorUrl: null,
+          authorName: data.data.creator
+            ? data.data.creator.toString()
+            : null,
+          authorUrl: null
         };
         break;
       }
@@ -166,8 +180,12 @@ export const mapSauceNaoResultToData = (
         parsed.name = data.data.title;
         parsed.url = data.data.ext_urls;
         parsed.authorData = {
-          authorName: data.data.member_name ? data.data.member_name : null,
-          authorUrl: data.data.source ? data.data.source : null,
+          authorName: data.data.member_name
+            ? data.data.member_name
+            : null,
+          authorUrl: data.data.source
+            ? data.data.source
+            : null
         };
         break;
       }
@@ -177,8 +195,10 @@ export const mapSauceNaoResultToData = (
         parsed.url = [data.data.ext_urls[0]];
         parsed.name = data.data.title;
         parsed.authorData = {
-          authorName: data.data.author_name ? data.data.author_name : null,
-          authorUrl: data.data.author_url,
+          authorName: data.data.author_name
+            ? data.data.author_name
+            : null,
+          authorUrl: data.data.author_url
         };
         break;
       }
@@ -191,7 +211,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.pawoo_user_display_name
             ? data.data.pawoo_user_display_name
             : null,
-          authorUrl: data.data.ext_urls[0],
+          authorUrl: data.data.ext_urls[0]
         };
         break;
       }
@@ -216,7 +236,7 @@ export const mapSauceNaoResultToData = (
         parsed.name = `Tweet by ${data.data.twitter_user_handle!}`;
         parsed.authorData = {
           authorName: data.data.twitter_user_handle!,
-          authorUrl: `https://twitter.com/${data.data.twitter_user_handle!}/`,
+          authorUrl: `https://twitter.com/${data.data.twitter_user_handle!}/`
         };
         break;
       }
@@ -229,7 +249,7 @@ export const mapSauceNaoResultToData = (
         parsed.url = [data.data.ext_urls[0] + page, ...data.data.ext_urls];
         parsed.authorData = {
           authorName: data.data.author!,
-          authorUrl: "",
+          authorUrl: ""
         };
         break;
       }

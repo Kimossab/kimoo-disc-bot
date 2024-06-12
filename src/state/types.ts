@@ -12,7 +12,7 @@ import {
   MessageReactionRemove,
   ModalSubmitInteractionData,
   Ready,
-  User,
+  User
 } from "@/types/discord";
 
 export enum ActionName {
@@ -39,7 +39,7 @@ export enum ActionName {
   GetDiscordLastS = "GET_DISCORD_LAST_S",
   GetPagination = "GET_PAGINATION",
 
-  SetModules = "SET_MODULES",
+  SetModules = "SET_MODULES"
 }
 
 interface ActionData {

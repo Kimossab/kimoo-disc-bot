@@ -6,7 +6,7 @@ import { ActionRow, ButtonStyle, ComponentType } from "@/types/discord";
 
 export enum PollMessageType {
   VOTE = "vote",
-  SETTINGS = "settings",
+  SETTINGS = "settings"
 }
 
 interface MapPollToComponents {
@@ -21,7 +21,7 @@ interface MapPollToComponents {
 
 const prefixMap = new Map([
   [PollMessageType.VOTE, ""],
-  [PollMessageType.SETTINGS, "setOpt."],
+  [PollMessageType.SETTINGS, "setOpt."]
 ]);
 
 export const mapPollToComponents: MapPollToComponents = (
@@ -41,14 +41,14 @@ export const mapPollToComponents: MapPollToComponents = (
         {
           type: ComponentType.Button,
           style: ButtonStyle.Secondary,
-          custom_id: `voting.create.settings`,
+          custom_id: "voting.create.settings",
           label: "",
           emoji: {
             id: null,
-            name: "⚙",
-          },
-        },
-      ],
+            name: "⚙"
+          }
+        }
+      ]
     });
   } else if (type === PollMessageType.SETTINGS) {
     addSettingsComponents(poll, user, singleResponse, components);
@@ -65,7 +65,7 @@ const addSettingsComponents = (
 ) => {
   const actionRow: ActionRow = {
     type: ComponentType.ActionRow,
-    components: [],
+    components: []
   };
 
   const isPollEditable = !hasExpired(poll) && user === poll.creator;
@@ -76,11 +76,11 @@ const addSettingsComponents = (
     actionRow.components.push({
       type: ComponentType.Button,
       style: ButtonStyle.Secondary,
-      custom_id: `voting.create.add`,
+      custom_id: "voting.create.add",
       emoji: {
         id: null,
-        name: "➕",
-      },
+        name: "➕"
+      }
     });
   }
 
@@ -88,8 +88,8 @@ const addSettingsComponents = (
     actionRow.components.push({
       type: ComponentType.Button,
       style: ButtonStyle.Secondary,
-      custom_id: `voting.create.setOpt.all`,
-      label: "Unselect options",
+      custom_id: "voting.create.setOpt.all",
+      label: "Unselect options"
     });
 
     if (isPollEditable) {
@@ -97,7 +97,7 @@ const addSettingsComponents = (
         type: ComponentType.Button,
         style: ButtonStyle.Danger,
         custom_id: `voting.create.remove.${singleResponse}`,
-        label: `Remove this option`,
+        label: "Remove this option"
       });
     }
   }
@@ -107,14 +107,14 @@ const addSettingsComponents = (
       {
         type: ComponentType.Button,
         style: ButtonStyle.Danger,
-        custom_id: `voting.create.close`,
-        label: `Close the poll`,
+        custom_id: "voting.create.close",
+        label: "Close the poll"
       },
       {
         type: ComponentType.Button,
         style: ButtonStyle.Danger,
-        custom_id: `voting.create.reset`,
-        label: `Reset votes`,
+        custom_id: "voting.create.reset",
+        label: "Reset votes"
       }
     );
   }
@@ -141,8 +141,8 @@ const addOptionsComponents = (
           style: ButtonStyle.Primary,
           disabled: singleResponse === i,
           custom_id: `voting.create.${prefixMap.get(type)}${i++}`,
-          label: option.text,
-        })),
+          label: option.text
+        }))
       });
     }
   }

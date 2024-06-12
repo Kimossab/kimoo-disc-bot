@@ -5,46 +5,40 @@ const getSubscription = async (
   server: string,
   user: string,
   id: number
-): Promise<AnilistSubscription | null> =>
-  await prisma.anilistSubscription.findFirst({
-    where: {
-      serverId: server,
-      user,
-      animeId: id,
-    },
-  });
+): Promise<AnilistSubscription | null> => await prisma.anilistSubscription.findFirst({
+  where: {
+    serverId: server,
+    user,
+    animeId: id
+  }
+});
 
 export const addSubscription = async (
   server: string,
   user: string,
   id: number
 ): Promise<void> => {
-  if (!(await getSubscription(server, user, id))) {
+  if (!await getSubscription(server, user, id)) {
     await prisma.anilistSubscription.create({
       data: {
         serverId: server,
         user,
-        animeId: id,
-      },
+        animeId: id
+      }
     });
   }
 };
 
-export const getAllSubscriptionsForAnime = async (
-  id: number
-): Promise<AnilistSubscription[]> =>
-  await prisma.anilistSubscription.findMany({ where: { animeId: id } });
+export const getAllSubscriptionsForAnime = async (id: number): Promise<AnilistSubscription[]> => await prisma.anilistSubscription.findMany({ where: { animeId: id } });
 
-export const deleteAllSubscriptionsForId = async (
-  id: number
-): Promise<void> => {
+export const deleteAllSubscriptionsForId = async (id: number): Promise<void> => {
   await prisma.lastAiredNotification.deleteMany({
-    where: { animeId: id },
+    where: { animeId: id }
   });
   await prisma.anilistSubscription.deleteMany({
     where: {
-      animeId: id,
-    },
+      animeId: id
+    }
   });
 };
 
@@ -58,8 +52,8 @@ export const deleteUserSubscriptionForIds = async (
       where: {
         user,
         serverId: server,
-        animeId: id,
-      },
+        animeId: id
+      }
     });
   }
 };
@@ -67,29 +61,25 @@ export const deleteUserSubscriptionForIds = async (
 export const getUserSubs = async (
   server: string,
   user: string
-): Promise<AnilistSubscription[]> =>
-  await prisma.anilistSubscription.findMany({
-    where: {
-      serverId: server,
-      user,
-    },
-  });
+): Promise<AnilistSubscription[]> => await prisma.anilistSubscription.findMany({
+  where: {
+    serverId: server,
+    user
+  }
+});
 
 export const getAllAnimeLastAiring = async (): Promise<
   LastAiredNotification[]
 > => await prisma.lastAiredNotification.findMany();
 
-export const getAnimeLastAiringById = async (
-  id: number
-): Promise<LastAiredNotification | null> =>
-  await prisma.lastAiredNotification.findFirst({ where: { animeId: id } });
+export const getAnimeLastAiringById = async (id: number): Promise<LastAiredNotification | null> => await prisma.lastAiredNotification.findFirst({ where: { animeId: id } });
 
 export const setAnimeLastAiring = async (
   id: number,
   lastAired?: number
 ): Promise<LastAiredNotification> => {
   const lastAiredNotification = await prisma.lastAiredNotification.findFirst({
-    where: { animeId: id },
+    where: { animeId: id }
   });
 
   if (lastAiredNotification) {
@@ -100,8 +90,8 @@ export const setAnimeLastAiring = async (
     data: {
       animeId: id,
       lastAired: lastAired ?? null,
-      lastUpdated: new Date(),
-    },
+      lastUpdated: new Date()
+    }
   });
 };
 
@@ -113,8 +103,8 @@ export const updateAnimeLastAiring = async (
     where: { animeId: id },
     data: {
       lastAired: lastAired,
-      lastUpdated: new Date(),
-    },
+      lastUpdated: new Date()
+    }
   });
   if (!data) {
     throw new Error(`Unable to update last aired: ${id}`);

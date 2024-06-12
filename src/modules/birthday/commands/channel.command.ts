@@ -4,7 +4,7 @@ import { getServersBirthdayInfo } from "#birthday/database";
 import { setServerBirthdayChannel } from "@/database";
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
@@ -15,7 +15,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface ChannelOption {
@@ -30,9 +30,9 @@ const definition: ApplicationCommandOption = {
     {
       name: "channel",
       description: "The channel where the happy birthday message is sent to",
-      type: ApplicationCommandOptionType.CHANNEL,
-    },
-  ],
+      type: ApplicationCommandOptionType.CHANNEL
+    }
+  ]
 };
 
 const handler = (logger: Logger): CommandHandler => {
@@ -40,7 +40,7 @@ const handler = (logger: Logger): CommandHandler => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const { channel } = getOptions<ChannelOption>(
@@ -52,28 +52,24 @@ const handler = (logger: Logger): CommandHandler => {
         await setServerBirthdayChannel(data.guild_id, channel);
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.birthday.channel_set_success, {
-            channel: `<#${channel}>`,
-          }),
+            channel: `<#${channel}>`
+          })
         });
-        logger.info(
-          `Set birthday channel to ${channel} in ${data.guild_id} by ` +
-            `${(data.member || data).user?.username}#${
-              (data.member || data).user?.discriminator
-            }`
-        );
+        logger.info(`Set birthday channel to ${channel} in ${data.guild_id} by ` +
+        `${(data.member || data).user?.username}#${
+          (data.member || data).user?.discriminator
+        }`);
       } else {
         const ch = await getServersBirthdayInfo();
         const { channel } = ch[data.guild_id];
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.birthday.servers_channel, {
-            channel: `<#${channel}>`,
-          }),
+            channel: `<#${channel}>`
+          })
         });
-        logger.info(
-          `Get birthday channel in ${data.guild_id} by ${
-            (data.member || data).user?.username
-          }#${(data.member || data).user?.discriminator}`
-        );
+        logger.info(`Get birthday channel in ${data.guild_id} by ${
+          (data.member || data).user?.username
+        }#${(data.member || data).user?.discriminator}`);
       }
     }
   };
@@ -82,5 +78,5 @@ const handler = (logger: Logger): CommandHandler => {
 export default (logger: Logger): CommandInfo => ({
   definition,
   handler: handler(logger),
-  isAdmin: true,
+  isAdmin: true
 });

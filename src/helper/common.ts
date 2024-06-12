@@ -3,14 +3,14 @@ import { getGuilds } from "@/state/store";
 import {
   GuildMember,
   MessageReactionAdd,
-  MessageReactionRemove,
+  MessageReactionRemove
 } from "@/types/discord";
 
 import fs from "fs";
 import https from "https";
 
 export enum string_constants {
-  endpoint_wrong_response = "Wrong reply from `<endpoint>`",
+  endpoint_wrong_response = "Wrong reply from `<endpoint>`"
 }
 
 /**
@@ -66,16 +66,14 @@ export const formatSecondsIntoMinutes = (seconds: number): string => {
  * Converts a snowflake into a date object
  * @param snowflake Snowflake value
  */
-export const snowflakeToDate = (snowflake: string): Date =>
-  new Date(Number(snowflake) / 4194304 + 1420070400000);
+export const snowflakeToDate = (snowflake: string): Date => new Date(Number(snowflake) / 4194304 + 1420070400000);
 
 /**
  * Get a random number between 2 values
  * @param min Minimum value
  * @param max Maximum value (excluded)
  */
-export const randomNum = (min: number, max: number): number =>
-  Math.floor(Math.random() * (max - min)) + min;
+export const randomNum = (min: number, max: number): number => Math.floor(Math.random() * (max - min)) + min;
 
 /**
  * Checks if the user is an admin for this server
@@ -124,48 +122,45 @@ export const getDayInfo = (day = new Date()): DayInfo => ({
   hours: day.getHours(),
   minutes: day.getMinutes(),
   seconds: day.getSeconds(),
-  milliseconds: day.getMilliseconds(),
+  milliseconds: day.getMilliseconds()
 });
 
 export const downloadFile = async (
   url: string,
   dest: string
-): Promise<boolean> =>
-  new Promise((resolve) => {
-    const file = fs.createWriteStream(dest);
+): Promise<boolean> => new Promise((resolve) => {
+  const file = fs.createWriteStream(dest);
 
-    https
-      .get(url, (response) => {
-        response.pipe(file);
+  https
+    .get(url, (response) => {
+      response.pipe(file);
 
-        file.on("finish", () => {
-          file.close();
-          resolve(true);
-        });
-      })
-      .on("error", () => {
-        fs.unlink(dest, () => {
-          resolve(false);
-        });
+      file.on("finish", () => {
+        file.close();
+        resolve(true);
       });
-  });
+    })
+    .on("error", () => {
+      fs.unlink(dest, () => {
+        resolve(false);
+      });
+    });
+});
 
 export const moveFile = async (
   source: string,
   destination: string
-): Promise<boolean> =>
-  new Promise((resolve) => {
-    fs.rename(source, destination, (err: NodeJS.ErrnoException | null) => {
-      resolve(!err);
-    });
+): Promise<boolean> => new Promise((resolve) => {
+  fs.rename(source, destination, (err: NodeJS.ErrnoException | null) => {
+    resolve(!err);
   });
+});
 
-export const deleteFile = async (file: string): Promise<boolean> =>
-  new Promise((resolve) => {
-    fs.unlink(file, (err: NodeJS.ErrnoException | null) => {
-      resolve(!err);
-    });
+export const deleteFile = async (file: string): Promise<boolean> => new Promise((resolve) => {
+  fs.unlink(file, (err: NodeJS.ErrnoException | null) => {
+    resolve(!err);
   });
+});
 
 export const limitString = (str: string, limit: number, ellipsis = true) => {
   if (str.length > limit) {

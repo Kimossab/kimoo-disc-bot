@@ -2,7 +2,7 @@ import { CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { interpolator, snowflakeToDate } from "@/helper/common";
 import Logger from "@/helper/logger";
@@ -12,14 +12,14 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
   name: "server",
   description: "Shows the server's birthday",
   type: ApplicationCommandOptionType.SUB_COMMAND,
-  options: [],
+  options: []
 };
 
 const handler = (logger: Logger): CommandHandler => {
@@ -27,7 +27,7 @@ const handler = (logger: Logger): CommandHandler => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const serverDate = snowflakeToDate(data.guild_id);
@@ -37,21 +37,19 @@ const handler = (logger: Logger): CommandHandler => {
 
       await editOriginalInteractionResponse(app.id, data.token, {
         content: interpolator(messageList.birthday.server, {
-          date: birthdayString,
-        }),
+          date: birthdayString
+        })
       });
 
-      logger.info(
-        `Get server birthday date in ${data.guild_id} by ` +
-          `${(data.member || data).user?.username}#${
-            (data.member || data).user?.discriminator
-          }`
-      );
+      logger.info(`Get server birthday date in ${data.guild_id} by ` +
+      `${(data.member || data).user?.username}#${
+        (data.member || data).user?.discriminator
+      }`);
     }
   };
 };
 
 export default (logger: Logger): CommandInfo => ({
   definition,
-  handler: handler(logger),
+  handler: handler(logger)
 });

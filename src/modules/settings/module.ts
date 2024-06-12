@@ -5,14 +5,14 @@ import { AvailableLocales } from "@/types/discord";
 import adminRoleCommand from "./commands/adminRole.command";
 
 export default class SettingsModule extends BaseModule {
-  constructor() {
+  constructor () {
     super("settings", true);
 
     this.commandDescription[AvailableLocales.English_US] =
       "Bot settings for this server";
 
     this.commandList = {
-      admin_role: adminRoleCommand(),
+      admin_role: adminRoleCommand()
     };
   }
 }

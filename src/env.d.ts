@@ -8,7 +8,7 @@ declare global {
       OPENGRAPH_API_KEY: string;
       DATABASE_URL: string;
       MONGO_DATABASE_URL: string;
-      //modules
+      // modules
       BIRTHDAY_MODULE: "true" | "false";
       FANDOM_MODULE: "true" | "false";
       SAUCE_MODULE: "true" | "false";

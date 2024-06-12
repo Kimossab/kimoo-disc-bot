@@ -6,11 +6,11 @@ import { CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import {
   CreatePageCallback,
-  InteractionPagination,
+  InteractionPagination
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -21,7 +21,7 @@ import {
   ApplicationCommandOptionType,
   CommandHandler,
   Embed,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface UpcomingCommandOptions {
@@ -41,23 +41,23 @@ const definition: ApplicationCommandOption = {
       choices: [
         {
           name: MediaSeason.WINTER,
-          value: MediaSeason.WINTER,
+          value: MediaSeason.WINTER
         },
         {
           name: MediaSeason.SPRING,
-          value: MediaSeason.SPRING,
+          value: MediaSeason.SPRING
         },
         {
           name: MediaSeason.SUMMER,
-          value: MediaSeason.SUMMER,
+          value: MediaSeason.SUMMER
         },
         {
           name: MediaSeason.FALL,
-          value: MediaSeason.FALL,
-        },
-      ],
-    },
-  ],
+          value: MediaSeason.FALL
+        }
+      ]
+    }
+  ]
 };
 
 const getNextSeason = (): MediaSeason => {
@@ -87,8 +87,8 @@ const getNextSeason = (): MediaSeason => {
 
 const pageUpdate: CreatePageCallback<Embed> = async (_page, _total, data) => ({
   data: {
-    embeds: [data],
-  },
+    embeds: [data]
+  }
 });
 
 const handler = (
@@ -99,7 +99,7 @@ const handler = (
     const app = getApplication();
     if (app && app.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const options = getOptions<UpcomingCommandOptions>(
@@ -113,7 +113,7 @@ const handler = (
 
       if (allData.status !== RequestStatus.OK) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found,
+          content: messageList.anilist.not_found
         });
         return;
       }
@@ -122,7 +122,7 @@ const handler = (
 
       if (embedList.length === 0) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found,
+          content: messageList.anilist.not_found
         });
         return;
       }
@@ -144,5 +144,5 @@ export default (
   rateLimiter: AnilistRateLimit
 ): CommandInfo => ({
   definition,
-  handler: handler(logger, rateLimiter),
+  handler: handler(logger, rateLimiter)
 });

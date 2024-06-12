@@ -10,7 +10,7 @@ import {
   getResumeGateway,
   setDiscordLastS,
   setDiscordSession,
-  setReadyData,
+  setReadyData
 } from "@/state/store";
 import {
   ActivityType,
@@ -22,13 +22,14 @@ import {
   Message,
   OpCode,
   Payload,
-  Status,
+  Status
 } from "@/types/discord";
 
 import WebSocket from "ws";
 
 export class Socket {
   private logger = new Logger("socket");
+
   private hbInterval: NodeJS.Timeout | null = null;
 
   private hbAck = true;
@@ -37,7 +38,7 @@ export class Socket {
 
   private resumed = false;
 
-  public connect(gateway: string) {
+  public connect (gateway: string) {
     this.logger.info("starting connection");
 
     this.resumed = false;
@@ -58,17 +59,17 @@ export class Socket {
     });
   }
 
-  public disconnect() {
+  public disconnect () {
     this.client?.close(1001);
     this.hbInterval && clearTimeout(this.hbInterval);
   }
 
   // EVENTS
-  private onConnection(e: unknown) {
+  private onConnection (e: unknown) {
     this.logger.info("Socket connected", e);
   }
 
-  private onClose(e: unknown) {
+  private onClose (e: unknown) {
     this.logger.info("Socket closed - Restarting in 2 seconds", e);
 
     if (this.hbInterval) {
@@ -88,12 +89,12 @@ export class Socket {
     }, 2000);
   }
 
-  private onOpen() {
+  private onOpen () {
     this.hbAck = true;
     this.logger.info("Socket opened");
   }
 
-  private onMessage(d: string): void {
+  private onMessage (d: string): void {
     const data: Payload = JSON.parse(d);
 
     switch (data.op) {
@@ -105,7 +106,7 @@ export class Socket {
         this.sendHeartbeat();
         break;
       case OpCode.Reconnect:
-        this.logger.info('Received "reconnect"', data.d);
+        this.logger.info("Received \"reconnect\"", data.d);
         this.client?.close();
         break;
       case OpCode.InvalidSession:
@@ -115,7 +116,7 @@ export class Socket {
         }
 
         this.logger.info(
-          'Received "invalid_session", restarting socket connection.',
+          "Received \"invalid_session\", restarting socket connection.",
           data.d
         );
 
@@ -134,7 +135,7 @@ export class Socket {
   }
 
   // DISCORD EVENTS
-  private onHello(data: Hello): void {
+  private onHello (data: Hello): void {
     this.logger.info("Received Hello");
 
     if (this.hbInterval) {
@@ -153,7 +154,7 @@ export class Socket {
       this.logger.info("Invoking resume", {
         token: process.env.TOKEN,
         session_id: sessionId,
-        seq: lastS || 0,
+        seq: lastS || 0
       });
 
       this.sendEvent({
@@ -161,15 +162,15 @@ export class Socket {
         d: {
           token: process.env.TOKEN,
           session_id: sessionId,
-          seq: lastS || 0,
-        },
+          seq: lastS || 0
+        }
       });
     } else {
       this.identify();
     }
   }
 
-  private async onEvent(event: DispatchPayload): Promise<void> {
+  private async onEvent (event: DispatchPayload): Promise<void> {
     switch (event.t) {
       case GatewayEvent.Ready:
         setDiscordSession(event.d.session_id);
@@ -202,29 +203,27 @@ export class Socket {
   }
 
   // OTHERS
-  private forceReconnect(): void {
+  private forceReconnect (): void {
     if (this.client) {
       this.client.close();
     }
   }
 
-  private sendHeartbeat(): void {
+  private sendHeartbeat (): void {
     if (!this.hbAck) {
       this.forceReconnect();
     } else {
       this.sendEvent({
         op: OpCode.Heartbeat,
-        d: getDiscordLastS() || 0,
+        d: getDiscordLastS() || 0
       });
       this.hbAck = false;
     }
   }
 
-  public randomPresence(): void {
+  public randomPresence (): void {
     const randomPresence = randomNum(0, PRESENCE_STRINGS.length);
-    this.logger.info(
-      `Updating bot presence to "${PRESENCE_STRINGS[randomPresence]}"`
-    );
+    this.logger.info(`Updating bot presence to "${PRESENCE_STRINGS[randomPresence]}"`);
     this.sendEvent({
       op: OpCode.PresenceUpdate,
       d: {
@@ -233,16 +232,16 @@ export class Socket {
           {
             name: "I am present",
             state: PRESENCE_STRINGS[randomPresence],
-            type: ActivityType.Custom,
-          },
+            type: ActivityType.Custom
+          }
         ],
         status: Status.Online,
-        afk: false,
-      },
+        afk: false
+      }
     });
   }
 
-  private identify(): void {
+  private identify (): void {
     this.logger.info("Identifying...");
 
     const payload: IdentifyPayload = {
@@ -252,29 +251,29 @@ export class Socket {
         properties: {
           browser: "Kimoo-bot",
           device: "Kimoo-bot",
-          os: process.platform,
+          os: process.platform
         },
         intents:
           GatewayIntents.GUILDS |
           GatewayIntents.GUILD_MESSAGES |
-          GatewayIntents.DIRECT_MESSAGES,
-      },
+          GatewayIntents.DIRECT_MESSAGES
+      }
     };
 
     this.sendEvent(payload);
   }
 
-  private sendEvent(event: Payload): void {
+  private sendEvent (event: Payload): void {
     this.send(JSON.stringify(event));
   }
 
-  private send(message: string): void {
+  private send (message: string): void {
     if (this.client) {
       this.client.send(message);
     }
   }
 
-  private async handleDM(_data: Message): Promise<void> {
+  private async handleDM (_data: Message): Promise<void> {
     this.logger.info("New DM", _data);
   }
 }

@@ -11,7 +11,7 @@ import {
   InteractionResponse,
   Message,
   MessageReference,
-  Role,
+  Role
 } from "@/types/discord";
 
 import RestRateLimitHandler from "./rest-rate-limit-handler";
@@ -23,8 +23,7 @@ const rateLimiter = new RestRateLimitHandler();
 /**
  * Request the gateway bot from discord
  */
-export const getGatewayBot = (): Promise<GatewayBot | null> =>
-  rateLimiter.request<GatewayBot>("GET", "/gateway/bot");
+export const getGatewayBot = (): Promise<GatewayBot | null> => rateLimiter.request<GatewayBot>("GET", "/gateway/bot");
 
 // messages
 /**
@@ -46,7 +45,7 @@ export const sendMessage = (
   const message: CreateMessage = {
     content,
     embeds,
-    message_reference: reference,
+    message_reference: reference
   };
 
   return rateLimiter.request<Message>(
@@ -79,26 +78,20 @@ export const createReaction = (
   channel: string,
   message: string,
   reaction: string
-): Promise<void | null> =>
-  rateLimiter.request<void>(
-    "PUT",
-    `/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(
-      reaction
-    )}/@me`
-  );
+): Promise<void | null> => rateLimiter.request<void>(
+  "PUT",
+  `/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(reaction)}/@me`
+);
 
 // SLASH COMMANDS
 /**
  * Gets the commands for the application
  * @param application Application id
  */
-export const getCommands = (
-  application: string
-): Promise<ApplicationCommand[] | null> =>
-  rateLimiter.request<ApplicationCommand[]>(
-    "GET",
-    `/applications/${application}/commands`
-  );
+export const getCommands = (application: string): Promise<ApplicationCommand[] | null> => rateLimiter.request<ApplicationCommand[]>(
+  "GET",
+  `/applications/${application}/commands`
+);
 
 /**
  * Deletes an existing command with the name in this application
@@ -108,11 +101,10 @@ export const getCommands = (
 export const deleteCommand = (
   application: string,
   command: string
-): Promise<void | null> =>
-  rateLimiter.request<void>(
-    "DELETE",
-    `/applications/${application}/commands/${command}`
-  );
+): Promise<void | null> => rateLimiter.request<void>(
+  "DELETE",
+  `/applications/${application}/commands/${command}`
+);
 
 /**
  * Creates or updates a new command for this application
@@ -122,12 +114,11 @@ export const deleteCommand = (
 export const createCommand = (
   application: string,
   command: CreateGlobalApplicationCommand
-): Promise<ApplicationCommand | null> =>
-  rateLimiter.request<ApplicationCommand>(
-    "POST",
-    `/applications/${application}/commands`,
-    command
-  );
+): Promise<ApplicationCommand | null> => rateLimiter.request<ApplicationCommand>(
+  "POST",
+  `/applications/${application}/commands`,
+  command
+);
 
 /**
  * Sends a response to an interaction
@@ -197,7 +188,7 @@ export const giveRole = (
 
   if (reason) {
     headers = {
-      "X-Audit-Log-Reason": reason,
+      "X-Audit-Log-Reason": reason
     };
   }
 
@@ -219,7 +210,7 @@ export const removeRole = (
 
   if (reason) {
     headers = {
-      "X-Audit-Log-Reason": reason,
+      "X-Audit-Log-Reason": reason
     };
   }
 

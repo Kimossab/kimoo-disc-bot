@@ -2,7 +2,7 @@ import { CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -12,7 +12,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 import { addSubscription, setAnimeLastAiring } from "../database";
@@ -34,9 +34,9 @@ const definition: ApplicationCommandOption = {
       name: "anime",
       description: "Anime name",
       type: ApplicationCommandOptionType.STRING,
-      required: true,
-    },
-  ],
+      required: true
+    }
+  ]
 };
 
 export const handler = (
@@ -49,7 +49,7 @@ export const handler = (
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const { anime } = getOptions<SubAddCommandOptions>(
@@ -61,7 +61,7 @@ export const handler = (
 
       if (animeInfo.status !== RequestStatus.OK) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found,
+          content: messageList.anilist.not_found
         });
         return;
       }
@@ -72,9 +72,7 @@ export const handler = (
         animeInfo.data.Media.id
       );
 
-      const { last } = getLastAndNextEpisode(
-        animeInfo.data.Media.airingSchedule
-      );
+      const { last } = getLastAndNextEpisode(animeInfo.data.Media.airingSchedule);
 
       await setAnimeLastAiring(animeInfo.data.Media.id, last?.episode);
 
@@ -90,8 +88,8 @@ export const handler = (
       }
 
       await editOriginalInteractionResponse(app.id, data.token, {
-        content: ``,
-        embeds: [mapMediaAiringToEmbed(animeInfo.data.Media)],
+        content: "",
+        embeds: [mapMediaAiringToEmbed(animeInfo.data.Media)]
       });
     }
   };
@@ -104,5 +102,5 @@ export default (
   removeAnime: (id: number) => void
 ): CommandInfo => ({
   definition,
-  handler: handler(logger, rateLimiter, animeList, removeAnime),
+  handler: handler(logger, rateLimiter, animeList, removeAnime)
 });

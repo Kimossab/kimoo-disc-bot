@@ -1,6 +1,6 @@
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import {
   ActionRow,
@@ -12,7 +12,7 @@ import {
   InteractionCallbackType,
   Message,
   MessageComponentInteractionData,
-  snowflake,
+  snowflake
 } from "@/types/discord";
 
 import { chunkArray } from "./common";
@@ -29,21 +29,26 @@ export type CreatePageCallback<T> = (
 
 export class InteractionPagination<T = unknown> {
   private readonly appId: string;
+
   private readonly data: T[];
+
   private readonly createPage: CreatePageCallback<T>;
+
   private readonly extraInfo: unknown;
 
   private currentPage = 0;
-  private get totalPages() {
+
+  private get totalPages () {
     return this.data.length;
   }
+
   private message: Nullable<Message> = null;
 
-  public get messageId(): snowflake | undefined {
+  public get messageId (): snowflake | undefined {
     return this.message?.id;
   }
 
-  constructor(
+  constructor (
     appId: string,
     data: T[],
     createPage: CreatePageCallback<T>,
@@ -55,7 +60,7 @@ export class InteractionPagination<T = unknown> {
     this.extraInfo = extraInfo;
   }
 
-  private async buildPageData() {
+  private async buildPageData () {
     const { data: pageData, file } = await this.createPage(
       this.currentPage + 1,
       this.totalPages,
@@ -68,7 +73,7 @@ export class InteractionPagination<T = unknown> {
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
         custom_id: "pagination.previous",
-        label: "◀",
+        label: "◀"
       };
       const chunks = chunkArray(this.data, 25);
       const pageSelector: ActionRow[] = chunks.map((chunk, pIdx) => ({
@@ -81,33 +86,34 @@ export class InteractionPagination<T = unknown> {
               return {
                 label: `Page ${index + 1 + pIdx * 25}`,
                 value: (index + pIdx * 25).toString(),
-                default: index + pIdx * 25 === this.currentPage,
+                default: index + pIdx * 25 === this.currentPage
               };
-            }),
-          },
-        ],
+            })
+          }
+        ]
       }));
       const buttonRight: Button = {
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
         custom_id: "pagination.next",
-        label: "▶",
+        label: "▶"
       };
       const actionRow: ActionRow = {
         type: ComponentType.ActionRow,
-        components: [buttonLeft, buttonRight],
+        components: [buttonLeft, buttonRight]
       };
       pageData.components = [
-        ...(pageData.components ?? []),
+        ...pageData.components ?? [],
         ...pageSelector,
-        actionRow,
+        actionRow
       ];
     }
 
-    return { pageData, file };
+    return { pageData,
+      file };
   }
 
-  public async create(token: string): Promise<Message | null> {
+  public async create (token: string): Promise<Message | null> {
     const { pageData, file } = await this.buildPageData();
     this.message = await editOriginalInteractionResponse(
       this.appId,
@@ -119,7 +125,7 @@ export class InteractionPagination<T = unknown> {
     return this.message;
   }
 
-  public async handlePage(
+  public async handlePage (
     id: string,
     token: string,
     data: MessageComponentInteractionData
@@ -150,7 +156,7 @@ export class InteractionPagination<T = unknown> {
       token,
       {
         type: InteractionCallbackType.UPDATE_MESSAGE,
-        data: pageData as InteractionCallbackData,
+        data: pageData as InteractionCallbackData
       },
       file
     );

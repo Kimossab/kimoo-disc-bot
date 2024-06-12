@@ -2,7 +2,7 @@ import { editOriginalInteractionResponse } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
 import {
   CreatePageCallback,
-  InteractionPagination,
+  InteractionPagination
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -12,7 +12,7 @@ import {
   ButtonStyle,
   ComponentType,
   Embed,
-  Interaction,
+  Interaction
 } from "@/types/discord";
 
 import { mapSauceNaoResultToData } from "./mapper";
@@ -31,52 +31,56 @@ const sauceNaoEmbed = (
     footer: {
       text: interpolator(messageList.common.page, {
         page,
-        total,
-      }),
-    },
+        total
+      })
+    }
   };
   if (item.thumbnail) {
     embed.image = {
-      url: item.thumbnail.replace(/\s/g, "%20"),
+      url: item.thumbnail.replace(/\s/g, "%20")
     };
   }
 
   embed.fields = [
-    ...(embed.fields ?? []),
+    ...embed.fields ?? [],
     {
       name: "similarity",
-      value: item.similarity.toString(),
-    },
+      value: item.similarity.toString()
+    }
   ];
 
   if (item.url) {
     for (const st of item.url) {
       embed.fields = [
-        ...(embed.fields ?? []),
+        ...embed.fields ?? [],
         {
           name: "url",
-          value: st,
-        },
+          value: st
+        }
       ];
     }
   }
 
   if (item.authorData) {
     embed.fields = [
-      ...(embed.fields ?? []),
+      ...embed.fields ?? [],
       {
-        name: item.authorData.authorName ? item.authorData.authorName : "-",
-        value: item.authorData.authorUrl ? item.authorData.authorUrl : "-",
-      },
+        name: item.authorData.authorName
+          ? item.authorData.authorName
+          : "-",
+        value: item.authorData.authorUrl
+          ? item.authorData.authorUrl
+          : "-"
+      }
     ];
   }
   if (item.fallback) {
     embed.fields = [
-      ...(embed.fields ?? []),
+      ...embed.fields ?? [],
       {
         name: "unknown fallback",
-        value: item.fallback,
-      },
+        value: item.fallback
+      }
     ];
   }
 
@@ -98,12 +102,12 @@ const sauceNaoUpdatePage: CreatePageCallback<SauceNao.data> = async (
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
             custom_id: "sauceArt.select",
-            label: "Show to everyone",
-          },
-        ],
-      },
-    ],
-  },
+            label: "Show to everyone"
+          }
+        ]
+      }
+    ]
+  }
 });
 
 const handleSauceNao = async (
@@ -116,7 +120,7 @@ const handleSauceNao = async (
 
   if (!saucenao) {
     await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found,
+      content: messageList.sauce.not_found
     });
     return;
   }
@@ -124,7 +128,7 @@ const handleSauceNao = async (
   if (saucenao.header.status > 0) {
     logger.error("SauceNao - Ext error", saucenao);
     await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found,
+      content: messageList.sauce.not_found
     });
     return;
   }
@@ -132,7 +136,7 @@ const handleSauceNao = async (
   if (saucenao.header.status < 0) {
     logger.error("SauceNao - Int error", saucenao);
     await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found,
+      content: messageList.sauce.not_found
     });
     return;
   }
@@ -148,7 +152,7 @@ const handleSauceNao = async (
 
   if (resData.length === 0) {
     await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found,
+      content: messageList.sauce.not_found
     });
     return;
   }
