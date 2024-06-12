@@ -1,4 +1,5 @@
 import {
+  deleteAllSubscriptionsForId,
   deleteUserSubscriptionForIds,
   getAllSubscriptionsForAnime,
   getUserSubs
@@ -142,10 +143,10 @@ const componentHandler = (_logger: Logger, removeAnime: (id: number) => void): C
           if (process.env.OWNER_DM_CHANNEL) {
             await sendMessage(
               process.env.OWNER_DM_CHANNEL,
-              `Deleting anilist ${animeId}`
+              `Deleting anilist - no more subs - ${animeId}`
             );
           }
-          // await deleteAllSubscriptionsForId(animeId);
+          await deleteAllSubscriptionsForId(animeId, _logger);
           removeAnime(animeId);
         }
       }

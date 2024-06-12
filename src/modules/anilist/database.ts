@@ -1,4 +1,5 @@
 import prisma from "@/database";
+import { ILogger } from "@/helper/logger";
 import { AnilistSubscription, LastAiredNotification } from "@prisma/client";
 
 const getSubscription = async (
@@ -31,14 +32,17 @@ export const addSubscription = async (
 
 export const getAllSubscriptionsForAnime = async (id: number): Promise<AnilistSubscription[]> => await prisma.anilistSubscription.findMany({ where: { animeId: id } });
 
-export const deleteAllSubscriptionsForId = async (id: number): Promise<void> => {
+export const deleteAllSubscriptionsForId = async (id: number, logger: ILogger): Promise<void> => {
   await prisma.lastAiredNotification.deleteMany({
     where: { animeId: id }
   });
-  await prisma.anilistSubscription.deleteMany({
-    where: {
-      animeId: id
-    }
+  logger.info("Subs deleted for anime", {
+    id,
+    subs: await prisma.anilistSubscription.deleteMany({
+      where: {
+        animeId: id
+      }
+    })
   });
 };
 

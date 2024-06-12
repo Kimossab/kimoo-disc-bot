@@ -1,4 +1,5 @@
 import {
+  deleteAllSubscriptionsForId,
   getAllSubscriptionsForAnime,
   getAnimeLastAiringById,
   updateAnimeLastAiring
@@ -76,7 +77,7 @@ export class AnimeManager {
     if (animeInformation.status === RequestStatus.Not_Found) {
       // todo: to change to info
       this.logger.error(
-        "No info about the anime found (either removed by anilist or finished airing) - deleting from database",
+        "No info about the anime found (probably removed by anilist) - deleting from database",
         {
           animeId: this.animeId
         }
@@ -85,10 +86,10 @@ export class AnimeManager {
       if (process.env.OWNER_DM_CHANNEL) {
         await sendMessage(
           process.env.OWNER_DM_CHANNEL,
-          `Deleting anilist ${this.animeId}`
+          `Deleting anilist - missing info - ${this.animeId}`
         );
       }
-      // await deleteAllSubscriptionsForId(this.animeId);
+      await deleteAllSubscriptionsForId(this.animeId, this.logger);
       this.onDelete(this.animeId);
       return;
     } else if (animeInformation.status !== RequestStatus.OK) {
@@ -121,10 +122,10 @@ export class AnimeManager {
       if (process.env.OWNER_DM_CHANNEL) {
         await sendMessage(
           process.env.OWNER_DM_CHANNEL,
-          `Deleting anilist ${this.animeId}`
+          `Deleting anilist - assuming it's over - ${this.animeId} - ${JSON.stringify(animeInformation.data)}`
         );
       }
-      // await deleteAllSubscriptionsForId(this.animeId);
+      await deleteAllSubscriptionsForId(this.animeId, this.logger);
       this.onDelete(this.animeId);
       return;
     }
