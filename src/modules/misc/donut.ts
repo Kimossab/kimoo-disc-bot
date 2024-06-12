@@ -14,7 +14,7 @@ const R1 = 1;
 const R2 = 2;
 const K2 = 5;
 
-const K1 = (SCREEN_WIDTH * K2 * 3) / (8 * (R1 + R2));
+const K1 = SCREEN_WIDTH * K2 * 3 / (8 * (R1 + R2));
 
 const renderDonut = (a: number, b: number): string => {
   const cosA = cos(a);

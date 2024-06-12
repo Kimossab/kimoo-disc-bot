@@ -9,7 +9,7 @@ export const cleanUpDescription = (description: string): string => {
 
 export const dateToString = (date: Date): string => {
   if (!date.year) {
-    return ``;
+    return "";
   }
   if (!date.month) {
     return `${date.year}`;

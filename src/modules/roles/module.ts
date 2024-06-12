@@ -9,7 +9,7 @@ import {
   AvailableLocales,
   Button,
   ButtonStyle,
-  ComponentType,
+  ComponentType
 } from "@/types/discord";
 
 import addCommand from "./commands/add.command";
@@ -18,7 +18,7 @@ import refreshCommand from "./commands/refresh.command";
 import { getRoleCategoriesByServer } from "./database";
 
 export default class RoleModule extends BaseModule {
-  constructor(isActive: boolean) {
+  constructor (isActive: boolean) {
     super("role", isActive);
 
     if (!isActive) {
@@ -31,16 +31,12 @@ export default class RoleModule extends BaseModule {
 
     this.commandList = {
       channel: channelCommand(),
-      add: addCommand(this.logger, (guild: string) =>
-        this.updateRoleMessages(guild)
-      ),
-      refresh: refreshCommand((guild: string) =>
-        this.updateRoleMessages(guild)
-      ),
+      add: addCommand(this.logger, (guild: string) => this.updateRoleMessages(guild)),
+      refresh: refreshCommand((guild: string) => this.updateRoleMessages(guild))
     };
   }
 
-  private async updateRoleMessages(guild: string) {
+  private async updateRoleMessages (guild: string) {
     const categories = await getRoleCategoriesByServer(guild);
     const channel = (await getServer(guild))?.roleChannel;
 
@@ -65,7 +61,7 @@ export default class RoleModule extends BaseModule {
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
             custom_id: `role.add.${category.category}.${role.id}`,
-            label: roles.find((r) => r.id === role.id)?.name,
+            label: roles.find((r) => r.id === role.id)?.name
           };
 
           if (role.icon && emojis) {
@@ -75,20 +71,20 @@ export default class RoleModule extends BaseModule {
             } else {
               component.emoji = {
                 id: emoji?.id,
-                name: null,
+                name: null
               };
             }
           }
 
           return component;
-        }),
+        })
       }));
 
       await editMessage(channel, category.message, {
         content: interpolator(messageList.roles.info.category, {
-          category: category.category,
+          category: category.category
         }),
-        components: components,
+        components: components
       });
     }
   }

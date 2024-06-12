@@ -3,7 +3,7 @@ import { getBirthdaysByMonth, getUserBirthday } from "#birthday/database";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
@@ -17,7 +17,7 @@ import {
   ApplicationCommandOptionType,
   CommandHandler,
   Interaction,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface GetCommandOptions {
@@ -33,14 +33,14 @@ const definition: ApplicationCommandOption = {
     {
       name: "user",
       description: "The user whose birthday you're getting",
-      type: ApplicationCommandOptionType.USER,
+      type: ApplicationCommandOptionType.USER
     },
     {
       name: "month",
       description: "The users whose birthday is on a certain month",
-      type: ApplicationCommandOptionType.INTEGER,
-    },
-  ],
+      type: ApplicationCommandOptionType.INTEGER
+    }
+  ]
 };
 
 const handleGetMonthCommand = async (
@@ -53,7 +53,7 @@ const handleGetMonthCommand = async (
     return Promise.resolve();
   }
   await createInteractionResponse(data.id, data.token, {
-    type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+    type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
   });
 
   const bd = await getBirthdaysByMonth(data.guild_id, month);
@@ -71,19 +71,17 @@ const handleGetMonthCommand = async (
 
   if (message === "") {
     message = interpolator(messageList.birthday.found_zero, {
-      month,
+      month
     });
   }
 
   await editOriginalInteractionResponse(app.id || "", data.token, {
     content: message,
-    allowed_mentions: no_mentions,
+    allowed_mentions: no_mentions
   });
 
-  logger.info(
-    `Birthday for month ${month} requested in ${data.guild_id} by ` +
-      `${data.member?.user?.username}#${data.member?.user?.discriminator}`
-  );
+  logger.info(`Birthday for month ${month} requested in ${data.guild_id} by ` +
+  `${data.member?.user?.username}#${data.member?.user?.discriminator}`);
 };
 const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
@@ -104,23 +102,23 @@ const handler = (logger: Logger): CommandHandler => {
 
       if (bd) {
         const birthdayString = `${bd.day}/${bd.month}${
-          bd.year ? `/${bd.year}` : ""
+          bd.year
+            ? `/${bd.year}`
+            : ""
         }`;
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.birthday.user, {
             user: `<@${requestedUser}>`,
-            date: birthdayString,
+            date: birthdayString
           }),
-          allowed_mentions: no_mentions,
+          allowed_mentions: no_mentions
         });
-        logger.info(
-          `Birthday requested in ${data.guild_id} by ${
-            (data.member || data).user?.username
-          }#${(data.member || data).user?.discriminator}`
-        );
+        logger.info(`Birthday requested in ${data.guild_id} by ${
+          (data.member || data).user?.username
+        }#${(data.member || data).user?.discriminator}`);
       } else {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.birthday.not_found,
+          content: messageList.birthday.not_found
         });
       }
     }
@@ -129,5 +127,5 @@ const handler = (logger: Logger): CommandHandler => {
 
 export default (logger: Logger): CommandInfo => ({
   definition,
-  handler: handler(logger),
+  handler: handler(logger)
 });

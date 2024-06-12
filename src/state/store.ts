@@ -3,7 +3,7 @@ import {
   InteractionData,
   InteractionType,
   MessageComponentInteractionData,
-  ModalSubmitInteractionData,
+  ModalSubmitInteractionData
 } from "@/types/discord";
 
 import { ActionName, Actions, State } from "./types";
@@ -20,7 +20,7 @@ const state: State = {
   commandExecutedCallback: [],
   messageReactionCallback: [],
   resumeGatewayUrl: "",
-  modules: [],
+  modules: []
 };
 
 type StateActions = {
@@ -83,17 +83,14 @@ const actions: StateActions = {
     return state;
   },
   [ActionName.RemovePagination]: (payload) => {
-    state.allPaginations = state.allPaginations.filter(
-      (pagination) => pagination.messageId !== payload.messageId
-    );
+    state.allPaginations = state.allPaginations.filter((pagination) => pagination.messageId !== payload.messageId);
     return state;
   },
   [ActionName.GetApplication]: () => state.application,
   [ActionName.GetGuilds]: () => state.guilds,
   [ActionName.GetResumeGateway]: () => state.resumeGatewayUrl,
   [ActionName.GetDiscordSession]: () => state.discordSessionId,
-  [ActionName.GetPagination]: (messageId) =>
-    state.allPaginations.find((p) => p.messageId === messageId),
+  [ActionName.GetPagination]: (messageId) => state.allPaginations.find((p) => p.messageId === messageId),
   [ActionName.GetDiscordLastS]: () => state.discordLastS,
   [ActionName.SetReadyData]: (data) => {
     setUser(data.user);
@@ -119,9 +116,7 @@ const actions: StateActions = {
       >;
 
       if (componentData.data?.custom_id.startsWith("pagination.")) {
-        return handlePaginationComponent(
-          componentData as Interaction<MessageComponentInteractionData>
-        );
+        return handlePaginationComponent(componentData as Interaction<MessageComponentInteractionData>);
       }
 
       for (const module of state.modules) {
@@ -135,7 +130,7 @@ const actions: StateActions = {
 
     throw new Error("Unknown interaction type");
   },
-  [ActionName.SetModules]: (payload) => (state.modules = payload),
+  [ActionName.SetModules]: (payload) => state.modules = payload
 };
 
 export const setUser = actions[ActionName.SetUser];
@@ -167,9 +162,7 @@ const handleApplicationCommand = (data: Interaction<InteractionData>) => {
     cb(data);
   }
 };
-const handlePaginationComponent = (
-  componentData: Interaction<MessageComponentInteractionData>
-) => {
+const handlePaginationComponent = (componentData: Interaction<MessageComponentInteractionData>) => {
   const pagination = getPagination(componentData.message?.id || "");
   pagination?.handlePage(
     componentData.id,

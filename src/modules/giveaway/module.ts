@@ -9,7 +9,7 @@ import { GiveawayManager } from "./helpers/GiveawayManager";
 export default class GiveawayModule extends BaseModule {
   private giveawayManagers: GiveawayManager[] = [];
 
-  constructor(isActive: boolean) {
+  constructor (isActive: boolean) {
     super("giveaway", isActive);
 
     if (!isActive) {
@@ -21,24 +21,19 @@ export default class GiveawayModule extends BaseModule {
       "Commands related to voting";
 
     this.commandList = {
-      create: createCommand(this.logger, (giveaway) =>
-        this.giveawayManagers.push(
-          new GiveawayManager(this.logger, giveaway, (id) => {
-            this.giveawayManagers = this.giveawayManagers.filter(
-              (g) => g.id !== id
-            );
-          })
-        )
-      ),
+      create: createCommand(this.logger, (giveaway) => this.giveawayManagers.push(new GiveawayManager(this.logger, giveaway, (id) => {
+        this.giveawayManagers = this.giveawayManagers.filter((g) => g.id !== id);
+      })))
     };
   }
-  public close() {
+
+  public close () {
     super.close();
     this.giveawayManagers.forEach((g) => g.close());
     this.giveawayManagers = [];
   }
 
-  public async setUp(): Promise<void> {
+  public async setUp (): Promise<void> {
     super.setUp();
     if (!this.isActive) {
       return;
@@ -47,13 +42,9 @@ export default class GiveawayModule extends BaseModule {
     const giveaways = await getActiveGiveaways();
 
     for (const giveaway of giveaways) {
-      this.giveawayManagers.push(
-        new GiveawayManager(this.logger, giveaway, (id) => {
-          this.giveawayManagers = this.giveawayManagers.filter(
-            (g) => g.id !== id
-          );
-        })
-      );
+      this.giveawayManagers.push(new GiveawayManager(this.logger, giveaway, (id) => {
+        this.giveawayManagers = this.giveawayManagers.filter((g) => g.id !== id);
+      }));
     }
   }
 }

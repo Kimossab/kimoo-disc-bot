@@ -6,7 +6,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
@@ -17,9 +17,9 @@ const definition: ApplicationCommandOption = {
     {
       name: "role",
       description: "Role you want to set as admin",
-      type: ApplicationCommandOptionType.ROLE,
-    },
-  ],
+      type: ApplicationCommandOptionType.ROLE
+    }
+  ]
 };
 
 const handler = (): CommandHandler => {
@@ -28,13 +28,15 @@ const handler = (): CommandHandler => {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `Only allowed in a guild`,
-        },
+          content: "Only allowed in a guild"
+        }
       });
       return;
     }
 
-    const role = option.options?.length ? option.options[0] : null;
+    const role = option.options?.length
+      ? option.options[0]
+      : null;
 
     if (role) {
       await setAdminRole(data.guild_id, role.value as string);
@@ -46,9 +48,9 @@ const handler = (): CommandHandler => {
             parse: [],
             roles: [],
             users: [],
-            replied_user: false,
-          },
-        },
+            replied_user: false
+          }
+        }
       });
     } else {
       const role = (await getServer(data.guild_id))?.adminRole;
@@ -61,16 +63,16 @@ const handler = (): CommandHandler => {
               parse: [],
               roles: [],
               users: [],
-              replied_user: false,
-            },
-          },
+              replied_user: false
+            }
+          }
         });
       } else {
         await createInteractionResponse(data.id, data.token, {
           type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            content: "This server doesn't have an admin role defined",
-          },
+            content: "This server doesn't have an admin role defined"
+          }
         });
       }
     }
@@ -80,5 +82,5 @@ const handler = (): CommandHandler => {
 export default (): CommandInfo => ({
   definition,
   handler: handler(),
-  isAdmin: true,
+  isAdmin: true
 });

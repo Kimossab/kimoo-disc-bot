@@ -3,7 +3,7 @@ import renderDonut from "#misc/donut";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import Logger from "@/helper/logger";
 import { getOptions } from "@/helper/modules";
@@ -12,7 +12,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface DonutCommandOptions {
@@ -20,8 +20,8 @@ interface DonutCommandOptions {
   b: string;
 }
 
-const MAX_RANDOM_ANGLE = (1 * Math.PI) / 4;
-const MIN_RANDOM_ANGLE = (-1 * Math.PI) / 4;
+const MAX_RANDOM_ANGLE = 1 * Math.PI / 4;
+const MIN_RANDOM_ANGLE = -1 * Math.PI / 4;
 
 const definition: ApplicationCommandOption = {
   name: "donut",
@@ -31,21 +31,21 @@ const definition: ApplicationCommandOption = {
     {
       name: "a",
       description: "Angle of A (radians)",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.STRING
     },
     {
       name: "b",
       description: "Angle of B (radians)",
-      type: ApplicationCommandOptionType.STRING,
-    },
-  ],
+      type: ApplicationCommandOptionType.STRING
+    }
+  ]
 };
 const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const { a, b } = getOptions<DonutCommandOptions>(
@@ -62,7 +62,7 @@ const handler = (logger: Logger): CommandHandler => {
         const A =
           Math.PI / 2 +
           (Math.random() * (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE) +
-            MIN_RANDOM_ANGLE);
+          MIN_RANDOM_ANGLE);
         const B =
           Math.random() * (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE) +
           MIN_RANDOM_ANGLE;
@@ -71,19 +71,17 @@ const handler = (logger: Logger): CommandHandler => {
       }
 
       await editOriginalInteractionResponse(app.id, data.token, {
-        content: `Here's your donut:\n\`\`\`\n${donut}\`\`\``,
+        content: `Here's your donut:\n\`\`\`\n${donut}\`\`\``
       });
 
-      logger.info(
-        `Donut was requested in ${data.guild_id} by ${
-          (data.member || data).user?.username
-        }#${(data.member || data).user?.discriminator}`
-      );
+      logger.info(`Donut was requested in ${data.guild_id} by ${
+        (data.member || data).user?.username
+      }#${(data.member || data).user?.discriminator}`);
     }
   };
 };
 
 export default (logger: Logger): CommandInfo => ({
   definition,
-  handler: handler(logger),
+  handler: handler(logger)
 });

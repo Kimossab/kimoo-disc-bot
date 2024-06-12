@@ -4,14 +4,12 @@ import { mapGiveawayToEmbed } from "#giveaway/mappers/mapGiveawayToEmbed";
 
 import { EditWebhookMessage } from "@/types/discord";
 
-export const createGiveawayMessageData = (
-  giveaway: CompleteGiveaway
-): EditWebhookMessage => {
+export const createGiveawayMessageData = (giveaway: CompleteGiveaway): EditWebhookMessage => {
   const embeds = [mapGiveawayToEmbed(giveaway)];
   const components = mapGiveawayToComponents(giveaway);
 
   const response: EditWebhookMessage = {
-    embeds,
+    embeds
   };
 
   if (components.length) {

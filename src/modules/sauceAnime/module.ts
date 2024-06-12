@@ -2,7 +2,7 @@ import BaseModule from "#/base-module";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
@@ -13,13 +13,13 @@ import {
   InteractionCallbackDataFlags,
   InteractionCallbackType,
   Message,
-  SingleCommandHandler,
+  SingleCommandHandler
 } from "@/types/discord";
 
 import handleTraceMoe from "./traceMoe/trace-moe";
 
 export default class SauceAnimeModule extends BaseModule {
-  constructor(isActive: boolean) {
+  constructor (isActive: boolean) {
     super("sauce", isActive, "Sauce (anime)");
 
     if (!isActive) {
@@ -33,10 +33,10 @@ export default class SauceAnimeModule extends BaseModule {
     this.singleCommand = {
       definition: {
         name: "Sauce (anime)",
-        type: ApplicationCommandType.MESSAGE,
+        type: ApplicationCommandType.MESSAGE
       },
       handler: this.commandHandler,
-      componentHandler: this.componentHandler,
+      componentHandler: this.componentHandler
     };
   }
 
@@ -46,8 +46,8 @@ export default class SauceAnimeModule extends BaseModule {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-        },
+          flags: InteractionCallbackDataFlags.EPHEMERAL
+        }
       });
 
       const msgs = (
@@ -66,7 +66,7 @@ export default class SauceAnimeModule extends BaseModule {
 
       if (!msgs.length) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.sauce.image_not_found,
+          content: messageList.sauce.image_not_found
         });
         return;
       }
@@ -84,9 +84,12 @@ export default class SauceAnimeModule extends BaseModule {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: data.message.content,
-          embeds: [{ ...data.message.embeds[0], footer: undefined }],
-          components: [],
-        },
+          embeds: [
+            { ...data.message.embeds[0],
+              footer: undefined }
+          ],
+          components: []
+        }
       });
     }
   };

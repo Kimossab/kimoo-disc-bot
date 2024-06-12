@@ -2,7 +2,7 @@ import {
   ApplicationCommand,
   ApplicationCommandOption,
   ApplicationCommandOptionChoice,
-  CreateGlobalApplicationCommand,
+  CreateGlobalApplicationCommand
 } from "./types/discord";
 
 const compareChoices = (
@@ -57,7 +57,7 @@ const compareOptions = (
           "options",
           "choices",
           "name_localizations",
-          "description_localizations",
+          "description_localizations"
         ].includes(key)
       ) {
         if (option[key] !== opt[key]) {
@@ -86,9 +86,7 @@ export const compareCommands = (
 
   for (const key of keys) {
     if (
-      !["options", "name_localizations", "description_localizations"].includes(
-        key
-      )
+      !["options", "name_localizations", "description_localizations"].includes(key)
     ) {
       if (appCmd[key] !== onlineCmd[key]) {
         return false;

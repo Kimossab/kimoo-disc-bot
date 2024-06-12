@@ -2,9 +2,7 @@ import { CompleteGiveaway } from "#giveaway/database";
 
 import { ActionRow, ButtonStyle, ComponentType } from "@/types/discord";
 
-export const mapGiveawayToComponents = (
-  giveaway: CompleteGiveaway
-): ActionRow[] => {
+export const mapGiveawayToComponents = (giveaway: CompleteGiveaway): ActionRow[] => {
   if (giveaway.endAt < new Date()) {
     return [
       {
@@ -13,11 +11,11 @@ export const mapGiveawayToComponents = (
           {
             type: ComponentType.Button,
             style: ButtonStyle.Danger,
-            custom_id: `giveaway.create.reshuffle`,
-            label: "Reshuffle",
-          },
-        ],
-      },
+            custom_id: "giveaway.create.reshuffle",
+            label: "Reshuffle"
+          }
+        ]
+      }
     ];
   } else {
     return [
@@ -27,11 +25,11 @@ export const mapGiveawayToComponents = (
           {
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
-            custom_id: `giveaway.create.join`,
-            label: "JOIN",
-          },
-        ],
-      },
+            custom_id: "giveaway.create.join",
+            label: "JOIN"
+          }
+        ]
+      }
     ];
   }
 };

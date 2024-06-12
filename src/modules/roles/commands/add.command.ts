@@ -10,7 +10,7 @@ import {
   getRoles,
   giveRole,
   removeRole,
-  sendMessage,
+  sendMessage
 } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
@@ -24,7 +24,7 @@ import {
   ComponentCommandHandler,
   Emoji,
   InteractionCallbackDataFlags,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface CommandOptions {
@@ -42,19 +42,19 @@ const definition: ApplicationCommandOption = {
       name: "role",
       description: messageList.roles.add.role,
       type: ApplicationCommandOptionType.ROLE,
-      required: true,
+      required: true
     },
     {
       name: "category",
       description: messageList.roles.add.category,
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.STRING
     },
     {
       name: "icon",
       description: messageList.roles.add.icon,
-      type: ApplicationCommandOptionType.STRING,
-    },
-  ],
+      type: ApplicationCommandOptionType.STRING
+    }
+  ]
 };
 
 const handler = (
@@ -71,8 +71,8 @@ const handler = (
           type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             content: messageList.roles.errors.no_channel,
-            flags: InteractionCallbackDataFlags.EPHEMERAL,
-          },
+            flags: InteractionCallbackDataFlags.EPHEMERAL
+          }
         });
         return;
       }
@@ -80,8 +80,8 @@ const handler = (
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-        },
+          flags: InteractionCallbackDataFlags.EPHEMERAL
+        }
       });
 
       const { role, category, icon } = getOptions<CommandOptions>(
@@ -96,8 +96,8 @@ const handler = (
       if (catData && catData.roles.length >= 25) {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.roles.errors.too_many_roles, {
-            category: roleCat,
-          }),
+            category: roleCat
+          })
         });
         return;
       }
@@ -115,7 +115,7 @@ const handler = (
         await addRoleCategory(data.guild_id, roleCat, message?.id);
       } else if (catData.roles.find((r) => r.id === role)) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.roles.errors.duplicate,
+          content: messageList.roles.errors.duplicate
         });
         return;
       }
@@ -127,9 +127,11 @@ const handler = (
         emoji = emojis?.find((e) => e.name === icon);
       }
 
-      await addRole(data.guild_id, roleCat, role, emoji ? icon : null);
+      await addRole(data.guild_id, roleCat, role, emoji
+        ? icon
+        : null);
       await editOriginalInteractionResponse(app.id, data.token, {
-        content: messageList.roles.add.success,
+        content: messageList.roles.add.success
       });
 
       await updateRoleMessages(data.guild_id);
@@ -151,8 +153,8 @@ const componentHandler = (
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           flags: InteractionCallbackDataFlags.EPHEMERAL,
-          content: msg,
-        },
+          content: msg
+        }
       });
 
       if (updateRoles) {
@@ -181,19 +183,15 @@ const componentHandler = (
     if (member?.roles.find((r) => r === role.id)) {
       await removeRole(data.guild_id, data.member.user.id, role.id);
 
-      await sendResponse(
-        interpolator(messageList.roles.add.removed, {
-          role: role.name,
-        })
-      );
+      await sendResponse(interpolator(messageList.roles.add.removed, {
+        role: role.name
+      }));
     } else {
       await giveRole(data.guild_id, data.member.user.id, role.id);
 
-      await sendResponse(
-        interpolator(messageList.roles.add.given, {
-          role: role.name,
-        })
-      );
+      await sendResponse(interpolator(messageList.roles.add.given, {
+        role: role.name
+      }));
     }
   };
 };
@@ -204,5 +202,5 @@ export default (
   definition,
   handler: handler(logger, updateRoleMessages),
   componentHandler: componentHandler(logger, updateRoleMessages),
-  isAdmin: true,
+  isAdmin: true
 });

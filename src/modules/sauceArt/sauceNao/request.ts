@@ -7,15 +7,15 @@ export const requestSauceNao = async (
   logger: Logger
 ): Promise<SauceNao.response | null> => {
   try {
-    const res = await axios.get<SauceNao.response>(
-      `https://saucenao.com/search.php?output_type=2&api_key=${process.env.SAUCENAO_API_KEY}&testmode=1&url=${image}`
-    );
+    const res = await axios.get<SauceNao.response>(`https://saucenao.com/search.php?output_type=2&api_key=${process.env.SAUCENAO_API_KEY}&testmode=1&url=${image}`);
 
     return res.data;
   } catch (e) {
     logger.error(
       "Requesting sauce nao",
-      axios.isAxiosError(e) ? e.response : JSON.stringify(e)
+      axios.isAxiosError(e)
+        ? e.response
+        : JSON.stringify(e)
     );
   }
 

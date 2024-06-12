@@ -10,9 +10,6 @@
     "lint:fix": "eslint ./src --ext .ts,.json --fix",
     "type:check": "tsc --noEmit --skipLibCheck",
     "type:check:watch": "tsc --noEmit --skipLibCheck -w",
-    "format": "prettier --write '**.*{ts,json}'",
-    "pre-commit": "lint-staged",
-    "postinstall": "husky install",
     "migrate:prod": "prisma migrate deploy",
     "migrate:dev": "prisma migrate dev"
   },
@@ -20,41 +17,26 @@
   "license": "ISC",
   "devDependencies": {
     "@jagi/jest-transform-graphql": "^1.0.2",
+    "@stylistic/eslint-plugin": "^1.7.2",
     "@types/request": "^2.48.8",
     "@types/ws": "^8.5.5",
-    "@typescript-eslint/eslint-plugin": "^6.1.0",
-    "@typescript-eslint/parser": "^6.1.0",
+    "@typescript-eslint/parser": "^7.7.0",
     "casual": "^1.6.2",
-    "eslint": "^8.45.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-deprecation": "^1.4.1",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "eslint-plugin-unused-imports": "^3.0.0",
-    "husky": "^8.0.3",
     "lint-staged": "^13.2.3",
-    "prettier": "^3.0.0",
     "prisma": "^5.7.1",
     "ts-node-dev": "^2.0.0",
-    "tsc-alias": "^1.8.7",
+    "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.6"
   },
   "dependencies": {
     "@prisma/client": "^5.7.1",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
     "axios": "^1.6.0",
     "dotenv": "^16.3.1",
-    "eslint-import-resolver-typescript": "^3.5.5",
     "form-data": "^4.0.0",
     "winston": "^3.10.0",
     "winston-loki": "^6.0.6",
     "ws": "^8.13.0"
-  },
-  "lint-staged": {
-    "*.{tsx,ts,json}": [
-      "prettier --write",
-      "eslint --fix --ext .ts,.tsx,.json"
-    ]
   }
 }

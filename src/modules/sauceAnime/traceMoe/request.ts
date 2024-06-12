@@ -21,7 +21,7 @@ export const requestTraceMoe = async (
         "https://api.trace.moe/search?anilistInfo",
         data,
         {
-          headers: data.getHeaders(),
+          headers: data.getHeaders()
         }
       );
       return res.data;

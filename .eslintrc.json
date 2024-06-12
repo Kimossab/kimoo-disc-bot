@@ -4,9 +4,7 @@
     "es2021": true
   },
   "extends": [
-    "plugin:@typescript-eslint/recommended",
-    "plugin:import/recommended",
-    "prettier"
+    "plugin:@stylistic/all-extends"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -14,46 +12,60 @@
     "sourceType": "module"
   },
   "plugins": [
-    "@typescript-eslint",
-    "simple-import-sort",
-    "import",
-    "unused-imports",
-    "prettier",
-    "deprecation"
+    "@stylistic"
   ],
   "overrides": [
     {
-      "files": ["*.ts"],
+      "files": [
+        "*.ts"
+      ],
       "parserOptions": {
-        "project": ["./tsconfig.json"]
+        "project": [
+          "./tsconfig.json"
+        ]
       }
     }
   ],
   "rules": {
-    "curly": "error",
-    "no-console": "error",
-    "deprecation/deprecation": "error",
-    "no-case-declarations": "off",
-    "linebreak-style": "off",
-    "prefer-const": "error",
-    "unused-imports/no-unused-imports": "error",
-    "simple-import-sort/exports": "error",
-    "import/first": "error",
-    "import/newline-after-import": "error",
-    "import/no-duplicates": "error",
-    "simple-import-sort/imports": [
-      "warn",
-      {
-        "groups": [["dotenv"], ["^#"], ["^@"], ["^\\.", "^"]]
-      }
+    "@stylistic/linebreak-style": "off",
+    "@stylistic/object-curly-spacing": [
+      "error",
+      "always"
     ],
-    "no-multiple-empty-lines": [
+    "@stylistic/indent": [
+      "error",
+      2
+    ],
+    "@stylistic/function-call-argument-newline": [
+      "error",
+      "consistent"
+    ],
+    "@stylistic/padded-blocks": [
+      "error",
+      "never"
+    ],
+    "@stylistic/array-element-newline": [
+      "error",
+      "consistent"
+    ],
+    "@stylistic/dot-location": [
+      "error",
+      "property"
+    ],
+    "@stylistic/newline-per-chained-call": [
       "error",
       {
-        "max": 1
+        "ignoreChainWithDepth": 2
       }
     ],
-    "prettier/prettier": "error"
+    "@stylistic/quote-props": [
+      "error",
+      "as-needed"
+    ],
+    "@stylistic/multiline-ternary": [
+      "error",
+      "always-multiline"
+    ]
   },
   "settings": {
     "import/resolver": {

@@ -15,7 +15,7 @@ import {
   deleteCommand,
   getCommands,
   getGatewayBot,
-  sendMessage,
+  sendMessage
 } from "./discord/rest";
 import { Socket } from "./discord/socket";
 import { formatSecondsIntoMinutes, randomNum } from "./helper/common";
@@ -24,12 +24,12 @@ import {
   getApplication,
   setCommandExecutedCallback,
   setModules,
-  setReadyCallback,
+  setReadyCallback
 } from "./state/store";
 import {
   Interaction,
   InteractionCallbackType,
-  InteractionType,
+  InteractionType
 } from "./types/discord";
 
 const _logger = new Logger("bot");
@@ -45,7 +45,7 @@ const commandExecuted = async (data: Interaction) => {
   if (data && data.type === InteractionType.PING) {
     _logger.info("Got Ping");
     await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.PONG,
+      type: InteractionCallbackType.PONG
     });
   }
 };
@@ -57,7 +57,7 @@ const toggles = {
   ANILIST_MODULE: process.env.ANILIST_MODULE === "true",
   VOTING_MODULE: process.env.VOTING_MODULE === "true",
   ROLES_MODULE: process.env.ROLES_MODULE === "true",
-  GIVEAWAY_MODULE: process.env.GIVEAWAY_MODULE === "true",
+  GIVEAWAY_MODULE: process.env.GIVEAWAY_MODULE === "true"
 };
 
 const modules = [
@@ -69,7 +69,7 @@ const modules = [
   new AnilistModule(toggles.ANILIST_MODULE),
   new VotingModule(toggles.VOTING_MODULE),
   new RoleModule(toggles.ROLES_MODULE),
-  new GiveawayModule(toggles.GIVEAWAY_MODULE),
+  new GiveawayModule(toggles.GIVEAWAY_MODULE)
 ];
 
 const ready = async () => {
@@ -93,9 +93,7 @@ const ready = async () => {
 
     const commandNames = activeModules.map((module) => module.cmdName);
 
-    const commandsToRemove = commandData.filter(
-      (command) => !commandNames.includes(command.name)
-    );
+    const commandsToRemove = commandData.filter((command) => !commandNames.includes(command.name));
 
     for (const cmd of commandsToRemove) {
       if (cmd.id) {
@@ -149,9 +147,7 @@ const main = async (): Promise<void> => {
     return;
   }
 
-  _logger.info(
-    `${gateway.session_start_limit.remaining}/${gateway.session_start_limit.remaining} sessions available`
-  );
+  _logger.info(`${gateway.session_start_limit.remaining}/${gateway.session_start_limit.remaining} sessions available`);
 
   const url = `${gateway.url}/?v=${process.env.API_V}&encoding=json`;
   socket.connect(url);

@@ -9,7 +9,7 @@ import {
   MediaType,
   NextAiringWithTitle,
   PageResponse,
-  UpcomingMedia,
+  UpcomingMedia
 } from "../types/graphql";
 import { getAiringScheduleGraphql } from "./queries/getAiringScheduleGraphql";
 import { getFullAiringScheduleGraphql } from "./queries/getFullAiringScheduleGraphql";
@@ -29,7 +29,7 @@ export const searchByQueryAndType = async (
     searchByTypeGraphql,
     {
       search,
-      type,
+      type
     }
   );
 };
@@ -41,7 +41,7 @@ export const searchByQuery = async (
     "searchByQuery",
     searchGraphql,
     {
-      search,
+      search
     }
   );
 };
@@ -54,7 +54,7 @@ export const searchForAiringSchedule = async (
     "searchForAiringSchedule",
     searchForAiringScheduleGraphql,
     {
-      search,
+      search
     }
   );
 };
@@ -67,7 +67,7 @@ export const searchForUser = async (
     "searchForUser",
     searchByIdsGraphql,
     {
-      ids,
+      ids
     }
   );
 };
@@ -80,7 +80,7 @@ export const getAiringSchedule = async (
     "getAiringSchedule",
     getAiringScheduleGraphql,
     {
-      search,
+      search
     }
   );
 };
@@ -93,7 +93,7 @@ export const getFullAiringSchedule = async (
     "getFullAiringScheduleGraphql",
     getFullAiringScheduleGraphql,
     {
-      id,
+      id
     }
   );
 };
@@ -106,7 +106,7 @@ export const getUpcomingAnime = async (
     "getUpcoming",
     getUpcoming,
     {
-      season,
+      season
     }
   );
 };

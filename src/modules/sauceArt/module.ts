@@ -2,7 +2,7 @@ import BaseModule from "#/base-module";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
@@ -13,13 +13,13 @@ import {
   InteractionCallbackType,
   Message,
   MessageFlags,
-  SingleCommandHandler,
+  SingleCommandHandler
 } from "@/types/discord";
 
 import handleSauceNao from "./sauceNao/sauce-nao";
 
 export default class SauceArtModule extends BaseModule {
-  constructor(isActive: boolean) {
+  constructor (isActive: boolean) {
     super("sauceArt", isActive, "Sauce (art)");
 
     if (!isActive) {
@@ -33,10 +33,10 @@ export default class SauceArtModule extends BaseModule {
     this.singleCommand = {
       definition: {
         name: "Sauce (art)",
-        type: ApplicationCommandType.MESSAGE,
+        type: ApplicationCommandType.MESSAGE
       },
       handler: this.commandHandler,
-      componentHandler: this.componentHandler,
+      componentHandler: this.componentHandler
     };
   }
 
@@ -46,17 +46,15 @@ export default class SauceArtModule extends BaseModule {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          flags: MessageFlags.EPHEMERAL,
-        },
+          flags: MessageFlags.EPHEMERAL
+        }
       });
 
-      const msgs = Object.values(
-        data.data?.resolved?.messages ?? {}
-      ) as Message[];
+      const msgs = Object.values(data.data?.resolved?.messages ?? {}) as Message[];
 
       if (!msgs.length || !msgs[0].attachments.length) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.sauce.image_not_found,
+          content: messageList.sauce.image_not_found
         });
         return;
       }
@@ -74,9 +72,12 @@ export default class SauceArtModule extends BaseModule {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: data.message.content,
-          embeds: [{ ...data.message.embeds[0], footer: undefined }],
-          components: [],
-        },
+          embeds: [
+            { ...data.message.embeds[0],
+              footer: undefined }
+          ],
+          components: []
+        }
       });
     }
   };

@@ -2,7 +2,7 @@ import { CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { interpolator, randomNum } from "@/helper/common";
 import messageList from "@/helper/messages";
@@ -13,7 +13,7 @@ import {
   ApplicationCommandOptionType,
   CommandHandler,
   Embed,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface GroupCommandOptions {
@@ -30,15 +30,15 @@ const definition: ApplicationCommandOption = {
       name: "groups",
       description: "Number of groups to create",
       type: ApplicationCommandOptionType.INTEGER,
-      required: true,
+      required: true
     },
     {
       name: "values",
       description: "Names to group (seperate each name with ` | `)",
       type: ApplicationCommandOptionType.STRING,
-      required: true,
-    },
-  ],
+      required: true
+    }
+  ]
 };
 
 const groupEmbed = (groups: string[][]): Embed => {
@@ -46,13 +46,13 @@ const groupEmbed = (groups: string[][]): Embed => {
 
   for (const index in groups) {
     embed.fields = [
-      ...(embed.fields ?? []),
+      ...embed.fields ?? [],
       {
         name: interpolator(messageList.misc.group, {
-          index: Number(index) + 1,
+          index: Number(index) + 1
         }),
-        value: groups[index].join(" | "),
-      },
+        value: groups[index].join(" | ")
+      }
     ];
   }
 
@@ -64,7 +64,7 @@ const handler = (): CommandHandler => {
     const app = getApplication();
     if (app && app.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const { groups, values } = getOptions<GroupCommandOptions>(
@@ -99,7 +99,7 @@ const handler = (): CommandHandler => {
 
       await editOriginalInteractionResponse(app.id, data.token, {
         content: "",
-        embeds: [groupEmbed(grouped)],
+        embeds: [groupEmbed(grouped)]
       });
     }
   };
@@ -107,5 +107,5 @@ const handler = (): CommandHandler => {
 
 export default (): CommandInfo => ({
   definition,
-  handler: handler(),
+  handler: handler()
 });

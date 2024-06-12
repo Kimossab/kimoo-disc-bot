@@ -20,13 +20,13 @@ import {
   getServersBirthdayInfo,
   removeBirthdayWithRole,
   setBirthdayWithRole,
-  updateLastWishes,
+  updateLastWishes
 } from "./database";
 
 export default class BirthdayModule extends BaseModule {
   private checkTimeout: NodeJS.Timeout | null = null;
 
-  constructor(isActive: boolean) {
+  constructor (isActive: boolean) {
     super("birthday", isActive);
 
     if (!isActive) {
@@ -45,16 +45,16 @@ export default class BirthdayModule extends BaseModule {
       remove: removeCommand(),
       get: getCommand(this.logger),
       server: serverCommand(this.logger),
-      role: roleCommand(this.logger),
+      role: roleCommand(this.logger)
     };
   }
 
-  public close() {
+  public close () {
     super.close();
     this.clear();
   }
 
-  private async checkBirthdays() {
+  private async checkBirthdays () {
     this.logger.info("Checking birthdays");
 
     if (this.checkTimeout) {
@@ -75,7 +75,7 @@ export default class BirthdayModule extends BaseModule {
         if (!lastWishes || lastWishes < year) {
           const message = interpolator(messageList.birthday.server_bday, {
             age: (year - serverDate.getFullYear()).toString(),
-            name: serversData.find((server) => server.id === s)?.name || "",
+            name: serversData.find((server) => server.id === s)?.name || ""
           });
           await sendMessage(serverChannels[s].channel, message);
           await updateServerLastWishes(s);
@@ -159,13 +159,15 @@ export default class BirthdayModule extends BaseModule {
       milliseconds + // ms to next s
       (60 - seconds) * 1000 + // s to next m
       (60 - minutes - 1) * 60 * 1000 + // m to next h
-      ((hours >= 12 ? 24 : 12) - hours - 1) * 60 * 60 * 1000; // h to next 12/24
+      ((hours >= 12
+        ? 24
+        : 12) - hours - 1) * 60 * 60 * 1000; // h to next 12/24
 
     this.logger.info(`next check in ${time} milliseconds`);
     this.checkTimeout = setTimeout(() => this.checkBirthdays(), time);
   }
 
-  private clear(): void {
+  private clear (): void {
     this.checkTimeout && clearTimeout(this.checkTimeout);
   }
 }

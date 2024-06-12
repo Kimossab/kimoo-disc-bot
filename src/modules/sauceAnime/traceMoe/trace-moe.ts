@@ -1,7 +1,7 @@
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import {
   CreatePageCallback,
-  InteractionPagination,
+  InteractionPagination
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
@@ -10,7 +10,7 @@ import {
   Application,
   ButtonStyle,
   ComponentType,
-  Interaction,
+  Interaction
 } from "@/types/discord";
 
 import { traceMoeEmbed } from "./mapper";
@@ -31,12 +31,12 @@ const traceMoeUpdatePage: CreatePageCallback<TraceMoe.resultData> = async (
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
             custom_id: "sauce.select",
-            label: "Show to everyone",
-          },
-        ],
-      },
-    ],
-  },
+            label: "Show to everyone"
+          }
+        ]
+      }
+    ]
+  }
 });
 
 const handleTraceMoe = async (
@@ -50,7 +50,7 @@ const handleTraceMoe = async (
 
   if (!traceMoe || traceMoe.result.length === 0) {
     await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found,
+      content: messageList.sauce.not_found
     });
     return;
   }

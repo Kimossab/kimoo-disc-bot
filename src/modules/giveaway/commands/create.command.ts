@@ -7,7 +7,7 @@ import {
   removeParticipant,
   removeWinnerAndDisable,
   setWinner,
-  updateHash,
+  updateHash
 } from "#giveaway/database";
 import { createGiveawayMessageData } from "#giveaway/helpers/createGiveawayMessage";
 import { announceVictor } from "#giveaway/helpers/GiveawayManager";
@@ -15,7 +15,7 @@ import { announceVictor } from "#giveaway/helpers/GiveawayManager";
 import {
   createInteractionResponse,
   editMessage,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { randomNum } from "@/helper/common";
 import { ILogger } from "@/helper/logger";
@@ -27,7 +27,7 @@ import {
   CommandHandler,
   ComponentCommandHandler,
   InteractionCallbackDataFlags,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface CreateCommandOptions {
@@ -44,16 +44,16 @@ const definition: ApplicationCommandOption = {
       name: "prize",
       description: "What you're giving away.",
       type: ApplicationCommandOptionType.STRING,
-      required: true,
+      required: true
     },
     {
       name: "time",
       description: "Number of days the giveaway will be active.",
       type: ApplicationCommandOptionType.INTEGER,
       min_value: 1,
-      required: true,
-    },
-  ],
+      required: true
+    }
+  ]
 };
 
 const handler = (
@@ -64,7 +64,7 @@ const handler = (
     const app = getApplication();
     if (app?.id && data.member?.user) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const { prize, time } = getOptions<CreateCommandOptions>(
@@ -82,7 +82,7 @@ const handler = (
         creatorId: data.member.user.id,
         hash,
         endAt,
-        prize,
+        prize
       });
 
       const message = await editOriginalInteractionResponse(
@@ -109,13 +109,15 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
     logger.info("Component interaction", subCmd);
 
     if (!giveaway) {
-      logger.error("Giveaway not found.", { data, messageId, subCmd });
+      logger.error("Giveaway not found.", { data,
+        messageId,
+        subCmd });
       await createInteractionResponse(data.id, data.token, {
         type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: "Internal Server Error, try again",
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-        },
+          flags: InteractionCallbackDataFlags.EPHEMERAL
+        }
       });
       return;
     }
@@ -127,8 +129,8 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
             type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               content: "You're not the creator of the giveaway.",
-              flags: InteractionCallbackDataFlags.EPHEMERAL,
-            },
+              flags: InteractionCallbackDataFlags.EPHEMERAL
+            }
           });
         } else {
           const oldWinner = giveaway.participants.find((p) => p.isWinner);
@@ -136,9 +138,7 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
             await removeWinnerAndDisable(oldWinner.id);
           }
 
-          const newParticipants = giveaway.participants.filter(
-            (p) => p.canWin && p.id != oldWinner?.id
-          );
+          const newParticipants = giveaway.participants.filter((p) => p.canWin && p.id != oldWinner?.id);
 
           const winnerIdx = randomNum(0, newParticipants.length - 1);
           const winner = newParticipants[winnerIdx];
@@ -148,31 +148,29 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
         }
         break;
       case "join":
-        const participant = giveaway.participants.find(
-          (p) => p.userId == data.member?.user?.id
-        );
+        const participant = giveaway.participants.find((p) => p.userId == data.member?.user?.id);
         if (participant) {
           await removeParticipant(participant.id);
           await createInteractionResponse(data.id, data.token, {
             type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               content: "You've left the giveaway",
-              flags: InteractionCallbackDataFlags.EPHEMERAL,
-            },
+              flags: InteractionCallbackDataFlags.EPHEMERAL
+            }
           });
         } else {
           await createParticipant({
             userId: data.member!.user!.id,
             canWin: true,
             giveawayId: giveaway.id,
-            isWinner: false,
+            isWinner: false
           });
           await createInteractionResponse(data.id, data.token, {
             type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               content: "You've joined the giveaway",
-              flags: InteractionCallbackDataFlags.EPHEMERAL,
-            },
+              flags: InteractionCallbackDataFlags.EPHEMERAL
+            }
           });
         }
         giveaway = await getGiveaway(giveaway.hash);
@@ -181,7 +179,7 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
 
     await editMessage(data.channel_id ?? "", messageId, {
       ...createGiveawayMessageData(giveaway!),
-      attachments: undefined,
+      attachments: undefined
     });
   };
 };
@@ -192,5 +190,5 @@ export default (
 ): CommandInfo => ({
   definition,
   handler: handler(logger, created),
-  componentHandler: componentHandler(logger),
+  componentHandler: componentHandler(logger)
 });

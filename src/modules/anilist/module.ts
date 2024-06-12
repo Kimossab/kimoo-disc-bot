@@ -13,9 +13,10 @@ import { AnilistRateLimit } from "./helpers/rate-limiter";
 
 export default class AnilistModule extends BaseModule {
   private rateLimiter = new AnilistRateLimit();
+
   private animeList: AnimeManager[] = [];
 
-  constructor(isActive: boolean) {
+  constructor (isActive: boolean) {
     super("anilist", isActive);
 
     if (!isActive) {
@@ -36,18 +37,18 @@ export default class AnilistModule extends BaseModule {
       ),
       schedule: scheduleCommand(this.logger, this.rateLimiter),
       channel: channelCommand(),
-      upcoming: upcomingCommand(this.logger, this.rateLimiter),
+      upcoming: upcomingCommand(this.logger, this.rateLimiter)
     };
   }
 
-  public close() {
+  public close () {
     super.close();
     this.animeList.forEach((a) => a.stop());
     this.animeList = [];
     this.rateLimiter.clear();
   }
 
-  public async setUp(): Promise<void> {
+  public async setUp (): Promise<void> {
     super.setUp();
     if (!this.isActive) {
       return;

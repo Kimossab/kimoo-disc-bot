@@ -23,6 +23,7 @@ export const PRESENCE_STRINGS = [
   "kuraiyo~ kowaiyo~",
   "I ask you. Are you my master?",
   "EXPLOSIOOOOOOONNNN",
+  "People die if they are killed..."
 ];
 
 // discord
@@ -30,7 +31,7 @@ export const no_mentions: AllowedMentions = {
   parse: [],
   roles: [],
   users: [],
-  replied_user: false,
+  replied_user: false
 };
 
 export const DISCORD_TOKEN_TTL = 15 * 60 * 1000; // 15 mins

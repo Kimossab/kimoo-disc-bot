@@ -3,7 +3,7 @@ const messageList = {
     page: "Page <page>/<total>",
     no_permission: "You don't have permission to use this command",
     internal_error: "Something went wrong",
-    no_image: "No image was found",
+    no_image: "No image was found"
   },
   birthday: {
     user: "<user>'s birthday: <date>",
@@ -21,20 +21,20 @@ const messageList = {
     servers_channel: "Server's birthday channel: <channel>",
     server_role: "Server's birthday role: <role>",
     set_role: "Server's birthday role set successfully to <role>",
-    role_not_found: "This server doesn't have a birthday role.",
+    role_not_found: "This server doesn't have a birthday role."
   },
   fandom: {
-    invalid_slug: "Invalid fandom slug",
+    invalid_slug: "Invalid fandom slug"
   },
   misc: {
-    group: "Group <index>",
+    group: "Group <index>"
   },
   sauce: {
     not_found: "No source found",
     similarity: "Similarity",
     season: "Season",
     other_names: "Other names",
-    image_not_found: "No image found to request.",
+    image_not_found: "No image found to request."
   },
   achievements: {
     already_exists: "Achievement already exists",
@@ -60,15 +60,15 @@ const messageList = {
     server_achievements: "Server achievements",
     server_achievement_ranks: "Server Achievement Ranks",
     serverLeaderboard: "Server Achievement Leaderboard",
-    rank_deleted: "Rank deleted",
+    rank_deleted: "Rank deleted"
   },
   badges: {
-    not_found: "No badge found with that name",
+    not_found: "No badge found with that name"
   },
   anilist: {
     not_found: "No data found for the given query",
     channel_set_success: "Anime channel set successfully to <channel>",
-    server_channel: "Server's anime channel: <channel>",
+    server_channel: "Server's anime channel: <channel>"
   },
   roles: {
     channel: {
@@ -76,11 +76,11 @@ const messageList = {
         "Sets the channel where the self assigned roles will show up.",
       option: "The channel where the self assigned roles will show up",
       set_success: "Roles channel set successfully to <channel>",
-      get: "Server's role channel: <channel>",
+      get: "Server's role channel: <channel>"
     },
     refresh: {
       description: "Refreshes the buttons for self assigned roles.",
-      success: "Updated roles buttons successfully.",
+      success: "Updated roles buttons successfully."
     },
     add: {
       description: "Adds a new role for self assignment.",
@@ -89,18 +89,18 @@ const messageList = {
       icon: "Emoji name to represent this role.",
       success: "Added role successfully.",
       given: "You were given the role <role> successfully.",
-      removed: "You removed the role <role> successfully.",
+      removed: "You removed the role <role> successfully."
     },
     info: {
-      category: "# <category>",
+      category: "# <category>"
     },
     errors: {
       no_channel: "This server doesn't have a defined channel for roles.",
       too_many_roles:
         "The category <category> has too many roles, please use a different category.",
       duplicate: "The role is already in the category.",
-      failure: "An unknown error occurred, try again or contact a moderator.",
-    },
-  },
+      failure: "An unknown error occurred, try again or contact a moderator."
+    }
+  }
 };
 export default messageList;

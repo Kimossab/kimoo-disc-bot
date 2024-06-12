@@ -3,7 +3,7 @@ import { deleteUserBirthday, getUserBirthday } from "#birthday/database";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { checkAdmin } from "@/helper/common";
 import messageList from "@/helper/messages";
@@ -13,7 +13,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 interface RemoveCommandOptions {
@@ -29,9 +29,9 @@ const definition: ApplicationCommandOption = {
       name: "user",
       description: "The user whose birthday you're removing",
       type: ApplicationCommandOptionType.USER,
-      required: true,
-    },
-  ],
+      required: true
+    }
+  ]
 };
 
 const handler = (): CommandHandler => {
@@ -39,7 +39,7 @@ const handler = (): CommandHandler => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const isAdmin = await checkAdmin(data.guild_id, data.member);
@@ -60,11 +60,11 @@ const handler = (): CommandHandler => {
       if (bd) {
         await deleteUserBirthday(bd.id);
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.birthday.remove_success,
+          content: messageList.birthday.remove_success
         });
       } else {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.birthday.not_found,
+          content: messageList.birthday.not_found
         });
       }
     }
@@ -73,5 +73,5 @@ const handler = (): CommandHandler => {
 
 export default (): CommandInfo => ({
   definition,
-  handler: handler(),
+  handler: handler()
 });

@@ -1,7 +1,7 @@
 import {
   deleteUserSubscriptionForIds,
   getAllSubscriptionsForAnime,
-  getUserSubs,
+  getUserSubs
 } from "#anilist/database";
 import { searchForUser } from "#anilist/graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "#anilist/helpers/rate-limiter";
@@ -10,7 +10,7 @@ import { CommandInfo } from "#base-module";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
-  sendMessage,
+  sendMessage
 } from "@/discord/rest";
 import { chunkArray, limitString } from "@/helper/common";
 import Logger from "@/helper/logger";
@@ -25,46 +25,54 @@ import {
   InteractionCallbackDataFlags,
   InteractionCallbackType,
   MessageComponentInteractionData,
-  SelectOption,
+  SelectOption
 } from "@/types/discord";
 
 const definition: ApplicationCommandOption = {
   name: "remove",
   description: "Removes a subscription",
   type: ApplicationCommandOptionType.SUB_COMMAND,
-  options: [],
+  options: []
 };
 
 export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
   return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-        },
-      });
+      await createInteractionResponse(
+        data.id,
+        data.token,
+        {
+          type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionCallbackDataFlags.EPHEMERAL
+          }
+        }
+      );
 
       const subs = await getUserSubs(data.guild_id, data.member.user?.id || "");
 
       if (subs.length === 0) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: "No subscriptions",
-        });
+        await editOriginalInteractionResponse(
+          app.id,
+          data.token,
+          {
+            content: "No subscriptions"
+          }
+        );
 
         return;
       }
 
-      const subsChunk = chunkArray(subs, 25);
+      const subsChunk = chunkArray(
+        subs,
+        25
+      );
 
       const animeInfo = [];
 
       for (const chunk of subsChunk) {
-        const info = await searchForUser(
-          rateLimiter,
-          chunk.map((s) => s.animeId)
-        );
+        const info = await searchForUser(rateLimiter, chunk.map((s) => s.animeId));
         if (
           info.status === RequestStatus.OK &&
           info.data.Page.media.length > 0
@@ -73,40 +81,47 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
         }
       }
 
-      const components: Component[] = chunkArray(animeInfo, 25).map(
-        (chunk, index) => {
+
+      const components: Component[] = chunkArray(animeInfo, 25)
+        .map((chunk, index) => {
           return {
             type: ComponentType.StringSelect,
             custom_id: `anilist.sub.remove.anime.selected.${index}`,
             options: chunk.map<SelectOption>((a) => ({
-              label: limitString(a.title.english || a.title.romaji, 100),
+              label: limitString(
+                a.title.english || a.title.romaji,
+                100
+              ),
               value: a.id.toString(),
-              description: limitString(a.title.romaji, 100),
+              description: limitString(
+                a.title.romaji,
+                100
+              )
             })),
             max_values: chunk.length,
             min_values: 1,
-            placeholder: "Select an anime to remove",
+            placeholder: "Select an anime to remove"
           };
+        });
+
+      await editOriginalInteractionResponse(
+        app.id,
+        data.token,
+        {
+          content: "",
+          components: [
+            {
+              type: ComponentType.ActionRow,
+              components
+            }
+          ]
         }
       );
-
-      await editOriginalInteractionResponse(app.id, data.token, {
-        content: "",
-        components: [
-          {
-            type: ComponentType.ActionRow,
-            components,
-          },
-        ],
-      });
     }
   };
 };
 
-const componentHandler = (
-  _logger: Logger,
-  removeAnime: (id: number) => void
-): ComponentCommandHandler => {
+const componentHandler = (_logger: Logger, removeAnime: (id: number) => void): ComponentCommandHandler => {
   return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
@@ -135,13 +150,17 @@ const componentHandler = (
         }
       }
 
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.UPDATE_MESSAGE,
-        data: {
-          content: "success",
-          components: [],
-        },
-      });
+      await createInteractionResponse(
+        data.id,
+        data.token,
+        {
+          type: InteractionCallbackType.UPDATE_MESSAGE,
+          data: {
+            content: "success",
+            components: []
+          }
+        }
+      );
     }
   };
 };
@@ -153,5 +172,8 @@ export default (
 ): CommandInfo => ({
   definition,
   handler: handler(rateLimiter),
-  componentHandler: componentHandler(logger, removeAnime),
+  componentHandler: componentHandler(
+    logger,
+    removeAnime
+  )
 });

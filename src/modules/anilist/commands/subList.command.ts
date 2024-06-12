@@ -2,12 +2,12 @@ import { CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
-  editOriginalInteractionResponse,
+  editOriginalInteractionResponse
 } from "@/discord/rest";
 import { chunkArray } from "@/helper/common";
 import {
   CreatePageCallback,
-  InteractionPagination,
+  InteractionPagination
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import { addPagination, getApplication } from "@/state/store";
@@ -15,7 +15,7 @@ import {
   ApplicationCommandOption,
   ApplicationCommandOptionType,
   CommandHandler,
-  InteractionCallbackType,
+  InteractionCallbackType
 } from "@/types/discord";
 
 import { getUserSubs } from "../database";
@@ -28,7 +28,7 @@ const definition: ApplicationCommandOption = {
   name: "list",
   description: "List your subscriptions",
   type: ApplicationCommandOptionType.SUB_COMMAND,
-  options: [],
+  options: []
 };
 
 const updateUserSubListEmbed: CreatePageCallback<MediaSubbedInfo[]> = async (
@@ -38,8 +38,8 @@ const updateUserSubListEmbed: CreatePageCallback<MediaSubbedInfo[]> = async (
 ) => {
   return {
     data: {
-      embeds: [mapSubListToEmbed(data, page, total)],
-    },
+      embeds: [mapSubListToEmbed(data, page, total)]
+    }
   };
 };
 
@@ -48,14 +48,14 @@ const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
       });
 
       const subs = await getUserSubs(data.guild_id, data.member.user?.id || "");
 
       if (subs.length === 0) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: "No subscriptions",
+          content: "No subscriptions"
         });
 
         return;
@@ -79,7 +79,7 @@ const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
 
       if (animeInfo.length === 0) {
         await editOriginalInteractionResponse(app.id, data.token, {
-          content: "No subscriptions",
+          content: "No subscriptions"
         });
 
         return;
@@ -104,5 +104,5 @@ export default (
   rateLimiter: AnilistRateLimit
 ): CommandInfo => ({
   definition,
-  handler: handler(rateLimiter),
+  handler: handler(rateLimiter)
 });
