@@ -105,7 +105,11 @@ export default class BirthdayModule extends BaseModule {
           }
         }
       }
-      await removeBirthdayWithRole(toRemove.id);
+      try {
+        await removeBirthdayWithRole(toRemove.id);
+      } catch (e) {
+        this.logger.error("removing role", e);
+      }
     }
 
     if (todayBirthDays.length > 0) {
