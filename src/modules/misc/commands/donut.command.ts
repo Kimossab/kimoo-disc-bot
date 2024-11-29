@@ -1,19 +1,15 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 import renderDonut from "#misc/donut";
 
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import Logger from "@/helper/logger";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface DonutCommandOptions {
   a: string;
@@ -23,20 +19,20 @@ interface DonutCommandOptions {
 const MAX_RANDOM_ANGLE = 1 * Math.PI / 4;
 const MIN_RANDOM_ANGLE = -1 * Math.PI / 4;
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "donut",
   description: "Create a donut",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "a",
       description: "Angle of A (radians)",
-      type: ApplicationCommandOptionType.STRING
+      type: ApplicationCommandOptionType.String
     },
     {
       name: "b",
       description: "Angle of B (radians)",
-      type: ApplicationCommandOptionType.STRING
+      type: ApplicationCommandOptionType.String
     }
   ]
 };
@@ -45,7 +41,7 @@ const handler = (logger: Logger): CommandHandler => {
     const app = getApplication();
     if (app && app.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const { a, b } = getOptions<DonutCommandOptions>(

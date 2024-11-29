@@ -1,23 +1,18 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "refresh",
   description: messageList.roles.refresh.description,
-  type: ApplicationCommandOptionType.SUB_COMMAND
+  type: ApplicationCommandOptionType.Subcommand
 };
 
 const handler = (updateRoleMessages: (server: string) => Promise<void>): CommandHandler => {
@@ -25,9 +20,9 @@ const handler = (updateRoleMessages: (server: string) => Promise<void>): Command
     const app = getApplication();
     if (app?.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       await updateRoleMessages(data.guild_id);

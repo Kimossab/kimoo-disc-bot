@@ -1,4 +1,4 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
 import {
   CompleteGiveaway,
   createGiveaway,
@@ -17,39 +17,33 @@ import {
   editMessage,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { randomNum } from "@/helper/common";
 import { ILogger } from "@/helper/logger";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  ComponentCommandHandler,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
 interface CreateCommandOptions {
   prize: string;
   time: number;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "create",
   description: "Create a new giveaway",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "prize",
       description: "What you're giving away.",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.String,
       required: true
     },
     {
       name: "time",
       description: "Number of days the giveaway will be active.",
-      type: ApplicationCommandOptionType.INTEGER,
+      type: ApplicationCommandOptionType.Integer,
       min_value: 1,
       required: true
     }
@@ -64,7 +58,7 @@ const handler = (
     const app = getApplication();
     if (app?.id && data.member?.user) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const { prize, time } = getOptions<CreateCommandOptions>(
@@ -113,10 +107,10 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
         messageId,
         subCmd });
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "Internal Server Error, try again",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return;
@@ -126,10 +120,10 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
       case "reshuffle":
         if (giveaway.creatorId !== data.member?.user?.id) {
           await createInteractionResponse(data.id, data.token, {
-            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+            type: InteractionResponseType.ChannelMessageWithSource,
             data: {
               content: "You're not the creator of the giveaway.",
-              flags: InteractionCallbackDataFlags.EPHEMERAL
+              flags: MessageFlags.Ephemeral
             }
           });
         } else {
@@ -152,10 +146,10 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
         if (participant) {
           await removeParticipant(participant.id);
           await createInteractionResponse(data.id, data.token, {
-            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+            type: InteractionResponseType.ChannelMessageWithSource,
             data: {
               content: "You've left the giveaway",
-              flags: InteractionCallbackDataFlags.EPHEMERAL
+              flags: MessageFlags.Ephemeral
             }
           });
         } else {
@@ -166,10 +160,10 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
             isWinner: false
           });
           await createInteractionResponse(data.id, data.token, {
-            type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+            type: InteractionResponseType.ChannelMessageWithSource,
             data: {
               content: "You've joined the giveaway",
-              flags: InteractionCallbackDataFlags.EPHEMERAL
+              flags: MessageFlags.Ephemeral
             }
           });
         }

@@ -1,8 +1,8 @@
-import { CommandInteractionDataOption } from "@/types/discord";
+import { APIApplicationCommandInteractionDataBasicOption, APIApplicationCommandInteractionDataOption } from "discord-api-types/v10";
 
 export const getOptions = <T>(
   optionKeys: (keyof T)[],
-  options?: CommandInteractionDataOption[]
+  options?: APIApplicationCommandInteractionDataBasicOption[]
 ): T => {
   const response: T = {} as T;
   for (const key of optionKeys) {
@@ -15,8 +15,8 @@ export const getOptions = <T>(
   return response;
 };
 
-export const getOptionValue = <T extends CommandInteractionDataOption["value"]>(
-  options: CommandInteractionDataOption[] | undefined,
+export const getOptionValue = <T extends APIApplicationCommandInteractionDataBasicOption["value"]>(
+  options: APIApplicationCommandInteractionDataBasicOption[] | undefined,
   name: string
 ): T | null => {
   const opt = options?.find((o) => o.name === name);
@@ -26,9 +26,9 @@ export const getOptionValue = <T extends CommandInteractionDataOption["value"]>(
     : null;
 };
 export const getOption = (
-  options: CommandInteractionDataOption[] | undefined,
+  options: APIApplicationCommandInteractionDataOption[] | undefined,
   name: string
-): CommandInteractionDataOption | null => {
+): APIApplicationCommandInteractionDataOption | null => {
   const opt = options?.find((o) => o.name === name);
 
   return opt || null;

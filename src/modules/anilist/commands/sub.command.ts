@@ -1,24 +1,19 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
 
 import Logger from "@/helper/logger";
 import { getOption } from "@/helper/modules";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  ComponentCommandHandler
-} from "@/types/discord";
-
 import { AnimeManager } from "../helpers/anime-manager";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
 import subAddCommand from "./subAdd.command";
 import subListCommand from "./subList.command";
 import subRemoveCommand from "./subRemove.command";
+import { ApplicationCommandSubcommandGroupOption, ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
+import { APIApplicationCommandInteractionDataSubcommandOption, ApplicationCommandOptionType } from "discord-api-types/v10";
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandGroupOption = {
   name: "sub",
   description: "Subscriptions commands",
-  type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
+  type: ApplicationCommandOptionType.SubcommandGroup,
   options: []
 };
 
@@ -28,7 +23,7 @@ const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
       const cmdData = getOption(option.options, cmd);
 
       if (cmdData) {
-        return await subCommands[cmd].handler(data, cmdData);
+        return await subCommands[cmd].handler(data, cmdData as APIApplicationCommandInteractionDataSubcommandOption);
       }
     }
   };
@@ -66,7 +61,7 @@ export default (
   };
 
   for (const cmd of Object.keys(subCommands)) {
-    definition.options?.push(subCommands[cmd].definition);
+    definition.options?.push(subCommands[cmd].definition as ApplicationCommandSubcommandOption);
   }
 
   return {

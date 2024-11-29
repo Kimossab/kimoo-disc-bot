@@ -1,48 +1,43 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption, RichEmbed } from "@/discord/rest/types.gen";
 import { interpolator, randomNum } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  Embed,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface GroupCommandOptions {
   groups: number;
   values: string;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "group",
   description: "Create random groups",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "groups",
       description: "Number of groups to create",
-      type: ApplicationCommandOptionType.INTEGER,
+      type: ApplicationCommandOptionType.Integer,
       required: true
     },
     {
       name: "values",
       description: "Names to group (seperate each name with ` | `)",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.String,
       required: true
     }
   ]
 };
 
-const groupEmbed = (groups: string[][]): Embed => {
-  const embed: Embed = { fields: [] };
+const groupEmbed = (groups: string[][]): RichEmbed => {
+  const embed: RichEmbed = { fields: [] };
 
   for (const index in groups) {
     embed.fields = [
@@ -64,7 +59,7 @@ const handler = (): CommandHandler => {
     const app = getApplication();
     if (app && app.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const { groups, values } = getOptions<GroupCommandOptions>(

@@ -26,11 +26,7 @@ import {
   setModules,
   setReadyCallback
 } from "./state/store";
-import {
-  Interaction,
-  InteractionCallbackType,
-  InteractionType
-} from "./types/discord";
+import { APIInteraction, InteractionResponseType, InteractionType } from "discord-api-types/payloads/v10";
 
 const _logger = new Logger("bot");
 
@@ -39,13 +35,15 @@ let presenceTimeout: NodeJS.Timeout | null = null;
 
 let hasStarted = false;
 
-// default command executer
-// this is necessary mainly for ping/pong
-const commandExecuted = async (data: Interaction) => {
-  if (data && data.type === InteractionType.PING) {
+/*
+ * default command executer
+ * this is necessary mainly for ping/pong
+ */
+const commandExecuted = async (data: APIInteraction) => {
+  if (data?.type === InteractionType.Ping) {
     _logger.info("Got Ping");
     await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.PONG
+      type: InteractionResponseType.Pong
     });
   }
 };

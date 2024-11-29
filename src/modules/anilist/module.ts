@@ -1,7 +1,5 @@
 import BaseModule from "#/base-module";
 
-import { AvailableLocales } from "@/types/discord";
-
 import channelCommand from "./commands/channel.command";
 import scheduleCommand from "./commands/schedule.command";
 import searchCommand from "./commands/search.command";
@@ -10,6 +8,7 @@ import upcomingCommand from "./commands/upcoming.command";
 import { getAllAnimeLastAiring } from "./database";
 import { AnimeManager } from "./helpers/anime-manager";
 import { AnilistRateLimit } from "./helpers/rate-limiter";
+import { Locale } from "discord-api-types/v10";
 
 export default class AnilistModule extends BaseModule {
   private rateLimiter = new AnilistRateLimit();
@@ -24,7 +23,7 @@ export default class AnilistModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
+    this.commandDescription[Locale.EnglishUS] =
       "Commands related to anilist";
 
     this.commandList = {

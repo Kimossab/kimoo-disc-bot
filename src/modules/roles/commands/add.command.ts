@@ -1,4 +1,4 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
 import { addRole, addRoleCategory, getRoleCategory } from "#roles/database";
 
 import { getServer } from "@/database";
@@ -12,20 +12,13 @@ import {
   removeRole,
   sendMessage
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption, Emoji } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  ComponentCommandHandler,
-  Emoji,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
 interface CommandOptions {
   category: string;
@@ -33,26 +26,26 @@ interface CommandOptions {
   icon: string | null;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "add",
   description: messageList.roles.add.description,
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "role",
       description: messageList.roles.add.role,
-      type: ApplicationCommandOptionType.ROLE,
+      type: ApplicationCommandOptionType.Role,
       required: true
     },
     {
       name: "category",
       description: messageList.roles.add.category,
-      type: ApplicationCommandOptionType.STRING
+      type: ApplicationCommandOptionType.String
     },
     {
       name: "icon",
       description: messageList.roles.add.icon,
-      type: ApplicationCommandOptionType.STRING
+      type: ApplicationCommandOptionType.String
     }
   ]
 };
@@ -68,19 +61,19 @@ const handler = (
 
       if (!channel) {
         await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          type: InteractionResponseType.ChannelMessageWithSource,
           data: {
             content: messageList.roles.errors.no_channel,
-            flags: InteractionCallbackDataFlags.EPHEMERAL
+            flags: MessageFlags.Ephemeral
           }
         });
         return;
       }
 
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
 
@@ -150,9 +143,9 @@ const componentHandler = (
 
     const sendResponse = async (msg: string, updateRoles: boolean = false) => {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
+          flags: MessageFlags.Ephemeral,
           content: msg
         }
       });

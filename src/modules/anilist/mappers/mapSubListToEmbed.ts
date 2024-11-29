@@ -1,15 +1,14 @@
 import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
-import { Embed } from "@/types/discord";
-
 import { MediaSubbedInfo } from "../types/graphql";
+import { RichEmbed } from "@/discord/rest/types.gen";
 
 export const mapSubListToEmbed = (
   data: MediaSubbedInfo[],
   page: number,
   total: number
-): Embed => {
-  const embed: Embed = {
+): RichEmbed => {
+  const embed: RichEmbed = {
     title: "Sub list",
     description: data
       .map((m) => `• [${m.title.english || m.title.romaji || m.title.native}](${

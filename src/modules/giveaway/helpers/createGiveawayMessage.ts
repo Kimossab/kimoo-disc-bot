@@ -1,14 +1,14 @@
 import { CompleteGiveaway } from "#giveaway/database";
 import { mapGiveawayToComponents } from "#giveaway/mappers/mapGiveawayToComponents";
 import { mapGiveawayToEmbed } from "#giveaway/mappers/mapGiveawayToEmbed";
+import { MessageEditRequestPartial } from "@/discord/rest/types.gen";
 
-import { EditWebhookMessage } from "@/types/discord";
 
-export const createGiveawayMessageData = (giveaway: CompleteGiveaway): EditWebhookMessage => {
+export const createGiveawayMessageData = (giveaway: CompleteGiveaway): MessageEditRequestPartial => {
   const embeds = [mapGiveawayToEmbed(giveaway)];
   const components = mapGiveawayToComponents(giveaway);
 
-  const response: EditWebhookMessage = {
+  const response: MessageEditRequestPartial = {
     embeds
   };
 

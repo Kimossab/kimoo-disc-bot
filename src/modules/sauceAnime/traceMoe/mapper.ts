@@ -1,12 +1,12 @@
+import { RichEmbed } from "@/discord/rest/types.gen";
 import { formatSecondsIntoMinutes, interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
-import { Embed } from "@/types/discord";
 
 export const traceMoeEmbed = (
   item: TraceMoe.resultData,
   page: number,
   total: number
-): Embed => {
+): RichEmbed => {
   const title =
     item.anilist.title.romaji ||
     item.anilist.title.english ||
@@ -19,7 +19,7 @@ export const traceMoeEmbed = (
   }
   description.push(`@${formatSecondsIntoMinutes(item.from)}`);
 
-  const embed: Embed = {
+  const embed: RichEmbed = {
     title: title || "UNKNOWN",
     description: description.join(" "),
     color: 3035554,

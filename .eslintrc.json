@@ -3,6 +3,9 @@
     "browser": false,
     "es2021": true
   },
+  "ignorePatterns": [
+    "./src/types/discord/*"
+  ],
   "extends": [
     "plugin:@stylistic/all-extends"
   ],

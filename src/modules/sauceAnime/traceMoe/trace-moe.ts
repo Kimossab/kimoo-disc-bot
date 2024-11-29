@@ -6,15 +6,10 @@ import {
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { addPagination } from "@/state/store";
-import {
-  Application,
-  ButtonStyle,
-  ComponentType,
-  Interaction
-} from "@/types/discord";
 
 import { traceMoeEmbed } from "./mapper";
 import { requestTraceMoe } from "./request";
+import { APIApplication, APIApplicationCommandInteraction, ButtonStyle, ComponentType } from "discord-api-types/v10";
 
 const traceMoeUpdatePage: CreatePageCallback<TraceMoe.resultData> = async (
   page,
@@ -40,9 +35,9 @@ const traceMoeUpdatePage: CreatePageCallback<TraceMoe.resultData> = async (
 });
 
 const handleTraceMoe = async (
-  data: Interaction,
+  data: APIApplicationCommandInteraction,
   image: string,
-  app: Partial<Application>,
+  app: Partial<APIApplication>,
   logger: Logger
 ): Promise<void> => {
   // https://soruly.github.io/trace.moe/#

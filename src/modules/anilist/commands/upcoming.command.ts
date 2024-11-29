@@ -2,12 +2,13 @@ import { getUpcomingAnime } from "#anilist/graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "#anilist/helpers/rate-limiter";
 import { mapUpcomingToEmbed } from "#anilist/mappers/mapUpcomingToEmbed";
 import { MediaSeason } from "#anilist/types/graphql";
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption, RichEmbed } from "@/discord/rest/types.gen";
 import {
   CreatePageCallback,
   InteractionPagination
@@ -16,28 +17,22 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { addPagination, getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  Embed,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface UpcomingCommandOptions {
   season: MediaSeason | null;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "upcoming",
   description: "Shows a list of unaired animes.",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "season",
       description:
         "Season to get the upcoming animes, defaults to the next season.",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.String,
       choices: [
         {
           name: MediaSeason.WINTER,
@@ -85,7 +80,7 @@ const getNextSeason = (): MediaSeason => {
   return MediaSeason.WINTER;
 };
 
-const pageUpdate: CreatePageCallback<Embed> = async (_page, _total, data) => ({
+const pageUpdate: CreatePageCallback<RichEmbed> = async (_page, _total, data) => ({
   data: {
     embeds: [data]
   }
@@ -99,7 +94,7 @@ const handler = (
     const app = getApplication();
     if (app && app.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const options = getOptions<UpcomingCommandOptions>(

@@ -1,19 +1,11 @@
 import BaseModule from "#base-module";
 
 import { InteractionPagination } from "@/helper/interaction-pagination";
-import {
-  Application,
-  Guild,
-  GuildMember,
-  Interaction,
-  InteractionData,
-  MessageComponentInteractionData,
-  MessageReactionAdd,
-  MessageReactionRemove,
-  ModalSubmitInteractionData,
-  Ready,
-  User
-} from "@/types/discord";
+import { GatewayGuildCreateDispatchData, GatewayReadyDispatchData } from "discord-api-types/gateway/v10";
+import { APIInteraction } from "discord-api-types/payloads/v10/interactions";
+import { APIApplicationCommandInteraction, APIGuildMember, APIUser } from "discord-api-types/v10";
+
+type Application = GatewayReadyDispatchData["application"];
 
 export enum ActionName {
   SetUser = "SET_USER",
@@ -21,7 +13,7 @@ export enum ActionName {
   SetResumeGateway = "SET_RESUME_GATEWAY",
   SetReadyCallback = "SET_READY_CALLBACK",
   SetCommandExecutedCallback = "SET_COMMAND_EXECUTED_CALLBACK",
-  SetReactionCallback = "SET_REACTION_CALLBACK",
+  // SetReactionCallback = "SET_REACTION_CALLBACK",
   SetDiscordSession = "SET_DISCORD_SESSION",
   SetDiscordLastS = "SET_DISCORD_LAST_S",
   AddGuild = "ADD_GUILD",
@@ -49,12 +41,12 @@ interface ActionData {
 
 export interface Actions extends Record<string, ActionData> {
   [ActionName.SetUser]: {
-    payload: User;
+    payload: APIUser;
     response: void;
     test: "test";
   };
   [ActionName.SetApplication]: {
-    payload: Partial<Application>;
+    payload: GatewayReadyDispatchData["application"];
     response: void;
   };
   [ActionName.SetResumeGateway]: {
@@ -66,16 +58,16 @@ export interface Actions extends Record<string, ActionData> {
     response: void;
   };
   [ActionName.SetCommandExecutedCallback]: {
-    payload: (data: Interaction<InteractionData>) => void;
+    payload: (data: APIApplicationCommandInteraction) => void;
     response: void;
   };
-  [ActionName.SetReactionCallback]: {
-    payload: (
-      data: MessageReactionAdd | MessageReactionRemove,
-      remove: boolean
-    ) => void;
-    response: void;
-  };
+  // [ActionName.SetReactionCallback]: {
+  //   payload: (
+  //     data: MessageReactionAdd | MessageReactionRemove,
+  //     remove: boolean
+  //   ) => void;
+  //   response: void;
+  // };
   [ActionName.SetDiscordSession]: {
     payload: string | null;
     response: void;
@@ -84,11 +76,14 @@ export interface Actions extends Record<string, ActionData> {
     payload: number | null;
     response: void;
   };
-  [ActionName.AddGuild]: { payload: Guild; response: void };
+  [ActionName.AddGuild]: {
+    payload: GatewayGuildCreateDispatchData;
+    response: void;
+  };
   [ActionName.AddGuildMembers]: {
     payload: {
       guild: string;
-      members: GuildMember[];
+      members: APIGuildMember[];
       clean: boolean;
     };
     response: void;
@@ -103,7 +98,7 @@ export interface Actions extends Record<string, ActionData> {
   };
   [ActionName.GetApplication]: {
     payload: undefined;
-    response: State["application"];
+    response: Application | null;
   };
   [ActionName.GetGuilds]: {
     payload: undefined;
@@ -126,15 +121,11 @@ export interface Actions extends Record<string, ActionData> {
     response: InteractionPagination | undefined;
   };
   [ActionName.SetReadyData]: {
-    payload: Ready;
+    payload: GatewayReadyDispatchData;
     response: void;
   };
   [ActionName.CommandExecuted]: {
-    payload: Interaction<
-      | InteractionData
-      | MessageComponentInteractionData
-      | ModalSubmitInteractionData
-    >;
+    payload: APIInteraction;
     response: void;
   };
   [ActionName.SetModules]: {
@@ -145,9 +136,9 @@ export interface Actions extends Record<string, ActionData> {
 
 export interface State {
   ready: boolean;
-  user: User | null;
-  application: Partial<Application> | null;
-  guilds: Guild[];
+  user: APIUser | null;
+  application: Application | null;
+  guilds: GatewayGuildCreateDispatchData[];
   allPaginations: InteractionPagination[];
   discordSessionId: string | null;
   discordLastS: number | null;
@@ -155,9 +146,6 @@ export interface State {
   modules: BaseModule[];
 
   readyCallback: (() => void) | null;
-  commandExecutedCallback: ((_: Interaction<InteractionData>) => void)[];
-  messageReactionCallback: ((
-    _: MessageReactionAdd | MessageReactionRemove,
-    remove: boolean
-  ) => void)[];
+  commandExecutedCallback: ((_: APIApplicationCommandInteraction) => void)[];
+  messageReactionCallback: [];
 }

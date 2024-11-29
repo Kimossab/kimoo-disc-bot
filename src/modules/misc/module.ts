@@ -1,7 +1,5 @@
 import BaseModule from "#/base-module";
-
-import { AvailableLocales } from "@/types/discord";
-
+import { Locale } from "discord-api-types/v10";
 import avatarCommand from "./commands/avatar.command";
 import donutCommand from "./commands/donut.command";
 import groupCommand from "./commands/group.command";
@@ -15,7 +13,7 @@ export default class MiscModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
+    this.commandDescription[Locale.EnglishUS] =
       "Miscellaneous commands";
 
     this.commandList = {

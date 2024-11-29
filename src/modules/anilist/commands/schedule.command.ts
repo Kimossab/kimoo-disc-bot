@@ -1,4 +1,4 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
@@ -8,32 +8,27 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
-
 import { getAiringSchedule } from "../graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapAiringScheduleToEmbed } from "../mappers/mapAiringScheduleToEmbed";
 import { MediaType } from "../types/graphql";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface ScheduleCommandOptions {
   query: string;
   type: MediaType;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "schedule",
   description: "Search for an anime airing schedule",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "query",
       description: "Query to search for",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.String,
       required: true
     }
   ]
@@ -47,7 +42,7 @@ const handler = (
     const app = getApplication();
     if (app?.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const { query } = getOptions<ScheduleCommandOptions>(

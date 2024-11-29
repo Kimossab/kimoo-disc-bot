@@ -13,17 +13,18 @@ import {
   setReadyData
 } from "@/state/store";
 import {
-  ActivityType,
-  DispatchPayload,
-  GatewayEvent,
-  GatewayIntents,
-  Hello,
-  IdentifyPayload,
-  Message,
-  OpCode,
-  Payload,
-  Status
-} from "@/types/discord";
+  GatewayReceivePayload,
+  GatewayOpcodes,
+  GatewayHelloData,
+  GatewayDispatchPayload,
+  GatewayDispatchEvents,
+  GatewayIdentify,
+  GatewayIntentBits,
+  GatewayMessageCreateDispatchData,
+  GatewaySendPayload,
+  GatewayUpdatePresence
+} from "discord-api-types/gateway/v10";
+import { ActivityType, PresenceUpdateStatus } from "discord-api-types/payloads/v10/gateway";
 
 import WebSocket from "ws";
 
@@ -45,9 +46,12 @@ export class Socket {
     this.logger.info(`Gateway: ${gateway}`);
     this.client = new WebSocket(gateway);
 
-    this.client.on("connection", (e: unknown) => {
-      this.onConnection(e);
-    });
+    this.client.on(
+      "connection",
+      (e: unknown) => {
+        this.onConnection(e);
+      }
+    );
     this.client.on("open", () => {
       this.onOpen();
     });
@@ -95,21 +99,21 @@ export class Socket {
   }
 
   private onMessage (d: string): void {
-    const data: Payload = JSON.parse(d);
+    const data: GatewayReceivePayload = JSON.parse(d);
 
     switch (data.op) {
-      case OpCode.Dispatch:
+      case GatewayOpcodes.Dispatch:
         setDiscordLastS(data.s);
         this.onEvent(data);
         break;
-      case OpCode.Heartbeat:
+      case GatewayOpcodes.Heartbeat:
         this.sendHeartbeat();
         break;
-      case OpCode.Reconnect:
+      case GatewayOpcodes.Reconnect:
         this.logger.info("Received \"reconnect\"", data.d);
         this.client?.close();
         break;
-      case OpCode.InvalidSession:
+      case GatewayOpcodes.InvalidSession:
         if (!data.d) {
           setDiscordSession(null);
           setDiscordLastS(null);
@@ -122,10 +126,10 @@ export class Socket {
 
         this.client?.close();
         break;
-      case OpCode.Hello:
+      case GatewayOpcodes.Hello:
         this.onHello(data.d);
         break;
-      case OpCode.HeartbeatACK:
+      case GatewayOpcodes.HeartbeatAck:
         this.hbAck = true;
         break;
       default:
@@ -135,7 +139,7 @@ export class Socket {
   }
 
   // DISCORD EVENTS
-  private onHello (data: Hello): void {
+  private onHello (data: GatewayHelloData): void {
     this.logger.info("Received Hello");
 
     if (this.hbInterval) {
@@ -158,7 +162,7 @@ export class Socket {
       });
 
       this.sendEvent({
-        op: OpCode.Resume,
+        op: GatewayOpcodes.Resume,
         d: {
           token: process.env.TOKEN,
           session_id: sessionId,
@@ -170,32 +174,32 @@ export class Socket {
     }
   }
 
-  private async onEvent (event: DispatchPayload): Promise<void> {
+  private async onEvent (event: GatewayDispatchPayload): Promise<void> {
     switch (event.t) {
-      case GatewayEvent.Ready:
+      case GatewayDispatchEvents.Ready:
         setDiscordSession(event.d.session_id);
 
         setReadyData(event.d);
         break;
-      case GatewayEvent.GuildCreate:
+      case GatewayDispatchEvents.GuildCreate:
         addGuild(event.d);
 
         await saveGuild(event.d.id);
         break;
-      case GatewayEvent.InteractionCreate:
+      case GatewayDispatchEvents.InteractionCreate:
         try {
           commandExecuted(event.d);
         } catch (e) {
           this.logger.error("Failed to handle interaction", e);
         }
         break;
-      case GatewayEvent.MessageCreate:
+      case GatewayDispatchEvents.MessageCreate:
         if (!event.d.guild_id) {
           this.handleDM(event.d);
         }
 
         break;
-      case GatewayEvent.Resumed:
+      case GatewayDispatchEvents.Resumed:
         this.resumed = true;
         this.logger.info("resumed", event.d);
         break;
@@ -214,7 +218,7 @@ export class Socket {
       this.forceReconnect();
     } else {
       this.sendEvent({
-        op: OpCode.Heartbeat,
+        op: GatewayOpcodes.Heartbeat,
         d: getDiscordLastS() || 0
       });
       this.hbAck = false;
@@ -224,8 +228,8 @@ export class Socket {
   public randomPresence (): void {
     const randomPresence = randomNum(0, PRESENCE_STRINGS.length);
     this.logger.info(`Updating bot presence to "${PRESENCE_STRINGS[randomPresence]}"`);
-    this.sendEvent({
-      op: OpCode.PresenceUpdate,
+    const presenceUpdate: GatewayUpdatePresence = {
+      op: GatewayOpcodes.PresenceUpdate,
       d: {
         since: null,
         activities: [
@@ -235,17 +239,19 @@ export class Socket {
             type: ActivityType.Custom
           }
         ],
-        status: Status.Online,
+        status: PresenceUpdateStatus.Online,
         afk: false
       }
-    });
+    };
+
+    this.sendEvent(presenceUpdate);
   }
 
   private identify (): void {
     this.logger.info("Identifying...");
 
-    const payload: IdentifyPayload = {
-      op: OpCode.Identify,
+    const payload: GatewayIdentify = {
+      op: GatewayOpcodes.Identify,
       d: {
         token: process.env.TOKEN,
         properties: {
@@ -254,16 +260,16 @@ export class Socket {
           os: process.platform
         },
         intents:
-          GatewayIntents.GUILDS |
-          GatewayIntents.GUILD_MESSAGES |
-          GatewayIntents.DIRECT_MESSAGES
+          GatewayIntentBits.Guilds |
+          GatewayIntentBits.GuildMessages |
+          GatewayIntentBits.DirectMessages
       }
     };
 
     this.sendEvent(payload);
   }
 
-  private sendEvent (event: Payload): void {
+  private sendEvent (event: GatewaySendPayload): void {
     this.send(JSON.stringify(event));
   }
 
@@ -273,7 +279,7 @@ export class Socket {
     }
   }
 
-  private async handleDM (_data: Message): Promise<void> {
+  private async handleDM (_data: GatewayMessageCreateDispatchData): Promise<void> {
     this.logger.info("New DM", _data);
   }
 }

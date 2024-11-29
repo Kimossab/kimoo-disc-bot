@@ -5,7 +5,6 @@ import { giveRole, removeRole, sendMessage } from "@/discord/rest";
 import { getDayInfo, interpolator, snowflakeToDate } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getGuilds } from "@/state/store";
-import { AvailableLocales } from "@/types/discord";
 import { Birthday } from "@prisma/client";
 
 import addCommand from "./commands/add.command";
@@ -22,6 +21,7 @@ import {
   setBirthdayWithRole,
   updateLastWishes
 } from "./database";
+import { Locale } from "discord-api-types/v10";
 
 export default class BirthdayModule extends BaseModule {
   private checkTimeout: NodeJS.Timeout | null = null;
@@ -34,7 +34,7 @@ export default class BirthdayModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
+    this.commandDescription[Locale.EnglishUS] =
       "Handles the birthdays of the users";
 
     this.checkBirthdays();
@@ -128,6 +128,7 @@ export default class BirthdayModule extends BaseModule {
       for (const server in serverBirthdays) {
         if (serverChannels[server]) {
           const usersCongratulated: string[] = [];
+          const usersCongratulatedWithRole: string[] = [];
           let message =
             serverBirthdays[server].length > 1
               ? messageList.birthday.today_bday_s
@@ -147,10 +148,13 @@ export default class BirthdayModule extends BaseModule {
                 serverChannels[server].role,
                 "Birthday"
               );
+              usersCongratulatedWithRole.push(bd.user);
             }
           }
 
-          await setBirthdayWithRole(day, month, usersCongratulated, server);
+          if (usersCongratulatedWithRole.length) {
+            await setBirthdayWithRole(day, month, usersCongratulatedWithRole, server);
+          }
 
           await updateLastWishes(server, usersCongratulated);
           await sendMessage(serverChannels[server].channel, message);

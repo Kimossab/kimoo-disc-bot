@@ -1,4 +1,4 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 import { getServersBirthdayInfo } from "#birthday/database";
 
 import { setServerBirthdayChannel } from "@/database";
@@ -6,31 +6,27 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface ChannelOption {
   channel: string;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "channel",
   description: "Sets the channel where the happy birthday message is sent to",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "channel",
       description: "The channel where the happy birthday message is sent to",
-      type: ApplicationCommandOptionType.CHANNEL
+      type: ApplicationCommandOptionType.Channel
     }
   ]
 };
@@ -40,7 +36,7 @@ const handler = (logger: Logger): CommandHandler => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const { channel } = getOptions<ChannelOption>(

@@ -1,35 +1,30 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import { getServer, setServerRoleChannel } from "@/database";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
 interface ChannelCommandOptions {
   channel: string;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "channel",
   description: messageList.roles.channel.description,
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "channel",
       description: messageList.roles.channel.option,
-      type: ApplicationCommandOptionType.CHANNEL
+      type: ApplicationCommandOptionType.Channel
     }
   ]
 };
@@ -39,9 +34,9 @@ const handler = (): CommandHandler => {
     const app = getApplication();
     if (app?.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
 

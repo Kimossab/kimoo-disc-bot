@@ -1,4 +1,4 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
 import {
   CompletePoll,
   createOption,
@@ -22,26 +22,13 @@ import {
   editMessage,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { InteractionCallbackTypesSchema } from "@/discord/rest/schemas.gen";
+import { ActionRow, ApplicationCommandBooleanOption, ApplicationCommandIntegerOption, ApplicationCommandStringOption, ApplicationCommandSubcommandOption, IncomingWebhookUpdateRequestPartial } from "@/discord/rest/types.gen";
 import Logger from "@/helper/logger";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ActionRow,
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  ComponentCommandHandler,
-  ComponentType,
-  EditWebhookMessage,
-  Interaction,
-  InteractionCallbackData,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType,
-  MessageComponentInteractionData,
-  ModalSubmitInteractionData,
-  TextInput,
-  TextInputStyle
-} from "@/types/discord";
+import { APIApplicationCommandSubcommandOption, ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from "discord-api-types/payloads/v10/interactions";
+import { APIActionRowComponent, APIActionRowComponentTypes, APIButtonComponent, APIMessageActionRowComponent, APIMessageComponentInteraction, APIModalSubmitInteraction, ComponentType, MessageFlags, TextInputStyle } from "discord-api-types/v10";
 
 const MAX_OPTIONS_PER_POLL = 25;
 
@@ -49,69 +36,81 @@ interface CreateCommandOptions {
   question: string;
   option_1: string;
   option_2: string;
-  option_3?: string;
-  option_4?: string;
-  multiple_choice?: boolean;
-  free_new_answer?: boolean;
-  days?: number;
+  option_3: string | undefined;
+  option_4: string | undefined;
+  multiple_choice: boolean | undefined;
+  free_new_answer: boolean | undefined;
+  days: number | undefined;
 }
 
-const definition: ApplicationCommandOption = {
+type ComponentHandler<
+  T extends APIModalSubmitInteraction | APIMessageComponentInteraction,
+  E = void
+> = (
+  poll: CompletePoll,
+  data: T,
+  extra: E
+) => Promise<{ hasSentResponse: boolean;
+  needsToUpdatePoll: boolean; }>;
+
+const options: ApplicationCommandSubcommandOption["options"] = [
+  {
+    name: "question",
+    description: "The question you wish to ask, or the topic of the voting",
+    type: ApplicationCommandOptionType.String,
+    required: true
+  },
+  {
+    name: "option_1",
+    description: "Option for the poll #1",
+    type: ApplicationCommandOptionType.String,
+    required: true
+  },
+  {
+    name: "option_2",
+    description: "Option for the poll #2",
+    type: ApplicationCommandOptionType.String,
+    required: true
+  },
+  {
+    name: "option_3",
+    description: "Option for the poll #3",
+    type: ApplicationCommandOptionType.String
+  },
+  {
+    name: "option_4",
+    description: "Option for the poll #4",
+    type: ApplicationCommandOptionType.String
+  },
+  {
+    name: "multiple_choice",
+    description:
+      "Whether the users can select more than 1 answer. (Defaults to false)",
+    type: ApplicationCommandOptionType.Boolean
+  },
+  {
+    type: ApplicationCommandOptionType.Integer,
+    name: "days",
+    description: "How many days should the poll run for. (Default 1 day)"
+  },
+  {
+    name: "free_new_answer",
+    description: "Whether the users add a new answer. (Defaults to false)",
+    type: ApplicationCommandOptionType.Boolean
+  }
+];
+
+const definition: ApplicationCommandSubcommandOption = {
   name: "create",
   description: "Creates a new poll in this channel",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
-  options: [
-    {
-      name: "question",
-      description: "The question you wish to ask, or the topic of the voting",
-      type: ApplicationCommandOptionType.STRING,
-      required: true
-    },
-    {
-      name: "option_1",
-      description: "Option for the poll #1",
-      type: ApplicationCommandOptionType.STRING,
-      required: true
-    },
-    {
-      name: "option_2",
-      description: "Option for the poll #2",
-      type: ApplicationCommandOptionType.STRING,
-      required: true
-    },
-    {
-      name: "option_3",
-      description: "Option for the poll #3",
-      type: ApplicationCommandOptionType.STRING
-    },
-    {
-      name: "option_4",
-      description: "Option for the poll #4",
-      type: ApplicationCommandOptionType.STRING
-    },
-    {
-      name: "multiple_choice",
-      description:
-        "Whether the users can select more than 1 answer. (Defaults to false)",
-      type: ApplicationCommandOptionType.BOOLEAN
-    },
-    {
-      type: ApplicationCommandOptionType.NUMBER,
-      name: "days",
-      description: "How many days should the poll run for. (Default 1 day)"
-    },
-    {
-      name: "free_new_answer",
-      description: "Whether the users add a new answer. (Defaults to false)",
-      type: ApplicationCommandOptionType.BOOLEAN
-    }
-  ]
+  type: ApplicationCommandOptionType.Subcommand,
+  options
 };
 
 const createPollMessageData: {
-  (poll: CompletePoll): EditWebhookMessage;
-  (poll: CompletePoll, user: string): EditWebhookMessage;
-} = (poll: CompletePoll, user?: string): EditWebhookMessage => {
+  (poll: CompletePoll): IncomingWebhookUpdateRequestPartial;
+  (poll: CompletePoll, user: string): IncomingWebhookUpdateRequestPartial;
+} = (poll: CompletePoll, user?: string): IncomingWebhookUpdateRequestPartial => {
   const embeds = [
     user
       ? mapPollToSettingsEmbed(poll, user)
@@ -121,7 +120,7 @@ const createPollMessageData: {
     ? mapPollToComponents(poll, PollMessageType.SETTINGS, user)
     : mapPollToComponents(poll, PollMessageType.VOTE);
 
-  const response: EditWebhookMessage = {
+  const response: IncomingWebhookUpdateRequestPartial = {
     embeds
   };
 
@@ -136,7 +135,7 @@ const handler = (logger: Logger): CommandHandler => {
     const app = getApplication();
     if (app?.id && data.member?.user) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const {
@@ -201,26 +200,18 @@ const handler = (logger: Logger): CommandHandler => {
   };
 };
 
-type ComponentHandler<
-  T extends ModalSubmitInteractionData | MessageComponentInteractionData,
-  E = void
-> = (
-  poll: CompletePoll,
-  data: Interaction<T>,
-  extra: E
-) => Promise<{ hasSentResponse: boolean; needsToUpdatePoll: boolean }>;
 
 const componentHandler = (logger: Logger): ComponentCommandHandler => {
-  const addCommand: ComponentHandler<MessageComponentInteractionData> = async (
+  const addCommand: ComponentHandler<APIMessageComponentInteraction> = async (
     poll,
     data
   ) => {
     if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return { hasSentResponse: true,
@@ -229,10 +220,10 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     if (poll.pollOptions.length === MAX_OPTIONS_PER_POLL) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: `A poll can't have more than ${MAX_OPTIONS_PER_POLL} answers`,
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return { hasSentResponse: true,
@@ -240,11 +231,11 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     }
     if (!poll.usersCanAddAnswers && poll.creator !== data.member?.user?.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content:
             "You are not the creator of the poll so you can't add new options.",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
 
@@ -253,7 +244,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     }
 
     await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.MODAL,
+      type: InteractionResponseType.Modal,
       data: {
         custom_id: "voting.create.modal",
         title: "Add new option",
@@ -278,16 +269,16 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       needsToUpdatePoll: false };
   };
 
-  const modalCommand: ComponentHandler<ModalSubmitInteractionData> = async (
+  const modalCommand: ComponentHandler<APIModalSubmitInteraction> = async (
     poll,
     data
   ) => {
     if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return { hasSentResponse: true,
@@ -296,10 +287,10 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     if (poll.pollOptions.length === MAX_OPTIONS_PER_POLL) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: `A poll can't have more than ${MAX_OPTIONS_PER_POLL} answers`,
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return { hasSentResponse: true,
@@ -307,8 +298,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     }
 
     const newOption =
-      ((data.data!.components[0] as ActionRow).components[0] as TextInput)
-        .value ?? "";
+      data.data!.components[0].components[0].value ?? "";
 
     await createOption(poll.id, newOption);
 
@@ -317,14 +307,14 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   };
 
   const settingsCommand: ComponentHandler<
-    MessageComponentInteractionData
+    APIMessageComponentInteraction
   > = async (poll, data) => {
     const userId = data.member?.user?.id || "";
 
     await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+      type: InteractionResponseType.ChannelMessageWithSource,
       data: {
-        flags: InteractionCallbackDataFlags.EPHEMERAL,
+        flags: MessageFlags.Ephemeral,
         content: "",
         embeds: [mapPollToSettingsEmbed(poll, userId)],
         components: mapPollToComponents(poll, PollMessageType.SETTINGS, userId)
@@ -336,7 +326,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   };
 
   const settingsOptionCommand: ComponentHandler<
-    MessageComponentInteractionData,
+    APIMessageComponentInteraction,
     string[]
   > = async (poll, data, optionSelected) => {
     const opt = Number(optionSelected[1]);
@@ -355,9 +345,9 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     const embed = mapPollToSettingsEmbed(poll, userId, optSelected);
 
     await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.UPDATE_MESSAGE,
+      type: InteractionResponseType.UpdateMessage,
       data: {
-        flags: InteractionCallbackDataFlags.EPHEMERAL,
+        flags: MessageFlags.Ephemeral,
         content: "",
         embeds: [embed],
         components
@@ -369,15 +359,15 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   };
 
   const removeCommand: ComponentHandler<
-    MessageComponentInteractionData,
+    APIMessageComponentInteraction,
     string[]
   > = async (poll, data, optionSelected) => {
     if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return { hasSentResponse: true,
@@ -394,9 +384,9 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     if (userId !== poll.creator) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
+          flags: MessageFlags.Ephemeral,
           content: "Only the creator of the poll can remove an option"
         }
       });
@@ -414,15 +404,15 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   };
 
   const choiceCommand: ComponentHandler<
-    MessageComponentInteractionData,
+    APIMessageComponentInteraction,
     number
   > = async (poll, data, optionChosen) => {
     if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return { hasSentResponse: true,
@@ -441,10 +431,10 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     if (!option.pollOptionVotes.map((v) => v.user).includes(userId)) {
       if (!poll.multipleChoice && userVotes > 0) {
         await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          type: InteractionResponseType.ChannelMessageWithSource,
           data: {
             content: "This poll doesn't allow multiple answers",
-            flags: InteractionCallbackDataFlags.EPHEMERAL
+            flags: MessageFlags.Ephemeral
           }
         });
 
@@ -461,14 +451,14 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   };
 
   const closeCommand: ComponentHandler<
-    MessageComponentInteractionData
+    APIMessageComponentInteraction
   > = async (poll, data) => {
     if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return { hasSentResponse: true,
@@ -479,9 +469,9 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     if (userId !== poll.creator) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
+          flags: MessageFlags.Ephemeral,
           content: "Only the creator of the poll can close the poll"
         }
       });
@@ -496,14 +486,14 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   };
 
   const resetCommand: ComponentHandler<
-    MessageComponentInteractionData
+    APIMessageComponentInteraction
   > = async (poll, data) => {
     if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return { hasSentResponse: true,
@@ -514,9 +504,9 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 
     if (userId !== poll.creator) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
+          flags: MessageFlags.Ephemeral,
           content: "Only the creator of the poll can reset the poll"
         }
       });
@@ -531,7 +521,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
   };
 
   type cHandler = ComponentHandler<
-    MessageComponentInteractionData | ModalSubmitInteractionData,
+    APIMessageComponentInteraction | APIModalSubmitInteraction,
     unknown
   >;
 
@@ -559,10 +549,10 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         subCmd,
         messageId });
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "Internal Server Error, try again",
-          flags: InteractionCallbackDataFlags.EPHEMERAL
+          flags: MessageFlags.Ephemeral
         }
       });
       return;
@@ -582,7 +572,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         needsToUpdatePoll: needsToUpdatePoll
       } = await choiceCommand(
         poll,
-        data as Interaction<MessageComponentInteractionData>,
+        data as APIMessageComponentInteraction,
         Number(subCmd[0])
       ));
     }
@@ -596,10 +586,10 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         isOriginalMessage
           ? createPollMessageData(updatedPoll)
           : createPollMessageData(updatedPoll, data.member?.user?.id || "")
-      ) as InteractionCallbackData;
+      ) as IncomingWebhookUpdateRequestPartial;
 
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.UPDATE_MESSAGE,
+        type: InteractionResponseType.UpdateMessage,
         data: responseData
       });
     }

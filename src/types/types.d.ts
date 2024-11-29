@@ -158,46 +158,51 @@ declare namespace SauceNao {
 
   interface message_list {
     message: string;
-    items: Embed[];
+    items: RichEmbed[];
     currentPage: number;
   }
 }
 
 declare namespace TraceMoe {
-  // declare interface doc {
-  //   from: number;
-  //   to: number;
-  //   anilist_id: number;
-  //   at: number;
-  //   season: string;
-  //   anime: string;
-  //   filename: string;
-  //   episode: number;
-  //   tokenthumb: string;
-  //   similarity: number;
-  //   title: string;
-  //   title_native: string;
-  //   title_chinese: string;
-  //   title_english: string;
-  //   title_romaji: string;
-  //   mal_id: number;
-  //   synonyms: string[];
-  //   synonyms_chinese: string[];
-  //   is_adult: boolean;
-  // }
 
-  // declare interface response {
-  //   RawDocsCount: number;
-  //   RawDocsSearchTime: number;
-  //   ReRankSearchTime: number;
-  //   CacheHit: boolean;
-  //   trial: number;
-  //   limit: number;
-  //   limit_ttl: number;
-  //   quota: number;
-  //   quota_ttl: number;
-  //   docs: doc[];
-  // }
+  /*
+   * declare interface doc {
+   *   from: number;
+   *   to: number;
+   *   anilist_id: number;
+   *   at: number;
+   *   season: string;
+   *   anime: string;
+   *   filename: string;
+   *   episode: number;
+   *   tokenthumb: string;
+   *   similarity: number;
+   *   title: string;
+   *   title_native: string;
+   *   title_chinese: string;
+   *   title_english: string;
+   *   title_romaji: string;
+   *   mal_id: number;
+   *   synonyms: string[];
+   *   synonyms_chinese: string[];
+   *   is_adult: boolean;
+   * }
+   */
+
+  /*
+   * declare interface response {
+   *   RawDocsCount: number;
+   *   RawDocsSearchTime: number;
+   *   ReRankSearchTime: number;
+   *   CacheHit: boolean;
+   *   trial: number;
+   *   limit: number;
+   *   limit_ttl: number;
+   *   quota: number;
+   *   quota_ttl: number;
+   *   docs: doc[];
+   * }
+   */
 
   declare interface anilistData {
     id: number;

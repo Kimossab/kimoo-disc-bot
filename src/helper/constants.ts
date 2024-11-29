@@ -1,4 +1,4 @@
-import { AllowedMentions } from "@/types/discord";
+import { MessageAllowedMentionsRequest } from "@/discord/rest/types.gen";
 
 // common
 export const PRESENCE_STRINGS = [
@@ -23,11 +23,12 @@ export const PRESENCE_STRINGS = [
   "kuraiyo~ kowaiyo~",
   "I ask you. Are you my master?",
   "EXPLOSIOOOOOOONNNN",
-  "People die if they are killed..."
+  "People die if they are killed...",
+  "WHAT IF I HAD DIED?"
 ];
 
 // discord
-export const no_mentions: AllowedMentions = {
+export const no_mentions: MessageAllowedMentionsRequest = {
   parse: [],
   roles: [],
   users: [],

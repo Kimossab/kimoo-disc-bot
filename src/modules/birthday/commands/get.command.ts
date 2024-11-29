@@ -1,59 +1,53 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 import { getBirthdaysByMonth, getUserBirthday } from "#birthday/database";
 
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  Application,
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  Interaction,
-  InteractionCallbackType
-} from "@/types/discord";
+import { APIApplication, APIInteraction, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface GetCommandOptions {
   user: string;
   month: number;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "get",
   description: "Gets someone's birthday from the database",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "user",
       description: "The user whose birthday you're getting",
-      type: ApplicationCommandOptionType.USER
+      type: ApplicationCommandOptionType.User
     },
     {
       name: "month",
       description: "The users whose birthday is on a certain month",
-      type: ApplicationCommandOptionType.INTEGER
+      type: ApplicationCommandOptionType.Integer
     }
   ]
 };
 
 const handleGetMonthCommand = async (
   logger: Logger,
-  data: Interaction,
-  app: Partial<Application>,
+  data: APIInteraction,
+  app: Partial<APIApplication>,
   month: number
 ): Promise<void> => {
   if (!data.guild_id) {
     return Promise.resolve();
   }
   await createInteractionResponse(data.id, data.token, {
-    type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+    type: InteractionResponseType.DeferredChannelMessageWithSource
   });
 
   const bd = await getBirthdaysByMonth(data.guild_id, month);

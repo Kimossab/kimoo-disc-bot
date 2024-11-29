@@ -1,21 +1,17 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 import { addBirthday, getUserBirthday } from "#birthday/database";
 
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface AddCommandOptions {
   day: number;
@@ -23,27 +19,27 @@ interface AddCommandOptions {
   year: number;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "add",
   description: "Adds your birthday to the database",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "day",
       description: "The day when you were born",
-      type: ApplicationCommandOptionType.INTEGER,
+      type: ApplicationCommandOptionType.Integer,
       required: true
     },
     {
       name: "month",
       description: "The month when you were born",
-      type: ApplicationCommandOptionType.INTEGER,
+      type: ApplicationCommandOptionType.Integer,
       required: true
     },
     {
       name: "year",
       description: "The year when they were born",
-      type: ApplicationCommandOptionType.INTEGER
+      type: ApplicationCommandOptionType.Integer
     }
   ]
 };
@@ -53,7 +49,7 @@ const handler = (logger: Logger): CommandHandler => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const { day, month, year } = getOptions<AddCommandOptions>(

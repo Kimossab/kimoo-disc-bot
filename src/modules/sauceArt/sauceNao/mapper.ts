@@ -1,6 +1,8 @@
-// This file is a mess and it's supposed to be, I can't be arsed to handle all edge cases
-// I will make changes accordingly to the needs and errors as they arise
-// If you're reading this... good luck
+/*
+ * This file is a mess and it's supposed to be, I can't be arsed to handle all edge cases
+ * I will make changes accordingly to the needs and errors as they arise
+ * If you're reading this... good luck
+ */
 
 import Logger from "@/helper/logger";
 
@@ -19,17 +21,6 @@ export const mapSauceNaoResultToData = (
   };
   try {
     switch (data.header.index_id) {
-      // dunno how this works
-      // case 2: {
-      //   //H-Game GG
-      //   parsed.site = 'pixiv';
-      //   parsed.url = [`https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`];
-      //   parsed.name = data.data.title;
-      //   parsed.authorData = {
-      //     authorName: data.data.member_name ? data.data.member_name : null,
-      //     authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`
-      //   };
-      // }
       case 5:
       case 6: {
         // pixiv

@@ -1,34 +1,30 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 import { deleteUserBirthday, getUserBirthday } from "#birthday/database";
 
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { checkAdmin } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface RemoveCommandOptions {
   user: string;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "remove",
   description: "Removes someone's birthday from the database",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "user",
       description: "The user whose birthday you're removing",
-      type: ApplicationCommandOptionType.USER,
+      type: ApplicationCommandOptionType.User,
       required: true
     }
   ]
@@ -39,7 +35,7 @@ const handler = (): CommandHandler => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const isAdmin = await checkAdmin(data.guild_id, data.member);

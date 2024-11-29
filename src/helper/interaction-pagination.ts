@@ -2,20 +2,10 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import {
-  ActionRow,
-  Button,
-  ButtonStyle,
-  ComponentType,
-  EditWebhookMessage,
-  InteractionCallbackData,
-  InteractionCallbackType,
-  Message,
-  MessageComponentInteractionData,
-  snowflake
-} from "@/types/discord";
 
 import { chunkArray } from "./common";
+import { ComponentType, ButtonStyle, InteractionResponseType, APIMessageButtonInteractionData, APIMessageSelectMenuInteractionData } from "discord-api-types/v10";
+import { ActionRow, Button, IncomingWebhookUpdateForInteractionCallbackRequestPartial, MessageEditRequestPartial, MessageResponse } from "@/discord/rest/types.gen";
 
 export type CreatePageCallback<T> = (
   page: number,
@@ -23,7 +13,7 @@ export type CreatePageCallback<T> = (
   data: T,
   extraInfo?: unknown
 ) => Promise<{
-  data: EditWebhookMessage | InteractionCallbackData;
+  data: MessageEditRequestPartial | IncomingWebhookUpdateForInteractionCallbackRequestPartial;
   file?: string;
 }>;
 
@@ -42,9 +32,9 @@ export class InteractionPagination<T = unknown> {
     return this.data.length;
   }
 
-  private message: Nullable<Message> = null;
+  private message: Nullable<MessageResponse> = null;
 
-  public get messageId (): snowflake | undefined {
+  public get messageId (): string | undefined {
     return this.message?.id;
   }
 
@@ -109,11 +99,13 @@ export class InteractionPagination<T = unknown> {
       ];
     }
 
-    return { pageData,
-      file };
+    return {
+      pageData,
+      file
+    };
   }
 
-  public async create (token: string): Promise<Message | null> {
+  public async create (token: string): Promise<MessageResponse | null> {
     const { pageData, file } = await this.buildPageData();
     this.message = await editOriginalInteractionResponse(
       this.appId,
@@ -128,7 +120,7 @@ export class InteractionPagination<T = unknown> {
   public async handlePage (
     id: string,
     token: string,
-    data: MessageComponentInteractionData
+    data: APIMessageButtonInteractionData | APIMessageSelectMenuInteractionData
   ): Promise<void> {
     const move = data.custom_id?.split(".")[1];
     if (move === "next") {
@@ -136,10 +128,11 @@ export class InteractionPagination<T = unknown> {
     } else if (move === "previous") {
       this.currentPage--;
     } else if (move === "select") {
-      if (!data.values) {
+      const selectData = data as APIMessageSelectMenuInteractionData;
+      if (!selectData.values) {
         throw new Error("Missing values");
       }
-      this.currentPage = Number(data.values[0]);
+      this.currentPage = Number(selectData.values[0]);
     } else {
       throw new Error("Unknown interaction");
     }
@@ -155,8 +148,8 @@ export class InteractionPagination<T = unknown> {
       id,
       token,
       {
-        type: InteractionCallbackType.UPDATE_MESSAGE,
-        data: pageData as InteractionCallbackData
+        type: InteractionResponseType.UpdateMessage,
+        data: pageData
       },
       file
     );

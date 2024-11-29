@@ -6,33 +6,23 @@ import {
 } from "#anilist/database";
 import { searchForUser } from "#anilist/graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "#anilist/helpers/rate-limiter";
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
 
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
   sendMessage
 } from "@/discord/rest";
+import { ApplicationCommandSubcommandOption, MessageComponentStringSelectResponse, SelectOption, StringSelect } from "@/discord/rest/types.gen";
 import { chunkArray, limitString } from "@/helper/common";
 import Logger from "@/helper/logger";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  Component,
-  ComponentCommandHandler,
-  ComponentType,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType,
-  MessageComponentInteractionData,
-  SelectOption
-} from "@/types/discord";
+import { APIMessageStringSelectInteractionData, ApplicationCommandOptionType, ComponentType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "remove",
   description: "Removes a subscription",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: []
 };
 
@@ -44,9 +34,9 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
         data.id,
         data.token,
         {
-          type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+          type: InteractionResponseType.DeferredChannelMessageWithSource,
           data: {
-            flags: InteractionCallbackDataFlags.EPHEMERAL
+            flags: MessageFlags.Ephemeral
           }
         }
       );
@@ -83,7 +73,7 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
       }
 
 
-      const components: Component[] = chunkArray(animeInfo, 25)
+      const components: StringSelect[] = chunkArray(animeInfo, 25)
         .map((chunk, index) => {
           return {
             type: ComponentType.StringSelect,
@@ -127,7 +117,7 @@ const componentHandler = (_logger: Logger, removeAnime: (id: number) => void): C
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       const values =
-        (data.data as MessageComponentInteractionData)?.values?.map(Number) ??
+        (data.data as APIMessageStringSelectInteractionData)?.values?.map(Number) ??
         [];
 
       await deleteUserSubscriptionForIds(
@@ -155,7 +145,7 @@ const componentHandler = (_logger: Logger, removeAnime: (id: number) => void): C
         data.id,
         data.token,
         {
-          type: InteractionCallbackType.UPDATE_MESSAGE,
+          type: InteractionResponseType.UpdateMessage,
           data: {
             content: "success",
             components: []

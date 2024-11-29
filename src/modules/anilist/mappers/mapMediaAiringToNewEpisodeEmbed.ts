@@ -1,13 +1,13 @@
-import { Embed, EmbedField } from "@/types/discord";
 
+import { RichEmbed, RichEmbedField } from "@/discord/rest/types.gen";
 import { InfoWithSchedule, NextEpisode } from "../types/graphql";
 
 export const mapMediaAiringToNewEpisodeEmbed = (
   data: InfoWithSchedule,
   { episode, airingAt }: NextEpisode,
   nextEpisodeInfo: NextEpisode | null
-): Embed => {
-  const fields: EmbedField[] = [];
+): RichEmbed => {
+  const fields: RichEmbedField[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
@@ -21,7 +21,7 @@ export const mapMediaAiringToNewEpisodeEmbed = (
     });
   }
 
-  const embed: Embed = {
+  const embed: RichEmbed = {
     title:
       (data.isAdult
         ? "[**NSFW**] "

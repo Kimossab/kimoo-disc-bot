@@ -260,6 +260,7 @@ export type UpcomingMedia = MediaList<
     | "externalLinks"
     | "siteUrl"
   > & {
-    tags: { name: string; isMediaSpoiler: boolean }[];
+    tags: { name: string;
+      isMediaSpoiler: boolean; }[];
   }
 >;

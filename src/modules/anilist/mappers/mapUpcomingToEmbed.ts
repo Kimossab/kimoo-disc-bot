@@ -15,17 +15,17 @@ import {
 } from "@/helper/embed";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import { Embed, EmbedField } from "@/types/discord";
 
 import { PageResponse, UpcomingMedia } from "../types/graphql";
 import { formatMapper, sourceMapper } from "./enumMapper";
+import { RichEmbed, RichEmbedField } from "@/discord/rest/types.gen";
 
 export const mapUpcomingToEmbed = (
   logger: Logger,
   data: PageResponse<UpcomingMedia>
-): Embed[] => {
+): RichEmbed[] => {
   return data.Page.media.map((media, index) => {
-    const fields: EmbedField[] = [];
+    const fields: RichEmbedField[] = [];
 
     fields.push(...[
       ...createEmbedFieldList("Other names", [
@@ -110,7 +110,7 @@ export const mapUpcomingToEmbed = (
       fields.push(createEmbedField("Trailer", link, true));
     }
 
-    const embed: Embed = {
+    const embed: RichEmbed = {
       title: createTitle((media.isAdult
         ? "[**NSFW**] "
         : "") +

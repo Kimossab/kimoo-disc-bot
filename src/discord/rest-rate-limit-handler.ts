@@ -164,10 +164,13 @@ export default class RestRateLimitHandler {
     }
   }
 
-  public async request<T>(
+  public async request<
+    T,
+    D = unknown
+  >(
     method: Method,
     path: string,
-    data?: unknown,
+    data?: D,
     headers?: Record<string, string>
   ): Promise<T | null> {
     const bucketPath = topLevelBucketPath(path);

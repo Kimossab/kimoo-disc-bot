@@ -1,4 +1,4 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
@@ -12,39 +12,34 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { addPagination, getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  Embed,
-  InteractionCallbackType
-} from "@/types/discord";
 
 import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapMediaToEmbed } from "../mappers/mapMediaToEmbed";
 import { MediaType } from "../types/graphql";
+import { ApplicationCommandSubcommandOption, RichEmbed } from "@/discord/rest/types.gen";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface SearchCommandOptions {
   query: string;
   type: MediaType;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "search",
   description: "Search for an anime or manga",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "query",
       description: "Query to search for",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.String,
       required: true
     },
     {
       name: "type",
       description: "Query to search for",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.String,
       choices: [
         {
           name: MediaType.ANIME,
@@ -59,7 +54,7 @@ const definition: ApplicationCommandOption = {
   ]
 };
 
-const pageUpdate: CreatePageCallback<Embed> = async (_page, _total, data) => ({
+const pageUpdate: CreatePageCallback<RichEmbed> = async (_page, _total, data) => ({
   data: {
     embeds: [data]
   }
@@ -73,7 +68,7 @@ const handler = (
     const app = getApplication();
     if (app && app.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const { query, type } = getOptions<SearchCommandOptions>(

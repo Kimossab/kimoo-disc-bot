@@ -7,23 +7,18 @@ import {
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { addPagination } from "@/state/store";
-import {
-  Application,
-  ButtonStyle,
-  ComponentType,
-  Embed,
-  Interaction
-} from "@/types/discord";
 
 import { mapSauceNaoResultToData } from "./mapper";
 import { requestSauceNao } from "./request";
+import { RichEmbed } from "@/discord/rest/types.gen";
+import { APIApplication, APIApplicationCommandInteraction, ButtonStyle, ComponentType } from "discord-api-types/v10";
 
 const sauceNaoEmbed = (
   item: SauceNao.data,
   page: number,
   total: number
-): Embed => {
-  const embed: Embed = {
+): RichEmbed => {
+  const embed: RichEmbed = {
     title: item.name,
     description: item.site,
     color: 3035554,
@@ -111,9 +106,9 @@ const sauceNaoUpdatePage: CreatePageCallback<SauceNao.data> = async (
 });
 
 const handleSauceNao = async (
-  data: Interaction,
+  data: APIApplicationCommandInteraction,
   image: string,
-  app: Partial<Application>,
+  app: Partial<APIApplication>,
   logger: Logger
 ): Promise<void> => {
   const saucenao = await requestSauceNao(image, logger);

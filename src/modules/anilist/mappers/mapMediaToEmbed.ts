@@ -13,7 +13,6 @@ import {
   createTitle
 } from "@/helper/embed";
 import messageList from "@/helper/messages";
-import { Embed, EmbedField } from "@/types/discord";
 
 import { MediaList, PageResponse } from "../types/graphql";
 import {
@@ -24,10 +23,11 @@ import {
   statusMapper,
   typeMapper
 } from "./enumMapper";
+import { RichEmbed, RichEmbedField } from "@/discord/rest/types.gen";
 
-export const mapMediaToEmbed = (data: PageResponse<MediaList>): Embed[] => {
+export const mapMediaToEmbed = (data: PageResponse<MediaList>): RichEmbed[] => {
   return data.Page.media.map((media, index) => {
-    const fields: EmbedField[] = [];
+    const fields: RichEmbedField[] = [];
 
     fields.push(...[
       ...createEmbedFieldList("Other names", [
@@ -104,7 +104,7 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): Embed[] => {
       ));
     }
 
-    const embed: Embed = {
+    const embed: RichEmbed = {
       title: createTitle((media.isAdult
         ? "[**NSFW**] "
         : "") +

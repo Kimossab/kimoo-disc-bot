@@ -1,4 +1,4 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
@@ -8,32 +8,28 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
 
 import { addSubscription, setAnimeLastAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
 import { AnimeManager, getLastAndNextEpisode } from "../helpers/anime-manager";
 import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapMediaAiringToEmbed } from "../mappers/mapMediaAiringToEmbed";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface SubAddCommandOptions {
   anime: string;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "add",
   description: "Add a subscription",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "anime",
       description: "Anime name",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.String,
       required: true
     }
   ]
@@ -49,7 +45,7 @@ export const handler = (
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const { anime } = getOptions<SubAddCommandOptions>(

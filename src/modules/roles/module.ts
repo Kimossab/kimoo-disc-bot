@@ -4,18 +4,13 @@ import { getServer } from "@/database";
 import { editMessage, getEmojis, getRoles } from "@/discord/rest";
 import { chunkArray, interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
-import {
-  ActionRow,
-  AvailableLocales,
-  Button,
-  ButtonStyle,
-  ComponentType
-} from "@/types/discord";
 
 import addCommand from "./commands/add.command";
 import channelCommand from "./commands/channel.command";
 import refreshCommand from "./commands/refresh.command";
 import { getRoleCategoriesByServer } from "./database";
+import { ButtonStyle, ComponentType, Locale } from "discord-api-types/v10";
+import { ActionRow, Button } from "@/discord/rest/types.gen";
 
 export default class RoleModule extends BaseModule {
   constructor (isActive: boolean) {
@@ -26,7 +21,7 @@ export default class RoleModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
+    this.commandDescription[Locale.EnglishUS] =
       "Commands related to self assigning roles";
 
     this.commandList = {
@@ -71,7 +66,7 @@ export default class RoleModule extends BaseModule {
             } else {
               component.emoji = {
                 id: emoji?.id,
-                name: null
+                name: ""
               };
             }
           }

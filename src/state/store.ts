@@ -1,11 +1,4 @@
-import {
-  Interaction,
-  InteractionData,
-  InteractionType,
-  MessageComponentInteractionData,
-  ModalSubmitInteractionData
-} from "@/types/discord";
-
+import { APIApplicationCommandInteraction, APIMessageComponentInteraction, InteractionType } from "discord-api-types/payloads/v10/interactions";
 import { ActionName, Actions, State } from "./types";
 
 const state: State = {
@@ -55,10 +48,10 @@ const actions: StateActions = {
     state.commandExecutedCallback.push(payload);
     return state;
   },
-  [ActionName.SetReactionCallback]: (payload) => {
-    state.messageReactionCallback.push(payload);
-    return state;
-  },
+  // [ActionName.SetReactionCallback]: (payload) => {
+  //   state.messageReactionCallback.push(payload);
+  //   return state;
+  // },
   [ActionName.SetDiscordSession]: (payload) => {
     state.discordSessionId = payload;
     return state;
@@ -103,25 +96,21 @@ const actions: StateActions = {
     }
   },
   [ActionName.CommandExecuted]: (data) => {
-    if (data.type === InteractionType.APPLICATION_COMMAND) {
-      return handleApplicationCommand(data as Interaction<InteractionData>);
+    if (data.type === InteractionType.ApplicationCommand) {
+      return handleApplicationCommand(data);
     }
 
     if (
-      data.type === InteractionType.MESSAGE_COMPONENT ||
-      data.type === InteractionType.MODAL_SUBMIT
+      data.type === InteractionType.MessageComponent ||
+      data.type === InteractionType.ModalSubmit
     ) {
-      const componentData = data as Interaction<
-        MessageComponentInteractionData | ModalSubmitInteractionData
-      >;
-
-      if (componentData.data?.custom_id.startsWith("pagination.")) {
-        return handlePaginationComponent(componentData as Interaction<MessageComponentInteractionData>);
+      if (data.data?.custom_id.startsWith("pagination.")) {
+        return handlePaginationComponent(data as APIMessageComponentInteraction);
       }
 
       for (const module of state.modules) {
-        if (componentData.data?.custom_id.startsWith(module.name)) {
-          module.interactionComponentExecute(componentData);
+        if (data.data?.custom_id.startsWith(module.name)) {
+          module.interactionComponentExecute(data);
           return;
         }
       }
@@ -140,7 +129,7 @@ export const setResumeGateway = actions[ActionName.SetResumeGateway];
 export const setReadyCallback = actions[ActionName.SetReadyCallback];
 export const setCommandExecutedCallback =
   actions[ActionName.SetCommandExecutedCallback];
-export const setReactionCallback = actions[ActionName.SetReactionCallback];
+// export const setReactionCallback = actions[ActionName.SetReactionCallback];
 export const addPagination = actions[ActionName.AddPagination];
 export const setDiscordSession = actions[ActionName.SetDiscordSession];
 export const setDiscordLastS = actions[ActionName.SetDiscordLastS];
@@ -155,18 +144,18 @@ export const setReadyData = actions[ActionName.SetReadyData];
 export const commandExecuted = actions[ActionName.CommandExecuted];
 export const setModules = actions[ActionName.SetModules];
 
-const handleApplicationCommand = (data: Interaction<InteractionData>) => {
+const handleApplicationCommand = (data: APIApplicationCommandInteraction) => {
   const callback = state.commandExecutedCallback;
 
   for (const cb of callback) {
     cb(data);
   }
 };
-const handlePaginationComponent = (componentData: Interaction<MessageComponentInteractionData>) => {
+const handlePaginationComponent = (componentData: APIMessageComponentInteraction) => {
   const pagination = getPagination(componentData.message?.id || "");
   pagination?.handlePage(
     componentData.id,
     componentData.token,
-    componentData.data as MessageComponentInteractionData
+    componentData.data
   );
 };

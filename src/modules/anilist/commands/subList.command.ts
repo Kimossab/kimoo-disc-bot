@@ -1,4 +1,4 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
   createInteractionResponse,
@@ -11,23 +11,19 @@ import {
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import { addPagination, getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
 
 import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapSubListToEmbed } from "../mappers/mapSubListToEmbed";
 import { MediaSubbedInfo } from "../types/graphql";
+import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
+import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
-const definition: ApplicationCommandOption = {
+const definition: ApplicationCommandSubcommandOption = {
   name: "list",
   description: "List your subscriptions",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: []
 };
 
@@ -48,7 +44,7 @@ const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
+        type: InteractionResponseType.DeferredChannelMessageWithSource
       });
 
       const subs = await getUserSubs(data.guild_id, data.member.user?.id || "");

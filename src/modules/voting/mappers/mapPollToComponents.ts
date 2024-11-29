@@ -1,8 +1,9 @@
 import { CompletePoll } from "#voting/database";
 import { hasExpired } from "#voting/helpers";
+import { ActionRow } from "@/discord/rest/types.gen";
 
 import { chunkArray } from "@/helper/common";
-import { ActionRow, ButtonStyle, ComponentType } from "@/types/discord";
+import { ButtonStyle, ComponentType } from "discord-api-types/v10";
 
 export enum PollMessageType {
   VOTE = "vote",

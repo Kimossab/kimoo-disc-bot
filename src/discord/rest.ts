@@ -1,54 +1,30 @@
-import {
-  ApplicationCommand,
-  CreateGlobalApplicationCommand,
-  CreateMessage,
-  EditMessage,
-  EditWebhookMessage,
-  Embed,
-  Emoji,
-  GatewayBot,
-  GuildMember,
-  InteractionResponse,
-  Message,
-  MessageReference,
-  Role
-} from "@/types/discord";
-
+import { Snowflake } from "discord-api-types/globals";
 import RestRateLimitHandler from "./rest-rate-limit-handler";
 import FormData from "form-data";
 import fs from "fs";
+import { RESTGetAPIGatewayBotResult } from "discord-api-types/rest/v10/gateway";
 
 const rateLimiter = new RestRateLimitHandler();
 
-/**
- * Request the gateway bot from discord
- */
-export const getGatewayBot = (): Promise<GatewayBot | null> => rateLimiter.request<GatewayBot>("GET", "/gateway/bot");
+
+export const getGatewayBot = () => rateLimiter.request<RESTGetAPIGatewayBotResult>("GET", "/gateway/bot");
 
 // messages
-/**
- * Send a message to a channel
- * @param channel Channel id
- * @param content Message
- * @param embed Embed data
- */
 export const sendMessage = (
-  channel: string,
+  channel: SnowflakeType,
   content?: string,
-  embeds?: Embed[],
-  reference?: MessageReference
-): Promise<Message | null> => {
-  if (!content && !embeds) {
-    throw new Error("No content or embed provided");
-  }
-
-  const message: CreateMessage = {
+  embeds?: RichEmbed[],
+  reference?: MessageReferenceRequest
+) => {
+  const message: MessageCreateRequest = {
     content,
     embeds,
     message_reference: reference
   };
 
-  return rateLimiter.request<Message>(
+  validate("MessageCreateRequest", message);
+
+  return rateLimiter.request<MessageResponse>(
     "POST",
     `/channels/${channel}/messages`,
     message
@@ -56,11 +32,13 @@ export const sendMessage = (
 };
 
 export const editMessage = (
-  channel: string,
-  message: string,
-  data: EditMessage
-): Promise<Message | null> => {
-  return rateLimiter.request<Message>(
+  channel: Snowflake,
+  message: SnowflakeType,
+  data: MessageEditRequestPartial
+) => {
+  validate("MessageEditRequestPartialSchema", data);
+
+  return rateLimiter.request<MessageResponse>(
     "PATCH",
     `/channels/${channel}/messages/${message}`,
     data
@@ -68,70 +46,57 @@ export const editMessage = (
 };
 
 // reactions
-/**
- * Sends a reaction to a message
- * @param channel Channel id
- * @param message Message id
- * @param reaction Reaction name
- */
 export const createReaction = (
-  channel: string,
-  message: string,
+  channel: SnowflakeType,
+  message: SnowflakeType,
   reaction: string
-): Promise<void | null> => rateLimiter.request<void>(
+) => rateLimiter.request<void>(
   "PUT",
   `/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(reaction)}/@me`
 );
 
 // SLASH COMMANDS
-/**
- * Gets the commands for the application
- * @param application Application id
- */
-export const getCommands = (application: string): Promise<ApplicationCommand[] | null> => rateLimiter.request<ApplicationCommand[]>(
+export const getCommands = (application: SnowflakeType) => rateLimiter.request<ApplicationCommandResponse[]>(
   "GET",
   `/applications/${application}/commands`
 );
 
-/**
- * Deletes an existing command with the name in this application
- * @param application Application id
- * @param command Command name
- */
+export const createCommand = (
+  application: SnowflakeType,
+  command: ApplicationCommandCreateRequest
+) => {
+  validate("ApplicationCommandCreateRequest", command);
+
+  rateLimiter.request<ApplicationCommandResponse>(
+    "POST",
+    `/applications/${application}/commands`,
+    command
+  );
+};
+
 export const deleteCommand = (
-  application: string,
-  command: string
-): Promise<void | null> => rateLimiter.request<void>(
+  application: SnowflakeType,
+  command: SnowflakeType
+) => rateLimiter.request<void>(
   "DELETE",
   `/applications/${application}/commands/${command}`
 );
 
-/**
- * Creates or updates a new command for this application
- * @param application Application id
- * @param command Command data
- */
-export const createCommand = (
-  application: string,
-  command: CreateGlobalApplicationCommand
-): Promise<ApplicationCommand | null> => rateLimiter.request<ApplicationCommand>(
-  "POST",
-  `/applications/${application}/commands`,
-  command
-);
-
-/**
- * Sends a response to an interaction
- * @param interaction Interaction id
- * @param token Token string
- * @param data Interaction response data
- */
 export const createInteractionResponse = (
-  interaction: string,
+  interaction: SnowflakeType,
   token: string,
-  data: InteractionResponse,
+  data: CreateInteractionResponseData["body"],
   image?: string
-): Promise<void | null> => {
+) => {
+  validateAny([
+    "ApplicationCommandAutocompleteCallbackRequest",
+    "CreateMessageInteractionCallbackRequest",
+    "LaunchActivityInteractionCallbackRequest",
+    "ModalInteractionCallbackRequest",
+    "PongInteractionCallbackRequest",
+    "UpdateMessageInteractionCallbackRequest"
+  ], data);
+
   if (image) {
     const formData = new FormData();
     const file = fs.createReadStream(image);
@@ -153,37 +118,42 @@ export const createInteractionResponse = (
 };
 
 export const editOriginalInteractionResponse = (
-  applicationId: string,
+  applicationId: SnowflakeType,
   token: string,
-  data: EditWebhookMessage,
-  image?: string
-): Promise<Message | null> => {
+  data: IncomingWebhookUpdateRequestPartial,
+  image?: string,
+  threadId?: SnowflakeType
+) => {
+  validate("IncomingWebhookUpdateRequestPartial", data);
+
+  const threadQuery = !!threadId ? `?thread_id=${threadId}` : "";
+
   if (image) {
     const formData = new FormData();
     const file = fs.createReadStream(image);
     formData.append("file", file);
     formData.append("payload_json", JSON.stringify(data));
 
-    return rateLimiter.request<Message>(
+    return rateLimiter.request<MessageResponse>(
       "PATCH",
-      `/webhooks/${applicationId}/${token}/messages/@original`,
+      `/webhooks/${applicationId}/${token}/messages/@original${threadQuery}`,
       formData,
       formData.getHeaders()
     );
   }
-  return rateLimiter.request<Message>(
+  return rateLimiter.request<MessageResponse>(
     "PATCH",
-    `/webhooks/${applicationId}/${token}/messages/@original`,
+    `/webhooks/${applicationId}/${token}/messages/@original${threadQuery}`,
     data
   );
 };
 
 export const giveRole = (
-  guildId: string,
-  userId: string,
-  roleId: string,
+  guildId: SnowflakeType,
+  userId: SnowflakeType,
+  roleId: SnowflakeType,
   reason?: string
-): Promise<null | undefined> => {
+) => {
   let headers: Record<string, string> | undefined = undefined;
 
   if (reason) {
@@ -201,11 +171,11 @@ export const giveRole = (
 };
 
 export const removeRole = (
-  guildId: string,
-  userId: string,
-  roleId: string,
+  guildId: SnowflakeType,
+  userId: SnowflakeType,
+  roleId: SnowflakeType,
   reason?: string
-): Promise<null | undefined> => {
+) => {
   let headers: Record<string, string> | undefined = undefined;
 
   if (reason) {
@@ -222,17 +192,17 @@ export const removeRole = (
   );
 };
 
-export const getRoles = (guildId: string): Promise<Role[] | null> => {
-  return rateLimiter.request("GET", `/guilds/${guildId}/roles`);
+export const getRoles = (guildId: SnowflakeType) => {
+  return rateLimiter.request<GuildRoleResponse[]>("GET", `/guilds/${guildId}/roles`);
 };
 
-export const getEmojis = (guildId: string): Promise<Emoji[] | null> => {
-  return rateLimiter.request("GET", `/guilds/${guildId}/emojis`);
+export const getEmojis = (guildId: SnowflakeType) => {
+  return rateLimiter.request<EmojiResponse[]>("GET", `/guilds/${guildId}/emojis`);
 };
 
 export const getGuildMember = (
-  guildId: string,
-  memberId: string
-): Promise<GuildMember | null> => {
-  return rateLimiter.request("GET", `/guilds/${guildId}/members/${memberId}`);
+  guildId: SnowflakeType,
+  memberId: SnowflakeType
+) => {
+  return rateLimiter.request<GuildMemberResponse>("GET", `/guilds/${guildId}/members/${memberId}`);
 };

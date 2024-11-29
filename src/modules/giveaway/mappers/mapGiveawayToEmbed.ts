@@ -1,9 +1,8 @@
 import { CompleteGiveaway } from "#giveaway/database";
+import { RichEmbed } from "@/discord/rest/types.gen";
 
-import { Embed } from "@/types/discord";
-
-export const mapGiveawayToEmbed = (giveaway: CompleteGiveaway): Embed => {
-  const embed: Embed = {
+export const mapGiveawayToEmbed = (giveaway: CompleteGiveaway): RichEmbed => {
+  const embed: RichEmbed = {
     title: "Giveaway 🎁",
     fields: [
       {
