@@ -1,4 +1,4 @@
-import { MessageAllowedMentionsRequest } from "@/discord/rest/types.gen";
+import { APIAllowedMentions, APIMessageMentionableSelectInteractionData } from "discord-api-types/v10";
 
 // common
 export const PRESENCE_STRINGS = [
@@ -28,7 +28,7 @@ export const PRESENCE_STRINGS = [
 ];
 
 // discord
-export const no_mentions: MessageAllowedMentionsRequest = {
+export const no_mentions: APIAllowedMentions = {
   parse: [],
   roles: [],
   users: [],

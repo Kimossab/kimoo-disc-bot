@@ -5,21 +5,20 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { APIApplication, APIInteraction, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplication, APIApplicationCommandOption, APIInteraction, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface GetCommandOptions {
   user: string;
   month: number;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "get",
   description: "Gets someone's birthday from the database",
   type: ApplicationCommandOptionType.Subcommand,

@@ -1,13 +1,13 @@
 
+import { APIEmbedField } from "discord-api-types/v10";
 import { limitString } from "./common";
-import { RichEmbedField } from "@/discord/rest/types.gen";
 
 export const createEmbedFieldList = (
   title: string,
   data: string[],
   inline = false
-): RichEmbedField[] => {
-  const fields: RichEmbedField[] = [];
+): APIEmbedField[] => {
+  const fields: APIEmbedField[] = [];
   let fieldValue = "";
 
   for (const line of data) {
@@ -35,7 +35,7 @@ export const createEmbedField = (
   title: string,
   data: string,
   inline = false
-): RichEmbedField => ({
+): APIEmbedField => ({
   name: limitString(title, 256),
   value: limitString(data, 1024),
   inline

@@ -11,16 +11,14 @@ import {
 } from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import { addPagination, getApplication } from "@/state/store";
-
 import { getUserSubs } from "../database";
 import { searchForUser } from "../graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapSubListToEmbed } from "../mappers/mapSubListToEmbed";
 import { MediaSubbedInfo } from "../types/graphql";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
-import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "list",
   description: "List your subscriptions",
   type: ApplicationCommandOptionType.Subcommand,

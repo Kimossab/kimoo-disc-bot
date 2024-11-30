@@ -26,7 +26,7 @@ import {
   setModules,
   setReadyCallback
 } from "./state/store";
-import { APIInteraction, InteractionResponseType, InteractionType } from "discord-api-types/payloads/v10";
+import { APIInteraction, InteractionResponseType, InteractionType } from "discord-api-types/v10";
 
 const _logger = new Logger("bot");
 

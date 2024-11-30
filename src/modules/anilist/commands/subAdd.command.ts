@@ -8,20 +8,18 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-
 import { addSubscription, setAnimeLastAiring } from "../database";
 import { searchForAiringSchedule } from "../graphql/graphql";
 import { AnimeManager, getLastAndNextEpisode } from "../helpers/anime-manager";
 import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapMediaAiringToEmbed } from "../mappers/mapMediaAiringToEmbed";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
-import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface SubAddCommandOptions {
   anime: string;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "add",
   description: "Add a subscription",
   type: ApplicationCommandOptionType.Subcommand,

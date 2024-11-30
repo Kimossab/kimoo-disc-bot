@@ -22,13 +22,10 @@ import {
   editMessage,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { InteractionCallbackTypesSchema } from "@/discord/rest/schemas.gen";
-import { ActionRow, ApplicationCommandBooleanOption, ApplicationCommandIntegerOption, ApplicationCommandStringOption, ApplicationCommandSubcommandOption, IncomingWebhookUpdateRequestPartial } from "@/discord/rest/types.gen";
 import Logger from "@/helper/logger";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { APIApplicationCommandSubcommandOption, ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from "discord-api-types/payloads/v10/interactions";
-import { APIActionRowComponent, APIActionRowComponentTypes, APIButtonComponent, APIMessageActionRowComponent, APIMessageComponentInteraction, APIModalSubmitInteraction, ComponentType, MessageFlags, TextInputStyle } from "discord-api-types/v10";
+import { APIApplicationCommandBasicOption, APIApplicationCommandOption, APIInteractionResponseCallbackData, ApplicationCommandOptionType, InteractionResponseType, APIActionRowComponent, APIMessageActionRowComponent, APIMessageComponentInteraction, APIModalSubmitInteraction, ComponentType, MessageFlags, TextInputStyle } from "discord-api-types/v10";
 
 const MAX_OPTIONS_PER_POLL = 25;
 
@@ -53,7 +50,7 @@ type ComponentHandler<
 ) => Promise<{ hasSentResponse: boolean;
   needsToUpdatePoll: boolean; }>;
 
-const options: ApplicationCommandSubcommandOption["options"] = [
+const options: APIApplicationCommandBasicOption[] = [
   {
     name: "question",
     description: "The question you wish to ask, or the topic of the voting",
@@ -100,7 +97,7 @@ const options: ApplicationCommandSubcommandOption["options"] = [
   }
 ];
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "create",
   description: "Creates a new poll in this channel",
   type: ApplicationCommandOptionType.Subcommand,
@@ -108,9 +105,9 @@ const definition: ApplicationCommandSubcommandOption = {
 };
 
 const createPollMessageData: {
-  (poll: CompletePoll): IncomingWebhookUpdateRequestPartial;
-  (poll: CompletePoll, user: string): IncomingWebhookUpdateRequestPartial;
-} = (poll: CompletePoll, user?: string): IncomingWebhookUpdateRequestPartial => {
+  (poll: CompletePoll): APIInteractionResponseCallbackData;
+  (poll: CompletePoll, user: string): APIInteractionResponseCallbackData;
+} = (poll: CompletePoll, user?: string): APIInteractionResponseCallbackData => {
   const embeds = [
     user
       ? mapPollToSettingsEmbed(poll, user)
@@ -120,7 +117,7 @@ const createPollMessageData: {
     ? mapPollToComponents(poll, PollMessageType.SETTINGS, user)
     : mapPollToComponents(poll, PollMessageType.VOTE);
 
-  const response: IncomingWebhookUpdateRequestPartial = {
+  const response: APIInteractionResponseCallbackData = {
     embeds
   };
 
@@ -336,7 +333,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       : undefined;
 
     const userId = data.member?.user?.id || "";
-    const components: ActionRow[] = mapPollToComponents(
+    const components: APIActionRowComponent<APIMessageActionRowComponent>[] = mapPollToComponents(
       poll,
       PollMessageType.SETTINGS,
       userId,
@@ -582,11 +579,10 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     }
 
     if (!messageHasBeenCreated) {
-      const responseData = (
+      const responseData =
         isOriginalMessage
           ? createPollMessageData(updatedPoll)
-          : createPollMessageData(updatedPoll, data.member?.user?.id || "")
-      ) as IncomingWebhookUpdateRequestPartial;
+          : createPollMessageData(updatedPoll, data.member?.user?.id || "");
 
       await createInteractionResponse(data.id, data.token, {
         type: InteractionResponseType.UpdateMessage,

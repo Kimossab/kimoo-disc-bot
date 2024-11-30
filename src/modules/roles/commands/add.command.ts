@@ -12,13 +12,12 @@ import {
   removeRole,
   sendMessage
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption, Emoji } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
+import { APIApplicationCommandOption, APIEmoji, ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
 interface CommandOptions {
   category: string;
@@ -26,7 +25,7 @@ interface CommandOptions {
   icon: string | null;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "add",
   description: messageList.roles.add.description,
   type: ApplicationCommandOptionType.Subcommand,
@@ -113,7 +112,7 @@ const handler = (
         return;
       }
 
-      let emoji: Emoji | undefined;
+      let emoji: APIEmoji | undefined;
 
       if (icon) {
         const emojis = await getEmojis(data.guild_id);

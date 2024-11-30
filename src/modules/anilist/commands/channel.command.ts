@@ -1,22 +1,20 @@
 import { CommandHandler, CommandInfo } from "#base-module";
-
 import { getServer, setServerAnimeChannel } from "@/database";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface ChannelCommandOptions {
   channel: string;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "channel",
   description:
     "Sets the channel where the anime notification messages are sent to",

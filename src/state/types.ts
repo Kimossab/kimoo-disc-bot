@@ -1,9 +1,7 @@
 import BaseModule from "#base-module";
 
 import { InteractionPagination } from "@/helper/interaction-pagination";
-import { GatewayGuildCreateDispatchData, GatewayReadyDispatchData } from "discord-api-types/gateway/v10";
-import { APIInteraction } from "discord-api-types/payloads/v10/interactions";
-import { APIApplicationCommandInteraction, APIGuildMember, APIUser } from "discord-api-types/v10";
+import { APIApplicationCommandInteraction, APIGuildMember, APIUser, GatewayGuildCreateDispatchData, GatewayReadyDispatchData, APIInteraction } from "discord-api-types/v10";
 
 type Application = GatewayReadyDispatchData["application"];
 

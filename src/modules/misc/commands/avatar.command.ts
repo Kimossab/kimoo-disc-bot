@@ -5,16 +5,15 @@ import {
   editOriginalInteractionResponse,
   getGuildMember
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface CommandOptions {
   user: string;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "avatar",
   description: "Get a user's avatar",
   type: ApplicationCommandOptionType.Subcommand,

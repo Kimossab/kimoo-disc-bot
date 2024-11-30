@@ -4,19 +4,18 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption, RichEmbed } from "@/discord/rest/types.gen";
 import { interpolator, randomNum } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandOption, APIEmbed, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface GroupCommandOptions {
   groups: number;
   values: string;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "group",
   description: "Create random groups",
   type: ApplicationCommandOptionType.Subcommand,
@@ -36,8 +35,8 @@ const definition: ApplicationCommandSubcommandOption = {
   ]
 };
 
-const groupEmbed = (groups: string[][]): RichEmbed => {
-  const embed: RichEmbed = { fields: [] };
+const groupEmbed = (groups: string[][]): APIEmbed => {
+  const embed: APIEmbed = { fields: [] };
 
   for (const index in groups) {
     embed.fields = [

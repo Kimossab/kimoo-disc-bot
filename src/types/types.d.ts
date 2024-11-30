@@ -158,7 +158,7 @@ declare namespace SauceNao {
 
   interface message_list {
     message: string;
-    items: RichEmbed[];
+    items: APIEmbed[];
     currentPage: number;
   }
 }

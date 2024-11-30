@@ -2,7 +2,8 @@ import { Snowflake } from "discord-api-types/globals";
 import RestRateLimitHandler from "./rest-rate-limit-handler";
 import FormData from "form-data";
 import fs from "fs";
-import { RESTGetAPIGatewayBotResult } from "discord-api-types/rest/v10/gateway";
+import { APIEmbed } from "discord-api-types/v10";
+import { RESTAPIMessageReference, RESTGetAPIApplicationCommandsResult, RESTGetAPIGatewayBotResult, RESTGetAPIGuildEmojisResult, RESTGetAPIGuildMemberResult, RESTGetAPIGuildRolesResult, RESTPatchAPIChannelMessageJSONBody, RESTPatchAPIChannelMessageResult, RESTPatchAPIInteractionOriginalResponseJSONBody, RESTPatchAPIInteractionOriginalResponseResult, RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIApplicationCommandsResult, RESTPostAPIChannelMessageJSONBody, RESTPostAPIChannelMessageResult, RESTPostAPIInteractionCallbackJSONBody } from "discord-api-types/v10";
 
 const rateLimiter = new RestRateLimitHandler();
 
@@ -11,20 +12,18 @@ export const getGatewayBot = () => rateLimiter.request<RESTGetAPIGatewayBotResul
 
 // messages
 export const sendMessage = (
-  channel: SnowflakeType,
+  channel: Snowflake,
   content?: string,
-  embeds?: RichEmbed[],
-  reference?: MessageReferenceRequest
+  embeds?: APIEmbed[],
+  reference?: RESTAPIMessageReference
 ) => {
-  const message: MessageCreateRequest = {
+  const message: RESTPostAPIChannelMessageJSONBody = {
     content,
     embeds,
     message_reference: reference
   };
 
-  validate("MessageCreateRequest", message);
-
-  return rateLimiter.request<MessageResponse>(
+  return rateLimiter.request<RESTPostAPIChannelMessageResult>(
     "POST",
     `/channels/${channel}/messages`,
     message
@@ -33,22 +32,18 @@ export const sendMessage = (
 
 export const editMessage = (
   channel: Snowflake,
-  message: SnowflakeType,
-  data: MessageEditRequestPartial
-) => {
-  validate("MessageEditRequestPartialSchema", data);
-
-  return rateLimiter.request<MessageResponse>(
-    "PATCH",
-    `/channels/${channel}/messages/${message}`,
-    data
-  );
-};
+  message: Snowflake,
+  data: RESTPatchAPIChannelMessageJSONBody
+) => rateLimiter.request<RESTPatchAPIChannelMessageResult>(
+  "PATCH",
+  `/channels/${channel}/messages/${message}`,
+  data
+);
 
 // reactions
 export const createReaction = (
-  channel: SnowflakeType,
-  message: SnowflakeType,
+  channel: Snowflake,
+  message: Snowflake,
   reaction: string
 ) => rateLimiter.request<void>(
   "PUT",
@@ -56,47 +51,34 @@ export const createReaction = (
 );
 
 // SLASH COMMANDS
-export const getCommands = (application: SnowflakeType) => rateLimiter.request<ApplicationCommandResponse[]>(
+export const getCommands = (application: Snowflake) => rateLimiter.request<RESTGetAPIApplicationCommandsResult>(
   "GET",
   `/applications/${application}/commands`
 );
 
 export const createCommand = (
-  application: SnowflakeType,
-  command: ApplicationCommandCreateRequest
-) => {
-  validate("ApplicationCommandCreateRequest", command);
-
-  rateLimiter.request<ApplicationCommandResponse>(
-    "POST",
-    `/applications/${application}/commands`,
-    command
-  );
-};
+  application: Snowflake,
+  command: RESTPostAPIApplicationCommandsJSONBody
+) => rateLimiter.request<RESTPostAPIApplicationCommandsResult>(
+  "POST",
+  `/applications/${application}/commands`,
+  command
+);
 
 export const deleteCommand = (
-  application: SnowflakeType,
-  command: SnowflakeType
+  application: Snowflake,
+  command: Snowflake
 ) => rateLimiter.request<void>(
   "DELETE",
   `/applications/${application}/commands/${command}`
 );
 
 export const createInteractionResponse = (
-  interaction: SnowflakeType,
+  interaction: Snowflake,
   token: string,
-  data: CreateInteractionResponseData["body"],
+  data: RESTPostAPIInteractionCallbackJSONBody,
   image?: string
 ) => {
-  validateAny([
-    "ApplicationCommandAutocompleteCallbackRequest",
-    "CreateMessageInteractionCallbackRequest",
-    "LaunchActivityInteractionCallbackRequest",
-    "ModalInteractionCallbackRequest",
-    "PongInteractionCallbackRequest",
-    "UpdateMessageInteractionCallbackRequest"
-  ], data);
-
   if (image) {
     const formData = new FormData();
     const file = fs.createReadStream(image);
@@ -118,14 +100,12 @@ export const createInteractionResponse = (
 };
 
 export const editOriginalInteractionResponse = (
-  applicationId: SnowflakeType,
+  applicationId: Snowflake,
   token: string,
-  data: IncomingWebhookUpdateRequestPartial,
+  data: RESTPatchAPIInteractionOriginalResponseJSONBody,
   image?: string,
-  threadId?: SnowflakeType
+  threadId?: Snowflake
 ) => {
-  validate("IncomingWebhookUpdateRequestPartial", data);
-
   const threadQuery = !!threadId ? `?thread_id=${threadId}` : "";
 
   if (image) {
@@ -134,14 +114,14 @@ export const editOriginalInteractionResponse = (
     formData.append("file", file);
     formData.append("payload_json", JSON.stringify(data));
 
-    return rateLimiter.request<MessageResponse>(
+    return rateLimiter.request<RESTPatchAPIInteractionOriginalResponseResult>(
       "PATCH",
       `/webhooks/${applicationId}/${token}/messages/@original${threadQuery}`,
       formData,
       formData.getHeaders()
     );
   }
-  return rateLimiter.request<MessageResponse>(
+  return rateLimiter.request<RESTPatchAPIInteractionOriginalResponseResult>(
     "PATCH",
     `/webhooks/${applicationId}/${token}/messages/@original${threadQuery}`,
     data
@@ -149,9 +129,9 @@ export const editOriginalInteractionResponse = (
 };
 
 export const giveRole = (
-  guildId: SnowflakeType,
-  userId: SnowflakeType,
-  roleId: SnowflakeType,
+  guildId: Snowflake,
+  userId: Snowflake,
+  roleId: Snowflake,
   reason?: string
 ) => {
   let headers: Record<string, string> | undefined = undefined;
@@ -171,9 +151,9 @@ export const giveRole = (
 };
 
 export const removeRole = (
-  guildId: SnowflakeType,
-  userId: SnowflakeType,
-  roleId: SnowflakeType,
+  guildId: Snowflake,
+  userId: Snowflake,
+  roleId: Snowflake,
   reason?: string
 ) => {
   let headers: Record<string, string> | undefined = undefined;
@@ -192,17 +172,17 @@ export const removeRole = (
   );
 };
 
-export const getRoles = (guildId: SnowflakeType) => {
-  return rateLimiter.request<GuildRoleResponse[]>("GET", `/guilds/${guildId}/roles`);
+export const getRoles = (guildId: Snowflake) => {
+  return rateLimiter.request<RESTGetAPIGuildRolesResult>("GET", `/guilds/${guildId}/roles`);
 };
 
-export const getEmojis = (guildId: SnowflakeType) => {
-  return rateLimiter.request<EmojiResponse[]>("GET", `/guilds/${guildId}/emojis`);
+export const getEmojis = (guildId: Snowflake) => {
+  return rateLimiter.request<RESTGetAPIGuildEmojisResult>("GET", `/guilds/${guildId}/emojis`);
 };
 
 export const getGuildMember = (
-  guildId: SnowflakeType,
-  memberId: SnowflakeType
+  guildId: Snowflake,
+  memberId: Snowflake
 ) => {
-  return rateLimiter.request<GuildMemberResponse>("GET", `/guilds/${guildId}/members/${memberId}`);
+  return rateLimiter.request<RESTGetAPIGuildMemberResult>("GET", `/guilds/${guildId}/members/${memberId}`);
 };

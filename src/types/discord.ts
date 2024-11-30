@@ -464,7 +464,7 @@
 //   content?: string | null;
 
 //   /** embedded rich content */
-//   embeds?: RichEmbed[] | null;
+//   embeds?: APIEmbed[] | null;
 
 //   /** allowed mentions for the message */
 //   allowed_mentions?: AllowedMentions | null;
@@ -516,7 +516,7 @@
 //   content?: string | null;
 
 //   /** embedded rich content (up to 6000 characters) */
-//   embeds?: RichEmbed[] | null;
+//   embeds?: APIEmbed[] | null;
 
 //   /** edit the flags of a message (only SUPPRESS_EMBEDS can currently be set/unset) */
 //   flags?: integer | null;
@@ -541,7 +541,7 @@
 //   tts?: boolean;
 
 //   /** embedded rich content (up to 6000 characters) */
-//   embeds?: RichEmbed[] | null;
+//   embeds?: APIEmbed[] | null;
 
 //   /** allowed mentions for the message */
 //   allowed_mentions?: AllowedMentions | null;
@@ -605,7 +605,7 @@
 //   attachments: Attachment[];
 
 //   /** any embedded content */
-//   embeds: RichEmbed[];
+//   embeds: APIEmbed[];
 
 //   /** reactions to the message */
 //   reactions?: Reaction[];
@@ -780,7 +780,7 @@
 //   author?: EmbedAuthor;
 
 //   /** fields information */
-//   fields?: RichEmbedField[];
+//   fields?: APIEmbedField[];
 // }
 
 // /** [Embed Types](https://discord.com/developers/docs/resources/channel#embed-object-embed-types) */
@@ -1411,7 +1411,7 @@
 //   content?: string;
 
 //   /** supports up to 10 embeds */
-//   embeds?: RichEmbed[];
+//   embeds?: APIEmbed[];
 
 //   /** allowed mentions object */
 //   allowed_mentions?: AllowedMentions;
@@ -1522,7 +1522,7 @@
 //   description_localizations?: Localization | null;
 
 //   /** the parameters for the command, max 25 */
-//   options?: ApplicationCommandSubcommandOption[];
+//   options?: APIApplicationCommandOption[];
 
 //   /** Set of permissions represented as a bit set */
 //   default_member_permissions?: string | null;
@@ -1553,7 +1553,7 @@
 // export interface ApplicationCommandOption {
 
 //   /** the type of option */
-//   type: ApplicationCommandSubcommandOptionType;
+//   type: APIApplicationCommandOptionType;
 
 //   /** 1-32 character name */
 //   name: string;
@@ -1574,10 +1574,10 @@
 //   required?: true;
 
 //   /** choices for STRING, INTEGER, and NUMBER types for the user to pick from, max 25 */
-//   choices?: ApplicationCommandSubcommandOptionChoice[];
+//   choices?: APIApplicationCommandOptionChoice[];
 
 //   /** if the option is a subcommand or subcommand group type, these nested options will be the parameters */
-//   options?: ApplicationCommandSubcommandOption[];
+//   options?: APIApplicationCommandOption[];
 
 //   /** if the option is a channel type, the channels shown will be restricted to these types */
 //   channel_types?: ChannelType[];
@@ -1797,7 +1797,7 @@
 //   name: string;
 
 //   /** value of [application command option type](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type) */
-//   type: ApplicationCommandSubcommandOptionType;
+//   type: APIApplicationCommandOptionType;
 
 //   /** the value of the pair */
 //   value?: boolean | string | number;

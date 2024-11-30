@@ -5,18 +5,17 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
 interface ChannelCommandOptions {
   channel: string;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "channel",
   description: messageList.roles.channel.description,
   type: ApplicationCommandOptionType.Subcommand,

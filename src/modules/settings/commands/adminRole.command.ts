@@ -2,10 +2,9 @@ import { CommandHandler, CommandInfo } from "#base-module";
 
 import { getServer, setAdminRole } from "@/database";
 import { createInteractionResponse } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
-import { APIApplicationCommandInteractionDataRoleOption, APIApplicationCommandInteractionDataSubcommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandInteractionDataRoleOption, APIApplicationCommandInteractionDataSubcommandOption, APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "admin_role",
   description: "Gets or sets the admin role",
   type: ApplicationCommandOptionType.Subcommand,

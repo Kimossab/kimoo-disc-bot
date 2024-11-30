@@ -12,15 +12,14 @@ import { getAiringSchedule } from "../graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
 import { mapAiringScheduleToEmbed } from "../mappers/mapAiringScheduleToEmbed";
 import { MediaType } from "../types/graphql";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
-import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface ScheduleCommandOptions {
   query: string;
   type: MediaType;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "schedule",
   description: "Search for an anime airing schedule",
   type: ApplicationCommandOptionType.Subcommand,

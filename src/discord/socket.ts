@@ -12,7 +12,7 @@ import {
   setDiscordSession,
   setReadyData
 } from "@/state/store";
-import {
+import { ActivityType, PresenceUpdateStatus,
   GatewayReceivePayload,
   GatewayOpcodes,
   GatewayHelloData,
@@ -22,9 +22,7 @@ import {
   GatewayIntentBits,
   GatewayMessageCreateDispatchData,
   GatewaySendPayload,
-  GatewayUpdatePresence
-} from "discord-api-types/gateway/v10";
-import { ActivityType, PresenceUpdateStatus } from "discord-api-types/payloads/v10/gateway";
+  GatewayUpdatePresence } from "discord-api-types/v10";
 
 import WebSocket from "ws";
 

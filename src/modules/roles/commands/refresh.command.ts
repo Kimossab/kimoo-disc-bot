@@ -4,12 +4,11 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import messageList from "@/helper/messages";
 import { getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "refresh",
   description: messageList.roles.refresh.description,
   type: ApplicationCommandOptionType.Subcommand

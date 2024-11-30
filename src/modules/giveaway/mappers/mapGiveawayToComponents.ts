@@ -1,9 +1,8 @@
 import { CompleteGiveaway } from "#giveaway/database";
-import { ActionRow } from "@/discord/rest/types.gen";
-import { ComponentType, ButtonStyle } from "discord-api-types/v10";
+import { ComponentType, ButtonStyle, APIActionRowComponent, APIButtonComponent } from "discord-api-types/v10";
 
 
-export const mapGiveawayToComponents = (giveaway: CompleteGiveaway): ActionRow[] => {
+export const mapGiveawayToComponents = (giveaway: CompleteGiveaway): APIActionRowComponent<APIButtonComponent>[] => {
   if (giveaway.endAt < new Date()) {
     return [
       {

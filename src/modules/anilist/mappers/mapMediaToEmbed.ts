@@ -23,11 +23,11 @@ import {
   statusMapper,
   typeMapper
 } from "./enumMapper";
-import { RichEmbed, RichEmbedField } from "@/discord/rest/types.gen";
+import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
 
-export const mapMediaToEmbed = (data: PageResponse<MediaList>): RichEmbed[] => {
+export const mapMediaToEmbed = (data: PageResponse<MediaList>): APIEmbed[] => {
   return data.Page.media.map((media, index) => {
-    const fields: RichEmbedField[] = [];
+    const fields: APIEmbedField[] = [];
 
     fields.push(...[
       ...createEmbedFieldList("Other names", [
@@ -104,7 +104,7 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): RichEmbed[] => {
       ));
     }
 
-    const embed: RichEmbed = {
+    const embed: APIEmbed = {
       title: createTitle((media.isAdult
         ? "[**NSFW**] "
         : "") +

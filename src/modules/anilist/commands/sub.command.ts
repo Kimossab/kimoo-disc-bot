@@ -7,10 +7,9 @@ import { AnilistRateLimit } from "../helpers/rate-limiter";
 import subAddCommand from "./subAdd.command";
 import subListCommand from "./subList.command";
 import subRemoveCommand from "./subRemove.command";
-import { ApplicationCommandSubcommandGroupOption, ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
-import { APIApplicationCommandInteractionDataSubcommandOption, ApplicationCommandOptionType } from "discord-api-types/v10";
+import { APIApplicationCommandInteractionDataSubcommandOption, APIApplicationCommandOption, APIApplicationCommandSubcommandOption, ApplicationCommandOptionType } from "discord-api-types/v10";
 
-const definition: ApplicationCommandSubcommandGroupOption = {
+const definition: APIApplicationCommandOption = {
   name: "sub",
   description: "Subscriptions commands",
   type: ApplicationCommandOptionType.SubcommandGroup,
@@ -61,7 +60,7 @@ export default (
   };
 
   for (const cmd of Object.keys(subCommands)) {
-    definition.options?.push(subCommands[cmd].definition as ApplicationCommandSubcommandOption);
+    definition.options?.push(subCommands[cmd].definition as APIApplicationCommandSubcommandOption);
   }
 
   return {

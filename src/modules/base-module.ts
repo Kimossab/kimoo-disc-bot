@@ -1,29 +1,23 @@
 import { compareCommands } from "@/commands";
 import { saveCommandHistory } from "@/database";
 import { createCommand, createInteractionResponse } from "@/discord/rest";
-import { ApplicationCommandAttachmentOption, ApplicationCommandBooleanOption, ApplicationCommandChannelOption, ApplicationCommandCreateRequest, ApplicationCommandIntegerOption, ApplicationCommandMentionableOption, ApplicationCommandNumberOption, ApplicationCommandResponse, ApplicationCommandRoleOption, ApplicationCommandStringOption, ApplicationCommandSubcommandGroupOption, ApplicationCommandSubcommandOption, ApplicationCommandUserOption, AvailableLocalesEnum } from "@/discord/rest/types.gen";
 import { checkAdmin } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOption } from "@/helper/modules";
 import { getApplication, setCommandExecutedCallback } from "@/state/store";
-
 import { Prisma } from "@prisma/client";
 import { JsonArray } from "@prisma/client/runtime/library";
-import {
+import { APIApplicationCommand,
   APIApplicationCommandInteraction,
   APIApplicationCommandInteractionDataSubcommandOption,
   APIApplicationCommandOption,
   APIChatInputApplicationCommandInteractionData,
-  APIMessageApplicationCommandInteraction,
   APIMessageComponentInteraction,
-  APIMessageComponentInteractionData,
   APIModalSubmitInteraction,
   ApplicationCommandType,
   InteractionResponseType,
-  LocalizationMap,
-  MessageFlags
-} from "discord-api-types/payloads/v10";
+  MessageFlags, RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord-api-types/v10";
 
 export type CommandHandler = (
   data: APIApplicationCommandInteraction,
@@ -40,13 +34,13 @@ export type SingleCommandHandler = (
 ) => Promise<void>;
 
 export interface CommandInfo {
-  definition: (ApplicationCommandAttachmentOption | ApplicationCommandBooleanOption | ApplicationCommandChannelOption | ApplicationCommandIntegerOption | ApplicationCommandMentionableOption | ApplicationCommandNumberOption | ApplicationCommandRoleOption | ApplicationCommandStringOption | ApplicationCommandSubcommandGroupOption | ApplicationCommandSubcommandOption | ApplicationCommandUserOption);
+  definition: APIApplicationCommandOption;
   handler: CommandHandler;
   componentHandler?: ComponentCommandHandler;
   isAdmin?: boolean;
 }
 interface SingleCommandInfo {
-  definition: ApplicationCommandCreateRequest;
+  definition: RESTPostAPIApplicationCommandsJSONBody;
   handler: SingleCommandHandler;
   componentHandler?: ComponentCommandHandler;
   isAdmin?: boolean;
@@ -79,7 +73,7 @@ export default class BaseModule {
     this.commandDescription["en-US"] = _name;
   }
 
-  private get commandDefinition (): ApplicationCommandCreateRequest {
+  private get commandDefinition (): RESTPostAPIApplicationCommandsJSONBody {
     if (!this.singleCommand) {
       return {
         name: this.name,
@@ -88,7 +82,7 @@ export default class BaseModule {
         description_localizations: this.commandDescription,
         type: this.commandType,
         options: Object.values(this.commandList).map((cmd) => cmd.definition ?? null)
-      };
+      } as RESTPostAPIChatInputApplicationCommandsJSONBody;
     }
     return this.singleCommand.definition;
   }
@@ -307,7 +301,7 @@ export default class BaseModule {
 
   public async upsertCommands (
     appId: string,
-    discordCommand?: ApplicationCommandResponse
+    discordCommand?: APIApplicationCommand
   ) {
     if (
       !discordCommand ||

@@ -1,9 +1,7 @@
 import { CompletePoll } from "#voting/database";
 import { hasExpired } from "#voting/helpers";
-import { ActionRow } from "@/discord/rest/types.gen";
-
 import { chunkArray } from "@/helper/common";
-import { ButtonStyle, ComponentType } from "discord-api-types/v10";
+import { APIActionRowComponent, APIButtonComponent, APIMessageActionRowComponent, ButtonStyle, ComponentType } from "discord-api-types/v10";
 
 export enum PollMessageType {
   VOTE = "vote",
@@ -11,13 +9,13 @@ export enum PollMessageType {
 }
 
 interface MapPollToComponents {
-  (poll: CompletePoll, type: PollMessageType.VOTE): ActionRow[];
+  (poll: CompletePoll, type: PollMessageType.VOTE): APIActionRowComponent<APIMessageActionRowComponent>[];
   (
     poll: CompletePoll,
     type: PollMessageType.SETTINGS,
     user: string,
     singleResponse?: number
-  ): ActionRow[];
+  ): APIActionRowComponent<APIMessageActionRowComponent>[];
 }
 
 const prefixMap = new Map([
@@ -31,7 +29,7 @@ export const mapPollToComponents: MapPollToComponents = (
   user?: string,
   singleResponse?: number
 ) => {
-  const components: ActionRow[] = [];
+  const components: APIActionRowComponent<APIMessageActionRowComponent>[] = [];
 
   addOptionsComponents(poll, type, components, singleResponse);
 
@@ -45,7 +43,6 @@ export const mapPollToComponents: MapPollToComponents = (
           custom_id: "voting.create.settings",
           label: "",
           emoji: {
-            id: null,
             name: "⚙"
           }
         }
@@ -62,9 +59,9 @@ const addSettingsComponents = (
   poll: CompletePoll,
   user: string | undefined,
   singleResponse: number | undefined,
-  components: ActionRow[]
+  components: APIActionRowComponent<APIMessageActionRowComponent>[]
 ) => {
-  const actionRow: ActionRow = {
+  const actionRow: APIActionRowComponent<APIMessageActionRowComponent> = {
     type: ComponentType.ActionRow,
     components: []
   };
@@ -79,7 +76,6 @@ const addSettingsComponents = (
       style: ButtonStyle.Secondary,
       custom_id: "voting.create.add",
       emoji: {
-        id: null,
         name: "➕"
       }
     });
@@ -127,7 +123,7 @@ const addSettingsComponents = (
 const addOptionsComponents = (
   poll: CompletePoll,
   type: PollMessageType,
-  components: ActionRow[],
+  components: APIActionRowComponent<APIMessageActionRowComponent>[],
   singleResponse: number | undefined
 ) => {
   let i = 0;

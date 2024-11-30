@@ -10,15 +10,14 @@ import { addPagination } from "@/state/store";
 
 import { mapSauceNaoResultToData } from "./mapper";
 import { requestSauceNao } from "./request";
-import { RichEmbed } from "@/discord/rest/types.gen";
-import { APIApplication, APIApplicationCommandInteraction, ButtonStyle, ComponentType } from "discord-api-types/v10";
+import { APIApplication, APIApplicationCommandInteraction, APIEmbed, ButtonStyle, ComponentType } from "discord-api-types/v10";
 
 const sauceNaoEmbed = (
   item: SauceNao.data,
   page: number,
   total: number
-): RichEmbed => {
-  const embed: RichEmbed = {
+): APIEmbed => {
+  const embed: APIEmbed = {
     title: item.name,
     description: item.site,
     color: 3035554,

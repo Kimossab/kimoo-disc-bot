@@ -7,19 +7,17 @@ import {
 import { searchForUser } from "#anilist/graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "#anilist/helpers/rate-limiter";
 import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
-
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
   sendMessage
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption, MessageComponentStringSelectResponse, SelectOption, StringSelect } from "@/discord/rest/types.gen";
 import { chunkArray, limitString } from "@/helper/common";
 import Logger from "@/helper/logger";
 import { getApplication } from "@/state/store";
-import { APIMessageStringSelectInteractionData, ApplicationCommandOptionType, ComponentType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
+import { APIApplicationCommandOption, APIMessageStringSelectInteractionData, APIStringSelectComponent, ApplicationCommandOptionType, ComponentType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "remove",
   description: "Removes a subscription",
   type: ApplicationCommandOptionType.Subcommand,
@@ -73,12 +71,12 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
       }
 
 
-      const components: StringSelect[] = chunkArray(animeInfo, 25)
+      const components: APIStringSelectComponent[] = chunkArray(animeInfo, 25)
         .map((chunk, index) => {
           return {
             type: ComponentType.StringSelect,
             custom_id: `anilist.sub.remove.anime.selected.${index}`,
-            options: chunk.map<SelectOption>((a) => ({
+            options: chunk.map((a) => ({
               label: limitString(
                 a.title.english || a.title.romaji,
                 100

@@ -1,5 +1,4 @@
-import { APIApplicationCommandOption, APIApplicationCommandOptionChoice, APIApplicationCommandOptionWithAutocompleteOrChoicesWrapper, APIApplicationCommandStringOption, APIApplicationCommandSubcommandOption } from "discord-api-types/v10";
-import { ApplicationCommandCreateRequest, ApplicationCommandResponse } from "./discord/rest/types.gen";
+import { APIApplicationCommand, APIApplicationCommandOption, APIApplicationCommandOptionChoice, APIApplicationCommandStringOption, APIApplicationCommandSubcommandOption, RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types/v10";
 
 const compareChoices = (
   localChoices: APIApplicationCommandOptionChoice<string>[] = [],
@@ -45,7 +44,7 @@ const compareOptions = (
       return false;
     }
 
-    const keys = Object.keys(option) as (keyof ApplicationCommandCreateRequest["options"])[];
+    const keys = Object.keys(option) as (keyof APIApplicationCommandOption)[];
 
     for (const key of keys) {
       if (
@@ -77,16 +76,16 @@ const compareOptions = (
 };
 
 export const compareCommands = (
-  appCmd: ApplicationCommandCreateRequest,
-  onlineCmd: ApplicationCommandResponse
+  appCmd: RESTPostAPIApplicationCommandsJSONBody,
+  onlineCmd: APIApplicationCommand
 ): boolean => {
-  const keys = Object.keys(appCmd) as (keyof ApplicationCommandCreateRequest)[];
+  const keys = Object.keys(appCmd) as (keyof RESTPostAPIApplicationCommandsJSONBody)[];
 
   for (const key of keys) {
     if (
       !["options", "name_localizations", "description_localizations"].includes(key)
     ) {
-      if (appCmd[key] !== onlineCmd[key as keyof ApplicationCommandResponse]) {
+      if (appCmd[key] !== onlineCmd[key as keyof APIApplicationCommand]) {
         return false;
       }
     }

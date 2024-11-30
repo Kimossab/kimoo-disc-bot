@@ -1,9 +1,9 @@
 import { getLastAndNextEpisode } from "#anilist/helpers/anime-manager";
-import { RichEmbed, RichEmbedField } from "@/discord/rest/types.gen";
+import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
 import { MediaForAiring } from "../types/graphql";
 
-export const mapMediaAiringToEmbed = (data: MediaForAiring): RichEmbed => {
-  const fields: RichEmbedField[] = [];
+export const mapMediaAiringToEmbed = (data: MediaForAiring): APIEmbed => {
+  const fields: APIEmbedField[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
@@ -19,7 +19,7 @@ export const mapMediaAiringToEmbed = (data: MediaForAiring): RichEmbed => {
     });
   }
 
-  const embed: RichEmbed = {
+  const embed: APIEmbed = {
     title:
       (data.isAdult
         ? "[**NSFW**] "

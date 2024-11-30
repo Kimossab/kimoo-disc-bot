@@ -5,11 +5,10 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import Logger from "@/helper/logger";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface DonutCommandOptions {
   a: string;
@@ -19,7 +18,7 @@ interface DonutCommandOptions {
 const MAX_RANDOM_ANGLE = 1 * Math.PI / 4;
 const MIN_RANDOM_ANGLE = -1 * Math.PI / 4;
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "donut",
   description: "Create a donut",
   type: ApplicationCommandOptionType.Subcommand,

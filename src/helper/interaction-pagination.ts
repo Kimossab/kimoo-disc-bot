@@ -2,10 +2,8 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-
 import { chunkArray } from "./common";
-import { ComponentType, ButtonStyle, InteractionResponseType, APIMessageButtonInteractionData, APIMessageSelectMenuInteractionData } from "discord-api-types/v10";
-import { ActionRow, Button, IncomingWebhookUpdateForInteractionCallbackRequestPartial, MessageEditRequestPartial, MessageResponse } from "@/discord/rest/types.gen";
+import { ComponentType, ButtonStyle, InteractionResponseType, APIMessageButtonInteractionData, APIMessageSelectMenuInteractionData, RESTPatchAPIChannelMessageFormDataBody, APIMessage, APIButtonComponent, APIActionRowComponent, APISelectMenuComponent, RESTPatchAPIInteractionOriginalResponseJSONBody, APIInteractionResponseCallbackData } from "discord-api-types/v10";
 
 export type CreatePageCallback<T> = (
   page: number,
@@ -13,7 +11,7 @@ export type CreatePageCallback<T> = (
   data: T,
   extraInfo?: unknown
 ) => Promise<{
-  data: MessageEditRequestPartial | IncomingWebhookUpdateForInteractionCallbackRequestPartial;
+  data: APIInteractionResponseCallbackData;
   file?: string;
 }>;
 
@@ -32,7 +30,7 @@ export class InteractionPagination<T = unknown> {
     return this.data.length;
   }
 
-  private message: Nullable<MessageResponse> = null;
+  private message: Nullable<APIMessage> = null;
 
   public get messageId (): string | undefined {
     return this.message?.id;
@@ -59,14 +57,14 @@ export class InteractionPagination<T = unknown> {
     );
 
     if (this.totalPages > 1) {
-      const buttonLeft: Button = {
+      const buttonLeft: APIButtonComponent = {
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
         custom_id: "pagination.previous",
         label: "◀"
       };
       const chunks = chunkArray(this.data, 25);
-      const pageSelector: ActionRow[] = chunks.map((chunk, pIdx) => ({
+      const pageSelector: APIActionRowComponent<APISelectMenuComponent>[] = chunks.map((chunk, pIdx) => ({
         type: ComponentType.ActionRow,
         components: [
           {
@@ -82,13 +80,13 @@ export class InteractionPagination<T = unknown> {
           }
         ]
       }));
-      const buttonRight: Button = {
+      const buttonRight: APIButtonComponent = {
         type: ComponentType.Button,
         style: ButtonStyle.Primary,
         custom_id: "pagination.next",
         label: "▶"
       };
-      const actionRow: ActionRow = {
+      const actionRow: APIActionRowComponent<APIButtonComponent> = {
         type: ComponentType.ActionRow,
         components: [buttonLeft, buttonRight]
       };
@@ -105,7 +103,7 @@ export class InteractionPagination<T = unknown> {
     };
   }
 
-  public async create (token: string): Promise<MessageResponse | null> {
+  public async create (token: string): Promise<APIMessage | null> {
     const { pageData, file } = await this.buildPageData();
     this.message = await editOriginalInteractionResponse(
       this.appId,

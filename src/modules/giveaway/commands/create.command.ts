@@ -17,19 +17,18 @@ import {
   editMessage,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption } from "@/discord/rest/types.gen";
 import { randomNum } from "@/helper/common";
 import { ILogger } from "@/helper/logger";
 import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
+import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
 
 interface CreateCommandOptions {
   prize: string;
   time: number;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "create",
   description: "Create a new giveaway",
   type: ApplicationCommandOptionType.Subcommand,
@@ -72,7 +71,7 @@ const handler = (
 
       const giveaway = await createGiveaway({
         serverId: data.guild_id!,
-        channelId: data.channel_id!,
+        channelId: data.channel.id!,
         creatorId: data.member.user.id,
         hash,
         endAt,

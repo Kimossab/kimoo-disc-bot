@@ -9,8 +9,7 @@ import addCommand from "./commands/add.command";
 import channelCommand from "./commands/channel.command";
 import refreshCommand from "./commands/refresh.command";
 import { getRoleCategoriesByServer } from "./database";
-import { ButtonStyle, ComponentType, Locale } from "discord-api-types/v10";
-import { ActionRow, Button } from "@/discord/rest/types.gen";
+import { APIActionRowComponent, APIActionRowComponentTypes, APIButtonComponent, APIMessageActionRowComponent, ButtonStyle, ComponentType, Locale } from "discord-api-types/v10";
 
 export default class RoleModule extends BaseModule {
   constructor (isActive: boolean) {
@@ -49,10 +48,10 @@ export default class RoleModule extends BaseModule {
     for (const category of categories) {
       const rolesChunked = chunkArray(category.roles, 5);
 
-      const components: ActionRow[] = rolesChunked.map((chunk) => ({
+      const components: APIActionRowComponent<APIButtonComponent>[] = rolesChunked.map((chunk) => ({
         type: ComponentType.ActionRow,
         components: chunk.map((role) => {
-          const component: Button = {
+          const component: APIButtonComponent = {
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
             custom_id: `role.add.${category.category}.${role.id}`,
@@ -65,7 +64,7 @@ export default class RoleModule extends BaseModule {
               this.logger.error("Emoji not found", { role });
             } else {
               component.emoji = {
-                id: emoji?.id,
+                id: emoji?.id ?? undefined,
                 name: ""
               };
             }

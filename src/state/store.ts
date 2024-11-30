@@ -1,4 +1,4 @@
-import { APIApplicationCommandInteraction, APIMessageComponentInteraction, InteractionType } from "discord-api-types/payloads/v10/interactions";
+import { APIApplicationCommandInteraction, APIMessageComponentInteraction, InteractionType } from "discord-api-types/v10";
 import { ActionName, Actions, State } from "./types";
 
 const state: State = {

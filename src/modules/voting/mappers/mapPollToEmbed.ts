@@ -1,8 +1,8 @@
 import { CompletePoll } from "#voting/database";
-import { RichEmbed } from "@/discord/rest/types.gen";
+import { APIEmbed } from "discord-api-types/v10";
 
 
-export const mapPollToEmbed = (poll: CompletePoll): RichEmbed => {
+export const mapPollToEmbed = (poll: CompletePoll): APIEmbed => {
   const { values, responses } = (
     JSON.parse(JSON.stringify(poll.pollOptions)) as CompletePoll["pollOptions"]
   )
@@ -23,7 +23,7 @@ export const mapPollToEmbed = (poll: CompletePoll): RichEmbed => {
   const daysInSeconds = poll.days * 60 * 60 * 24;
   const endingDate = Math.floor(+poll.startAt / 1000) + daysInSeconds;
 
-  const embed: RichEmbed = {
+  const embed: APIEmbed = {
     title: poll.question,
     fields: [
       {

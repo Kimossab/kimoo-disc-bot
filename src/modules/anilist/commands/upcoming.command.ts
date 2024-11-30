@@ -8,7 +8,6 @@ import {
   createInteractionResponse,
   editOriginalInteractionResponse
 } from "@/discord/rest";
-import { ApplicationCommandSubcommandOption, RichEmbed } from "@/discord/rest/types.gen";
 import {
   CreatePageCallback,
   InteractionPagination
@@ -17,13 +16,13 @@ import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 import { getOptions } from "@/helper/modules";
 import { addPagination, getApplication } from "@/state/store";
-import { ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { APIApplicationCommandOption, APIEmbed, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface UpcomingCommandOptions {
   season: MediaSeason | null;
 }
 
-const definition: ApplicationCommandSubcommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "upcoming",
   description: "Shows a list of unaired animes.",
   type: ApplicationCommandOptionType.Subcommand,
@@ -80,7 +79,7 @@ const getNextSeason = (): MediaSeason => {
   return MediaSeason.WINTER;
 };
 
-const pageUpdate: CreatePageCallback<RichEmbed> = async (_page, _total, data) => ({
+const pageUpdate: CreatePageCallback<APIEmbed> = async (_page, _total, data) => ({
   data: {
     embeds: [data]
   }

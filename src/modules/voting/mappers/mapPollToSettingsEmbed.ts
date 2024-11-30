@@ -1,10 +1,10 @@
 import { CompletePoll } from "#voting/database";
-import { RichEmbed, RichEmbedField } from "@/discord/rest/types.gen";
+import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
 
 const votingEmbedFields = (
   poll: CompletePoll,
   singleResponse: number
-): RichEmbedField[] => {
+): APIEmbedField[] => {
   const option = poll.pollOptions[singleResponse];
 
   const responses = option.pollOptionVotes
@@ -23,13 +23,13 @@ export const mapPollToSettingsEmbed = (
   poll: CompletePoll,
   user: string,
   singleResponse?: number
-): RichEmbed => {
+): APIEmbed => {
   const userVotes = poll.pollOptions
     .filter((o) => o.pollOptionVotes.map((o) => o.user).includes(user))
     .map((o) => `\`${o.text}\``)
     .join(" ");
 
-  const embed: RichEmbed = {
+  const embed: APIEmbed = {
     title: poll.question,
     description: `Your votes: ${
       userVotes || "no votes"
