@@ -1,0 +1,28 @@
+﻿name: PRValidation
+
+on:
+  pull_request:
+    types:
+      - edited
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - main
+
+jobs:
+  ValidatePRTitle:
+    name: Validate PR Title format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if PR title follows Conventional Commits format
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "Pull Request Title: $PR_TITLE"
+          if [[ $PR_TITLE =~ ^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-zA-Z0-9._-]+\))?(!)?:\ ([a-zA-Z0-9 ]+)$ ]]; then
+            echo "PR title follows the Conventional Commits format."
+          else
+            echo "Error: PR title does not follow the Conventional Commits format."
+            exit 1
+          fi

@@ -1,14 +1,74 @@
 name: Create Release
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
 
 env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
+  CreateTag:
+    name: Create new tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "main"
+          fetch-depth: 0
+          fetch-tags: "true"
+          persist-credentials: true
+
+      - name: Get last tag and diff with develop HEAD
+        id: get_last_tag
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0)
+          echo "Last tag: $LAST_TAG"
+          COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:'%s' | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' | sed 's/%/%25/g' | sed 's/\r/%0D/g' | sed 's/\n/%0A/g')
+          echo "commits=$COMMITS" >> $GITHUB_ENV
+          echo "last_tag=$LAST_TAG" >> $GITHUB_ENV
+
+      - name: Define the next version based on conventional commits
+        id: define_version
+        run: |
+          LAST_TAG=${{ env.last_tag }}
+          VERSION=$(echo $LAST_TAG | sed 's/^v//')
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          BUMP_MAJOR=false
+          BUMP_MINOR=false
+          BUMP_PATCH=false
+          # Replace \n with real newlines for proper iteration
+          COMMITS=$(echo "${{ env.commits }}" | sed 's/\\n/\n/g')
+          echo "Differences between last tag:"
+          echo "$COMMITS"
+          while IFS= read -r COMMIT; do
+            echo "Verify commit -> $COMMIT"
+            if [[ "$COMMIT" == *"BREAKING CHANGE"* || "$COMMIT" == *"!:"* ]]; then
+              BUMP_MAJOR=true
+            elif [[ "$COMMIT" == feat* ]]; then
+              BUMP_MINOR=true
+            elif [[ "$COMMIT" == fix* || "$COMMIT" == chore* || "$COMMIT" == refactor* ]]; then
+              BUMP_PATCH=true
+            fi
+          done <<< "$COMMITS"
+          if [ "$BUMP_MAJOR" = true ]; then
+            MAJOR=$((MAJOR+1))
+            MINOR=0
+            PATCH=0
+          elif [ "$BUMP_MINOR" = true ]; then
+            MINOR=$((MINOR+1))
+            PATCH=0
+          elif [ "$BUMP_PATCH" = true ]; then
+            PATCH=$((PATCH+1))
+          fi
+          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+          if [ "$LAST_TAG" = "$NEW_VERSION" ]; then
+            echo "Error: The new version is the same as the last version"
+            exit 1
+          fi
+
   build:
     runs-on: ubuntu-latest
 
@@ -71,4 +131,4 @@ jobs:
           (cd node-v22.x-release && zip -r "$OLDPWD/node-v22.x-release.zip" .)
           (cd node-v23.x-release && zip -r "$OLDPWD/node-v23.x-release.zip" .)
       - name: Create Release
-        run: gh release create ${{github.ref_name}} --generate-notes ./*.zip
+        run: gh release create ${{env.new_version}} --generate-notes ./*.zip
