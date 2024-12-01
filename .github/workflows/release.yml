@@ -16,6 +16,51 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - run: |
+          npm ci
+          npm run build
+        name: Build
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-v${{ matrix.node-version }}-release
+          path: |
+            build
+            prisma
+            package-lock.json
+            package.json
+
+  migrate-db:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+      - name: Install dependencies
+        run: npm install
+      - run: npm run build
+      - name: Apply all pending migrations to the database
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
         with:
           ref: "main"
           fetch-depth: 0
@@ -72,50 +117,6 @@ jobs:
             exit 1
           fi
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
-
-      - run: |
-          npm ci
-          npm run build
-        name: Build
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-v${{ matrix.node-version }}-release
-          path: |
-            build
-            prisma
-            package-lock.json
-            package.json
-
-  migrate-db:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-      - name: Install dependencies
-        run: npm install
-      - run: npm run build
-      - name: Apply all pending migrations to the database
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
       - name: Zip artifact for deployment
         run: |
