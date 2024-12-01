@@ -7,9 +7,12 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
-  CreateTag:
-    name: Create new tag
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x, 21.x, 22.x, 23.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -68,16 +71,6 @@ jobs:
             echo "Error: The new version is the same as the last version"
             exit 1
           fi
-
-  build:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x, 21.x, 22.x, 23.x]
-
-    steps:
-      - uses: actions/checkout@v4
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
