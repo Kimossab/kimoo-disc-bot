@@ -1,10 +1,11 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "commonjs",
+    "module": "ESNext",
     "rootDir": "src",
     "outDir": "build",
     "strict": true,
+    "moduleResolution":"node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -21,7 +22,6 @@
   "exclude": [
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
-    "src/**/*fixture*",
-    "./openapi-ts.config.ts"
+    "src/**/*fixture*"
   ]
 }
