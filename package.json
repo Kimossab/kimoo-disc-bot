@@ -4,7 +4,7 @@
   "description": "Kimossab's Discord Bot",
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only ./src/bot.ts",
     "prod": "node ./build/bot.js",
     "lint": "eslint",
