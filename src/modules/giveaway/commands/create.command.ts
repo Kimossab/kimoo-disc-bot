@@ -1,4 +1,8 @@
-import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
+import {
+  CommandHandler,
+  CommandInfo,
+  ComponentCommandHandler,
+} from "#base-module";
 import {
   CompleteGiveaway,
   createGiveaway,
@@ -7,21 +11,26 @@ import {
   removeParticipant,
   removeWinnerAndDisable,
   setWinner,
-  updateHash
+  updateHash,
 } from "#giveaway/database";
-import { createGiveawayMessageData } from "#giveaway/helpers/createGiveawayMessage";
 import { announceVictor } from "#giveaway/helpers/GiveawayManager";
+import { createGiveawayMessageData } from "#giveaway/helpers/createGiveawayMessage";
 
+import {
+  APIApplicationCommandOption,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+  MessageFlags,
+} from "discord-api-types/v10";
+import { ILogger } from "@/helper/logger";
 import {
   createInteractionResponse,
   editMessage,
-  editOriginalInteractionResponse
+  editOriginalInteractionResponse,
 } from "@/discord/rest";
-import { randomNum } from "@/helper/common";
-import { ILogger } from "@/helper/logger";
-import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
+import { getOptions } from "@/helper/modules";
+import { randomNum } from "@/helper/common";
 
 interface CreateCommandOptions {
   prize: string;
@@ -37,32 +46,30 @@ const definition: APIApplicationCommandOption = {
       name: "prize",
       description: "What you're giving away.",
       type: ApplicationCommandOptionType.String,
-      required: true
+      required: true,
     },
     {
       name: "time",
       description: "Number of days the giveaway will be active.",
       type: ApplicationCommandOptionType.Integer,
       min_value: 1,
-      required: true
-    }
-  ]
+      required: true,
+    },
+  ],
 };
 
 const handler = (
   logger: ILogger,
-  created: (giveaway: CompleteGiveaway) => void
+  created: (giveaway: CompleteGiveaway) => void,
 ): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app?.id && data.member?.user) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionResponseType.DeferredChannelMessageWithSource
-      });
+      await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
       const { prize, time } = getOptions<CreateCommandOptions>(
         ["prize", "time"],
-        option.options
+        option.options,
       );
 
       const hash = `${+new Date()}`;
@@ -75,13 +82,13 @@ const handler = (
         creatorId: data.member.user.id,
         hash,
         endAt,
-        prize
+        prize,
       });
 
       const message = await editOriginalInteractionResponse(
         app.id,
         data.token,
-        createGiveawayMessageData(giveaway)
+        createGiveawayMessageData(giveaway),
       );
 
       const nGiveaway = await updateHash(giveaway.id, message?.id ?? hash);
@@ -102,15 +109,17 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
     logger.info("Component interaction", subCmd);
 
     if (!giveaway) {
-      logger.error("Giveaway not found.", { data,
+      logger.error("Giveaway not found.", {
+        data,
         messageId,
-        subCmd });
+        subCmd,
+      });
       await createInteractionResponse(data.id, data.token, {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "Internal Server Error, try again",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
       return;
     }
@@ -122,16 +131,17 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
             type: InteractionResponseType.ChannelMessageWithSource,
             data: {
               content: "You're not the creator of the giveaway.",
-              flags: MessageFlags.Ephemeral
-            }
+              flags: MessageFlags.Ephemeral,
+            },
           });
-        } else {
-          const oldWinner = giveaway.participants.find((p) => p.isWinner);
+        }
+        else {
+          const oldWinner = giveaway.participants.find(p => p.isWinner);
           if (oldWinner) {
             await removeWinnerAndDisable(oldWinner.id);
           }
 
-          const newParticipants = giveaway.participants.filter((p) => p.canWin && p.id != oldWinner?.id);
+          const newParticipants = giveaway.participants.filter(p => p.canWin && p.id != oldWinner?.id);
 
           const winnerIdx = randomNum(0, newParticipants.length - 1);
           const winner = newParticipants[winnerIdx];
@@ -141,29 +151,30 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
         }
         break;
       case "join":
-        const participant = giveaway.participants.find((p) => p.userId == data.member?.user?.id);
+        const participant = giveaway.participants.find(p => p.userId == data.member?.user?.id);
         if (participant) {
           await removeParticipant(participant.id);
           await createInteractionResponse(data.id, data.token, {
             type: InteractionResponseType.ChannelMessageWithSource,
             data: {
               content: "You've left the giveaway",
-              flags: MessageFlags.Ephemeral
-            }
+              flags: MessageFlags.Ephemeral,
+            },
           });
-        } else {
+        }
+        else {
           await createParticipant({
             userId: data.member!.user!.id,
             canWin: true,
             giveawayId: giveaway.id,
-            isWinner: false
+            isWinner: false,
           });
           await createInteractionResponse(data.id, data.token, {
             type: InteractionResponseType.ChannelMessageWithSource,
             data: {
               content: "You've joined the giveaway",
-              flags: MessageFlags.Ephemeral
-            }
+              flags: MessageFlags.Ephemeral,
+            },
           });
         }
         giveaway = await getGiveaway(giveaway.hash);
@@ -172,16 +183,16 @@ const componentHandler = (logger: ILogger): ComponentCommandHandler => {
 
     await editMessage(data.channel_id ?? "", messageId, {
       ...createGiveawayMessageData(giveaway!),
-      attachments: undefined
+      attachments: undefined,
     });
   };
 };
 
 export default (
   logger: ILogger,
-  created: (giveaway: CompleteGiveaway) => void
+  created: (giveaway: CompleteGiveaway) => void,
 ): CommandInfo => ({
   definition,
   handler: handler(logger, created),
-  componentHandler: componentHandler(logger)
+  componentHandler: componentHandler(logger),
 });

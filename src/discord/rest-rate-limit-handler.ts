@@ -4,7 +4,7 @@ import axios, {
   AxiosInstance,
   AxiosRequestConfig,
   AxiosResponse,
-  Method
+  Method,
 } from "axios";
 
 interface RateLimitObject {
@@ -52,9 +52,7 @@ export default class RestRateLimitHandler {
 
   private requester: AxiosInstance = axios.create({
     baseURL: `https://${process.env.DISCORD_DOMAIN}/api/v${process.env.API_V}`,
-    headers: {
-      authorization: `Bot ${process.env.TOKEN}`
-    }
+    headers: { authorization: `Bot ${process.env.TOKEN}` },
   });
 
   private handleErrors = (place: string, e: ErrorType): void => {
@@ -62,27 +60,28 @@ export default class RestRateLimitHandler {
       this._logger.error(e.data.message, {
         place,
         code: e.data.code,
-        errors: e.data.errors
+        errors: e.data.errors,
       });
-    } else {
+    }
+    else {
       this._logger.error(e.message, {
         place,
-        errors: e
+        errors: e,
       });
     }
   };
 
-  private handleHeaders (headers: AxiosResponse["headers"]): RateLimitObject {
+  private handleHeaders(headers: AxiosResponse["headers"]): RateLimitObject {
     return {
       limit: Number(headers["x-ratelimit-limit"]),
       remaining: Number(headers["x-ratelimit-remaining"]),
       reset: Number(headers["x-ratelimit-reset"]),
       resetAfter: Number(headers["x-ratelimit-reset-after"]),
-      bucket: headers["x-ratelimit-bucket"] as string
+      bucket: headers["x-ratelimit-bucket"] as string,
     };
   }
 
-  private async checkQueue (bucket: string) {
+  private async checkQueue(bucket: string) {
     if (this.busyBucket[bucket]) {
       return;
     }
@@ -96,13 +95,15 @@ export default class RestRateLimitHandler {
       return;
     }
 
-    const { callback, method, path, data, headers } = req;
+    const {
+      callback, method, path, data, headers,
+    } = req;
 
     try {
       const requestOptions: AxiosRequestConfig = {
         method,
         url: path,
-        data
+        data,
       };
 
       if (headers) {
@@ -115,7 +116,7 @@ export default class RestRateLimitHandler {
 
       this._logger.info("Success request", {
         path,
-        ...parsedHeaders
+        ...parsedHeaders,
       });
       callback(response
         ? response.data
@@ -124,7 +125,7 @@ export default class RestRateLimitHandler {
       if (parsedHeaders.remaining === 0) {
         this._logger.info("Rate Limit. Waiting...", {
           myBucket: bucket,
-          ...parsedHeaders
+          ...parsedHeaders,
         });
         setTimeout(() => {
           this.busyBucket[bucket] = false;
@@ -136,7 +137,8 @@ export default class RestRateLimitHandler {
 
       this.busyBucket[bucket] = false;
       this.checkQueue(bucket);
-    } catch (e) {
+    }
+    catch (e) {
       if (axios.isAxiosError(e) && e.response?.status === 429) {
         // rate limited
 
@@ -145,8 +147,8 @@ export default class RestRateLimitHandler {
           `Rate limited - made a request - Bucket: ${bucket}`,
           {
             path,
-            ...parsedHeaders
-          }
+            ...parsedHeaders,
+          },
         );
 
         this.queueBucket[bucket].unshift(req);
@@ -155,7 +157,8 @@ export default class RestRateLimitHandler {
           this.busyBucket[bucket] = false;
           this.checkQueue(bucket);
         }, parsedHeaders.resetAfter * 1000);
-      } else {
+      }
+      else {
         this.busyBucket[bucket] = false;
         callback(null);
       }
@@ -166,12 +169,12 @@ export default class RestRateLimitHandler {
 
   public async request<
     T,
-    D = unknown
+    D = unknown,
   >(
     method: Method,
     path: string,
     data?: D,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<T | null> {
     const bucketPath = topLevelBucketPath(path);
 
@@ -182,17 +185,18 @@ export default class RestRateLimitHandler {
           path,
           data,
           headers,
-          callback: (data) => resolve(data as T)
+          callback: data => resolve(data as T),
         });
-      } else {
+      }
+      else {
         this.queueBucket[bucketPath] = [
           {
             method,
             path,
             data,
             headers,
-            callback: (data) => resolve(data as T)
-          }
+            callback: data => resolve(data as T),
+          },
         ];
       }
       this.checkQueue(bucketPath);

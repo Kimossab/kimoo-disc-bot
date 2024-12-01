@@ -1,11 +1,10 @@
-
 import { APIEmbedField } from "discord-api-types/v10";
 import { limitString } from "./common";
 
 export const createEmbedFieldList = (
   title: string,
   data: string[],
-  inline = false
+  inline = false,
 ): APIEmbedField[] => {
   const fields: APIEmbedField[] = [];
   let fieldValue = "";
@@ -15,7 +14,7 @@ export const createEmbedFieldList = (
       fields.push({
         name: title,
         value: fieldValue,
-        inline
+        inline,
       });
       fieldValue = "";
     }
@@ -25,7 +24,7 @@ export const createEmbedFieldList = (
   fields.push({
     name: title,
     value: fieldValue,
-    inline: false
+    inline: false,
   });
 
   return fields;
@@ -34,11 +33,11 @@ export const createEmbedFieldList = (
 export const createEmbedField = (
   title: string,
   data: string,
-  inline = false
+  inline = false,
 ): APIEmbedField => ({
   name: limitString(title, 256),
   value: limitString(data, 1024),
-  inline
+  inline,
 });
 
 export const createDescription = (description: string): string => {

@@ -1,14 +1,5 @@
-import { compareCommands } from "@/commands";
-import { saveCommandHistory } from "@/database";
-import { createCommand, createInteractionResponse } from "@/discord/rest";
-import { checkAdmin } from "@/helper/common";
-import Logger from "@/helper/logger";
-import messageList from "@/helper/messages";
-import { getOption } from "@/helper/modules";
-import { getApplication, setCommandExecutedCallback } from "@/state/store";
-import { Prisma } from "@prisma/client";
-import { JsonArray } from "@prisma/client/runtime/library";
-import { APIApplicationCommand,
+import {
+  APIApplicationCommand,
   APIApplicationCommandInteraction,
   APIApplicationCommandInteractionDataSubcommandOption,
   APIApplicationCommandOption,
@@ -17,7 +8,20 @@ import { APIApplicationCommand,
   APIModalSubmitInteraction,
   ApplicationCommandType,
   InteractionResponseType,
-  MessageFlags, RESTPostAPIApplicationCommandsJSONBody, RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord-api-types/v10";
+  MessageFlags,
+  RESTPostAPIApplicationCommandsJSONBody,
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+} from "discord-api-types/v10";
+import { JsonArray } from "@prisma/client/runtime/library";
+import { Prisma } from "@prisma/client";
+import { checkAdmin } from "@/helper/common";
+import { compareCommands } from "@/commands";
+import { createCommand, createInteractionResponse } from "@/discord/rest";
+import { getApplication, setCommandExecutedCallback } from "@/state/store";
+import { getOption } from "@/helper/modules";
+import { saveCommandHistory } from "@/database";
+import Logger from "@/helper/logger";
+import messageList from "@/helper/messages";
 
 export type CommandHandler = (
   data: APIApplicationCommandInteraction,
@@ -63,17 +67,17 @@ export default class BaseModule {
 
   private isSetup = false;
 
-  constructor (
+  constructor(
     private _name: string,
     protected isActive: boolean,
-    private _commandName: string = _name
+    private _commandName: string = _name,
   ) {
     this.logger = new Logger(_name);
     this.commandName["en-US"] = _name;
     this.commandDescription["en-US"] = _name;
   }
 
-  private get commandDefinition (): RESTPostAPIApplicationCommandsJSONBody {
+  private get commandDefinition(): RESTPostAPIApplicationCommandsJSONBody {
     if (!this.singleCommand) {
       return {
         name: this.name,
@@ -81,7 +85,7 @@ export default class BaseModule {
         description: this.commandDescription["en-US"],
         description_localizations: this.commandDescription,
         type: this.commandType,
-        options: Object.values(this.commandList).map((cmd) => cmd.definition ?? null)
+        options: Object.values(this.commandList).map(cmd => cmd.definition ?? null),
       } as RESTPostAPIChatInputApplicationCommandsJSONBody;
     }
     return this.singleCommand.definition;
@@ -90,8 +94,8 @@ export default class BaseModule {
   private interactionExecuted = async (data: APIApplicationCommandInteraction): Promise<void> => {
     const interactionData = data.data;
     if (
-      (interactionData?.name === this.name || interactionData?.name === this.singleCommand?.definition.name) &&
-      (data.user || data.guild_id && data.member)
+      (interactionData?.name === this.name || interactionData?.name === this.singleCommand?.definition.name)
+      && (data.user || (data.guild_id && data.member))
     ) {
       const app = getApplication();
       if (app?.id) {
@@ -105,9 +109,10 @@ export default class BaseModule {
             dateTime: new Date(),
             module: this._name,
             isComponent: false,
-            userId: data.member?.user?.id ?? ""
+            userId: data.member?.user?.id ?? data.user?.id ?? "",
           });
-        } catch (e) {
+        }
+        catch (e) {
           this.logger.error("Failed to create command history", {
             error: e,
             errorJson: JSON.stringify(e),
@@ -129,22 +134,22 @@ export default class BaseModule {
               dateTime: new Date(),
               module: this._name,
               isComponent: false,
-              userId: data.member?.user?.id ?? ""
-            }
+              userId: data.member?.user?.id ?? data.user?.id ?? "",
+            },
           });
         }
 
         if (this.singleCommand) {
           if (
-            this.singleCommand.isAdmin &&
-            !await checkAdmin(data.guild_id, data.member)
+            this.singleCommand.isAdmin
+            && !await checkAdmin(data.guild_id, data.member)
           ) {
             await createInteractionResponse(data.id, data.token, {
               type: InteractionResponseType.ChannelMessageWithSource,
               data: {
                 flags: MessageFlags.Ephemeral,
-                content: messageList.common.no_permission
-              }
+                content: messageList.common.no_permission,
+              },
             });
             return;
           }
@@ -157,21 +162,23 @@ export default class BaseModule {
 
           if (cmdData) {
             if (
-              this.commandList[cmd].isAdmin &&
-              !await checkAdmin(data.guild_id, data.member)
+              this.commandList[cmd].isAdmin
+              && !await checkAdmin(data.guild_id, data.member)
             ) {
               await createInteractionResponse(data.id, data.token, {
                 type: InteractionResponseType.ChannelMessageWithSource,
                 data: {
                   flags: MessageFlags.Ephemeral,
-                  content: messageList.common.no_permission
-                }
+                  content: messageList.common.no_permission,
+                },
               });
               return;
             }
 
-            this.logger.info("CMD Executed", { cmd,
-              data: cmdData });
+            this.logger.info("CMD Executed", {
+              cmd,
+              data: cmdData,
+            });
             return this.commandList[cmd].handler(data, cmdData as APIApplicationCommandInteractionDataSubcommandOption);
           }
         }
@@ -179,23 +186,23 @@ export default class BaseModule {
         const options = (data.data as APIChatInputApplicationCommandInteractionData).options?.[0];
         this.logger.error(
           "UNKNOWN COMMAND",
-          options
+          options,
         );
         await createInteractionResponse(data.id, data.token, {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
             flags: MessageFlags.Ephemeral,
-            content: messageList.common.internal_error
-          }
+            content: messageList.common.internal_error,
+          },
         });
       }
     }
   };
 
-  private executeOrLog (
+  private executeOrLog(
     handler: ComponentCommandHandler | undefined,
     data: APIModalSubmitInteraction | APIMessageComponentInteraction,
-    cmdData: string[] = []
+    cmdData: string[] = [],
   ) {
     if (!handler) {
       this.logger.error("Unexpected Component", data);
@@ -218,9 +225,10 @@ export default class BaseModule {
           dateTime: new Date(),
           module: this._name,
           isComponent: true,
-          userId: data.member?.user?.id ?? ""
+          userId: data.member?.user?.id ?? "",
         });
-      } catch (e) {
+      }
+      catch (e) {
         this.logger.error("Failed to create command history", {
           error: e,
           errorJson: JSON.stringify(e),
@@ -242,8 +250,8 @@ export default class BaseModule {
             dateTime: new Date(),
             module: this._name,
             isComponent: true,
-            userId: data.member?.user?.id ?? ""
-          }
+            userId: data.member?.user?.id ?? "",
+          },
         });
       }
 
@@ -260,7 +268,7 @@ export default class BaseModule {
             return this.executeOrLog(
               command.componentHandler,
               data,
-              idSplit.slice(2)
+              idSplit.slice(2),
             );
           }
         }
@@ -272,24 +280,24 @@ export default class BaseModule {
       type: InteractionResponseType.ChannelMessageWithSource,
       data: {
         flags: MessageFlags.Ephemeral,
-        content: messageList.common.internal_error
-      }
+        content: messageList.common.internal_error,
+      },
     });
   };
 
-  public get name () {
+  public get name() {
     return this._name;
   }
 
-  public get cmdName () {
+  public get cmdName() {
     return this._commandName;
   }
 
-  public get active () {
+  public get active() {
     return this.isActive;
   }
 
-  public setUp (): void {
+  public setUp(): void {
     if (!this.isActive) {
       return;
     }
@@ -299,20 +307,20 @@ export default class BaseModule {
     }
   }
 
-  public async upsertCommands (
+  public async upsertCommands(
     appId: string,
-    discordCommand?: APIApplicationCommand
+    discordCommand?: APIApplicationCommand,
   ) {
     if (
-      !discordCommand ||
-      !compareCommands(this.commandDefinition, discordCommand)
+      !discordCommand
+      || !compareCommands(this.commandDefinition, discordCommand)
     ) {
       this.logger.info("Creating command");
       await createCommand(appId, this.commandDefinition);
     }
   }
 
-  public close () {
+  public close() {
     this.isActive = false;
   }
 }

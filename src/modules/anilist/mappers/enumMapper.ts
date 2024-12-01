@@ -4,14 +4,14 @@ import {
   MediaSeason,
   MediaSource,
   MediaStatus,
-  MediaType
+  MediaType,
 } from "#anilist/types/graphql";
 
 export const typeMapper: {
   [key in keyof typeof MediaType]: string;
 } = {
   [MediaType.ANIME]: "Anime",
-  [MediaType.MANGA]: "Manga"
+  [MediaType.MANGA]: "Manga",
 };
 
 export const formatMapper: {
@@ -26,7 +26,7 @@ export const formatMapper: {
   OVA: "OVA",
   SPECIAL: "Special",
   TV: "TV",
-  TV_SHORT: "TV short"
+  TV_SHORT: "TV short",
 };
 
 export const statusMapper: {
@@ -36,7 +36,7 @@ export const statusMapper: {
   FINISHED: "Finished",
   HIATUS: "Hiatus",
   NOT_YET_RELEASED: "Not yet released",
-  RELEASING: "Releasing"
+  RELEASING: "Releasing",
 };
 
 export const seasonMapper: {
@@ -45,7 +45,7 @@ export const seasonMapper: {
   WINTER: "Winter",
   SPRING: "Spring",
   SUMMER: "Summer",
-  FALL: "Fall"
+  FALL: "Fall",
 };
 
 export const sourceMapper: {
@@ -66,7 +66,7 @@ export const sourceMapper: {
   GAME: "Game",
   COMIC: "Comic",
   MULTIMEDIA_PROJECT: "Multimedia Project",
-  PICTURE_BOOK: "Picture Book"
+  PICTURE_BOOK: "Picture Book",
 };
 
 export const relationMapper: {
@@ -84,5 +84,5 @@ export const relationMapper: {
   OTHER: "Other",
   SOURCE: "Source",
   COMPILATION: "Compilation",
-  CONTAINS: "Contains"
+  CONTAINS: "Contains",
 };

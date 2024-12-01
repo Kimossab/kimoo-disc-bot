@@ -1,5 +1,13 @@
-import { APIApplicationCommandInteraction, APIMessageComponentInteraction, InteractionType } from "discord-api-types/v10";
-import { ActionName, Actions, State } from "./types";
+import {
+  APIApplicationCommandInteraction,
+  APIMessageComponentInteraction,
+  InteractionType,
+} from "discord-api-types/v10";
+import {
+  ActionName,
+  Actions,
+  State,
+} from "./types";
 
 const state: State = {
   ready: false,
@@ -13,7 +21,7 @@ const state: State = {
   commandExecutedCallback: [],
   messageReactionCallback: [],
   resumeGatewayUrl: "",
-  modules: []
+  modules: [],
 };
 
 type StateActions = {
@@ -60,8 +68,10 @@ const actions: StateActions = {
     state.discordLastS = payload;
     return state;
   },
-  [ActionName.AddGuildMembers]: ({ guild: guildId, members, clean }) => {
-    const guild = state.guilds.find((g) => g.id === guildId);
+  [ActionName.AddGuildMembers]: ({
+    guild: guildId, members, clean,
+  }) => {
+    const guild = state.guilds.find(g => g.id === guildId);
     if (!guild) {
       return state;
     }
@@ -76,14 +86,14 @@ const actions: StateActions = {
     return state;
   },
   [ActionName.RemovePagination]: (payload) => {
-    state.allPaginations = state.allPaginations.filter((pagination) => pagination.messageId !== payload.messageId);
+    state.allPaginations = state.allPaginations.filter(pagination => pagination.messageId !== payload.messageId);
     return state;
   },
   [ActionName.GetApplication]: () => state.application,
   [ActionName.GetGuilds]: () => state.guilds,
   [ActionName.GetResumeGateway]: () => state.resumeGatewayUrl,
   [ActionName.GetDiscordSession]: () => state.discordSessionId,
-  [ActionName.GetPagination]: (messageId) => state.allPaginations.find((p) => p.messageId === messageId),
+  [ActionName.GetPagination]: messageId => state.allPaginations.find(p => p.messageId === messageId),
   [ActionName.GetDiscordLastS]: () => state.discordLastS,
   [ActionName.SetReadyData]: (data) => {
     setUser(data.user);
@@ -101,8 +111,8 @@ const actions: StateActions = {
     }
 
     if (
-      data.type === InteractionType.MessageComponent ||
-      data.type === InteractionType.ModalSubmit
+      data.type === InteractionType.MessageComponent
+      || data.type === InteractionType.ModalSubmit
     ) {
       if (data.data?.custom_id.startsWith("pagination.")) {
         return handlePaginationComponent(data as APIMessageComponentInteraction);
@@ -119,7 +129,7 @@ const actions: StateActions = {
 
     throw new Error("Unknown interaction type");
   },
-  [ActionName.SetModules]: (payload) => state.modules = payload
+  [ActionName.SetModules]: payload => state.modules = payload,
 };
 
 export const setUser = actions[ActionName.SetUser];
@@ -127,8 +137,8 @@ export const addGuild = actions[ActionName.AddGuild];
 export const setApplication = actions[ActionName.SetApplication];
 export const setResumeGateway = actions[ActionName.SetResumeGateway];
 export const setReadyCallback = actions[ActionName.SetReadyCallback];
-export const setCommandExecutedCallback =
-  actions[ActionName.SetCommandExecutedCallback];
+export const setCommandExecutedCallback
+  = actions[ActionName.SetCommandExecutedCallback];
 // export const setReactionCallback = actions[ActionName.SetReactionCallback];
 export const addPagination = actions[ActionName.AddPagination];
 export const setDiscordSession = actions[ActionName.SetDiscordSession];
@@ -156,6 +166,6 @@ const handlePaginationComponent = (componentData: APIMessageComponentInteraction
   pagination?.handlePage(
     componentData.id,
     componentData.token,
-    componentData.data
+    componentData.data,
   );
 };

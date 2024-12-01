@@ -1,19 +1,17 @@
-import {
-  cleanUpDescription,
-  formatReleasingDate
-} from "#anilist/mappers/helperMappers";
+import { cleanUpDescription, formatReleasingDate } from "#anilist/mappers/helperMappers";
 
-import { interpolator } from "@/helper/common";
 import {
   createAuthorName,
   createDescription,
   createEmbedField,
   createEmbedFieldList,
   createFooter,
-  createTitle
+  createTitle,
 } from "@/helper/embed";
+import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
 
+import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
 import { MediaList, PageResponse } from "../types/graphql";
 import {
   formatMapper,
@@ -21,9 +19,8 @@ import {
   seasonMapper,
   sourceMapper,
   statusMapper,
-  typeMapper
+  typeMapper,
 } from "./enumMapper";
-import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
 
 export const mapMediaToEmbed = (data: PageResponse<MediaList>): APIEmbed[] => {
   return data.Page.media.map((media, index) => {
@@ -32,11 +29,11 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): APIEmbed[] => {
     fields.push(...[
       ...createEmbedFieldList("Other names", [
         `• ${media.title.native}`,
-        `• ${media.title.romaji}`
+        `• ${media.title.romaji}`,
       ]),
       createEmbedField("Type", typeMapper[media.type], true),
       createEmbedField("Format", formatMapper[media.format], true),
-      createEmbedField("Status", statusMapper[media.status], true)
+      createEmbedField("Status", statusMapper[media.status], true),
     ]);
     const dates = formatReleasingDate(media.startDate, media.endDate);
     if (dates) {
@@ -64,51 +61,51 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): APIEmbed[] => {
       fields.push(createEmbedField(
         "Next episode",
         `#${media.nextAiringEpisode.episode} - <t:${media.nextAiringEpisode.airingAt}:R>`,
-        true
+        true,
       ));
     }
     if (media.studios?.nodes?.length) {
       fields.push(...createEmbedFieldList(
         "Studios",
-        media.studios.nodes.map((studio) => `• ${studio.name}`),
-        true
+        media.studios.nodes.map(studio => `• ${studio.name}`),
+        true,
       ));
     }
     if (media.genres?.length) {
       fields.push(createEmbedField("Genres", media.genres.join(", ")));
     }
     if (media.relations.edges.length) {
-      const relationTextList = media.relations.edges.map((relation) => `• ${relationMapper[relation.relationType]} (${
+      const relationTextList = media.relations.edges.map(relation => `• ${relationMapper[relation.relationType]} (${
         formatMapper[relation.node.format]
       }): [${
-        relation.node.title.english ||
-        relation.node.title.romaji ||
-        relation.node.title.native
+        relation.node.title.english
+        || relation.node.title.romaji
+        || relation.node.title.native
       }](${relation.node.siteUrl})`);
 
       fields.push(...createEmbedFieldList("Relations", relationTextList));
     }
 
     if (media.idMal || media.externalLinks?.length) {
-      const externalLinks =
-        media.externalLinks?.map((link) => `• [${link.site}](${link.url})`) ??
-        [];
+      const externalLinks
+        = media.externalLinks?.map(link => `• [${link.site}](${link.url})`)
+        ?? [];
 
       fields.push(...createEmbedFieldList(
         "Other links",
         [
           `• [My Anime List](https://myanimelist.net/anime/${media.idMal})`,
-          ...externalLinks
+          ...externalLinks,
         ],
-        true
+        true,
       ));
     }
 
     const embed: APIEmbed = {
       title: createTitle((media.isAdult
         ? "[**NSFW**] "
-        : "") +
-        (media.title.english || media.title.romaji || media.title.native)),
+        : "")
+      + (media.title.english || media.title.romaji || media.title.native)),
       url: media.siteUrl,
       color: parseInt(media.coverImage.color?.slice(1) || "FFFFFF", 16),
       description: createDescription(media.description
@@ -120,16 +117,16 @@ export const mapMediaToEmbed = (data: PageResponse<MediaList>): APIEmbed[] => {
       author: {
         name: createAuthorName("Anilist"),
         icon_url: "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
-        url: "https://anilist.co/home"
-      }
+        url: "https://anilist.co/home",
+      },
     };
 
     if (data.Page.media.length > 1) {
       embed.footer = {
         text: createFooter(interpolator(messageList.common.page, {
           page: index + 1,
-          total: data.Page.media.length
-        }))
+          total: data.Page.media.length,
+        })),
       };
     }
 

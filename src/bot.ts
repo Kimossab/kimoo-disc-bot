@@ -2,8 +2,8 @@ import "dotenv/config";
 
 import AnilistModule from "#/anilist/module";
 import BirthdayModule from "#/birthday/module";
-import MiscModule from "#/misc/module";
 import GiveawayModule from "#giveaway/module";
+import MiscModule from "#/misc/module";
 import RoleModule from "#roles/module";
 import SauceAnimeModule from "#sauceAnime/module";
 import SauceArtModule from "#sauceArt/module";
@@ -11,22 +11,26 @@ import SettingsModule from "#settings/module";
 import VotingModule from "#voting/module";
 
 import {
+  APIInteraction,
+  InteractionResponseType,
+  InteractionType,
+} from "discord-api-types/v10";
+import { Socket } from "./discord/socket";
+import {
   createInteractionResponse,
   deleteCommand,
   getCommands,
   getGatewayBot,
-  sendMessage
+  sendMessage,
 } from "./discord/rest";
-import { Socket } from "./discord/socket";
 import { formatSecondsIntoMinutes, randomNum } from "./helper/common";
-import Logger from "./helper/logger";
 import {
   getApplication,
   setCommandExecutedCallback,
   setModules,
-  setReadyCallback
+  setReadyCallback,
 } from "./state/store";
-import { APIInteraction, InteractionResponseType, InteractionType } from "discord-api-types/v10";
+import Logger from "./helper/logger";
 
 const _logger = new Logger("bot");
 
@@ -42,9 +46,7 @@ let hasStarted = false;
 const commandExecuted = async (data: APIInteraction) => {
   if (data?.type === InteractionType.Ping) {
     _logger.info("Got Ping");
-    await createInteractionResponse(data.id, data.token, {
-      type: InteractionResponseType.Pong
-    });
+    await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.Pong });
   }
 };
 
@@ -55,7 +57,7 @@ const toggles = {
   ANILIST_MODULE: process.env.ANILIST_MODULE === "true",
   VOTING_MODULE: process.env.VOTING_MODULE === "true",
   ROLES_MODULE: process.env.ROLES_MODULE === "true",
-  GIVEAWAY_MODULE: process.env.GIVEAWAY_MODULE === "true"
+  GIVEAWAY_MODULE: process.env.GIVEAWAY_MODULE === "true",
 };
 
 const modules = [
@@ -67,13 +69,13 @@ const modules = [
   new AnilistModule(toggles.ANILIST_MODULE),
   new VotingModule(toggles.VOTING_MODULE),
   new RoleModule(toggles.ROLES_MODULE),
-  new GiveawayModule(toggles.GIVEAWAY_MODULE)
+  new GiveawayModule(toggles.GIVEAWAY_MODULE),
 ];
 
 const ready = async () => {
   _logger.info("Discord says Ready");
 
-  const activeModules = modules.filter((module) => module.active);
+  const activeModules = modules.filter(module => module.active);
 
   setModules(activeModules);
 
@@ -89,9 +91,9 @@ const ready = async () => {
       return;
     }
 
-    const commandNames = activeModules.map((module) => module.cmdName);
+    const commandNames = activeModules.map(module => module.cmdName);
 
-    const commandsToRemove = commandData.filter((command) => !commandNames.includes(command.name));
+    const commandsToRemove = commandData.filter(command => !commandNames.includes(command.name));
 
     for (const cmd of commandsToRemove) {
       if (cmd.id) {
@@ -101,7 +103,7 @@ const ready = async () => {
     }
 
     for (const module of activeModules) {
-      const existing = commandData.find((c) => c.name === module.name);
+      const existing = commandData.find(c => c.name === module.name);
       module.upsertCommands(app.id, existing);
     }
   }
@@ -139,7 +141,7 @@ const main = async (): Promise<void> => {
   if (gateway.session_start_limit.remaining === 0) {
     _logger.info(
       `SESSION START LIMIT REACHED (is 0). RESTARTING IN ${gateway.session_start_limit.reset_after}ms`,
-      gateway
+      gateway,
     );
     setTimeout(main, gateway.session_start_limit.reset_after);
     return;

@@ -1,13 +1,13 @@
-import { getLastAndNextEpisode } from "#anilist/helpers/anime-manager";
 import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
 import { MediaForAiring } from "../types/graphql";
+import { getLastAndNextEpisode } from "#anilist/helpers/anime-manager";
 
 export const mapMediaAiringToEmbed = (data: MediaForAiring): APIEmbed => {
   const fields: APIEmbedField[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
-    inline: false
+    inline: false,
   });
 
   const { next } = getLastAndNextEpisode(data.airingSchedule);
@@ -15,7 +15,7 @@ export const mapMediaAiringToEmbed = (data: MediaForAiring): APIEmbed => {
     fields.push({
       name: "Next episode",
       value: `#${next.episode} - <t:${next.airingAt}:R>`,
-      inline: false
+      inline: false,
     });
   }
 
@@ -30,8 +30,8 @@ export const mapMediaAiringToEmbed = (data: MediaForAiring): APIEmbed => {
     author: {
       name: "Anilist",
       icon_url: "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
-      url: "https://anilist.co/home"
-    }
+      url: "https://anilist.co/home",
+    },
   };
 
   if (!data.isAdult) {

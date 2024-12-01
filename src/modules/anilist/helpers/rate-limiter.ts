@@ -13,7 +13,7 @@ const TIMEOUT = 667; // 1 request per each 667ms max
 export enum RequestStatus {
   OK,
   Error,
-  Not_Found
+  Not_Found,
 }
 
 interface RequestError {
@@ -69,14 +69,14 @@ export class AnilistRateLimit implements IAnilistRateLimit {
   public async request<T>(
     queryName: string,
     graphql: string,
-    variables: Record<string, unknown>
+    variables: Record<string, unknown>,
   ): Promise<RequestResult<T>> {
     return new Promise<RequestResult<T>>((resolve) => {
       this.queue.push({
         name: queryName,
         graphql,
         variables,
-        callback: (data) => resolve(data as RequestResult<T>)
+        callback: data => resolve(data as RequestResult<T>),
       });
       if (!this.timerActive) {
         this.checkQueue();
@@ -84,7 +84,7 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     });
   }
 
-  public clear () {
+  public clear() {
     this.timerActive = false;
     this.queue = [];
   }
@@ -92,20 +92,21 @@ export class AnilistRateLimit implements IAnilistRateLimit {
   private handleErrors = (place: string, e: ErrorType): void => {
     if (isErrorData(e)) {
       this._logger.error(e.data.message, e.data.errors, place, e.data.code);
-    } else {
+    }
+    else {
       this._logger.error(e.message, place, e);
     }
   };
 
-  private logSuccess (name: string, headers: AxiosResponse["headers"]) {
+  private logSuccess(name: string, headers: AxiosResponse["headers"]) {
     this._logger.info("Successful request", {
       name,
       remaining: headers[X_RATELIMIT_REMAINING],
-      limit: headers[X_RATELIMIT_LIMIT]
+      limit: headers[X_RATELIMIT_LIMIT],
     });
   }
 
-  private getNextInQueue () {
+  private getNextInQueue() {
     if (this.queue.length === 0) {
       this.timerActive = false;
       return null;
@@ -115,7 +116,7 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     return this.queue.shift();
   }
 
-  private async checkQueue () {
+  private async checkQueue() {
     const request = this.getNextInQueue();
 
     if (!request) {
@@ -125,7 +126,7 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     try {
       const response = await this.doRequest<unknown>(
         request.graphql,
-        request.variables
+        request.variables,
       );
 
       this.logSuccess(request.name, response.headers);
@@ -133,19 +134,20 @@ export class AnilistRateLimit implements IAnilistRateLimit {
       request.callback({
         status: RequestStatus.OK,
         message: "success",
-        data: response.data.data
+        data: response.data.data,
       });
-    } catch (e) {
+    }
+    catch (e) {
       const result: RequestError = {
         status: RequestStatus.Error,
         message: (e as Error).message ?? "Internal server error",
-        data: e as ErrorType
+        data: e as ErrorType,
       };
 
       if (axios.isAxiosError(e)) {
         if (
-          e.response?.status === 429 &&
-          !!e.response.headers[X_RATELIMIT_RESET]
+          e.response?.status === 429
+          && !!e.response.headers[X_RATELIMIT_RESET]
         ) {
           return this.rateLimited(e, request);
         }
@@ -153,10 +155,12 @@ export class AnilistRateLimit implements IAnilistRateLimit {
         result.message = `${e.response?.status} - ${e.message}`;
         if (e.response?.status !== 404) {
           this.handleErrors(request.name, e);
-        } else {
+        }
+        else {
           result.status = RequestStatus.Not_Found;
         }
-      } else {
+      }
+      else {
         this.handleErrors(request.name, e as ErrorType);
       }
       request.callback(result);
@@ -167,9 +171,9 @@ export class AnilistRateLimit implements IAnilistRateLimit {
     }, TIMEOUT);
   }
 
-  private rateLimited (
+  private rateLimited(
     e: AxiosError<{ headers: Record<string, string> }, unknown>,
-    request: RequestData<unknown>
+    request: RequestData<unknown>,
   ) {
     const nextRequest = Number(e.response!.headers[X_RATELIMIT_RESET]);
 
@@ -184,7 +188,7 @@ export class AnilistRateLimit implements IAnilistRateLimit {
 
     this._logger.error("Rate limited", {
       name: request.name,
-      timeoutTime
+      timeoutTime,
     });
 
     setTimeout(() => {
@@ -194,21 +198,21 @@ export class AnilistRateLimit implements IAnilistRateLimit {
 
   private async doRequest<T>(
     graphql: string,
-    variables: Record<string, unknown>
+    variables: Record<string, unknown>,
   ): Promise<AxiosResponse<Response<T>>> {
     try {
       const response = await axios.post<string, AxiosResponse<Response<T>>>(
         ANILIST_GRAPHQL,
         JSON.stringify({
           query: graphql,
-          variables: variables
+          variables: variables,
         }),
         {
           headers: {
             "Content-Type": "application/json",
-            Accept: "application/json"
-          }
-        }
+            "Accept": "application/json",
+          },
+        },
       );
       this._logger.info("Anilist request", {
         graphql,
@@ -216,15 +220,16 @@ export class AnilistRateLimit implements IAnilistRateLimit {
         response: {
           data: response.data,
           status: response.status,
-          headers: response.headers
-        }
+          headers: response.headers,
+        },
       });
       return response;
-    } catch (e) {
+    }
+    catch (e) {
       this._logger.error("Anilist request", {
         graphql,
         variables,
-        exception: e
+        exception: e,
       });
       throw e;
     }

@@ -1,56 +1,46 @@
 import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
-import { chunkArray } from "@/helper/common";
-import {
-  CreatePageCallback,
-  InteractionPagination
-} from "@/helper/interaction-pagination";
-import Logger from "@/helper/logger";
-import { addPagination, getApplication } from "@/state/store";
-import { getUserSubs } from "../database";
-import { searchForUser } from "../graphql/graphql";
+  APIApplicationCommandOption,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+} from "discord-api-types/v10";
 import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
-import { mapSubListToEmbed } from "../mappers/mapSubListToEmbed";
+import { CreatePageCallback, InteractionPagination } from "@/helper/interaction-pagination";
 import { MediaSubbedInfo } from "../types/graphql";
-import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { addPagination, getApplication } from "@/state/store";
+import { chunkArray } from "@/helper/common";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
+import { getUserSubs } from "../database";
+import { mapSubListToEmbed } from "../mappers/mapSubListToEmbed";
+import { searchForUser } from "../graphql/graphql";
+import Logger from "@/helper/logger";
 
 const definition: APIApplicationCommandOption = {
   name: "list",
   description: "List your subscriptions",
   type: ApplicationCommandOptionType.Subcommand,
-  options: []
+  options: [],
 };
 
 const updateUserSubListEmbed: CreatePageCallback<MediaSubbedInfo[]> = async (
   page,
   total,
-  data
+  data,
 ) => {
-  return {
-    data: {
-      embeds: [mapSubListToEmbed(data, page, total)]
-    }
-  };
+  return { data: { embeds: [mapSubListToEmbed(data, page, total)] } };
 };
 
 const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
   return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionResponseType.DeferredChannelMessageWithSource
-      });
+      await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
       const subs = await getUserSubs(data.guild_id, data.member.user?.id || "");
 
       if (subs.length === 0) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: "No subscriptions"
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: "No subscriptions" });
 
         return;
       }
@@ -61,20 +51,18 @@ const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
       for (const chunk of subsChunk) {
         const info = await searchForUser(
           rateLimiter,
-          chunk.map((s) => s.animeId)
+          chunk.map(s => s.animeId),
         );
         if (
-          info.status === RequestStatus.OK &&
-          info.data.Page.media.length > 0
+          info.status === RequestStatus.OK
+          && info.data.Page.media.length > 0
         ) {
           animeInfo.push(...info.data.Page.media);
         }
       }
 
       if (animeInfo.length === 0) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: "No subscriptions"
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: "No subscriptions" });
 
         return;
       }
@@ -84,7 +72,7 @@ const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
       const pagination = new InteractionPagination(
         app.id,
         chunks,
-        updateUserSubListEmbed
+        updateUserSubListEmbed,
       );
 
       await pagination.create(data.token);
@@ -95,8 +83,8 @@ const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
 
 export default (
   logger: Logger,
-  rateLimiter: AnilistRateLimit
+  rateLimiter: AnilistRateLimit,
 ): CommandInfo => ({
   definition,
-  handler: handler(rateLimiter)
+  handler: handler(rateLimiter),
 });

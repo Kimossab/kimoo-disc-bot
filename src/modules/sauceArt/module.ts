@@ -1,17 +1,20 @@
 import BaseModule, { ComponentCommandHandler, SingleCommandHandler } from "#/base-module";
 
-import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
-import messageList from "@/helper/messages";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
 import { getApplication } from "@/state/store";
+import messageList from "@/helper/messages";
 
+import {
+  APIMessageApplicationCommandInteractionData,
+  ApplicationCommandType,
+  InteractionResponseType,
+  Locale,
+  MessageFlags,
+} from "discord-api-types/v10";
 import handleSauceNao from "./sauceNao/sauce-nao";
-import { APIMessageApplicationCommandInteractionData, ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType, Locale, MessageFlags } from "discord-api-types/v10";
 
 export default class SauceArtModule extends BaseModule {
-  constructor (isActive: boolean) {
+  constructor(isActive: boolean) {
     super("sauceArt", isActive, "Sauce (art)");
 
     if (!isActive) {
@@ -19,16 +22,16 @@ export default class SauceArtModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[Locale.EnglishUS] =
-      "Handles everything related to achievements";
+    this.commandDescription[Locale.EnglishUS]
+      = "Handles everything related to achievements";
 
     this.singleCommand = {
       definition: {
         name: "Sauce (art)",
-        type: ApplicationCommandType.Message
+        type: ApplicationCommandType.Message,
       },
       handler: this.commandHandler,
-      componentHandler: this.componentHandler
+      componentHandler: this.componentHandler,
     };
   }
 
@@ -38,17 +41,13 @@ export default class SauceArtModule extends BaseModule {
     if (app && app.id) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
-        data: {
-          flags: MessageFlags.Ephemeral
-        }
+        data: { flags: MessageFlags.Ephemeral },
       });
 
       const msgs = Object.values(responseData?.resolved?.messages ?? {});
 
       if (!msgs.length || !msgs[0].attachments.length) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.sauce.image_not_found
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.sauce.image_not_found });
         return;
       }
 
@@ -66,11 +65,13 @@ export default class SauceArtModule extends BaseModule {
         data: {
           content: data.message.content,
           embeds: [
-            { ...data.message.embeds[0],
-              footer: undefined }
+            {
+              ...data.message.embeds[0],
+              footer: undefined,
+            },
           ],
-          components: []
-        }
+          components: [],
+        },
       });
     }
   };

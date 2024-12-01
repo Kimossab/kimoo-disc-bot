@@ -1,21 +1,21 @@
 import BaseModule from "#/base-module";
 
+import { AnilistRateLimit } from "./helpers/rate-limiter";
+import { AnimeManager } from "./helpers/anime-manager";
+import { Locale } from "discord-api-types/v10";
+import { getAllAnimeLastAiring } from "./database";
 import channelCommand from "./commands/channel.command";
 import scheduleCommand from "./commands/schedule.command";
 import searchCommand from "./commands/search.command";
 import subCommand from "./commands/sub.command";
 import upcomingCommand from "./commands/upcoming.command";
-import { getAllAnimeLastAiring } from "./database";
-import { AnimeManager } from "./helpers/anime-manager";
-import { AnilistRateLimit } from "./helpers/rate-limiter";
-import { Locale } from "discord-api-types/v10";
 
 export default class AnilistModule extends BaseModule {
   private rateLimiter = new AnilistRateLimit();
 
   private animeList: AnimeManager[] = [];
 
-  constructor (isActive: boolean) {
+  constructor(isActive: boolean) {
     super("anilist", isActive);
 
     if (!isActive) {
@@ -23,8 +23,8 @@ export default class AnilistModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[Locale.EnglishUS] =
-      "Commands related to anilist";
+    this.commandDescription[Locale.EnglishUS]
+      = "Commands related to anilist";
 
     this.commandList = {
       search: searchCommand(this.logger, this.rateLimiter),
@@ -32,22 +32,22 @@ export default class AnilistModule extends BaseModule {
         this.logger,
         this.rateLimiter,
         this.animeList,
-        this.removeAnime
+        this.removeAnime,
       ),
       schedule: scheduleCommand(this.logger, this.rateLimiter),
       channel: channelCommand(),
-      upcoming: upcomingCommand(this.logger, this.rateLimiter)
+      upcoming: upcomingCommand(this.logger, this.rateLimiter),
     };
   }
 
-  public close () {
+  public close() {
     super.close();
-    this.animeList.forEach((a) => a.stop());
+    this.animeList.forEach(a => a.stop());
     this.animeList = [];
     this.rateLimiter.clear();
   }
 
-  public async setUp (): Promise<void> {
+  public async setUp(): Promise<void> {
     super.setUp();
     if (!this.isActive) {
       return;
@@ -56,12 +56,12 @@ export default class AnilistModule extends BaseModule {
     const ani = await getAllAnimeLastAiring();
 
     for (const anime of ani) {
-      if (!this.animeList.find((a) => a.id === anime.animeId)) {
+      if (!this.animeList.find(a => a.id === anime.animeId)) {
         const animeManager = new AnimeManager(
           this.logger,
           this.rateLimiter,
           anime.animeId,
-          this.removeAnime
+          this.removeAnime,
         );
         animeManager.checkNextEpisode();
         this.animeList.push(animeManager);
@@ -70,6 +70,6 @@ export default class AnilistModule extends BaseModule {
   }
 
   private removeAnime = (id: number) => {
-    this.animeList = this.animeList.filter((anime) => anime.id !== id);
+    this.animeList = this.animeList.filter(anime => anime.id !== id);
   };
 }

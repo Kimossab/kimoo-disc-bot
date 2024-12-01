@@ -9,7 +9,7 @@ import {
   MediaType,
   NextAiringWithTitle,
   PageResponse,
-  UpcomingMedia
+  UpcomingMedia,
 } from "../types/graphql";
 import { getAiringScheduleGraphql } from "./queries/getAiringScheduleGraphql";
 import { getFullAiringScheduleGraphql } from "./queries/getFullAiringScheduleGraphql";
@@ -22,91 +22,79 @@ import { searchGraphql } from "./queries/searchGraphql";
 export const searchByQueryAndType = async (
   rateLimiter: IAnilistRateLimit,
   search: string,
-  type?: MediaType
+  type?: MediaType,
 ) => {
   return await rateLimiter.request<PageResponse<MediaList>>(
     "searchByQueryAndType",
     searchByTypeGraphql,
     {
       search,
-      type
-    }
+      type,
+    },
   );
 };
 export const searchByQuery = async (
   rateLimiter: IAnilistRateLimit,
-  search: string
+  search: string,
 ) => {
   return await rateLimiter.request<PageResponse<MediaList>>(
     "searchByQuery",
     searchGraphql,
-    {
-      search
-    }
+    { search },
   );
 };
 
 export const searchForAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
-  search: string
+  search: string,
 ) => {
   return await rateLimiter.request<MediaResponse<MediaForAiring>>(
     "searchForAiringSchedule",
     searchForAiringScheduleGraphql,
-    {
-      search
-    }
+    { search },
   );
 };
 
 export const searchForUser = async (
   rateLimiter: IAnilistRateLimit,
-  ids: number[]
+  ids: number[],
 ) => {
   return await rateLimiter.request<PageResponse<MediaSubbed>>(
     "searchForUser",
     searchByIdsGraphql,
-    {
-      ids
-    }
+    { ids },
   );
 };
 
 export const getAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
-  search: string
+  search: string,
 ) => {
   return await rateLimiter.request<MediaResponse<NextAiringWithTitle>>(
     "getAiringSchedule",
     getAiringScheduleGraphql,
-    {
-      search
-    }
+    { search },
   );
 };
 
 export const getFullAiringSchedule = async (
   rateLimiter: IAnilistRateLimit,
-  id: number
+  id: number,
 ) => {
   return await rateLimiter.request<MediaResponse<InfoWithSchedule>>(
     "getFullAiringScheduleGraphql",
     getFullAiringScheduleGraphql,
-    {
-      id
-    }
+    { id },
   );
 };
 
 export const getUpcomingAnime = async (
   rateLimiter: IAnilistRateLimit,
-  season: MediaSeason
+  season: MediaSeason,
 ) => {
   return await rateLimiter.request<PageResponse<UpcomingMedia>>(
     "getUpcoming",
     getUpcoming,
-    {
-      season
-    }
+    { season },
   );
 };

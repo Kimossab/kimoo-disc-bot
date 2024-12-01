@@ -1,6 +1,6 @@
 export enum MediaType {
   ANIME = "ANIME",
-  MANGA = "MANGA"
+  MANGA = "MANGA",
 }
 export enum MediaFormat {
   TV = "TV",
@@ -12,20 +12,20 @@ export enum MediaFormat {
   MUSIC = "MUSIC",
   MANGA = "MANGA",
   NOVEL = "NOVEL",
-  ONE_SHOT = "ONE_SHOT"
+  ONE_SHOT = "ONE_SHOT",
 }
 export enum MediaStatus {
   FINISHED = "FINISHED",
   RELEASING = "RELEASING",
   NOT_YET_RELEASED = "NOT_YET_RELEASED",
   CANCELLED = "CANCELLED",
-  HIATUS = "HIATUS"
+  HIATUS = "HIATUS",
 }
 export enum MediaSeason {
   WINTER = "WINTER",
   SPRING = "SPRING",
   SUMMER = "SUMMER",
-  FALL = "FALL"
+  FALL = "FALL",
 }
 export enum MediaSource {
   ORIGINAL = "ORIGINAL",
@@ -43,7 +43,7 @@ export enum MediaSource {
   GAME = "GAME",
   COMIC = "COMIC",
   MULTIMEDIA_PROJECT = "MULTIMEDIA_PROJECT",
-  PICTURE_BOOK = "PICTURE_BOOK"
+  PICTURE_BOOK = "PICTURE_BOOK",
 }
 
 export enum MediaRelationType {
@@ -59,7 +59,7 @@ export enum MediaRelationType {
   OTHER = "OTHER",
   SOURCE = "SOURCE",
   COMPILATION = "COMPILATION",
-  CONTAINS = "CONTAINS"
+  CONTAINS = "CONTAINS",
 }
 
 interface ExternalLinks {

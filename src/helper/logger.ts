@@ -1,5 +1,8 @@
-/* eslint-disable no-console */
-import { createLogger, format, transports } from "winston";
+import {
+  createLogger,
+  format,
+  transports,
+} from "winston";
 import LokiTransport from "winston-loki";
 
 export interface ILogger {
@@ -11,7 +14,7 @@ export interface ILogger {
 class Logger implements ILogger {
   private _winston;
 
-  constructor (module: string) {
+  constructor(module: string) {
     this._winston = createLogger({
       level: process.env.ENV == "prod"
         ? "info"
@@ -20,39 +23,41 @@ class Logger implements ILogger {
       transports: [
         new LokiTransport({
           host: process.env.LOKI_HOST,
-          labels: { app: process.env.LOKI_APP,
+          labels: {
+            app: process.env.LOKI_APP,
             module,
-            env: process.env.ENV },
+            env: process.env.ENV,
+          },
           basicAuth: process.env.LOKI_BASIC_AUTH,
           json: true,
           format: format.json(),
           replaceTimestamp: true,
-          onConnectionError: (err) => console.error(err)
+          onConnectionError: err => console.error(err),
         }),
         new transports.Console({
           format: format.combine(
             format.timestamp(),
             format.simple(),
-            format.colorize()
-          )
-        })
-      ]
+            format.colorize(),
+          ),
+        }),
+      ],
     });
   }
 
-  public info (message: string, ...data: unknown[]) {
+  public info(message: string, ...data: unknown[]) {
     this._winston.info(message, ...data);
   }
 
-  public warn (message: string, ...data: unknown[]) {
+  public warn(message: string, ...data: unknown[]) {
     this._winston.warn(message, ...data);
   }
 
-  public debug (message: string, ...data: unknown[]) {
+  public debug(message: string, ...data: unknown[]) {
     this._winston.debug(message, ...data);
   }
 
-  public error (message: string, ...data: unknown[]) {
+  public error(message: string, ...data: unknown[]) {
     this._winston.error(message, ...data);
   }
 }

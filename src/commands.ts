@@ -1,22 +1,29 @@
-import { APIApplicationCommand, APIApplicationCommandOption, APIApplicationCommandOptionChoice, APIApplicationCommandStringOption, APIApplicationCommandSubcommandOption, RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types/v10";
+import {
+  APIApplicationCommand,
+  APIApplicationCommandOption,
+  APIApplicationCommandOptionChoice,
+  APIApplicationCommandStringOption,
+  APIApplicationCommandSubcommandOption,
+  RESTPostAPIApplicationCommandsJSONBody,
+} from "discord-api-types/v10";
 
 const compareChoices = (
   localChoices: APIApplicationCommandOptionChoice<string>[] = [],
-  onlineChoices: APIApplicationCommandOptionChoice<string>[] = []
+  onlineChoices: APIApplicationCommandOptionChoice<string>[] = [],
 ): boolean => {
   if (!localChoices && !onlineChoices) {
     return true;
   }
   if (
-    !localChoices ||
-    !onlineChoices ||
-    localChoices.length !== onlineChoices.length
+    !localChoices
+    || !onlineChoices
+    || localChoices.length !== onlineChoices.length
   ) {
     return false;
   }
 
   for (const choice of localChoices) {
-    const oChoice = onlineChoices.find((c) => c.name === choice.name);
+    const oChoice = onlineChoices.find(c => c.name === choice.name);
     if (!oChoice) {
       return false;
     }
@@ -31,14 +38,14 @@ const compareChoices = (
 
 const compareOptions = (
   localOpt: APIApplicationCommandOption[] = [],
-  onlineOpt: APIApplicationCommandOption[] = []
+  onlineOpt: APIApplicationCommandOption[] = [],
 ): boolean => {
   if (localOpt?.length !== onlineOpt?.length) {
     return false;
   }
 
   for (const option of localOpt) {
-    const opt = onlineOpt.find((o) => o.name === option.name);
+    const opt = onlineOpt.find(o => o.name === option.name);
 
     if (!opt) {
       return false;
@@ -52,7 +59,7 @@ const compareOptions = (
           "options",
           "choices",
           "name_localizations",
-          "description_localizations"
+          "description_localizations",
         ].includes(key)
       ) {
         if (option[key] !== opt[key]) {
@@ -77,7 +84,7 @@ const compareOptions = (
 
 export const compareCommands = (
   appCmd: RESTPostAPIApplicationCommandsJSONBody,
-  onlineCmd: APIApplicationCommand
+  onlineCmd: APIApplicationCommand,
 ): boolean => {
   const keys = Object.keys(appCmd) as (keyof RESTPostAPIApplicationCommandsJSONBody)[];
 

@@ -1,4 +1,8 @@
-import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
+import {
+  CommandHandler,
+  CommandInfo,
+  ComponentCommandHandler,
+} from "#base-module";
 import {
   CompletePoll,
   createOption,
@@ -7,25 +11,35 @@ import {
   deleteAllVotes,
   deleteOptionVote,
   getPoll,
-  updateHash
+  updateHash,
 } from "#voting/database";
+import { PollMessageType, mapPollToComponents } from "#voting/mappers/mapPollToComponents";
 import { hasExpired } from "#voting/helpers";
-import {
-  mapPollToComponents,
-  PollMessageType
-} from "#voting/mappers/mapPollToComponents";
 import { mapPollToEmbed } from "#voting/mappers/mapPollToEmbed";
 import { mapPollToSettingsEmbed } from "#voting/mappers/mapPollToSettingsEmbed";
 
 import {
+  APIActionRowComponent,
+  APIApplicationCommandBasicOption,
+  APIApplicationCommandOption,
+  APIInteractionResponseCallbackData,
+  APIMessageActionRowComponent,
+  APIMessageComponentInteraction,
+  APIModalSubmitInteraction,
+  ApplicationCommandOptionType,
+  ComponentType,
+  InteractionResponseType,
+  MessageFlags,
+  TextInputStyle,
+} from "discord-api-types/v10";
+import {
   createInteractionResponse,
   editMessage,
-  editOriginalInteractionResponse
+  editOriginalInteractionResponse,
 } from "@/discord/rest";
-import Logger from "@/helper/logger";
-import { getOptions } from "@/helper/modules";
 import { getApplication } from "@/state/store";
-import { APIApplicationCommandBasicOption, APIApplicationCommandOption, APIInteractionResponseCallbackData, ApplicationCommandOptionType, InteractionResponseType, APIActionRowComponent, APIMessageActionRowComponent, APIMessageComponentInteraction, APIModalSubmitInteraction, ComponentType, MessageFlags, TextInputStyle } from "discord-api-types/v10";
+import { getOptions } from "@/helper/modules";
+import Logger from "@/helper/logger";
 
 const MAX_OPTIONS_PER_POLL = 25;
 
@@ -42,7 +56,7 @@ interface CreateCommandOptions {
 
 type ComponentHandler<
   T extends APIModalSubmitInteraction | APIMessageComponentInteraction,
-  E = void
+  E = void,
 > = (
   poll: CompletePoll,
   data: T,
@@ -55,53 +69,53 @@ const options: APIApplicationCommandBasicOption[] = [
     name: "question",
     description: "The question you wish to ask, or the topic of the voting",
     type: ApplicationCommandOptionType.String,
-    required: true
+    required: true,
   },
   {
     name: "option_1",
     description: "Option for the poll #1",
     type: ApplicationCommandOptionType.String,
-    required: true
+    required: true,
   },
   {
     name: "option_2",
     description: "Option for the poll #2",
     type: ApplicationCommandOptionType.String,
-    required: true
+    required: true,
   },
   {
     name: "option_3",
     description: "Option for the poll #3",
-    type: ApplicationCommandOptionType.String
+    type: ApplicationCommandOptionType.String,
   },
   {
     name: "option_4",
     description: "Option for the poll #4",
-    type: ApplicationCommandOptionType.String
+    type: ApplicationCommandOptionType.String,
   },
   {
     name: "multiple_choice",
     description:
       "Whether the users can select more than 1 answer. (Defaults to false)",
-    type: ApplicationCommandOptionType.Boolean
+    type: ApplicationCommandOptionType.Boolean,
   },
   {
     type: ApplicationCommandOptionType.Integer,
     name: "days",
-    description: "How many days should the poll run for. (Default 1 day)"
+    description: "How many days should the poll run for. (Default 1 day)",
   },
   {
     name: "free_new_answer",
     description: "Whether the users add a new answer. (Defaults to false)",
-    type: ApplicationCommandOptionType.Boolean
-  }
+    type: ApplicationCommandOptionType.Boolean,
+  },
 ];
 
 const definition: APIApplicationCommandOption = {
   name: "create",
   description: "Creates a new poll in this channel",
   type: ApplicationCommandOptionType.Subcommand,
-  options
+  options,
 };
 
 const createPollMessageData: {
@@ -111,15 +125,13 @@ const createPollMessageData: {
   const embeds = [
     user
       ? mapPollToSettingsEmbed(poll, user)
-      : mapPollToEmbed(poll)
+      : mapPollToEmbed(poll),
   ];
   const components = user
     ? mapPollToComponents(poll, PollMessageType.SETTINGS, user)
     : mapPollToComponents(poll, PollMessageType.VOTE);
 
-  const response: APIInteractionResponseCallbackData = {
-    embeds
-  };
+  const response: APIInteractionResponseCallbackData = { embeds };
 
   if (components.length) {
     response.components = components;
@@ -131,9 +143,7 @@ const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app?.id && data.member?.user) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionResponseType.DeferredChannelMessageWithSource
-      });
+      await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
       const {
         question,
@@ -143,7 +153,7 @@ const handler = (logger: Logger): CommandHandler => {
         option_4,
         multiple_choice,
         free_new_answer,
-        days
+        days,
       } = getOptions<CreateCommandOptions>(
         [
           "question",
@@ -153,9 +163,9 @@ const handler = (logger: Logger): CommandHandler => {
           "option_4",
           "multiple_choice",
           "free_new_answer",
-          "days"
+          "days",
         ],
-        option.options
+        option.options,
       );
 
       const hash = `${+new Date()}`;
@@ -177,17 +187,15 @@ const handler = (logger: Logger): CommandHandler => {
           hash,
           multipleChoice: multiple_choice ?? false,
           startAt: new Date(),
-          usersCanAddAnswers: !!free_new_answer
+          usersCanAddAnswers: !!free_new_answer,
         },
-        options.map((o) => ({
-          text: o
-        }))
+        options.map(o => ({ text: o })),
       );
 
       const message = await editOriginalInteractionResponse(
         app.id,
         data.token,
-        createPollMessageData(poll)
+        createPollMessageData(poll),
       );
 
       await updateHash(poll.id, message?.id ?? hash);
@@ -197,22 +205,23 @@ const handler = (logger: Logger): CommandHandler => {
   };
 };
 
-
 const componentHandler = (logger: Logger): ComponentCommandHandler => {
   const addCommand: ComponentHandler<APIMessageComponentInteraction> = async (
     poll,
-    data
+    data,
   ) => {
     if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     if (poll.pollOptions.length === MAX_OPTIONS_PER_POLL) {
@@ -220,11 +229,13 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: `A poll can't have more than ${MAX_OPTIONS_PER_POLL} answers`,
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
     if (!poll.usersCanAddAnswers && poll.creator !== data.member?.user?.id) {
       await createInteractionResponse(data.id, data.token, {
@@ -232,12 +243,14 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         data: {
           content:
             "You are not the creator of the poll so you can't add new options.",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
 
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     await createInteractionResponse(data.id, data.token, {
@@ -254,32 +267,36 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
                 custom_id: "voting.create.new_opt",
                 style: TextInputStyle.Short,
                 label: "Option text",
-                min_length: 1
-              }
-            ]
-          }
-        ]
-      }
+                min_length: 1,
+              },
+            ],
+          },
+        ],
+      },
     });
 
-    return { hasSentResponse: true,
-      needsToUpdatePoll: false };
+    return {
+      hasSentResponse: true,
+      needsToUpdatePoll: false,
+    };
   };
 
   const modalCommand: ComponentHandler<APIModalSubmitInteraction> = async (
     poll,
-    data
+    data,
   ) => {
     if (hasExpired(poll)) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     if (poll.pollOptions.length === MAX_OPTIONS_PER_POLL) {
@@ -287,20 +304,24 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: `A poll can't have more than ${MAX_OPTIONS_PER_POLL} answers`,
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
-    const newOption =
-      data.data!.components[0].components[0].value ?? "";
+    const newOption
+      = data.data!.components[0].components[0].value ?? "";
 
     await createOption(poll.id, newOption);
 
-    return { hasSentResponse: false,
-      needsToUpdatePoll: true };
+    return {
+      hasSentResponse: false,
+      needsToUpdatePoll: true,
+    };
   };
 
   const settingsCommand: ComponentHandler<
@@ -314,12 +335,14 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         flags: MessageFlags.Ephemeral,
         content: "",
         embeds: [mapPollToSettingsEmbed(poll, userId)],
-        components: mapPollToComponents(poll, PollMessageType.SETTINGS, userId)
-      }
+        components: mapPollToComponents(poll, PollMessageType.SETTINGS, userId),
+      },
     });
 
-    return { hasSentResponse: true,
-      needsToUpdatePoll: false };
+    return {
+      hasSentResponse: true,
+      needsToUpdatePoll: false,
+    };
   };
 
   const settingsOptionCommand: ComponentHandler<
@@ -337,7 +360,7 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
       poll,
       PollMessageType.SETTINGS,
       userId,
-      optSelected
+      optSelected,
     );
     const embed = mapPollToSettingsEmbed(poll, userId, optSelected);
 
@@ -347,12 +370,14 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         flags: MessageFlags.Ephemeral,
         content: "",
         embeds: [embed],
-        components
-      }
+        components,
+      },
     });
 
-    return { hasSentResponse: true,
-      needsToUpdatePoll: false };
+    return {
+      hasSentResponse: true,
+      needsToUpdatePoll: false,
+    };
   };
 
   const removeCommand: ComponentHandler<
@@ -364,11 +389,13 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     const opt = Number(optionSelected[1]);
@@ -384,20 +411,24 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           flags: MessageFlags.Ephemeral,
-          content: "Only the creator of the poll can remove an option"
-        }
+          content: "Only the creator of the poll can remove an option",
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     poll.pollOptions = [
       ...poll.pollOptions.slice(0, optSelected),
-      ...poll.pollOptions.slice(optSelected + 1)
+      ...poll.pollOptions.slice(optSelected + 1),
     ];
 
-    return { hasSentResponse: false,
-      needsToUpdatePoll: true };
+    return {
+      hasSentResponse: false,
+      needsToUpdatePoll: true,
+    };
   };
 
   const choiceCommand: ComponentHandler<
@@ -409,42 +440,49 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     const userId = data.member?.user?.id || "";
 
     const userVotes = poll.pollOptions.reduce(
-      (acc, opt) => acc +
-      (opt.pollOptionVotes.filter((v) => v.user === userId)?.length || 0),
-      0
+      (acc, opt) => acc
+        + (opt.pollOptionVotes.filter(v => v.user === userId)?.length || 0),
+      0,
     );
 
     const option = poll.pollOptions[optionChosen];
-    if (!option.pollOptionVotes.map((v) => v.user).includes(userId)) {
+    if (!option.pollOptionVotes.map(v => v.user).includes(userId)) {
       if (!poll.multipleChoice && userVotes > 0) {
         await createInteractionResponse(data.id, data.token, {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
             content: "This poll doesn't allow multiple answers",
-            flags: MessageFlags.Ephemeral
-          }
+            flags: MessageFlags.Ephemeral,
+          },
         });
 
-        return { hasSentResponse: true,
-          needsToUpdatePoll: false };
+        return {
+          hasSentResponse: true,
+          needsToUpdatePoll: false,
+        };
       }
       await createOptionVote(option.id, userId);
-    } else {
+    }
+    else {
       await deleteOptionVote(option.id, userId);
     }
 
-    return { hasSentResponse: false,
-      needsToUpdatePoll: true };
+    return {
+      hasSentResponse: false,
+      needsToUpdatePoll: true,
+    };
   };
 
   const closeCommand: ComponentHandler<
@@ -455,11 +493,13 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     const userId = data.member?.user?.id || "";
@@ -469,17 +509,21 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           flags: MessageFlags.Ephemeral,
-          content: "Only the creator of the poll can close the poll"
-        }
+          content: "Only the creator of the poll can close the poll",
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     poll.days = 0;
 
-    return { hasSentResponse: false,
-      needsToUpdatePoll: true };
+    return {
+      hasSentResponse: false,
+      needsToUpdatePoll: true,
+    };
   };
 
   const resetCommand: ComponentHandler<
@@ -490,11 +534,13 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "This poll has expired",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     const userId = data.member?.user?.id || "";
@@ -504,17 +550,21 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           flags: MessageFlags.Ephemeral,
-          content: "Only the creator of the poll can reset the poll"
-        }
+          content: "Only the creator of the poll can reset the poll",
+        },
       });
-      return { hasSentResponse: true,
-        needsToUpdatePoll: false };
+      return {
+        hasSentResponse: true,
+        needsToUpdatePoll: false,
+      };
     }
 
     await deleteAllVotes(poll.id);
 
-    return { hasSentResponse: false,
-      needsToUpdatePoll: true };
+    return {
+      hasSentResponse: false,
+      needsToUpdatePoll: true,
+    };
   };
 
   type cHandler = ComponentHandler<
@@ -529,12 +579,12 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     remove: removeCommand as cHandler,
     close: closeCommand as cHandler,
     reset: resetCommand as cHandler,
-    setOpt: settingsOptionCommand as cHandler
+    setOpt: settingsOptionCommand as cHandler,
   };
 
   return async (data, subCmd) => {
-    const messageId =
-      data.message?.message_reference?.message_id || data.message?.id || "";
+    const messageId
+      = data.message?.message_reference?.message_id || data.message?.id || "";
     const isOriginalMessage = !data.message?.message_reference;
 
     const poll = await getPoll(messageId);
@@ -542,15 +592,17 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     logger.info("Component interaction", subCmd);
 
     if (!poll) {
-      logger.error("Poll not found", { data,
+      logger.error("Poll not found", {
+        data,
         subCmd,
-        messageId });
+        messageId,
+      });
       await createInteractionResponse(data.id, data.token, {
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: "Internal Server Error, try again",
-          flags: MessageFlags.Ephemeral
-        }
+          flags: MessageFlags.Ephemeral,
+        },
       });
       return;
     }
@@ -561,16 +613,17 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     if (Object.keys(componentHandlers).includes(subCmd[0])) {
       ({
         hasSentResponse: messageHasBeenCreated,
-        needsToUpdatePoll: needsToUpdatePoll
+        needsToUpdatePoll: needsToUpdatePoll,
       } = await componentHandlers[subCmd[0]](poll, data, subCmd));
-    } else {
+    }
+    else {
       ({
         hasSentResponse: messageHasBeenCreated,
-        needsToUpdatePoll: needsToUpdatePoll
+        needsToUpdatePoll: needsToUpdatePoll,
       } = await choiceCommand(
         poll,
         data as APIMessageComponentInteraction,
-        Number(subCmd[0])
+        Number(subCmd[0]),
       ));
     }
     const updatedPoll = await getPoll(messageId);
@@ -579,21 +632,21 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
     }
 
     if (!messageHasBeenCreated) {
-      const responseData =
-        isOriginalMessage
+      const responseData
+        = isOriginalMessage
           ? createPollMessageData(updatedPoll)
           : createPollMessageData(updatedPoll, data.member?.user?.id || "");
 
       await createInteractionResponse(data.id, data.token, {
         type: InteractionResponseType.UpdateMessage,
-        data: responseData
+        data: responseData,
       });
     }
 
     if (!isOriginalMessage && needsToUpdatePoll) {
       await editMessage(data.channel_id ?? "", messageId, {
         ...createPollMessageData(updatedPoll),
-        attachments: undefined
+        attachments: undefined,
       });
     }
   };
@@ -602,5 +655,5 @@ const componentHandler = (logger: Logger): ComponentCommandHandler => {
 export default (logger: Logger): CommandInfo => ({
   definition,
   handler: handler(logger),
-  componentHandler: componentHandler(logger)
+  componentHandler: componentHandler(logger),
 });

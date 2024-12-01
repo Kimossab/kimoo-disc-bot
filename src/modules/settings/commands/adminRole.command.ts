@@ -1,8 +1,14 @@
 import { CommandHandler, CommandInfo } from "#base-module";
 
-import { getServer, setAdminRole } from "@/database";
+import {
+  APIApplicationCommandInteractionDataRoleOption,
+  APIApplicationCommandInteractionDataSubcommandOption,
+  APIApplicationCommandOption,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+} from "discord-api-types/v10";
 import { createInteractionResponse } from "@/discord/rest";
-import { APIApplicationCommandInteractionDataRoleOption, APIApplicationCommandInteractionDataSubcommandOption, APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import { getServer, setAdminRole } from "@/database";
 
 const definition: APIApplicationCommandOption = {
   name: "admin_role",
@@ -12,9 +18,9 @@ const definition: APIApplicationCommandOption = {
     {
       name: "role",
       description: "Role you want to set as admin",
-      type: ApplicationCommandOptionType.Role
-    }
-  ]
+      type: ApplicationCommandOptionType.Role,
+    },
+  ],
 };
 
 const handler = (): CommandHandler => {
@@ -23,9 +29,7 @@ const handler = (): CommandHandler => {
     if (!data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
         type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: "Only allowed in a guild"
-        }
+        data: { content: "Only allowed in a guild" },
       });
       return;
     }
@@ -44,11 +48,12 @@ const handler = (): CommandHandler => {
             parse: [],
             roles: [],
             users: [],
-            replied_user: false
-          }
-        }
+            replied_user: false,
+          },
+        },
       });
-    } else {
+    }
+    else {
       const role = (await getServer(data.guild_id))?.adminRole;
       if (role) {
         await createInteractionResponse(data.id, data.token, {
@@ -59,16 +64,15 @@ const handler = (): CommandHandler => {
               parse: [],
               roles: [],
               users: [],
-              replied_user: false
-            }
-          }
+              replied_user: false,
+            },
+          },
         });
-      } else {
+      }
+      else {
         await createInteractionResponse(data.id, data.token, {
           type: InteractionResponseType.ChannelMessageWithSource,
-          data: {
-            content: "This server doesn't have an admin role defined"
-          }
+          data: { content: "This server doesn't have an admin role defined" },
         });
       }
     }
@@ -78,5 +82,5 @@ const handler = (): CommandHandler => {
 export default (): CommandInfo => ({
   definition,
   handler: handler(),
-  isAdmin: true
+  isAdmin: true,
 });

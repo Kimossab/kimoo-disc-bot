@@ -1,19 +1,28 @@
-import { CommandHandler, CommandInfo, ComponentCommandHandler } from "#base-module";
+import {
+  CommandHandler,
+  CommandInfo,
+  ComponentCommandHandler,
+} from "#base-module";
 
-import Logger from "@/helper/logger";
-import { getOption } from "@/helper/modules";
-import { AnimeManager } from "../helpers/anime-manager";
+import {
+  APIApplicationCommandInteractionDataSubcommandOption,
+  APIApplicationCommandOption,
+  APIApplicationCommandSubcommandOption,
+  ApplicationCommandOptionType,
+} from "discord-api-types/v10";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
+import { AnimeManager } from "../helpers/anime-manager";
+import { getOption } from "@/helper/modules";
+import Logger from "@/helper/logger";
 import subAddCommand from "./subAdd.command";
 import subListCommand from "./subList.command";
 import subRemoveCommand from "./subRemove.command";
-import { APIApplicationCommandInteractionDataSubcommandOption, APIApplicationCommandOption, APIApplicationCommandSubcommandOption, ApplicationCommandOptionType } from "discord-api-types/v10";
 
 const definition: APIApplicationCommandOption = {
   name: "sub",
   description: "Subscriptions commands",
   type: ApplicationCommandOptionType.SubcommandGroup,
-  options: []
+  options: [],
 };
 
 const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
@@ -29,7 +38,7 @@ const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
 };
 const componentHandler = (
   logger: Logger,
-  subCommands: Record<string, CommandInfo>
+  subCommands: Record<string, CommandInfo>,
 ): ComponentCommandHandler => {
   return async (data, subCmd) => {
     for (const cmd of Object.keys(subCommands)) {
@@ -51,12 +60,12 @@ export default (
   logger: Logger,
   rateLimiter: AnilistRateLimit,
   animeList: AnimeManager[],
-  removeAnime: (id: number) => void
+  removeAnime: (id: number) => void,
 ): CommandInfo => {
   const subCommands: Record<string, CommandInfo> = {
     add: subAddCommand(logger, rateLimiter, animeList, removeAnime),
     remove: subRemoveCommand(logger, rateLimiter, removeAnime),
-    list: subListCommand(logger, rateLimiter)
+    list: subListCommand(logger, rateLimiter),
   };
 
   for (const cmd of Object.keys(subCommands)) {
@@ -66,6 +75,6 @@ export default (
   return {
     definition,
     handler: handler(subCommands),
-    componentHandler: componentHandler(logger, subCommands)
+    componentHandler: componentHandler(logger, subCommands),
   };
 };

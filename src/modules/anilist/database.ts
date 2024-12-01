@@ -1,31 +1,31 @@
-import prisma from "@/database";
-import { ILogger } from "@/helper/logger";
 import { AnilistSubscription, LastAiredNotification } from "@prisma/client";
+import { ILogger } from "@/helper/logger";
+import prisma from "@/database";
 
 const getSubscription = async (
   server: string,
   user: string,
-  id: number
+  id: number,
 ): Promise<AnilistSubscription | null> => await prisma.anilistSubscription.findFirst({
   where: {
     serverId: server,
     user,
-    animeId: id
-  }
+    animeId: id,
+  },
 });
 
 export const addSubscription = async (
   server: string,
   user: string,
-  id: number
+  id: number,
 ): Promise<void> => {
   if (!await getSubscription(server, user, id)) {
     await prisma.anilistSubscription.create({
       data: {
         serverId: server,
         user,
-        animeId: id
-      }
+        animeId: id,
+      },
     });
   }
 };
@@ -33,43 +33,37 @@ export const addSubscription = async (
 export const getAllSubscriptionsForAnime = async (id: number): Promise<AnilistSubscription[]> => await prisma.anilistSubscription.findMany({ where: { animeId: id } });
 
 export const deleteAllSubscriptionsForId = async (id: number, logger: ILogger): Promise<void> => {
-  await prisma.lastAiredNotification.deleteMany({
-    where: { animeId: id }
-  });
+  await prisma.lastAiredNotification.deleteMany({ where: { animeId: id } });
   logger.info("Subs deleted for anime", {
     id,
-    subs: await prisma.anilistSubscription.deleteMany({
-      where: {
-        animeId: id
-      }
-    })
+    subs: await prisma.anilistSubscription.deleteMany({ where: { animeId: id } }),
   });
 };
 
 export const deleteUserSubscriptionForIds = async (
   user: string,
   server: string,
-  ids: number[]
+  ids: number[],
 ): Promise<void> => {
   for (const id of ids) {
     await prisma.anilistSubscription.deleteMany({
       where: {
         user,
         serverId: server,
-        animeId: id
-      }
+        animeId: id,
+      },
     });
   }
 };
 
 export const getUserSubs = async (
   server: string,
-  user: string
+  user: string,
 ): Promise<AnilistSubscription[]> => await prisma.anilistSubscription.findMany({
   where: {
     serverId: server,
-    user
-  }
+    user,
+  },
 });
 
 export const getAllAnimeLastAiring = async (): Promise<
@@ -80,11 +74,9 @@ export const getAnimeLastAiringById = async (id: number): Promise<LastAiredNotif
 
 export const setAnimeLastAiring = async (
   id: number,
-  lastAired?: number
+  lastAired?: number,
 ): Promise<LastAiredNotification> => {
-  const lastAiredNotification = await prisma.lastAiredNotification.findFirst({
-    where: { animeId: id }
-  });
+  const lastAiredNotification = await prisma.lastAiredNotification.findFirst({ where: { animeId: id } });
 
   if (lastAiredNotification) {
     return lastAiredNotification;
@@ -94,21 +86,21 @@ export const setAnimeLastAiring = async (
     data: {
       animeId: id,
       lastAired: lastAired ?? null,
-      lastUpdated: new Date()
-    }
+      lastUpdated: new Date(),
+    },
   });
 };
 
 export const updateAnimeLastAiring = async (
   id: number,
-  lastAired: number
+  lastAired: number,
 ): Promise<LastAiredNotification> => {
   const data = await prisma.lastAiredNotification.update({
     where: { animeId: id },
     data: {
       lastAired: lastAired,
-      lastUpdated: new Date()
-    }
+      lastUpdated: new Date(),
+    },
   });
   if (!data) {
     throw new Error(`Unable to update last aired: ${id}`);

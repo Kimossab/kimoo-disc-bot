@@ -1,6 +1,10 @@
+import {
+  APIActionRowComponent,
+  APIButtonComponent,
+  ButtonStyle,
+  ComponentType,
+} from "discord-api-types/v10";
 import { CompleteGiveaway } from "#giveaway/database";
-import { ComponentType, ButtonStyle, APIActionRowComponent, APIButtonComponent } from "discord-api-types/v10";
-
 
 export const mapGiveawayToComponents = (giveaway: CompleteGiveaway): APIActionRowComponent<APIButtonComponent>[] => {
   if (giveaway.endAt < new Date()) {
@@ -12,12 +16,13 @@ export const mapGiveawayToComponents = (giveaway: CompleteGiveaway): APIActionRo
             type: ComponentType.Button,
             style: ButtonStyle.Danger,
             custom_id: "giveaway.create.reshuffle",
-            label: "Reshuffle"
-          }
-        ]
-      }
+            label: "Reshuffle",
+          },
+        ],
+      },
     ];
-  } else {
+  }
+  else {
     return [
       {
         type: ComponentType.ActionRow,
@@ -26,10 +31,10 @@ export const mapGiveawayToComponents = (giveaway: CompleteGiveaway): APIActionRo
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
             custom_id: "giveaway.create.join",
-            label: "JOIN"
-          }
-        ]
-      }
+            label: "JOIN",
+          },
+        ],
+      },
     ];
   }
 };

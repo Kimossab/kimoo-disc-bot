@@ -1,22 +1,21 @@
-import { getUpcomingAnime } from "#anilist/graphql/graphql";
 import { AnilistRateLimit, RequestStatus } from "#anilist/helpers/rate-limiter";
-import { mapUpcomingToEmbed } from "#anilist/mappers/mapUpcomingToEmbed";
-import { MediaSeason } from "#anilist/types/graphql";
 import { CommandHandler, CommandInfo } from "#base-module";
+import { MediaSeason } from "#anilist/types/graphql";
+import { getUpcomingAnime } from "#anilist/graphql/graphql";
+import { mapUpcomingToEmbed } from "#anilist/mappers/mapUpcomingToEmbed";
 
 import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
-import {
-  CreatePageCallback,
-  InteractionPagination
-} from "@/helper/interaction-pagination";
+  APIApplicationCommandOption,
+  APIEmbed,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+} from "discord-api-types/v10";
+import { CreatePageCallback, InteractionPagination } from "@/helper/interaction-pagination";
+import { addPagination, getApplication } from "@/state/store";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
+import { getOptions } from "@/helper/modules";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import { getOptions } from "@/helper/modules";
-import { addPagination, getApplication } from "@/state/store";
-import { APIApplicationCommandOption, APIEmbed, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface UpcomingCommandOptions {
   season: MediaSeason | null;
@@ -35,23 +34,23 @@ const definition: APIApplicationCommandOption = {
       choices: [
         {
           name: MediaSeason.WINTER,
-          value: MediaSeason.WINTER
+          value: MediaSeason.WINTER,
         },
         {
           name: MediaSeason.SPRING,
-          value: MediaSeason.SPRING
+          value: MediaSeason.SPRING,
         },
         {
           name: MediaSeason.SUMMER,
-          value: MediaSeason.SUMMER
+          value: MediaSeason.SUMMER,
         },
         {
           name: MediaSeason.FALL,
-          value: MediaSeason.FALL
-        }
-      ]
-    }
-  ]
+          value: MediaSeason.FALL,
+        },
+      ],
+    },
+  ],
 };
 
 const getNextSeason = (): MediaSeason => {
@@ -79,26 +78,20 @@ const getNextSeason = (): MediaSeason => {
   return MediaSeason.WINTER;
 };
 
-const pageUpdate: CreatePageCallback<APIEmbed> = async (_page, _total, data) => ({
-  data: {
-    embeds: [data]
-  }
-});
+const pageUpdate: CreatePageCallback<APIEmbed> = async (_page, _total, data) => ({ data: { embeds: [data] } });
 
 const handler = (
   logger: Logger,
-  rateLimiter: AnilistRateLimit
+  rateLimiter: AnilistRateLimit,
 ): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionResponseType.DeferredChannelMessageWithSource
-      });
+      await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
       const options = getOptions<UpcomingCommandOptions>(
         ["season"],
-        option.options
+        option.options,
       );
 
       const season = options.season ?? getNextSeason();
@@ -106,25 +99,21 @@ const handler = (
       const allData = await getUpcomingAnime(rateLimiter, season);
 
       if (allData.status !== RequestStatus.OK) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.anilist.not_found });
         return;
       }
 
       const embedList = mapUpcomingToEmbed(logger, allData.data);
 
       if (embedList.length === 0) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.anilist.not_found });
         return;
       }
 
       const pagination = new InteractionPagination(
         app.id,
         embedList,
-        pageUpdate
+        pageUpdate,
       );
 
       await pagination.create(data.token);
@@ -135,8 +124,8 @@ const handler = (
 
 export default (
   logger: Logger,
-  rateLimiter: AnilistRateLimit
+  rateLimiter: AnilistRateLimit,
 ): CommandInfo => ({
   definition,
-  handler: handler(logger, rateLimiter)
+  handler: handler(logger, rateLimiter),
 });

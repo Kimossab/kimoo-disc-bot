@@ -1,28 +1,28 @@
 import {
   cleanUpDescription,
   dateToString,
-  formatTrailerLink
+  formatTrailerLink,
 } from "#anilist/mappers/helperMappers";
 
-import { interpolator } from "@/helper/common";
 import {
   createAuthorName,
   createDescription,
   createEmbedField,
   createEmbedFieldList,
   createFooter,
-  createTitle
+  createTitle,
 } from "@/helper/embed";
+import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
 
+import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
 import { PageResponse, UpcomingMedia } from "../types/graphql";
 import { formatMapper, sourceMapper } from "./enumMapper";
-import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
 
 export const mapUpcomingToEmbed = (
   logger: Logger,
-  data: PageResponse<UpcomingMedia>
+  data: PageResponse<UpcomingMedia>,
 ): APIEmbed[] => {
   return data.Page.media.map((media, index) => {
     const fields: APIEmbedField[] = [];
@@ -30,15 +30,15 @@ export const mapUpcomingToEmbed = (
     fields.push(...[
       ...createEmbedFieldList("Other names", [
         `• ${media.title.native}`,
-        `• ${media.title.romaji}`
+        `• ${media.title.romaji}`,
       ]),
       createEmbedField(
         "Format",
         media.format
           ? formatMapper[media.format]
           : "N/A",
-        true
-      )
+        true,
+      ),
     ]);
     const date = dateToString(media.startDate);
     if (date) {
@@ -60,14 +60,14 @@ export const mapUpcomingToEmbed = (
       fields.push(createEmbedField(
         "Next episode",
         `#${media.nextAiringEpisode.episode} - <t:${media.nextAiringEpisode.airingAt}:R>`,
-        true
+        true,
       ));
     }
     if (media.studios?.nodes?.length) {
       fields.push(...createEmbedFieldList(
         "Studios",
-        media.studios.nodes.map((studio) => `• ${studio.name}`),
-        true
+        media.studios.nodes.map(studio => `• ${studio.name}`),
+        true,
       ));
     }
     if (media.genres?.length) {
@@ -80,22 +80,22 @@ export const mapUpcomingToEmbed = (
           .map((tag) => {
             return tag.isMediaSpoiler ? `||${tag.name}||` : tag.name;
           })
-          .join(", ")
+          .join(", "),
       ));
     }
 
     if (media.idMal || media.externalLinks?.length) {
-      const externalLinks =
-        media.externalLinks?.map((link) => `• [${link.site}](${link.url})`) ??
-        [];
+      const externalLinks
+        = media.externalLinks?.map(link => `• [${link.site}](${link.url})`)
+        ?? [];
 
       fields.push(...createEmbedFieldList(
         "Other links",
         [
           `• [My Anime List](https://myanimelist.net/anime/${media.idMal})`,
-          ...externalLinks
+          ...externalLinks,
         ],
-        true
+        true,
       ));
     }
 
@@ -104,7 +104,7 @@ export const mapUpcomingToEmbed = (
       if (!link.startsWith("http")) {
         logger.error("UNKNOWN SITE for formatting", {
           trailer: media.trailer,
-          animeId: media.id
+          animeId: media.id,
         });
       }
       fields.push(createEmbedField("Trailer", link, true));
@@ -113,8 +113,8 @@ export const mapUpcomingToEmbed = (
     const embed: APIEmbed = {
       title: createTitle((media.isAdult
         ? "[**NSFW**] "
-        : "") +
-        (media.title.english || media.title.romaji || media.title.native)),
+        : "")
+      + (media.title.english || media.title.romaji || media.title.native)),
       url: media.siteUrl,
       color: parseInt(media.coverImage.color?.slice(1) || "FFFFFF", 16),
       description: createDescription(media.description
@@ -126,16 +126,16 @@ export const mapUpcomingToEmbed = (
       author: {
         name: createAuthorName("Anilist"),
         icon_url: "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
-        url: "https://anilist.co/home"
-      }
+        url: "https://anilist.co/home",
+      },
     };
 
     if (data.Page.media.length > 1) {
       embed.footer = {
         text: createFooter(interpolator(messageList.common.page, {
           page: index + 1,
-          total: data.Page.media.length
-        }))
+          total: data.Page.media.length,
+        })),
       };
     }
 

@@ -1,13 +1,13 @@
 import { downloadFile } from "@/helper/common";
 import Logger from "@/helper/logger";
 
-import axios, { AxiosResponse } from "axios";
 import FormData from "form-data";
+import axios, { AxiosResponse } from "axios";
 import fs from "fs";
 
 export const requestTraceMoe = async (
   image: string,
-  logger?: Logger
+  logger?: Logger,
 ): Promise<TraceMoe.response | null> => {
   try {
     const result = await downloadFile(image, "trash/trash.png");
@@ -20,15 +20,14 @@ export const requestTraceMoe = async (
       const res = await axios.post<FormData, AxiosResponse<TraceMoe.response>>(
         "https://api.trace.moe/search?anilistInfo",
         data,
-        {
-          headers: data.getHeaders()
-        }
+        { headers: data.getHeaders() },
       );
       return res.data;
     }
 
     return null;
-  } catch (e) {
+  }
+  catch (e) {
     logger?.error("Requesting sauce trace moe", JSON.stringify(e));
   }
 

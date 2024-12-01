@@ -1,32 +1,40 @@
 import BaseModule from "#/base-module";
 
-import { getServer, updateServerLastWishes } from "@/database";
-import { giveRole, removeRole, sendMessage } from "@/discord/rest";
-import { getDayInfo, interpolator, snowflakeToDate } from "@/helper/common";
-import messageList from "@/helper/messages";
-import { getGuilds } from "@/state/store";
 import { Birthday } from "@prisma/client";
+import {
+  getDayInfo,
+  interpolator,
+  snowflakeToDate,
+} from "@/helper/common";
+import { getGuilds } from "@/state/store";
+import { getServer, updateServerLastWishes } from "@/database";
+import {
+  giveRole,
+  removeRole,
+  sendMessage,
+} from "@/discord/rest";
+import messageList from "@/helper/messages";
 
-import addCommand from "./commands/add.command";
-import channelCommand from "./commands/channel.command";
-import getCommand from "./commands/get.command";
-import removeCommand from "./commands/remove.command";
-import roleCommand from "./commands/role.command";
-import serverCommand from "./commands/server.command";
+import { Locale } from "discord-api-types/v10";
 import {
   getBirthdays,
   getOldBirthdayWithRole,
   getServersBirthdayInfo,
   removeBirthdayWithRole,
   setBirthdayWithRole,
-  updateLastWishes
+  updateLastWishes,
 } from "./database";
-import { Locale } from "discord-api-types/v10";
+import addCommand from "./commands/add.command";
+import channelCommand from "./commands/channel.command";
+import getCommand from "./commands/get.command";
+import removeCommand from "./commands/remove.command";
+import roleCommand from "./commands/role.command";
+import serverCommand from "./commands/server.command";
 
 export default class BirthdayModule extends BaseModule {
   private checkTimeout: NodeJS.Timeout | null = null;
 
-  constructor (isActive: boolean) {
+  constructor(isActive: boolean) {
     super("birthday", isActive);
 
     if (!isActive) {
@@ -34,8 +42,8 @@ export default class BirthdayModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[Locale.EnglishUS] =
-      "Handles the birthdays of the users";
+    this.commandDescription[Locale.EnglishUS]
+      = "Handles the birthdays of the users";
 
     this.checkBirthdays();
 
@@ -45,24 +53,26 @@ export default class BirthdayModule extends BaseModule {
       remove: removeCommand(),
       get: getCommand(this.logger),
       server: serverCommand(this.logger),
-      role: roleCommand(this.logger)
+      role: roleCommand(this.logger),
     };
   }
 
-  public close () {
+  public close() {
     super.close();
     this.clear();
   }
 
-  private async checkBirthdays () {
+  private async checkBirthdays() {
     this.logger.info("Checking birthdays");
 
     if (this.checkTimeout) {
       clearTimeout(this.checkTimeout);
     }
 
-    const { hours, minutes, seconds, milliseconds, day, month, year } =
-      getDayInfo();
+    const {
+      hours, minutes, seconds, milliseconds, day, month, year,
+    }
+      = getDayInfo();
 
     const serversData = getGuilds();
     const serverChannels = await getServersBirthdayInfo();
@@ -75,7 +85,7 @@ export default class BirthdayModule extends BaseModule {
         if (!lastWishes || lastWishes < year) {
           const message = interpolator(messageList.birthday.server_bday, {
             age: (year - serverDate.getFullYear()).toString(),
-            name: serversData.find((server) => server.id === s)?.name || ""
+            name: serversData.find(server => server.id === s)?.name || "",
           });
           await sendMessage(serverChannels[s].channel, message);
           await updateServerLastWishes(s);
@@ -98,16 +108,18 @@ export default class BirthdayModule extends BaseModule {
               toRemove.serverId,
               user,
               serverChannels[toRemove.serverId].role,
-              "Birthday Over"
+              "Birthday Over",
             );
-          } catch (e) {
+          }
+          catch (e) {
             this.logger.error("removing role", e);
           }
         }
       }
       try {
         await removeBirthdayWithRole(toRemove.id);
-      } catch (e) {
+      }
+      catch (e) {
         this.logger.error("removing role", e);
       }
     }
@@ -120,7 +132,8 @@ export default class BirthdayModule extends BaseModule {
       for (const birthday of todayBirthDays) {
         if (!serverBirthdays[birthday.serverId]) {
           serverBirthdays[birthday.serverId] = [birthday];
-        } else {
+        }
+        else {
           serverBirthdays[birthday.serverId].push(birthday);
         }
       }
@@ -129,8 +142,8 @@ export default class BirthdayModule extends BaseModule {
         if (serverChannels[server]) {
           const usersCongratulated: string[] = [];
           const usersCongratulatedWithRole: string[] = [];
-          let message =
-            serverBirthdays[server].length > 1
+          let message
+            = serverBirthdays[server].length > 1
               ? messageList.birthday.today_bday_s
               : messageList.birthday.today_bday;
 
@@ -146,7 +159,7 @@ export default class BirthdayModule extends BaseModule {
                 server,
                 bd.user,
                 serverChannels[server].role,
-                "Birthday"
+                "Birthday",
               );
               usersCongratulatedWithRole.push(bd.user);
             }
@@ -162,12 +175,12 @@ export default class BirthdayModule extends BaseModule {
       }
     }
 
-    const time =
-      1000 -
-      milliseconds + // ms to next s
-      (60 - seconds) * 1000 + // s to next m
-      (60 - minutes - 1) * 60 * 1000 + // m to next h
-      ((hours >= 12
+    const time
+      = 1000
+      - milliseconds // ms to next s
+      + (60 - seconds) * 1000 // s to next m
+      + (60 - minutes - 1) * 60 * 1000 // m to next h
+      + ((hours >= 12
         ? 24
         : 12) - hours - 1) * 60 * 60 * 1000; // h to next 12/24
 
@@ -175,7 +188,7 @@ export default class BirthdayModule extends BaseModule {
     this.checkTimeout = setTimeout(() => this.checkBirthdays(), time);
   }
 
-  private clear (): void {
+  private clear(): void {
     this.checkTimeout && clearTimeout(this.checkTimeout);
   }
 }

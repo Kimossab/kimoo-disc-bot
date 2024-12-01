@@ -1,4 +1,4 @@
-import { APIAllowedMentions, APIMessageMentionableSelectInteractionData } from "discord-api-types/v10";
+import { APIAllowedMentions } from "discord-api-types/v10";
 
 // common
 export const PRESENCE_STRINGS = [
@@ -24,7 +24,7 @@ export const PRESENCE_STRINGS = [
   "I ask you. Are you my master?",
   "EXPLOSIOOOOOOONNNN",
   "People die if they are killed...",
-  "WHAT IF I HAD DIED?"
+  "WHAT IF I HAD DIED?",
 ];
 
 // discord
@@ -32,7 +32,7 @@ export const no_mentions: APIAllowedMentions = {
   parse: [],
   roles: [],
   users: [],
-  replied_user: false
+  replied_user: false,
 };
 
 export const DISCORD_TOKEN_TTL = 15 * 60 * 1000; // 15 mins

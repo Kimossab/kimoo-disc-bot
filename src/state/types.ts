@@ -1,7 +1,14 @@
 import BaseModule from "#base-module";
 
+import {
+  APIApplicationCommandInteraction,
+  APIGuildMember,
+  APIInteraction,
+  APIUser,
+  GatewayGuildCreateDispatchData,
+  GatewayReadyDispatchData,
+} from "discord-api-types/v10";
 import { InteractionPagination } from "@/helper/interaction-pagination";
-import { APIApplicationCommandInteraction, APIGuildMember, APIUser, GatewayGuildCreateDispatchData, GatewayReadyDispatchData, APIInteraction } from "discord-api-types/v10";
 
 type Application = GatewayReadyDispatchData["application"];
 
@@ -29,7 +36,7 @@ export enum ActionName {
   GetDiscordLastS = "GET_DISCORD_LAST_S",
   GetPagination = "GET_PAGINATION",
 
-  SetModules = "SET_MODULES"
+  SetModules = "SET_MODULES",
 }
 
 interface ActionData {

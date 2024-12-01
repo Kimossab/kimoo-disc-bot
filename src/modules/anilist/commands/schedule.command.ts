@@ -1,18 +1,19 @@
 import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
+  APIApplicationCommandOption,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+} from "discord-api-types/v10";
+import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
+import { MediaType } from "../types/graphql";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
+import { getAiringSchedule } from "../graphql/graphql";
+import { getApplication } from "@/state/store";
+import { getOptions } from "@/helper/modules";
+import { mapAiringScheduleToEmbed } from "../mappers/mapAiringScheduleToEmbed";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import { getOptions } from "@/helper/modules";
-import { getApplication } from "@/state/store";
-import { getAiringSchedule } from "../graphql/graphql";
-import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
-import { mapAiringScheduleToEmbed } from "../mappers/mapAiringScheduleToEmbed";
-import { MediaType } from "../types/graphql";
-import { APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 
 interface ScheduleCommandOptions {
   query: string;
@@ -28,40 +29,36 @@ const definition: APIApplicationCommandOption = {
       name: "query",
       description: "Query to search for",
       type: ApplicationCommandOptionType.String,
-      required: true
-    }
-  ]
+      required: true,
+    },
+  ],
 };
 
 const handler = (
   _logger: Logger,
-  rateLimiter: AnilistRateLimit
+  rateLimiter: AnilistRateLimit,
 ): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app?.id) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionResponseType.DeferredChannelMessageWithSource
-      });
+      await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
       const { query } = getOptions<ScheduleCommandOptions>(
         ["query"],
-        option.options
+        option.options,
       );
 
       const allData = await getAiringSchedule(rateLimiter, query);
 
       if (allData.status !== RequestStatus.OK || !allData.data.Media) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.anilist.not_found });
         return;
       }
 
       const embed = mapAiringScheduleToEmbed(allData.data.Media);
       await editOriginalInteractionResponse(app.id, data.token, {
         content: "",
-        embeds: [embed]
+        embeds: [embed],
       });
     }
   };
@@ -69,8 +66,8 @@ const handler = (
 
 export default (
   logger: Logger,
-  rateLimiter: AnilistRateLimit
+  rateLimiter: AnilistRateLimit,
 ): CommandInfo => ({
   definition,
-  handler: handler(logger, rateLimiter)
+  handler: handler(logger, rateLimiter),
 });
