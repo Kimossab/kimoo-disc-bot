@@ -127,3 +127,7 @@ export const getOldBirthdayWithRole = async (day: number, month: number) => {
 export const removeBirthdayWithRole = async (id: string) => {
   return await prisma.birthdayWithRole.delete({ where: { id } });
 };
+
+export const removeBirthdayWithRoleUser = async (id: string) => {
+  return await prisma.birthdayWithRoleUser.delete({ where: { id } });
+};
