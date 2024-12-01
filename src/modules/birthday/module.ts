@@ -21,6 +21,7 @@ import {
   getOldBirthdayWithRole,
   getServersBirthdayInfo,
   removeBirthdayWithRole,
+  removeBirthdayWithRoleUser,
   setBirthdayWithRole,
   updateLastWishes,
 } from "./database";
@@ -117,6 +118,9 @@ export default class BirthdayModule extends BaseModule {
         }
       }
       try {
+        for (const { id } of toRemove.birthdayWithRoleUsers) {
+          await removeBirthdayWithRoleUser(id);
+        }
         await removeBirthdayWithRole(toRemove.id);
       }
       catch (e) {
