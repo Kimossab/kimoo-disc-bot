@@ -1,4 +1,4 @@
-import { AllowedMentions } from "@/types/discord";
+import { APIAllowedMentions } from "discord-api-types/v10";
 
 // common
 export const PRESENCE_STRINGS = [
@@ -23,15 +23,16 @@ export const PRESENCE_STRINGS = [
   "kuraiyo~ kowaiyo~",
   "I ask you. Are you my master?",
   "EXPLOSIOOOOOOONNNN",
-  "People die if they are killed..."
+  "People die if they are killed...",
+  "WHAT IF I HAD DIED?",
 ];
 
 // discord
-export const no_mentions: AllowedMentions = {
+export const no_mentions: APIAllowedMentions = {
   parse: [],
   roles: [],
   users: [],
-  replied_user: false
+  replied_user: false,
 };
 
 export const DISCORD_TOKEN_TTL = 15 * 60 * 1000; // 15 mins

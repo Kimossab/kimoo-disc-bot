@@ -1,11 +1,10 @@
+import { Locale } from "discord-api-types/v10";
 import BaseModule from "#base-module";
-
-import { AvailableLocales } from "@/types/discord";
 
 import createCommand from "./commands/create.command";
 
 export default class VotingModule extends BaseModule {
-  constructor (isActive: boolean) {
+  constructor(isActive: boolean) {
     super("voting", isActive);
 
     if (!isActive) {
@@ -13,15 +12,13 @@ export default class VotingModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
-      "Commands related to voting";
+    this.commandDescription[Locale.EnglishUS]
+      = "Commands related to voting";
 
-    this.commandList = {
-      create: createCommand(this.logger)
-    };
+    this.commandList = { create: createCommand(this.logger) };
   }
 
-  public async setUp (): Promise<void> {
+  public async setUp(): Promise<void> {
     super.setUp();
     if (!this.isActive) {
       return;

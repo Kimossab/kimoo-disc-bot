@@ -1,16 +1,16 @@
+import { APIEmbed } from "discord-api-types/v10";
 import { formatSecondsIntoMinutes, interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
-import { Embed } from "@/types/discord";
 
 export const traceMoeEmbed = (
   item: TraceMoe.resultData,
   page: number,
-  total: number
-): Embed => {
-  const title =
-    item.anilist.title.romaji ||
-    item.anilist.title.english ||
-    item.anilist.title.native;
+  total: number,
+): APIEmbed => {
+  const title
+    = item.anilist.title.romaji
+    || item.anilist.title.english
+    || item.anilist.title.native;
 
   const description: string[] = [];
 
@@ -19,7 +19,7 @@ export const traceMoeEmbed = (
   }
   description.push(`@${formatSecondsIntoMinutes(item.from)}`);
 
-  const embed: Embed = {
+  const embed: APIEmbed = {
     title: title || "UNKNOWN",
     description: description.join(" "),
     color: 3035554,
@@ -27,18 +27,16 @@ export const traceMoeEmbed = (
     fields: [
       {
         name: messageList.sauce.similarity,
-        value: `${Math.round(item.similarity * 100)}%`
-      }
+        value: `${Math.round(item.similarity * 100)}%`,
+      },
     ],
-    image: {
-      url: item.image
-    },
+    image: { url: item.image },
     footer: {
       text: interpolator(messageList.common.page, {
         page,
-        total
-      })
-    }
+        total,
+      }),
+    },
   };
 
   if (item.anilist.synonyms?.length > 0) {
@@ -47,14 +45,14 @@ export const traceMoeEmbed = (
       value: [
         item.anilist.title.romaji,
         item.anilist.title.english,
-        item.anilist.title.native
-      ].join("\n")
+        item.anilist.title.native,
+      ].join("\n"),
     });
   }
 
   embed.fields?.push({
     name: "⠀",
-    value: `[Video](${item.video})`
+    value: `[Video](${item.video})`,
   });
   return embed;
 };

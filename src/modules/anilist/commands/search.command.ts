@@ -1,84 +1,70 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
 import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
-import {
-  CreatePageCallback,
-  InteractionPagination
-} from "@/helper/interaction-pagination";
+  APIApplicationCommandOption,
+  APIEmbed,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+} from "discord-api-types/v10";
+import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
+import { CreatePageCallback, InteractionPagination } from "@/helper/interaction-pagination";
+import { MediaType } from "../types/graphql";
+import { addPagination, getApplication } from "@/state/store";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
+import { getOptions } from "@/helper/modules";
+import { mapMediaToEmbed } from "../mappers/mapMediaToEmbed";
+import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import { getOptions } from "@/helper/modules";
-import { addPagination, getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  Embed,
-  InteractionCallbackType
-} from "@/types/discord";
-
-import { searchByQuery, searchByQueryAndType } from "../graphql/graphql";
-import { AnilistRateLimit, RequestStatus } from "../helpers/rate-limiter";
-import { mapMediaToEmbed } from "../mappers/mapMediaToEmbed";
-import { MediaType } from "../types/graphql";
 
 interface SearchCommandOptions {
   query: string;
   type: MediaType;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "search",
   description: "Search for an anime or manga",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "query",
       description: "Query to search for",
-      type: ApplicationCommandOptionType.STRING,
-      required: true
+      type: ApplicationCommandOptionType.String,
+      required: true,
     },
     {
       name: "type",
       description: "Query to search for",
-      type: ApplicationCommandOptionType.STRING,
+      type: ApplicationCommandOptionType.String,
       choices: [
         {
           name: MediaType.ANIME,
-          value: MediaType.ANIME
+          value: MediaType.ANIME,
         },
         {
           name: MediaType.MANGA,
-          value: MediaType.MANGA
-        }
-      ]
-    }
-  ]
+          value: MediaType.MANGA,
+        },
+      ],
+    },
+  ],
 };
 
-const pageUpdate: CreatePageCallback<Embed> = async (_page, _total, data) => ({
-  data: {
-    embeds: [data]
-  }
-});
+const pageUpdate: CreatePageCallback<APIEmbed> = async (_page, _total, data) => ({ data: { embeds: [data] } });
 
 const handler = (
   logger: Logger,
-  rateLimiter: AnilistRateLimit
+  rateLimiter: AnilistRateLimit,
 ): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-      });
+      await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
       const { query, type } = getOptions<SearchCommandOptions>(
         ["query", "type"],
-        option.options
+        option.options,
       );
 
       const allData = await (type
@@ -86,25 +72,21 @@ const handler = (
         : searchByQuery(rateLimiter, query));
 
       if (allData.status !== RequestStatus.OK) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.anilist.not_found });
         return;
       }
 
       const embedList = mapMediaToEmbed(allData.data);
 
       if (embedList.length === 0) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.anilist.not_found
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.anilist.not_found });
         return;
       }
 
       const pagination = new InteractionPagination(
         app.id,
         embedList,
-        pageUpdate
+        pageUpdate,
       );
 
       await pagination.create(data.token);
@@ -115,8 +97,8 @@ const handler = (
 
 export default (
   logger: Logger,
-  rateLimiter: AnilistRateLimit
+  rateLimiter: AnilistRateLimit,
 ): CommandInfo => ({
   definition,
-  handler: handler(logger, rateLimiter)
+  handler: handler(logger, rateLimiter),
 });

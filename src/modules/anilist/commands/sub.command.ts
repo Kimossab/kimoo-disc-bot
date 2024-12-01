@@ -1,25 +1,28 @@
-import { CommandInfo } from "#base-module";
-
-import Logger from "@/helper/logger";
-import { getOption } from "@/helper/modules";
 import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
   CommandHandler,
-  ComponentCommandHandler
-} from "@/types/discord";
+  CommandInfo,
+  ComponentCommandHandler,
+} from "#base-module";
 
-import { AnimeManager } from "../helpers/anime-manager";
+import {
+  APIApplicationCommandInteractionDataSubcommandOption,
+  APIApplicationCommandOption,
+  APIApplicationCommandSubcommandOption,
+  ApplicationCommandOptionType,
+} from "discord-api-types/v10";
 import { AnilistRateLimit } from "../helpers/rate-limiter";
+import { AnimeManager } from "../helpers/anime-manager";
+import { getOption } from "@/helper/modules";
+import Logger from "@/helper/logger";
 import subAddCommand from "./subAdd.command";
 import subListCommand from "./subList.command";
 import subRemoveCommand from "./subRemove.command";
 
-const definition: ApplicationCommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "sub",
   description: "Subscriptions commands",
-  type: ApplicationCommandOptionType.SUB_COMMAND_GROUP,
-  options: []
+  type: ApplicationCommandOptionType.SubcommandGroup,
+  options: [],
 };
 
 const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
@@ -28,14 +31,14 @@ const handler = (subCommands: Record<string, CommandInfo>): CommandHandler => {
       const cmdData = getOption(option.options, cmd);
 
       if (cmdData) {
-        return await subCommands[cmd].handler(data, cmdData);
+        return await subCommands[cmd].handler(data, cmdData as APIApplicationCommandInteractionDataSubcommandOption);
       }
     }
   };
 };
 const componentHandler = (
   logger: Logger,
-  subCommands: Record<string, CommandInfo>
+  subCommands: Record<string, CommandInfo>,
 ): ComponentCommandHandler => {
   return async (data, subCmd) => {
     for (const cmd of Object.keys(subCommands)) {
@@ -57,21 +60,21 @@ export default (
   logger: Logger,
   rateLimiter: AnilistRateLimit,
   animeList: AnimeManager[],
-  removeAnime: (id: number) => void
+  removeAnime: (id: number) => void,
 ): CommandInfo => {
   const subCommands: Record<string, CommandInfo> = {
     add: subAddCommand(logger, rateLimiter, animeList, removeAnime),
     remove: subRemoveCommand(logger, rateLimiter, removeAnime),
-    list: subListCommand(logger, rateLimiter)
+    list: subListCommand(logger, rateLimiter),
   };
 
   for (const cmd of Object.keys(subCommands)) {
-    definition.options?.push(subCommands[cmd].definition);
+    definition.options?.push(subCommands[cmd].definition as APIApplicationCommandSubcommandOption);
   }
 
   return {
     definition,
     handler: handler(subCommands),
-    componentHandler: componentHandler(logger, subCommands)
+    componentHandler: componentHandler(logger, subCommands),
   };
 };

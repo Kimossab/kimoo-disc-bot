@@ -1,12 +1,12 @@
-import prisma from "@/database";
 import { Birthday } from "@prisma/client";
+import prisma from "@/database";
 
 export const addBirthday = async (
   server: string,
   user: string,
   day: number,
   month: number,
-  year: number | null
+  year: number | null,
 ): Promise<void> => {
   if (!await getUserBirthday(server, user)) {
     await prisma.birthday.create({
@@ -15,8 +15,8 @@ export const addBirthday = async (
         user,
         day,
         month,
-        year
-      }
+        year,
+      },
     });
   }
 };
@@ -24,14 +24,14 @@ export const addBirthday = async (
 export const getBirthdays = async (
   day: number,
   month: number,
-  year: number
+  year: number,
 ): Promise<Birthday[]> => {
   const list = await prisma.birthday.findMany({
     where: {
       day,
       month,
-      OR: [{ lastWishes: null }, { lastWishes: { lte: year } }]
-    }
+      OR: [{ lastWishes: null }, { lastWishes: { lt: year } }],
+    },
   });
 
   return list;
@@ -39,36 +39,36 @@ export const getBirthdays = async (
 
 export const getUserBirthday = async (
   server: string,
-  user: string
+  user: string,
 ): Promise<Nullable<Birthday>> => await prisma.birthday.findFirst({
   where: {
     serverId: server,
-    user
-  }
+    user,
+  },
 });
 
 export const deleteUserBirthday = async (id: string) => await prisma.birthday.delete({ where: { id } });
 
 export const getBirthdaysByMonth = async (
   server: string,
-  month: number
+  month: number,
 ): Promise<Birthday[]> => await prisma.birthday.findMany({
   where: {
     serverId: server,
-    month
-  }
+    month,
+  },
 });
 
 export const updateLastWishes = async (
   server: string,
-  users: string[]
+  users: string[],
 ): Promise<void> => {
   await prisma.birthday.updateMany({
     where: {
       serverId: server,
-      user: { in: users }
+      user: { in: users },
     },
-    data: { lastWishes: new Date().getFullYear() }
+    data: { lastWishes: new Date().getFullYear() },
   });
 };
 
@@ -84,22 +84,20 @@ export const getServersBirthdayInfo = async (): Promise<
     select: {
       birthdayChannel: true,
       birthdayRole: true,
-      id: true
+      id: true,
     },
-    where: {
-      birthdayChannel: { not: null }
-    }
+    where: { birthdayChannel: { not: null } },
   });
 
   return serverChannels.reduce<Record<string, ServersBirthdayInfo>>(
     (accumulator, value) => {
       accumulator[value.id] = {
         channel: value.birthdayChannel!,
-        role: value.birthdayRole!
+        role: value.birthdayRole!,
       };
       return accumulator;
     },
-    {}
+    {},
   );
 };
 
@@ -107,28 +105,22 @@ export const setBirthdayWithRole = async (
   day: number,
   month: number,
   users: string[],
-  server: string
+  server: string,
 ): Promise<void> => {
   await prisma.birthdayWithRole.create({
     data: {
       serverId: server,
       day,
       month,
-      birthdayWithRoleUsers: {
-        create: users.map((user) => ({
-          user
-        }))
-      }
-    }
+      birthdayWithRoleUsers: { create: users.map(user => ({ user })) },
+    },
   });
 };
 
 export const getOldBirthdayWithRole = async (day: number, month: number) => {
   return await prisma.birthdayWithRole.findMany({
     where: { OR: [{ day: { not: day } }, { month: { not: month } }] },
-    include: {
-      birthdayWithRoleUsers: true
-    }
+    include: { birthdayWithRoleUsers: true },
   });
 };
 

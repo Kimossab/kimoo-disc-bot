@@ -40,23 +40,23 @@ const renderDonut = (a: number, b: number): string => {
       const circleX = R2 + R1 * cosTheta;
       const circleY = R1 * sinTheta;
 
-      const x =
-        circleX * (cosB * cosPhi + sinA * sinB * sinPhi) -
-        circleY * cosA * sinB;
-      const y =
-        circleX * (sinB * cosPhi - sinA * cosB * sinPhi) +
-        circleY * cosA * cosB;
+      const x
+        = circleX * (cosB * cosPhi + sinA * sinB * sinPhi)
+        - circleY * cosA * sinB;
+      const y
+        = circleX * (sinB * cosPhi - sinA * cosB * sinPhi)
+        + circleY * cosA * cosB;
       const z = K2 + cosA * circleX * sinPhi + circleY * sinA;
       const ooz = 1 / z;
 
       const xp = Math.floor(SCREEN_WIDTH / 2 + K1 * ooz * x);
       const yp = Math.floor(SCREEN_HEIGHT / 2 - K1 * ooz * y);
 
-      const L =
-        cosPhi * cosTheta * sinB -
-        cosA * cosTheta * sinPhi -
-        sinA * sinTheta +
-        cosB * (cosA * sinTheta - cosTheta * sinA * sinPhi);
+      const L
+        = cosPhi * cosTheta * sinB
+        - cosA * cosTheta * sinPhi
+        - sinA * sinTheta
+        + cosB * (cosA * sinTheta - cosTheta * sinA * sinPhi);
 
       if (L > 0) {
         if (ooz > zBuffer[xp][yp]) {
@@ -79,7 +79,7 @@ const renderDonut = (a: number, b: number): string => {
     }
   }
 
-  return strings.filter((s) => s.replace(" ", "").length !== 0).join("\n");
+  return strings.filter(s => s.replace(" ", "").length !== 0).join("\n");
 };
 
 export default renderDonut;

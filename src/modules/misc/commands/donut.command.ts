@@ -1,19 +1,15 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 import renderDonut from "#misc/donut";
 
 import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
-import Logger from "@/helper/logger";
-import { getOptions } from "@/helper/modules";
-import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
+  APIApplicationCommandOption,
   ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
+  InteractionResponseType,
+} from "discord-api-types/v10";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
+import { getApplication } from "@/state/store";
+import { getOptions } from "@/helper/modules";
+import Logger from "@/helper/logger";
 
 interface DonutCommandOptions {
   a: string;
@@ -23,34 +19,32 @@ interface DonutCommandOptions {
 const MAX_RANDOM_ANGLE = 1 * Math.PI / 4;
 const MIN_RANDOM_ANGLE = -1 * Math.PI / 4;
 
-const definition: ApplicationCommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "donut",
   description: "Create a donut",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "a",
       description: "Angle of A (radians)",
-      type: ApplicationCommandOptionType.STRING
+      type: ApplicationCommandOptionType.String,
     },
     {
       name: "b",
       description: "Angle of B (radians)",
-      type: ApplicationCommandOptionType.STRING
-    }
-  ]
+      type: ApplicationCommandOptionType.String,
+    },
+  ],
 };
 const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-      });
+      await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
       const { a, b } = getOptions<DonutCommandOptions>(
         ["a", "b"],
-        option.options
+        option.options,
       );
       const nA = Number(a);
       const nB = Number(b);
@@ -58,21 +52,20 @@ const handler = (logger: Logger): CommandHandler => {
 
       if (a && b && !Number.isNaN(nA) && !Number.isNaN(nB)) {
         donut = renderDonut(nA, nB);
-      } else {
-        const A =
-          Math.PI / 2 +
-          (Math.random() * (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE) +
-          MIN_RANDOM_ANGLE);
-        const B =
-          Math.random() * (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE) +
-          MIN_RANDOM_ANGLE;
+      }
+      else {
+        const A
+          = Math.PI / 2
+          + (Math.random() * (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE)
+            + MIN_RANDOM_ANGLE);
+        const B
+          = Math.random() * (MAX_RANDOM_ANGLE - MIN_RANDOM_ANGLE)
+          + MIN_RANDOM_ANGLE;
 
         donut = renderDonut(A, B);
       }
 
-      await editOriginalInteractionResponse(app.id, data.token, {
-        content: `Here's your donut:\n\`\`\`\n${donut}\`\`\``
-      });
+      await editOriginalInteractionResponse(app.id, data.token, { content: `Here's your donut:\n\`\`\`\n${donut}\`\`\`` });
 
       logger.info(`Donut was requested in ${data.guild_id} by ${
         (data.member || data).user?.username
@@ -83,5 +76,5 @@ const handler = (logger: Logger): CommandHandler => {
 
 export default (logger: Logger): CommandInfo => ({
   definition,
-  handler: handler(logger)
+  handler: handler(logger),
 });

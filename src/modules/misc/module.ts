@@ -1,13 +1,11 @@
+import { Locale } from "discord-api-types/v10";
 import BaseModule from "#/base-module";
-
-import { AvailableLocales } from "@/types/discord";
-
 import avatarCommand from "./commands/avatar.command";
 import donutCommand from "./commands/donut.command";
 import groupCommand from "./commands/group.command";
 
 export default class MiscModule extends BaseModule {
-  constructor (isActive: boolean) {
+  constructor(isActive: boolean) {
     super("misc", isActive);
 
     if (!isActive) {
@@ -15,13 +13,13 @@ export default class MiscModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
-      "Miscellaneous commands";
+    this.commandDescription[Locale.EnglishUS]
+      = "Miscellaneous commands";
 
     this.commandList = {
       group: groupCommand(),
       donut: donutCommand(this.logger),
-      avatar: avatarCommand()
+      avatar: avatarCommand(),
     };
   }
 }

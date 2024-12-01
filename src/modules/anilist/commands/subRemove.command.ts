@@ -1,39 +1,39 @@
 import {
-  deleteAllSubscriptionsForId,
-  deleteUserSubscriptionForIds,
-  getAllSubscriptionsForAnime,
-  getUserSubs
-} from "#anilist/database";
-import { searchForUser } from "#anilist/graphql/graphql";
+  APIApplicationCommandOption,
+  APIMessageStringSelectInteractionData,
+  APIStringSelectComponent,
+  ApplicationCommandOptionType,
+  ComponentType,
+  InteractionResponseType,
+  MessageFlags,
+} from "discord-api-types/v10";
 import { AnilistRateLimit, RequestStatus } from "#anilist/helpers/rate-limiter";
-import { CommandInfo } from "#base-module";
-
+import {
+  CommandHandler,
+  CommandInfo,
+  ComponentCommandHandler,
+} from "#base-module";
+import { chunkArray, limitString } from "@/helper/common";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
-  sendMessage
+  sendMessage,
 } from "@/discord/rest";
-import { chunkArray, limitString } from "@/helper/common";
-import Logger from "@/helper/logger";
-import { getApplication } from "@/state/store";
 import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  Component,
-  ComponentCommandHandler,
-  ComponentType,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType,
-  MessageComponentInteractionData,
-  SelectOption
-} from "@/types/discord";
+  deleteAllSubscriptionsForId,
+  deleteUserSubscriptionForIds,
+  getAllSubscriptionsForAnime,
+  getUserSubs,
+} from "#anilist/database";
+import { getApplication } from "@/state/store";
+import { searchForUser } from "#anilist/graphql/graphql";
+import Logger from "@/helper/logger";
 
-const definition: ApplicationCommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "remove",
   description: "Removes a subscription",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
-  options: []
+  type: ApplicationCommandOptionType.Subcommand,
+  options: [],
 };
 
 export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
@@ -44,11 +44,9 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
         data.id,
         data.token,
         {
-          type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionCallbackDataFlags.EPHEMERAL
-          }
-        }
+          type: InteractionResponseType.DeferredChannelMessageWithSource,
+          data: { flags: MessageFlags.Ephemeral },
+        },
       );
 
       const subs = await getUserSubs(data.guild_id, data.member.user?.id || "");
@@ -57,9 +55,7 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
         await editOriginalInteractionResponse(
           app.id,
           data.token,
-          {
-            content: "No subscriptions"
-          }
+          { content: "No subscriptions" },
         );
 
         return;
@@ -67,41 +63,40 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
 
       const subsChunk = chunkArray(
         subs,
-        25
+        25,
       );
 
       const animeInfo = [];
 
       for (const chunk of subsChunk) {
-        const info = await searchForUser(rateLimiter, chunk.map((s) => s.animeId));
+        const info = await searchForUser(rateLimiter, chunk.map(s => s.animeId));
         if (
-          info.status === RequestStatus.OK &&
-          info.data.Page.media.length > 0
+          info.status === RequestStatus.OK
+          && info.data.Page.media.length > 0
         ) {
           animeInfo.push(...info.data.Page.media);
         }
       }
 
-
-      const components: Component[] = chunkArray(animeInfo, 25)
+      const components: APIStringSelectComponent[] = chunkArray(animeInfo, 25)
         .map((chunk, index) => {
           return {
             type: ComponentType.StringSelect,
             custom_id: `anilist.sub.remove.anime.selected.${index}`,
-            options: chunk.map<SelectOption>((a) => ({
+            options: chunk.map(a => ({
               label: limitString(
                 a.title.english || a.title.romaji,
-                100
+                100,
               ),
               value: a.id.toString(),
               description: limitString(
                 a.title.romaji,
-                100
-              )
+                100,
+              ),
             })),
             max_values: chunk.length,
             min_values: 1,
-            placeholder: "Select an anime to remove"
+            placeholder: "Select an anime to remove",
           };
         });
 
@@ -113,10 +108,10 @@ export const handler = (rateLimiter: AnilistRateLimit): CommandHandler => {
           components: [
             {
               type: ComponentType.ActionRow,
-              components
-            }
-          ]
-        }
+              components,
+            },
+          ],
+        },
       );
     }
   };
@@ -126,14 +121,14 @@ const componentHandler = (_logger: Logger, removeAnime: (id: number) => void): C
   return async (data) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
-      const values =
-        (data.data as MessageComponentInteractionData)?.values?.map(Number) ??
-        [];
+      const values
+        = (data.data as APIMessageStringSelectInteractionData)?.values?.map(Number)
+        ?? [];
 
       await deleteUserSubscriptionForIds(
         data.member.user?.id ?? "fakeid",
         data.guild_id,
-        values
+        values,
       );
 
       for (const animeId of values) {
@@ -143,7 +138,7 @@ const componentHandler = (_logger: Logger, removeAnime: (id: number) => void): C
           if (process.env.OWNER_DM_CHANNEL) {
             await sendMessage(
               process.env.OWNER_DM_CHANNEL,
-              `Deleting anilist - no more subs - ${animeId}`
+              `Deleting anilist - no more subs - ${animeId}`,
             );
           }
           await deleteAllSubscriptionsForId(animeId, _logger);
@@ -155,12 +150,12 @@ const componentHandler = (_logger: Logger, removeAnime: (id: number) => void): C
         data.id,
         data.token,
         {
-          type: InteractionCallbackType.UPDATE_MESSAGE,
+          type: InteractionResponseType.UpdateMessage,
           data: {
             content: "success",
-            components: []
-          }
-        }
+            components: [],
+          },
+        },
       );
     }
   };
@@ -169,12 +164,12 @@ const componentHandler = (_logger: Logger, removeAnime: (id: number) => void): C
 export default (
   logger: Logger,
   rateLimiter: AnilistRateLimit,
-  removeAnime: (id: number) => void
+  removeAnime: (id: number) => void,
 ): CommandInfo => ({
   definition,
   handler: handler(rateLimiter),
   componentHandler: componentHandler(
     logger,
-    removeAnime
-  )
+    removeAnime,
+  ),
 });

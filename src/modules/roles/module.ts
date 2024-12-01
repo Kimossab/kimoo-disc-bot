@@ -1,24 +1,28 @@
 import BaseModule from "#base-module";
 
-import { getServer } from "@/database";
-import { editMessage, getEmojis, getRoles } from "@/discord/rest";
 import { chunkArray, interpolator } from "@/helper/common";
-import messageList from "@/helper/messages";
 import {
-  ActionRow,
-  AvailableLocales,
-  Button,
-  ButtonStyle,
-  ComponentType
-} from "@/types/discord";
+  editMessage,
+  getEmojis,
+  getRoles,
+} from "@/discord/rest";
+import { getServer } from "@/database";
+import messageList from "@/helper/messages";
 
+import {
+  APIActionRowComponent,
+  APIButtonComponent,
+  ButtonStyle,
+  ComponentType,
+  Locale,
+} from "discord-api-types/v10";
+import { getRoleCategoriesByServer } from "./database";
 import addCommand from "./commands/add.command";
 import channelCommand from "./commands/channel.command";
 import refreshCommand from "./commands/refresh.command";
-import { getRoleCategoriesByServer } from "./database";
 
 export default class RoleModule extends BaseModule {
-  constructor (isActive: boolean) {
+  constructor(isActive: boolean) {
     super("role", isActive);
 
     if (!isActive) {
@@ -26,17 +30,17 @@ export default class RoleModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
-      "Commands related to self assigning roles";
+    this.commandDescription[Locale.EnglishUS]
+      = "Commands related to self assigning roles";
 
     this.commandList = {
       channel: channelCommand(),
       add: addCommand(this.logger, (guild: string) => this.updateRoleMessages(guild)),
-      refresh: refreshCommand((guild: string) => this.updateRoleMessages(guild))
+      refresh: refreshCommand((guild: string) => this.updateRoleMessages(guild)),
     };
   }
 
-  private async updateRoleMessages (guild: string) {
+  private async updateRoleMessages(guild: string) {
     const categories = await getRoleCategoriesByServer(guild);
     const channel = (await getServer(guild))?.roleChannel;
 
@@ -54,37 +58,36 @@ export default class RoleModule extends BaseModule {
     for (const category of categories) {
       const rolesChunked = chunkArray(category.roles, 5);
 
-      const components: ActionRow[] = rolesChunked.map((chunk) => ({
+      const components: APIActionRowComponent<APIButtonComponent>[] = rolesChunked.map(chunk => ({
         type: ComponentType.ActionRow,
         components: chunk.map((role) => {
-          const component: Button = {
+          const component: APIButtonComponent = {
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
             custom_id: `role.add.${category.category}.${role.id}`,
-            label: roles.find((r) => r.id === role.id)?.name
+            label: roles.find(r => r.id === role.id)?.name,
           };
 
           if (role.icon && emojis) {
-            const emoji = emojis?.find((e) => e.name === role.icon);
+            const emoji = emojis?.find(e => e.name === role.icon);
             if (!emoji) {
               this.logger.error("Emoji not found", { role });
-            } else {
+            }
+            else {
               component.emoji = {
-                id: emoji?.id,
-                name: null
+                id: emoji?.id ?? undefined,
+                name: "",
               };
             }
           }
 
           return component;
-        })
+        }),
       }));
 
       await editMessage(channel, category.message, {
-        content: interpolator(messageList.roles.info.category, {
-          category: category.category
-        }),
-        components: components
+        content: interpolator(messageList.roles.info.category, { category: category.category }),
+        components: components,
       });
     }
   }

@@ -1,37 +1,33 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 
-import { getServer, setServerRoleChannel } from "@/database";
 import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
+  APIApplicationCommandOption,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+  MessageFlags,
+} from "discord-api-types/v10";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
+import { getApplication } from "@/state/store";
+import { getOptions } from "@/helper/modules";
+import { getServer, setServerRoleChannel } from "@/database";
 import { interpolator } from "@/helper/common";
 import messageList from "@/helper/messages";
-import { getOptions } from "@/helper/modules";
-import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType
-} from "@/types/discord";
 
 interface ChannelCommandOptions {
   channel: string;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "channel",
   description: messageList.roles.channel.description,
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "channel",
       description: messageList.roles.channel.option,
-      type: ApplicationCommandOptionType.CHANNEL
-    }
-  ]
+      type: ApplicationCommandOptionType.Channel,
+    },
+  ],
 };
 
 const handler = (): CommandHandler => {
@@ -39,37 +35,26 @@ const handler = (): CommandHandler => {
     const app = getApplication();
     if (app?.id && data.guild_id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL
-        }
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+        data: { flags: MessageFlags.Ephemeral },
       });
 
       const { channel } = getOptions<ChannelCommandOptions>(
         ["channel"],
-        option.options
+        option.options,
       );
 
       if (channel) {
         await setServerRoleChannel(data.guild_id, channel);
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: interpolator(messageList.roles.channel.set_success, {
-            channel: `<#${channel}>`
-          })
-        });
-      } else {
+        await editOriginalInteractionResponse(app.id, data.token, { content: interpolator(messageList.roles.channel.set_success, { channel: `<#${channel}>` }) });
+      }
+      else {
         const ch = (await getServer(data.guild_id))?.roleChannel;
         if (!ch) {
-          await editOriginalInteractionResponse(app.id, data.token, {
-            content: messageList.roles.errors.no_channel
-          });
+          await editOriginalInteractionResponse(app.id, data.token, { content: messageList.roles.errors.no_channel });
           return;
         }
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: interpolator(messageList.roles.channel.get, {
-            channel: `<#${ch}>`
-          })
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: interpolator(messageList.roles.channel.get, { channel: `<#${ch}>` }) });
       }
     }
   };
@@ -78,5 +63,5 @@ const handler = (): CommandHandler => {
 export default (): CommandInfo => ({
   definition,
   handler: handler(),
-  isAdmin: true
+  isAdmin: true,
 });

@@ -1,29 +1,26 @@
+import { CreatePageCallback, InteractionPagination } from "@/helper/interaction-pagination";
+import { addPagination } from "@/state/store";
 import { editOriginalInteractionResponse } from "@/discord/rest";
 import { interpolator } from "@/helper/common";
-import {
-  CreatePageCallback,
-  InteractionPagination
-} from "@/helper/interaction-pagination";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import { addPagination } from "@/state/store";
+
 import {
-  Application,
+  APIApplication,
+  APIApplicationCommandInteraction,
+  APIEmbed,
   ButtonStyle,
   ComponentType,
-  Embed,
-  Interaction
-} from "@/types/discord";
-
+} from "discord-api-types/v10";
 import { mapSauceNaoResultToData } from "./mapper";
 import { requestSauceNao } from "./request";
 
 const sauceNaoEmbed = (
   item: SauceNao.data,
   page: number,
-  total: number
-): Embed => {
-  const embed: Embed = {
+  total: number,
+): APIEmbed => {
+  const embed: APIEmbed = {
     title: item.name,
     description: item.site,
     color: 3035554,
@@ -31,22 +28,20 @@ const sauceNaoEmbed = (
     footer: {
       text: interpolator(messageList.common.page, {
         page,
-        total
-      })
-    }
+        total,
+      }),
+    },
   };
   if (item.thumbnail) {
-    embed.image = {
-      url: item.thumbnail.replace(/\s/g, "%20")
-    };
+    embed.image = { url: item.thumbnail.replace(/\s/g, "%20") };
   }
 
   embed.fields = [
     ...embed.fields ?? [],
     {
       name: "similarity",
-      value: item.similarity.toString()
-    }
+      value: item.similarity.toString(),
+    },
   ];
 
   if (item.url) {
@@ -55,8 +50,8 @@ const sauceNaoEmbed = (
         ...embed.fields ?? [],
         {
           name: "url",
-          value: st
-        }
+          value: st,
+        },
       ];
     }
   }
@@ -70,8 +65,8 @@ const sauceNaoEmbed = (
           : "-",
         value: item.authorData.authorUrl
           ? item.authorData.authorUrl
-          : "-"
-      }
+          : "-",
+      },
     ];
   }
   if (item.fallback) {
@@ -79,8 +74,8 @@ const sauceNaoEmbed = (
       ...embed.fields ?? [],
       {
         name: "unknown fallback",
-        value: item.fallback
-      }
+        value: item.fallback,
+      },
     ];
   }
 
@@ -90,7 +85,7 @@ const sauceNaoEmbed = (
 const sauceNaoUpdatePage: CreatePageCallback<SauceNao.data> = async (
   page,
   total,
-  data
+  data,
 ) => ({
   data: {
     embeds: [sauceNaoEmbed(data, page, total)],
@@ -102,42 +97,36 @@ const sauceNaoUpdatePage: CreatePageCallback<SauceNao.data> = async (
             type: ComponentType.Button,
             style: ButtonStyle.Secondary,
             custom_id: "sauceArt.select",
-            label: "Show to everyone"
-          }
-        ]
-      }
-    ]
-  }
+            label: "Show to everyone",
+          },
+        ],
+      },
+    ],
+  },
 });
 
 const handleSauceNao = async (
-  data: Interaction,
+  data: APIApplicationCommandInteraction,
   image: string,
-  app: Partial<Application>,
-  logger: Logger
+  app: Partial<APIApplication>,
+  logger: Logger,
 ): Promise<void> => {
   const saucenao = await requestSauceNao(image, logger);
 
   if (!saucenao) {
-    await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found
-    });
+    await editOriginalInteractionResponse(app.id || "", data.token, { content: messageList.sauce.not_found });
     return;
   }
 
   if (saucenao.header.status > 0) {
     logger.error("SauceNao - Ext error", saucenao);
-    await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found
-    });
+    await editOriginalInteractionResponse(app.id || "", data.token, { content: messageList.sauce.not_found });
     return;
   }
 
   if (saucenao.header.status < 0) {
     logger.error("SauceNao - Int error", saucenao);
-    await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found
-    });
+    await editOriginalInteractionResponse(app.id || "", data.token, { content: messageList.sauce.not_found });
     return;
   }
 
@@ -148,19 +137,17 @@ const handleSauceNao = async (
 
   // sort and filter
   resData = resData.sort((a, b) => b.similarity - a.similarity);
-  resData = resData.filter((a) => a.similarity > 75);
+  resData = resData.filter(a => a.similarity > 75);
 
   if (resData.length === 0) {
-    await editOriginalInteractionResponse(app.id || "", data.token, {
-      content: messageList.sauce.not_found
-    });
+    await editOriginalInteractionResponse(app.id || "", data.token, { content: messageList.sauce.not_found });
     return;
   }
 
   const pagination = new InteractionPagination(
     app.id || "",
     resData,
-    sauceNaoUpdatePage
+    sauceNaoUpdatePage,
   );
 
   await pagination.create(data.token);

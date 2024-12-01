@@ -16,6 +16,9 @@
       "@/*": [
         "src/*"
       ]
-    }
-  }
+    },
+  },
+  "exclude": [
+    "./openapi-ts.config.ts"
+  ]
 }

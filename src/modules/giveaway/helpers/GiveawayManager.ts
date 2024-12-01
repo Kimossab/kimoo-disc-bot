@@ -1,8 +1,12 @@
-import { CompleteGiveaway, getGiveaway, setWinner } from "#giveaway/database";
+import {
+  CompleteGiveaway,
+  getGiveaway,
+  setWinner,
+} from "#giveaway/database";
 
+import { ILogger } from "@/helper/logger";
 import { editMessage, sendMessage } from "@/discord/rest";
 import { randomNum } from "@/helper/common";
-import { ILogger } from "@/helper/logger";
 
 import { createGiveawayMessageData } from "./createGiveawayMessage";
 
@@ -11,14 +15,14 @@ export class GiveawayManager {
 
   private giveawayHash: string;
 
-  public get id (): string {
+  public get id(): string {
     return this.giveawayHash;
   }
 
-  constructor (
+  constructor(
     private logger: ILogger,
     giveaway: CompleteGiveaway,
-    private onFinish: (id: string) => void
+    private onFinish: (id: string) => void,
   ) {
     this.giveawayHash = giveaway.hash;
 
@@ -29,7 +33,7 @@ export class GiveawayManager {
     }, time);
   }
 
-  private async finish () {
+  private async finish() {
     let giveaway = await getGiveaway(this.giveawayHash);
     this.logger.info("Giveaway has ended", { giveaway });
 
@@ -43,26 +47,24 @@ export class GiveawayManager {
     this.onFinish(this.giveawayHash);
   }
 
-  public close () {
+  public close() {
     this.timer && clearTimeout(this.timer);
   }
 }
 
 export const announceVictor = async (giveaway: CompleteGiveaway) => {
-  const winner = giveaway.participants.find((p) => p.isWinner)?.userId;
+  const winner = giveaway.participants.find(p => p.isWinner)?.userId;
   await sendMessage(
     giveaway.channelId,
     winner
       ? `Congratulations <@${winner}> you won \`${giveaway.prize}\` given by <@${giveaway.creatorId}>`
       : "There's no participants to win.",
     undefined,
-    {
-      message_id: giveaway.hash
-    }
+    { message_id: giveaway.hash },
   );
 
   await editMessage(giveaway.channelId, giveaway.hash, {
     ...createGiveawayMessageData(giveaway),
-    attachments: undefined
+    attachments: undefined,
   });
 };

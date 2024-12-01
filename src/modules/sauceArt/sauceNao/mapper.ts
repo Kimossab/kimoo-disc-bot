@@ -1,12 +1,14 @@
-// This file is a mess and it's supposed to be, I can't be arsed to handle all edge cases
-// I will make changes accordingly to the needs and errors as they arise
-// If you're reading this... good luck
+/*
+ * This file is a mess and it's supposed to be, I can't be arsed to handle all edge cases
+ * I will make changes accordingly to the needs and errors as they arise
+ * If you're reading this... good luck
+ */
 
 import Logger from "@/helper/logger";
 
 export const mapSauceNaoResultToData = (
   data: SauceNao.result,
-  logger?: Logger
+  logger?: Logger,
 ): SauceNao.data => {
   const parsed: SauceNao.data = {
     name: "",
@@ -15,21 +17,10 @@ export const mapSauceNaoResultToData = (
     similarity: Number(data.header.similarity),
     authorData: null,
     thumbnail: data.header.thumbnail,
-    url: null
+    url: null,
   };
   try {
     switch (data.header.index_id) {
-      // dunno how this works
-      // case 2: {
-      //   //H-Game GG
-      //   parsed.site = 'pixiv';
-      //   parsed.url = [`https://www.pixiv.net/en/artworks/${data.data.pixiv_id}`];
-      //   parsed.name = data.data.title;
-      //   parsed.authorData = {
-      //     authorName: data.data.member_name ? data.data.member_name : null,
-      //     authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`
-      //   };
-      // }
       case 5:
       case 6: {
         // pixiv
@@ -40,7 +31,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.member_name
             ? data.data.member_name
             : null,
-          authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`
+          authorUrl: `https://www.pixiv.net/en/users/${data.data.member_id}`,
         };
         break;
       }
@@ -53,7 +44,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.member_name
             ? data.data.member_name
             : null,
-          authorUrl: null
+          authorUrl: null,
         };
         break;
       }
@@ -70,7 +61,7 @@ export const mapSauceNaoResultToData = (
             : null,
           authorUrl: data.data.source
             ? data.data.source
-            : null
+            : null,
         };
         break;
       }
@@ -83,7 +74,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.member_name
             ? data.data.member_name
             : null,
-          authorUrl: `https://nijie.info/members.php?id=${data.data.member_id}`
+          authorUrl: `https://nijie.info/members.php?id=${data.data.member_id}`,
         };
         break;
       }
@@ -96,7 +87,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.creator
             ? data.data.creator.toString()
             : null,
-          authorUrl: null
+          authorUrl: null,
         };
         break;
       }
@@ -109,7 +100,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.creator
             ? data.data.creator.toString()
             : null,
-          authorUrl: null
+          authorUrl: null,
         };
         break;
       }
@@ -122,13 +113,13 @@ export const mapSauceNaoResultToData = (
           // parsed.thumbnail = `https://i.nhentai.net/galleries/${path}.jpg`;
           parsed.url = [
             `https://nhentai.net/g/${match[1]}`,
-            `https://nhentai.net/g/${path}`
+            `https://nhentai.net/g/${path}`,
           ];
         }
         parsed.name = (data.data.eng_name || data.data.jp_name)!;
         parsed.authorData = {
           authorName: (data.data.creator as string[]).join(","),
-          authorUrl: null
+          authorUrl: null,
         };
         break;
       }
@@ -141,7 +132,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.member_name
             ? data.data.member_name
             : null,
-          authorUrl: `https://medibang.com/author/${data.data.member_id}/`
+          authorUrl: `https://medibang.com/author/${data.data.member_id}/`,
         };
         break;
       }
@@ -169,7 +160,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.creator
             ? data.data.creator.toString()
             : null,
-          authorUrl: null
+          authorUrl: null,
         };
         break;
       }
@@ -185,7 +176,7 @@ export const mapSauceNaoResultToData = (
             : null,
           authorUrl: data.data.source
             ? data.data.source
-            : null
+            : null,
         };
         break;
       }
@@ -198,7 +189,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.author_name
             ? data.data.author_name
             : null,
-          authorUrl: data.data.author_url
+          authorUrl: data.data.author_url,
         };
         break;
       }
@@ -211,7 +202,7 @@ export const mapSauceNaoResultToData = (
           authorName: data.data.pawoo_user_display_name
             ? data.data.pawoo_user_display_name
             : null,
-          authorUrl: data.data.ext_urls[0]
+          authorUrl: data.data.ext_urls[0],
         };
         break;
       }
@@ -236,7 +227,7 @@ export const mapSauceNaoResultToData = (
         parsed.name = `Tweet by ${data.data.twitter_user_handle!}`;
         parsed.authorData = {
           authorName: data.data.twitter_user_handle!,
-          authorUrl: `https://twitter.com/${data.data.twitter_user_handle!}/`
+          authorUrl: `https://twitter.com/${data.data.twitter_user_handle!}/`,
         };
         break;
       }
@@ -249,7 +240,7 @@ export const mapSauceNaoResultToData = (
         parsed.url = [data.data.ext_urls[0] + page, ...data.data.ext_urls];
         parsed.authorData = {
           authorName: data.data.author!,
-          authorUrl: ""
+          authorUrl: "",
         };
         break;
       }
@@ -258,7 +249,8 @@ export const mapSauceNaoResultToData = (
         parsed.fallback = JSON.stringify(data);
       }
     }
-  } catch (e) {
+  }
+  catch (e) {
     logger?.error("formatSauceNaoData", e, data);
     parsed.fallback = JSON.stringify(data);
   }

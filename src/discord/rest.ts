@@ -1,137 +1,99 @@
 import {
-  ApplicationCommand,
-  CreateGlobalApplicationCommand,
-  CreateMessage,
-  EditMessage,
-  EditWebhookMessage,
-  Embed,
-  Emoji,
-  GatewayBot,
-  GuildMember,
-  InteractionResponse,
-  Message,
-  MessageReference,
-  Role
-} from "@/types/discord";
-
-import RestRateLimitHandler from "./rest-rate-limit-handler";
+  APIEmbed,
+  RESTAPIMessageReference,
+  RESTGetAPIApplicationCommandsResult,
+  RESTGetAPIGatewayBotResult,
+  RESTGetAPIGuildEmojisResult,
+  RESTGetAPIGuildMemberResult,
+  RESTGetAPIGuildRolesResult,
+  RESTPatchAPIChannelMessageJSONBody,
+  RESTPatchAPIChannelMessageResult,
+  RESTPatchAPIInteractionOriginalResponseJSONBody,
+  RESTPatchAPIInteractionOriginalResponseResult,
+  RESTPostAPIApplicationCommandsJSONBody,
+  RESTPostAPIApplicationCommandsResult,
+  RESTPostAPIChannelMessageJSONBody,
+  RESTPostAPIChannelMessageResult,
+  RESTPostAPIInteractionCallbackJSONBody,
+} from "discord-api-types/v10";
+import { Snowflake } from "discord-api-types/globals";
 import FormData from "form-data";
+import RestRateLimitHandler from "./rest-rate-limit-handler";
 import fs from "fs";
 
 const rateLimiter = new RestRateLimitHandler();
 
-/**
- * Request the gateway bot from discord
- */
-export const getGatewayBot = (): Promise<GatewayBot | null> => rateLimiter.request<GatewayBot>("GET", "/gateway/bot");
+export const getGatewayBot = () => rateLimiter.request<RESTGetAPIGatewayBotResult>("GET", "/gateway/bot");
 
 // messages
-/**
- * Send a message to a channel
- * @param channel Channel id
- * @param content Message
- * @param embed Embed data
- */
 export const sendMessage = (
-  channel: string,
+  channel: Snowflake,
   content?: string,
-  embeds?: Embed[],
-  reference?: MessageReference
-): Promise<Message | null> => {
-  if (!content && !embeds) {
-    throw new Error("No content or embed provided");
-  }
-
-  const message: CreateMessage = {
+  embeds?: APIEmbed[],
+  reference?: RESTAPIMessageReference,
+) => {
+  const message: RESTPostAPIChannelMessageJSONBody = {
     content,
     embeds,
-    message_reference: reference
+    message_reference: reference,
   };
 
-  return rateLimiter.request<Message>(
+  return rateLimiter.request<RESTPostAPIChannelMessageResult>(
     "POST",
     `/channels/${channel}/messages`,
-    message
+    message,
   );
 };
 
 export const editMessage = (
-  channel: string,
-  message: string,
-  data: EditMessage
-): Promise<Message | null> => {
-  return rateLimiter.request<Message>(
-    "PATCH",
-    `/channels/${channel}/messages/${message}`,
-    data
-  );
-};
+  channel: Snowflake,
+  message: Snowflake,
+  data: RESTPatchAPIChannelMessageJSONBody,
+) => rateLimiter.request<RESTPatchAPIChannelMessageResult>(
+  "PATCH",
+  `/channels/${channel}/messages/${message}`,
+  data,
+);
 
 // reactions
-/**
- * Sends a reaction to a message
- * @param channel Channel id
- * @param message Message id
- * @param reaction Reaction name
- */
 export const createReaction = (
-  channel: string,
-  message: string,
-  reaction: string
-): Promise<void | null> => rateLimiter.request<void>(
+  channel: Snowflake,
+  message: Snowflake,
+  reaction: string,
+) => rateLimiter.request<void>(
   "PUT",
-  `/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(reaction)}/@me`
+  `/channels/${channel}/messages/${message}/reactions/${encodeURIComponent(reaction)}/@me`,
 );
 
 // SLASH COMMANDS
-/**
- * Gets the commands for the application
- * @param application Application id
- */
-export const getCommands = (application: string): Promise<ApplicationCommand[] | null> => rateLimiter.request<ApplicationCommand[]>(
+export const getCommands = (application: Snowflake) => rateLimiter.request<RESTGetAPIApplicationCommandsResult>(
   "GET",
-  `/applications/${application}/commands`
+  `/applications/${application}/commands`,
 );
 
-/**
- * Deletes an existing command with the name in this application
- * @param application Application id
- * @param command Command name
- */
-export const deleteCommand = (
-  application: string,
-  command: string
-): Promise<void | null> => rateLimiter.request<void>(
-  "DELETE",
-  `/applications/${application}/commands/${command}`
-);
-
-/**
- * Creates or updates a new command for this application
- * @param application Application id
- * @param command Command data
- */
 export const createCommand = (
-  application: string,
-  command: CreateGlobalApplicationCommand
-): Promise<ApplicationCommand | null> => rateLimiter.request<ApplicationCommand>(
+  application: Snowflake,
+  command: RESTPostAPIApplicationCommandsJSONBody,
+) => rateLimiter.request<RESTPostAPIApplicationCommandsResult>(
   "POST",
   `/applications/${application}/commands`,
-  command
+  command,
 );
 
-/**
- * Sends a response to an interaction
- * @param interaction Interaction id
- * @param token Token string
- * @param data Interaction response data
- */
+export const deleteCommand = (
+  application: Snowflake,
+  command: Snowflake,
+) => rateLimiter.request<void>(
+  "DELETE",
+  `/applications/${application}/commands/${command}`,
+);
+
 export const createInteractionResponse = (
-  interaction: string,
+  interaction: Snowflake,
   token: string,
-  data: InteractionResponse,
-  image?: string
-): Promise<void | null> => {
+  data: RESTPostAPIInteractionCallbackJSONBody,
+  image?: string,
+) => {
   if (image) {
     const formData = new FormData();
     const file = fs.createReadStream(image);
@@ -142,97 +104,96 @@ export const createInteractionResponse = (
       "POST",
       `/interactions/${interaction}/${token}/callback`,
       formData,
-      formData.getHeaders()
+      formData.getHeaders(),
     );
   }
   return rateLimiter.request<void>(
     "POST",
     `/interactions/${interaction}/${token}/callback`,
-    data
+    data,
   );
 };
 
 export const editOriginalInteractionResponse = (
-  applicationId: string,
+  applicationId: Snowflake,
   token: string,
-  data: EditWebhookMessage,
-  image?: string
-): Promise<Message | null> => {
+  data: RESTPatchAPIInteractionOriginalResponseJSONBody,
+  image?: string,
+  threadId?: Snowflake,
+) => {
+  const threadQuery = !!threadId ? `?thread_id=${threadId}` : "";
+
   if (image) {
     const formData = new FormData();
     const file = fs.createReadStream(image);
     formData.append("file", file);
     formData.append("payload_json", JSON.stringify(data));
 
-    return rateLimiter.request<Message>(
+    return rateLimiter.request<RESTPatchAPIInteractionOriginalResponseResult>(
       "PATCH",
-      `/webhooks/${applicationId}/${token}/messages/@original`,
+      `/webhooks/${applicationId}/${token}/messages/@original${threadQuery}`,
       formData,
-      formData.getHeaders()
+      formData.getHeaders(),
     );
   }
-  return rateLimiter.request<Message>(
+  return rateLimiter.request<RESTPatchAPIInteractionOriginalResponseResult>(
     "PATCH",
-    `/webhooks/${applicationId}/${token}/messages/@original`,
-    data
+    `/webhooks/${applicationId}/${token}/messages/@original${threadQuery}`,
+    data,
   );
 };
 
 export const giveRole = (
-  guildId: string,
-  userId: string,
-  roleId: string,
-  reason?: string
-): Promise<null | undefined> => {
+  guildId: Snowflake,
+  userId: Snowflake,
+  roleId: Snowflake,
+  reason?: string,
+) => {
   let headers: Record<string, string> | undefined = undefined;
 
   if (reason) {
-    headers = {
-      "X-Audit-Log-Reason": reason
-    };
+    headers = { "X-Audit-Log-Reason": reason };
   }
 
   return rateLimiter.request(
     "PUT",
     `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
     undefined,
-    headers
+    headers,
   );
 };
 
 export const removeRole = (
-  guildId: string,
-  userId: string,
-  roleId: string,
-  reason?: string
-): Promise<null | undefined> => {
+  guildId: Snowflake,
+  userId: Snowflake,
+  roleId: Snowflake,
+  reason?: string,
+) => {
   let headers: Record<string, string> | undefined = undefined;
 
   if (reason) {
-    headers = {
-      "X-Audit-Log-Reason": reason
-    };
+    headers = { "X-Audit-Log-Reason": reason };
   }
 
   return rateLimiter.request(
     "DELETE",
     `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
     undefined,
-    headers
+    headers,
   );
 };
 
-export const getRoles = (guildId: string): Promise<Role[] | null> => {
-  return rateLimiter.request("GET", `/guilds/${guildId}/roles`);
+export const getRoles = (guildId: Snowflake) => {
+  return rateLimiter.request<RESTGetAPIGuildRolesResult>("GET", `/guilds/${guildId}/roles`);
 };
 
-export const getEmojis = (guildId: string): Promise<Emoji[] | null> => {
-  return rateLimiter.request("GET", `/guilds/${guildId}/emojis`);
+export const getEmojis = (guildId: Snowflake) => {
+  return rateLimiter.request<RESTGetAPIGuildEmojisResult>("GET", `/guilds/${guildId}/emojis`);
 };
 
 export const getGuildMember = (
-  guildId: string,
-  memberId: string
-): Promise<GuildMember | null> => {
-  return rateLimiter.request("GET", `/guilds/${guildId}/members/${memberId}`);
+  guildId: Snowflake,
+  memberId: Snowflake,
+) => {
+  return rateLimiter.request<RESTGetAPIGuildMemberResult>("GET", `/guilds/${guildId}/members/${memberId}`);
 };

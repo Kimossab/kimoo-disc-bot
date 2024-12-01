@@ -1,36 +1,40 @@
+import {
+  APIActionRowComponent,
+  APIMessageActionRowComponent,
+  ButtonStyle,
+  ComponentType,
+} from "discord-api-types/v10";
 import { CompletePoll } from "#voting/database";
-import { hasExpired } from "#voting/helpers";
-
 import { chunkArray } from "@/helper/common";
-import { ActionRow, ButtonStyle, ComponentType } from "@/types/discord";
+import { hasExpired } from "#voting/helpers";
 
 export enum PollMessageType {
   VOTE = "vote",
-  SETTINGS = "settings"
+  SETTINGS = "settings",
 }
 
 interface MapPollToComponents {
-  (poll: CompletePoll, type: PollMessageType.VOTE): ActionRow[];
+  (poll: CompletePoll, type: PollMessageType.VOTE): APIActionRowComponent<APIMessageActionRowComponent>[];
   (
     poll: CompletePoll,
     type: PollMessageType.SETTINGS,
     user: string,
     singleResponse?: number
-  ): ActionRow[];
+  ): APIActionRowComponent<APIMessageActionRowComponent>[];
 }
 
 const prefixMap = new Map([
   [PollMessageType.VOTE, ""],
-  [PollMessageType.SETTINGS, "setOpt."]
+  [PollMessageType.SETTINGS, "setOpt."],
 ]);
 
 export const mapPollToComponents: MapPollToComponents = (
   poll,
   type: PollMessageType,
   user?: string,
-  singleResponse?: number
+  singleResponse?: number,
 ) => {
-  const components: ActionRow[] = [];
+  const components: APIActionRowComponent<APIMessageActionRowComponent>[] = [];
 
   addOptionsComponents(poll, type, components, singleResponse);
 
@@ -43,14 +47,12 @@ export const mapPollToComponents: MapPollToComponents = (
           style: ButtonStyle.Secondary,
           custom_id: "voting.create.settings",
           label: "",
-          emoji: {
-            id: null,
-            name: "⚙"
-          }
-        }
-      ]
+          emoji: { name: "⚙" },
+        },
+      ],
     });
-  } else if (type === PollMessageType.SETTINGS) {
+  }
+  else if (type === PollMessageType.SETTINGS) {
     addSettingsComponents(poll, user, singleResponse, components);
   }
 
@@ -61,26 +63,23 @@ const addSettingsComponents = (
   poll: CompletePoll,
   user: string | undefined,
   singleResponse: number | undefined,
-  components: ActionRow[]
+  components: APIActionRowComponent<APIMessageActionRowComponent>[],
 ) => {
-  const actionRow: ActionRow = {
+  const actionRow: APIActionRowComponent<APIMessageActionRowComponent> = {
     type: ComponentType.ActionRow,
-    components: []
+    components: [],
   };
 
   const isPollEditable = !hasExpired(poll) && user === poll.creator;
-  const canAddAnswers =
-    !hasExpired(poll) && (user === poll.creator || poll.usersCanAddAnswers);
+  const canAddAnswers
+    = !hasExpired(poll) && (user === poll.creator || poll.usersCanAddAnswers);
 
   if (canAddAnswers) {
     actionRow.components.push({
       type: ComponentType.Button,
       style: ButtonStyle.Secondary,
       custom_id: "voting.create.add",
-      emoji: {
-        id: null,
-        name: "➕"
-      }
+      emoji: { name: "➕" },
     });
   }
 
@@ -89,7 +88,7 @@ const addSettingsComponents = (
       type: ComponentType.Button,
       style: ButtonStyle.Secondary,
       custom_id: "voting.create.setOpt.all",
-      label: "Unselect options"
+      label: "Unselect options",
     });
 
     if (isPollEditable) {
@@ -97,7 +96,7 @@ const addSettingsComponents = (
         type: ComponentType.Button,
         style: ButtonStyle.Danger,
         custom_id: `voting.create.remove.${singleResponse}`,
-        label: "Remove this option"
+        label: "Remove this option",
       });
     }
   }
@@ -108,14 +107,14 @@ const addSettingsComponents = (
         type: ComponentType.Button,
         style: ButtonStyle.Danger,
         custom_id: "voting.create.close",
-        label: "Close the poll"
+        label: "Close the poll",
       },
       {
         type: ComponentType.Button,
         style: ButtonStyle.Danger,
         custom_id: "voting.create.reset",
-        label: "Reset votes"
-      }
+        label: "Reset votes",
+      },
     );
   }
   if (actionRow.components.length) {
@@ -126,8 +125,8 @@ const addSettingsComponents = (
 const addOptionsComponents = (
   poll: CompletePoll,
   type: PollMessageType,
-  components: ActionRow[],
-  singleResponse: number | undefined
+  components: APIActionRowComponent<APIMessageActionRowComponent>[],
+  singleResponse: number | undefined,
 ) => {
   let i = 0;
   const chunks = chunkArray(poll.pollOptions, 5);
@@ -136,13 +135,13 @@ const addOptionsComponents = (
     for (const chunk of chunks) {
       components.push({
         type: ComponentType.ActionRow,
-        components: chunk.map((option) => ({
+        components: chunk.map(option => ({
           type: ComponentType.Button,
           style: ButtonStyle.Primary,
           disabled: singleResponse === i,
           custom_id: `voting.create.${prefixMap.get(type)}${i++}`,
-          label: option.text
-        }))
+          label: option.text,
+        })),
       });
     }
   }

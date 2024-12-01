@@ -1,52 +1,65 @@
-import { compareCommands } from "@/commands";
-import { saveCommandHistory } from "@/database";
-import { createCommand, createInteractionResponse } from "@/discord/rest";
+import {
+  APIApplicationCommand,
+  APIApplicationCommandInteraction,
+  APIApplicationCommandInteractionDataSubcommandOption,
+  APIApplicationCommandOption,
+  APIChatInputApplicationCommandInteractionData,
+  APIMessageComponentInteraction,
+  APIModalSubmitInteraction,
+  ApplicationCommandType,
+  InteractionResponseType,
+  MessageFlags,
+  RESTPostAPIApplicationCommandsJSONBody,
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+} from "discord-api-types/v10";
+import { JsonArray } from "@prisma/client/runtime/library";
+import { Prisma } from "@prisma/client";
 import { checkAdmin } from "@/helper/common";
+import { compareCommands } from "@/commands";
+import { createCommand, createInteractionResponse } from "@/discord/rest";
+import { getApplication, setCommandExecutedCallback } from "@/state/store";
+import { getOption } from "@/helper/modules";
+import { saveCommandHistory } from "@/database";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import { getOption } from "@/helper/modules";
-import { getApplication, setCommandExecutedCallback } from "@/state/store";
-import {
-  ApplicationCommand,
-  ApplicationCommandOption,
-  ApplicationCommandType,
-  AvailableLocales,
-  CommandHandler,
-  ComponentCommandHandler,
-  CreateGlobalApplicationCommand,
-  Interaction,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType,
-  InteractionData,
-  Localization,
-  MessageComponentInteractionData,
-  ModalSubmitInteractionData,
-  SingleCommandHandler
-} from "@/types/discord";
-import { Prisma } from "@prisma/client";
-import { JsonArray } from "@prisma/client/runtime/library";
+
+export type CommandHandler = (
+  data: APIApplicationCommandInteraction,
+  option: APIApplicationCommandInteractionDataSubcommandOption
+) => Promise<void>;
+
+export type ComponentCommandHandler = (
+  data: APIModalSubmitInteraction | APIMessageComponentInteraction,
+  subCommand: string[]
+) => Promise<void>;
+
+export type SingleCommandHandler = (
+  data: APIApplicationCommandInteraction
+) => Promise<void>;
 
 export interface CommandInfo {
-  definition: ApplicationCommandOption;
+  definition: APIApplicationCommandOption;
   handler: CommandHandler;
   componentHandler?: ComponentCommandHandler;
   isAdmin?: boolean;
 }
 interface SingleCommandInfo {
-  definition: CreateGlobalApplicationCommand;
+  definition: RESTPostAPIApplicationCommandsJSONBody;
   handler: SingleCommandHandler;
   componentHandler?: ComponentCommandHandler;
   isAdmin?: boolean;
 }
 
+type LocaleMap = Record<string, string>;
+
 export default class BaseModule {
   protected logger: Logger;
 
-  protected commandName: Localization = {};
+  protected commandName: LocaleMap = {};
 
-  protected commandDescription: Localization = {};
+  protected commandDescription: LocaleMap = {};
 
-  protected commandType = ApplicationCommandType.CHAT_INPUT;
+  protected commandType = ApplicationCommandType.ChatInput;
 
   protected commandList: Record<string, CommandInfo> = {};
 
@@ -54,36 +67,35 @@ export default class BaseModule {
 
   private isSetup = false;
 
-  constructor (
+  constructor(
     private _name: string,
     protected isActive: boolean,
-    private _commandName: string = _name
+    private _commandName: string = _name,
   ) {
     this.logger = new Logger(_name);
-    this.commandName[AvailableLocales.English_US] = _name;
-    this.commandDescription[AvailableLocales.English_US] = _name;
+    this.commandName["en-US"] = _name;
+    this.commandDescription["en-US"] = _name;
   }
 
-  private get commandDefinition (): CreateGlobalApplicationCommand {
+  private get commandDefinition(): RESTPostAPIApplicationCommandsJSONBody {
     if (!this.singleCommand) {
       return {
         name: this.name,
         name_localizations: this.commandName,
-        description: this.commandDescription[AvailableLocales.English_US],
+        description: this.commandDescription["en-US"],
         description_localizations: this.commandDescription,
         type: this.commandType,
-        options: Object.values(this.commandList).map((cmd) => cmd.definition)
-      };
+        options: Object.values(this.commandList).map(cmd => cmd.definition ?? null),
+      } as RESTPostAPIChatInputApplicationCommandsJSONBody;
     }
     return this.singleCommand.definition;
   }
 
-  private interactionExecuted = async (data: Interaction<InteractionData>): Promise<void> => {
+  private interactionExecuted = async (data: APIApplicationCommandInteraction): Promise<void> => {
+    const interactionData = data.data;
     if (
-      data.data &&
-      (data.data?.name === this.name ||
-      data.data?.name === this.singleCommand?.definition.name) &&
-      (data.user || data.guild_id && data.member)
+      (interactionData?.name === this.name || interactionData?.name === this.singleCommand?.definition.name)
+      && (data.user || (data.guild_id && data.member))
     ) {
       const app = getApplication();
       if (app?.id) {
@@ -91,15 +103,16 @@ export default class BaseModule {
           this.logger.debug("saving history");
           await saveCommandHistory({
             serverId: data.guild_id ?? null,
-            channelId: data.channel_id ?? null,
-            command: data.data.name,
-            data: data.data!.options! as unknown as JsonArray,
+            channelId: data.channel.id ?? null,
+            command: interactionData.name,
+            data: (interactionData as APIChatInputApplicationCommandInteractionData).options as unknown as JsonArray,
             dateTime: new Date(),
             module: this._name,
             isComponent: false,
-            userId: data.member?.user?.id ?? ""
+            userId: data.member?.user?.id ?? data.user?.id ?? "",
           });
-        } catch (e) {
+        }
+        catch (e) {
           this.logger.error("Failed to create command history", {
             error: e,
             errorJson: JSON.stringify(e),
@@ -115,28 +128,28 @@ export default class BaseModule {
               e instanceof Prisma.PrismaClientValidationError,
             data: {
               serverId: data.guild_id ?? null,
-              channelId: data.channel_id ?? null,
+              channelId: data.channel.id ?? null,
               command: data.data.name,
-              data: data.data!.options! as unknown as JsonArray,
+              data: (data.data as APIChatInputApplicationCommandInteractionData).options as unknown as JsonArray,
               dateTime: new Date(),
               module: this._name,
               isComponent: false,
-              userId: data.member?.user?.id ?? ""
-            }
+              userId: data.member?.user?.id ?? data.user?.id ?? "",
+            },
           });
         }
 
         if (this.singleCommand) {
           if (
-            this.singleCommand.isAdmin &&
-            !await checkAdmin(data.guild_id, data.member)
+            this.singleCommand.isAdmin
+            && !await checkAdmin(data.guild_id, data.member)
           ) {
             await createInteractionResponse(data.id, data.token, {
-              type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+              type: InteractionResponseType.ChannelMessageWithSource,
               data: {
-                flags: InteractionCallbackDataFlags.EPHEMERAL,
-                content: messageList.common.no_permission
-              }
+                flags: MessageFlags.Ephemeral,
+                content: messageList.common.no_permission,
+              },
             });
             return;
           }
@@ -145,53 +158,51 @@ export default class BaseModule {
         }
 
         for (const cmd of Object.keys(this.commandList)) {
-          const cmdData = getOption(data.data.options, cmd);
+          const cmdData = getOption((data.data as APIChatInputApplicationCommandInteractionData).options, cmd);
 
           if (cmdData) {
             if (
-              this.commandList[cmd].isAdmin &&
-              !await checkAdmin(data.guild_id, data.member)
+              this.commandList[cmd].isAdmin
+              && !await checkAdmin(data.guild_id, data.member)
             ) {
               await createInteractionResponse(data.id, data.token, {
-                type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+                type: InteractionResponseType.ChannelMessageWithSource,
                 data: {
-                  flags: InteractionCallbackDataFlags.EPHEMERAL,
-                  content: messageList.common.no_permission
-                }
+                  flags: MessageFlags.Ephemeral,
+                  content: messageList.common.no_permission,
+                },
               });
               return;
             }
 
-            this.logger.info("CMD Executed", { cmd,
-              data: cmdData });
-            return this.commandList[cmd].handler(data, cmdData);
+            this.logger.info("CMD Executed", {
+              cmd,
+              data: cmdData,
+            });
+            return this.commandList[cmd].handler(data, cmdData as APIApplicationCommandInteractionDataSubcommandOption);
           }
         }
 
-        const options = data.data?.options?.[0];
+        const options = (data.data as APIChatInputApplicationCommandInteractionData).options?.[0];
         this.logger.error(
           "UNKNOWN COMMAND",
-          options?.name,
-          options?.options,
-          options?.value
+          options,
         );
         await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          type: InteractionResponseType.ChannelMessageWithSource,
           data: {
-            flags: InteractionCallbackDataFlags.EPHEMERAL,
-            content: messageList.common.internal_error
-          }
+            flags: MessageFlags.Ephemeral,
+            content: messageList.common.internal_error,
+          },
         });
       }
     }
   };
 
-  private executeOrLog (
+  private executeOrLog(
     handler: ComponentCommandHandler | undefined,
-    data: Interaction<
-      ModalSubmitInteractionData | MessageComponentInteractionData
-    >,
-    cmdData: string[] = []
+    data: APIModalSubmitInteraction | APIMessageComponentInteraction,
+    cmdData: string[] = [],
   ) {
     if (!handler) {
       this.logger.error("Unexpected Component", data);
@@ -200,9 +211,7 @@ export default class BaseModule {
     return handler(data, cmdData);
   }
 
-  public interactionComponentExecute = async (data: Interaction<
-      MessageComponentInteractionData | ModalSubmitInteractionData
-  >): Promise<void> => {
+  public interactionComponentExecute = async (data: APIModalSubmitInteraction | APIMessageComponentInteraction): Promise<void> => {
     if (data.data?.custom_id) {
       const app = getApplication();
 
@@ -210,15 +219,16 @@ export default class BaseModule {
         this.logger.debug("saving history");
         await saveCommandHistory({
           serverId: data.guild_id ?? null,
-          channelId: data.channel_id ?? null,
+          channelId: data.channel?.id ?? null,
           command: data.data.custom_id,
           data: null,
           dateTime: new Date(),
           module: this._name,
           isComponent: true,
-          userId: data.member?.user?.id ?? ""
+          userId: data.member?.user?.id ?? "",
         });
-      } catch (e) {
+      }
+      catch (e) {
         this.logger.error("Failed to create command history", {
           error: e,
           errorJson: JSON.stringify(e),
@@ -234,14 +244,14 @@ export default class BaseModule {
             e instanceof Prisma.PrismaClientValidationError,
           data: {
             serverId: data.guild_id ?? null,
-            channelId: data.channel_id ?? null,
+            channelId: data.channel?.id ?? null,
             command: data.data.custom_id,
             data: null,
             dateTime: new Date(),
             module: this._name,
             isComponent: true,
-            userId: data.member?.user?.id ?? ""
-          }
+            userId: data.member?.user?.id ?? "",
+          },
         });
       }
 
@@ -258,7 +268,7 @@ export default class BaseModule {
             return this.executeOrLog(
               command.componentHandler,
               data,
-              idSplit.slice(2)
+              idSplit.slice(2),
             );
           }
         }
@@ -267,27 +277,27 @@ export default class BaseModule {
 
     this.logger.error("UNKNOWN INTERACTION COMPONENT", data?.data);
     await createInteractionResponse(data.id, data.token, {
-      type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+      type: InteractionResponseType.ChannelMessageWithSource,
       data: {
-        flags: InteractionCallbackDataFlags.EPHEMERAL,
-        content: messageList.common.internal_error
-      }
+        flags: MessageFlags.Ephemeral,
+        content: messageList.common.internal_error,
+      },
     });
   };
 
-  public get name () {
+  public get name() {
     return this._name;
   }
 
-  public get cmdName () {
+  public get cmdName() {
     return this._commandName;
   }
 
-  public get active () {
+  public get active() {
     return this.isActive;
   }
 
-  public setUp (): void {
+  public setUp(): void {
     if (!this.isActive) {
       return;
     }
@@ -297,20 +307,20 @@ export default class BaseModule {
     }
   }
 
-  public async upsertCommands (
+  public async upsertCommands(
     appId: string,
-    discordCommand?: ApplicationCommand
+    discordCommand?: APIApplicationCommand,
   ) {
     if (
-      !discordCommand ||
-      !compareCommands(this.commandDefinition, discordCommand)
+      !discordCommand
+      || !compareCommands(this.commandDefinition, discordCommand)
     ) {
       this.logger.info("Creating command");
       await createCommand(appId, this.commandDefinition);
     }
   }
 
-  public close () {
+  public close() {
     this.isActive = false;
   }
 }

@@ -1,12 +1,13 @@
 import {
-  Interaction,
-  InteractionData,
+  APIApplicationCommandInteraction,
+  APIMessageComponentInteraction,
   InteractionType,
-  MessageComponentInteractionData,
-  ModalSubmitInteractionData
-} from "@/types/discord";
-
-import { ActionName, Actions, State } from "./types";
+} from "discord-api-types/v10";
+import {
+  ActionName,
+  Actions,
+  State,
+} from "./types";
 
 const state: State = {
   ready: false,
@@ -20,7 +21,7 @@ const state: State = {
   commandExecutedCallback: [],
   messageReactionCallback: [],
   resumeGatewayUrl: "",
-  modules: []
+  modules: [],
 };
 
 type StateActions = {
@@ -55,10 +56,10 @@ const actions: StateActions = {
     state.commandExecutedCallback.push(payload);
     return state;
   },
-  [ActionName.SetReactionCallback]: (payload) => {
-    state.messageReactionCallback.push(payload);
-    return state;
-  },
+  // [ActionName.SetReactionCallback]: (payload) => {
+  //   state.messageReactionCallback.push(payload);
+  //   return state;
+  // },
   [ActionName.SetDiscordSession]: (payload) => {
     state.discordSessionId = payload;
     return state;
@@ -67,8 +68,10 @@ const actions: StateActions = {
     state.discordLastS = payload;
     return state;
   },
-  [ActionName.AddGuildMembers]: ({ guild: guildId, members, clean }) => {
-    const guild = state.guilds.find((g) => g.id === guildId);
+  [ActionName.AddGuildMembers]: ({
+    guild: guildId, members, clean,
+  }) => {
+    const guild = state.guilds.find(g => g.id === guildId);
     if (!guild) {
       return state;
     }
@@ -83,14 +86,14 @@ const actions: StateActions = {
     return state;
   },
   [ActionName.RemovePagination]: (payload) => {
-    state.allPaginations = state.allPaginations.filter((pagination) => pagination.messageId !== payload.messageId);
+    state.allPaginations = state.allPaginations.filter(pagination => pagination.messageId !== payload.messageId);
     return state;
   },
   [ActionName.GetApplication]: () => state.application,
   [ActionName.GetGuilds]: () => state.guilds,
   [ActionName.GetResumeGateway]: () => state.resumeGatewayUrl,
   [ActionName.GetDiscordSession]: () => state.discordSessionId,
-  [ActionName.GetPagination]: (messageId) => state.allPaginations.find((p) => p.messageId === messageId),
+  [ActionName.GetPagination]: messageId => state.allPaginations.find(p => p.messageId === messageId),
   [ActionName.GetDiscordLastS]: () => state.discordLastS,
   [ActionName.SetReadyData]: (data) => {
     setUser(data.user);
@@ -103,25 +106,21 @@ const actions: StateActions = {
     }
   },
   [ActionName.CommandExecuted]: (data) => {
-    if (data.type === InteractionType.APPLICATION_COMMAND) {
-      return handleApplicationCommand(data as Interaction<InteractionData>);
+    if (data.type === InteractionType.ApplicationCommand) {
+      return handleApplicationCommand(data);
     }
 
     if (
-      data.type === InteractionType.MESSAGE_COMPONENT ||
-      data.type === InteractionType.MODAL_SUBMIT
+      data.type === InteractionType.MessageComponent
+      || data.type === InteractionType.ModalSubmit
     ) {
-      const componentData = data as Interaction<
-        MessageComponentInteractionData | ModalSubmitInteractionData
-      >;
-
-      if (componentData.data?.custom_id.startsWith("pagination.")) {
-        return handlePaginationComponent(componentData as Interaction<MessageComponentInteractionData>);
+      if (data.data?.custom_id.startsWith("pagination.")) {
+        return handlePaginationComponent(data as APIMessageComponentInteraction);
       }
 
       for (const module of state.modules) {
-        if (componentData.data?.custom_id.startsWith(module.name)) {
-          module.interactionComponentExecute(componentData);
+        if (data.data?.custom_id.startsWith(module.name)) {
+          module.interactionComponentExecute(data);
           return;
         }
       }
@@ -130,7 +129,7 @@ const actions: StateActions = {
 
     throw new Error("Unknown interaction type");
   },
-  [ActionName.SetModules]: (payload) => state.modules = payload
+  [ActionName.SetModules]: payload => state.modules = payload,
 };
 
 export const setUser = actions[ActionName.SetUser];
@@ -138,9 +137,9 @@ export const addGuild = actions[ActionName.AddGuild];
 export const setApplication = actions[ActionName.SetApplication];
 export const setResumeGateway = actions[ActionName.SetResumeGateway];
 export const setReadyCallback = actions[ActionName.SetReadyCallback];
-export const setCommandExecutedCallback =
-  actions[ActionName.SetCommandExecutedCallback];
-export const setReactionCallback = actions[ActionName.SetReactionCallback];
+export const setCommandExecutedCallback
+  = actions[ActionName.SetCommandExecutedCallback];
+// export const setReactionCallback = actions[ActionName.SetReactionCallback];
 export const addPagination = actions[ActionName.AddPagination];
 export const setDiscordSession = actions[ActionName.SetDiscordSession];
 export const setDiscordLastS = actions[ActionName.SetDiscordLastS];
@@ -155,18 +154,18 @@ export const setReadyData = actions[ActionName.SetReadyData];
 export const commandExecuted = actions[ActionName.CommandExecuted];
 export const setModules = actions[ActionName.SetModules];
 
-const handleApplicationCommand = (data: Interaction<InteractionData>) => {
+const handleApplicationCommand = (data: APIApplicationCommandInteraction) => {
   const callback = state.commandExecutedCallback;
 
   for (const cb of callback) {
     cb(data);
   }
 };
-const handlePaginationComponent = (componentData: Interaction<MessageComponentInteractionData>) => {
+const handlePaginationComponent = (componentData: APIMessageComponentInteraction) => {
   const pagination = getPagination(componentData.message?.id || "");
   pagination?.handlePage(
     componentData.id,
     componentData.token,
-    componentData.data as MessageComponentInteractionData
+    componentData.data,
   );
 };

@@ -1,25 +1,20 @@
-import BaseModule from "#/base-module";
+import BaseModule, { ComponentCommandHandler, SingleCommandHandler } from "#/base-module";
 
-import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
-import messageList from "@/helper/messages";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
 import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandType,
-  AvailableLocales,
-  ComponentCommandHandler,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType,
-  Message,
-  SingleCommandHandler
-} from "@/types/discord";
+import messageList from "@/helper/messages";
 
+import {
+  APIMessageApplicationCommandInteractionData,
+  ApplicationCommandType,
+  InteractionResponseType,
+  Locale,
+  MessageFlags,
+} from "discord-api-types/v10";
 import handleTraceMoe from "./traceMoe/trace-moe";
 
 export default class SauceAnimeModule extends BaseModule {
-  constructor (isActive: boolean) {
+  constructor(isActive: boolean) {
     super("sauce", isActive, "Sauce (anime)");
 
     if (!isActive) {
@@ -27,47 +22,43 @@ export default class SauceAnimeModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
-      "Handles everything related to achievements";
+    this.commandDescription[Locale.EnglishUS]
+      = "Handles everything related to achievements";
 
     this.singleCommand = {
       definition: {
         name: "Sauce (anime)",
-        type: ApplicationCommandType.MESSAGE
+        type: ApplicationCommandType.Message,
       },
       handler: this.commandHandler,
-      componentHandler: this.componentHandler
+      componentHandler: this.componentHandler,
     };
   }
 
   private commandHandler: SingleCommandHandler = async (data) => {
+    const responseData = data.data as APIMessageApplicationCommandInteractionData | undefined;
     const app = getApplication();
     if (app && app.id) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL
-        }
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+        data: { flags: MessageFlags.Ephemeral },
       });
 
-      const msgs = (
-        Object.values(data.data?.resolved?.messages ?? {}) as Message[]
-      )
-        .map((m) => {
-          if (m.attachments.length) {
-            return m.attachments[0].url || null;
-          }
-          if (m.embeds.length) {
-            return m.embeds.find((e) => e.type === "image")?.url || null;
-          }
-          return null;
-        })
-        .filter((m) => m !== null);
+      const msgs
+        = Object.values(responseData?.resolved?.messages ?? {})
+          .map((m) => {
+            if (m.attachments.length) {
+              return m.attachments[0].url || null;
+            }
+            if (m.embeds.length) {
+              return m.embeds.find(e => e.type === "image")?.url || null;
+            }
+            return null;
+          })
+          .filter(m => m !== null);
 
       if (!msgs.length) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.sauce.image_not_found
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.sauce.image_not_found });
         return;
       }
 
@@ -79,17 +70,19 @@ export default class SauceAnimeModule extends BaseModule {
 
   private componentHandler: ComponentCommandHandler = async (data) => {
     const app = getApplication();
-    if (app && app.id && data.message && data.channel_id) {
+    if (app && app.id && data.message) {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: data.message.content,
           embeds: [
-            { ...data.message.embeds[0],
-              footer: undefined }
+            {
+              ...data.message.embeds[0],
+              footer: undefined,
+            },
           ],
-          components: []
-        }
+          components: [],
+        },
       });
     }
   };

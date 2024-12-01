@@ -1,16 +1,12 @@
-import { getServer } from "@/database";
+import { APIInteractionGuildMember } from "discord-api-types/v10";
 import { getGuilds } from "@/state/store";
-import {
-  GuildMember,
-  MessageReactionAdd,
-  MessageReactionRemove
-} from "@/types/discord";
+import { getServer } from "@/database";
 
 import fs from "fs";
 import https from "https";
 
 export enum string_constants {
-  endpoint_wrong_response = "Wrong reply from `<endpoint>`"
+  endpoint_wrong_response = "Wrong reply from `<endpoint>`",
 }
 
 /**
@@ -20,7 +16,7 @@ export enum string_constants {
  */
 export const interpolator = (
   str: string,
-  replace: Record<string, string | number>
+  replace: Record<string, string | number>,
 ): string => {
   let result = str;
   for (const s in replace) {
@@ -32,27 +28,6 @@ export const interpolator = (
   return result;
 };
 
-/**
- * Checks if the user that reacted is a bot or an actual user
- * @param data Message reaction data
- * @param remove Is the reaction a removal
- */
-export const isValidReactionUser = (
-  data: MessageReactionAdd | MessageReactionRemove,
-  remove: boolean
-): boolean => {
-  if (remove) {
-    return true;
-  }
-
-  const d: MessageReactionAdd = data as MessageReactionAdd;
-  return !!(d.member && d.member.user && !d.member.user.bot);
-};
-
-/**
- * Converts a value in seconds into a string of MM:SS
- * @param seconds Time in seconds
- */
 export const formatSecondsIntoMinutes = (seconds: number): string => {
   const mins = Math.trunc(seconds / 60);
   const minsString = mins.toString().padStart(2, "0");
@@ -82,13 +57,13 @@ export const randomNum = (min: number, max: number): number => Math.floor(Math.r
  */
 export const checkAdmin = async (
   server?: string,
-  member?: GuildMember
+  member?: APIInteractionGuildMember,
 ): Promise<boolean> => {
   if (!server || !member) {
     return false;
   }
 
-  const guild = getGuilds().find((g) => g.id === server);
+  const guild = getGuilds().find(g => g.id === server);
 
   if (!guild || !member.user) {
     return false;
@@ -122,12 +97,12 @@ export const getDayInfo = (day = new Date()): DayInfo => ({
   hours: day.getHours(),
   minutes: day.getMinutes(),
   seconds: day.getSeconds(),
-  milliseconds: day.getMilliseconds()
+  milliseconds: day.getMilliseconds(),
 });
 
 export const downloadFile = async (
   url: string,
-  dest: string
+  dest: string,
 ): Promise<boolean> => new Promise((resolve) => {
   const file = fs.createWriteStream(dest);
 
@@ -149,7 +124,7 @@ export const downloadFile = async (
 
 export const moveFile = async (
   source: string,
-  destination: string
+  destination: string,
 ): Promise<boolean> => new Promise((resolve) => {
   fs.rename(source, destination, (err: NodeJS.ErrnoException | null) => {
     resolve(!err);
@@ -166,7 +141,8 @@ export const limitString = (str: string, limit: number, ellipsis = true) => {
   if (str.length > limit) {
     if (ellipsis) {
       return str.slice(0, limit - 4) + " (…)";
-    } else {
+    }
+    else {
       return str.slice(0, limit);
     }
   }

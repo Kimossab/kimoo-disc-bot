@@ -1,60 +1,54 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 import { getBirthdaysByMonth, getUserBirthday } from "#birthday/database";
 
 import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
+  APIApplication,
+  APIApplicationCommandOption,
+  APIInteraction,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+} from "discord-api-types/v10";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
+import { getApplication } from "@/state/store";
+import { getOptions } from "@/helper/modules";
 import { interpolator } from "@/helper/common";
 import { no_mentions } from "@/helper/constants";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import { getOptions } from "@/helper/modules";
-import { getApplication } from "@/state/store";
-import {
-  Application,
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  Interaction,
-  InteractionCallbackType
-} from "@/types/discord";
 
 interface GetCommandOptions {
   user: string;
   month: number;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "get",
   description: "Gets someone's birthday from the database",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "user",
       description: "The user whose birthday you're getting",
-      type: ApplicationCommandOptionType.USER
+      type: ApplicationCommandOptionType.User,
     },
     {
       name: "month",
       description: "The users whose birthday is on a certain month",
-      type: ApplicationCommandOptionType.INTEGER
-    }
-  ]
+      type: ApplicationCommandOptionType.Integer,
+    },
+  ],
 };
 
 const handleGetMonthCommand = async (
   logger: Logger,
-  data: Interaction,
-  app: Partial<Application>,
-  month: number
+  data: APIInteraction,
+  app: Partial<APIApplication>,
+  month: number,
 ): Promise<void> => {
   if (!data.guild_id) {
     return Promise.resolve();
   }
-  await createInteractionResponse(data.id, data.token, {
-    type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-  });
+  await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
   const bd = await getBirthdaysByMonth(data.guild_id, month);
 
@@ -70,18 +64,16 @@ const handleGetMonthCommand = async (
   }
 
   if (message === "") {
-    message = interpolator(messageList.birthday.found_zero, {
-      month
-    });
+    message = interpolator(messageList.birthday.found_zero, { month });
   }
 
   await editOriginalInteractionResponse(app.id || "", data.token, {
     content: message,
-    allowed_mentions: no_mentions
+    allowed_mentions: no_mentions,
   });
 
-  logger.info(`Birthday for month ${month} requested in ${data.guild_id} by ` +
-  `${data.member?.user?.username}#${data.member?.user?.discriminator}`);
+  logger.info(`Birthday for month ${month} requested in ${data.guild_id} by `
+    + `${data.member?.user?.username}#${data.member?.user?.discriminator}`);
 };
 const handler = (logger: Logger): CommandHandler => {
   return async (data, option) => {
@@ -89,7 +81,7 @@ const handler = (logger: Logger): CommandHandler => {
     if (app && app.id && data.guild_id) {
       const { user, month } = getOptions<GetCommandOptions>(
         ["user", "month"],
-        option.options
+        option.options,
       );
 
       if (month) {
@@ -109,17 +101,16 @@ const handler = (logger: Logger): CommandHandler => {
         await editOriginalInteractionResponse(app.id, data.token, {
           content: interpolator(messageList.birthday.user, {
             user: `<@${requestedUser}>`,
-            date: birthdayString
+            date: birthdayString,
           }),
-          allowed_mentions: no_mentions
+          allowed_mentions: no_mentions,
         });
         logger.info(`Birthday requested in ${data.guild_id} by ${
           (data.member || data).user?.username
         }#${(data.member || data).user?.discriminator}`);
-      } else {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.birthday.not_found
-        });
+      }
+      else {
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.birthday.not_found });
       }
     }
   };
@@ -127,5 +118,5 @@ const handler = (logger: Logger): CommandHandler => {
 
 export default (logger: Logger): CommandInfo => ({
   definition,
-  handler: handler(logger)
+  handler: handler(logger),
 });

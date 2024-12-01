@@ -1,23 +1,23 @@
 import {
+  InfoWithSchedule,
+  MediaStatus,
+  NextEpisode,
+} from "#anilist/types/graphql";
+import {
   deleteAllSubscriptionsForId,
   getAllSubscriptionsForAnime,
   getAnimeLastAiringById,
-  updateAnimeLastAiring
+  updateAnimeLastAiring,
 } from "#anilist/database";
 import { getFullAiringSchedule } from "#anilist/graphql/graphql";
 import { mapMediaAiringToNewEpisodeEmbed } from "#anilist/mappers/mapMediaAiringToNewEpisodeEmbed";
-import {
-  InfoWithSchedule,
-  MediaStatus,
-  NextEpisode
-} from "#anilist/types/graphql";
 
+import { ILogger } from "@/helper/logger";
 import { getServer } from "@/database";
 import { sendMessage } from "@/discord/rest";
-import { ILogger } from "@/helper/logger";
 
-import { MAX_TIMER } from "./anime-manager-config";
 import { IAnilistRateLimit, RequestStatus } from "./rate-limiter";
+import { MAX_TIMER } from "./anime-manager-config";
 
 interface LastAndNextEpisodeInfo {
   last: NextEpisode | null;
@@ -28,14 +28,14 @@ export const getLastAndNextEpisode = (scheduleInformation: InfoWithSchedule["air
   return (scheduleInformation.nodes ?? []).reduce<LastAndNextEpisodeInfo>(
     (res, info) => {
       if (
-        info.timeUntilAiring <= 0 &&
-        (!res.last || res.last.timeUntilAiring < info.timeUntilAiring)
+        info.timeUntilAiring <= 0
+        && (!res.last || res.last.timeUntilAiring < info.timeUntilAiring)
       ) {
         res.last = info;
       }
       if (
-        info.timeUntilAiring > 0 &&
-        (!res.next || res.next.timeUntilAiring > info.timeUntilAiring)
+        info.timeUntilAiring > 0
+        && (!res.next || res.next.timeUntilAiring > info.timeUntilAiring)
       ) {
         res.next = info;
       }
@@ -43,56 +43,55 @@ export const getLastAndNextEpisode = (scheduleInformation: InfoWithSchedule["air
     },
     {
       last: null,
-      next: null
-    }
+      next: null,
+    },
   );
 };
 
 export class AnimeManager {
   private timer: NodeJS.Timeout | undefined;
 
-  public get id (): number {
+  public get id(): number {
     return this.animeId;
   }
 
-  constructor (
+  constructor(
     private logger: ILogger,
     private rateLimiter: IAnilistRateLimit,
     private animeId: number,
-    private onDelete: (id: number) => void
+    private onDelete: (id: number) => void,
   ) {}
 
-  public stop () {
+  public stop() {
     if (this.timer) {
       clearTimeout(this.timer);
     }
   }
 
-  public async checkNextEpisode () {
+  public async checkNextEpisode() {
     const animeInformation = await getFullAiringSchedule(
       this.rateLimiter,
-      this.animeId
+      this.animeId,
     );
 
     if (animeInformation.status === RequestStatus.Not_Found) {
       // todo: to change to info
       this.logger.error(
         "No info about the anime found (probably removed by anilist) - deleting from database",
-        {
-          animeId: this.animeId
-        }
+        { animeId: this.animeId },
       );
 
       if (process.env.OWNER_DM_CHANNEL) {
         await sendMessage(
           process.env.OWNER_DM_CHANNEL,
-          `Deleting anilist - missing info - ${this.animeId}`
+          `Deleting anilist - missing info - ${this.animeId}`,
         );
       }
       await deleteAllSubscriptionsForId(this.animeId, this.logger);
       this.onDelete(this.animeId);
       return;
-    } else if (animeInformation.status !== RequestStatus.OK) {
+    }
+    else if (animeInformation.status !== RequestStatus.OK) {
       this.setTimer(1 * 60 * 1000); // 1 minute
       return;
     }
@@ -103,7 +102,7 @@ export class AnimeManager {
     if (last && last.episode !== Number(lastAiredDb?.lastAired)) {
       this.logger.info("Last aired episode is different from database", {
         db: lastAiredDb,
-        last
+        last,
       });
       await this.notifyNewEpisode(animeInformation.data.Media, last, next);
     }
@@ -112,17 +111,17 @@ export class AnimeManager {
       ![
         MediaStatus.NOT_YET_RELEASED,
         MediaStatus.RELEASING,
-        MediaStatus.HIATUS
+        MediaStatus.HIATUS,
       ].includes(animeInformation.data.Media.status)
     ) {
       this.logger.error(
         "Anime status not one of (NOT_YET_RELEASED,RELEASING,HIATUS) - assuming it's over - deleting from db",
-        animeInformation
+        animeInformation,
       );
       if (process.env.OWNER_DM_CHANNEL) {
         await sendMessage(
           process.env.OWNER_DM_CHANNEL,
-          `Deleting anilist - assuming it's over - ${this.animeId} - ${JSON.stringify(animeInformation.data)}`
+          `Deleting anilist - assuming it's over - ${this.animeId} - ${JSON.stringify(animeInformation.data)}`,
         );
       }
       await deleteAllSubscriptionsForId(this.animeId, this.logger);
@@ -136,23 +135,23 @@ export class AnimeManager {
   private notifyNewEpisode = async (
     animeInfo: InfoWithSchedule,
     episodeInfo: NextEpisode,
-    nextEpisodeInfo: NextEpisode | null
+    nextEpisodeInfo: NextEpisode | null,
   ): Promise<void> => {
     this.logger.info("Notifying for new episode", {
       id: animeInfo.id,
       name: animeInfo.title,
       episodeInfo,
-      nextEpisodeInfo
+      nextEpisodeInfo,
     });
 
     const embed = mapMediaAiringToNewEpisodeEmbed(
       animeInfo,
       episodeInfo,
-      nextEpisodeInfo
+      nextEpisodeInfo,
     );
     const subs = await getAllSubscriptionsForAnime(animeInfo.id);
 
-    const servers = subs.map((s) => s.serverId);
+    const servers = subs.map(s => s.serverId);
     const uniqServers = [...new Set(servers)];
 
     for (const server of uniqServers) {
@@ -160,8 +159,8 @@ export class AnimeManager {
 
       if (channel) {
         const userMentions = subs
-          .filter((s) => s.serverId === server)
-          .map((s) => `<@${s.user}>`)
+          .filter(s => s.serverId === server)
+          .map(s => `<@${s.user}>`)
           .join("\n");
 
         await sendMessage(channel, userMentions, [embed]);

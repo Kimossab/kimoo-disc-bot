@@ -1,15 +1,13 @@
+import { APIEmbed, APIEmbedField } from "discord-api-types/v10";
+import { MediaForAiring } from "../types/graphql";
 import { getLastAndNextEpisode } from "#anilist/helpers/anime-manager";
 
-import { Embed, EmbedField } from "@/types/discord";
-
-import { MediaForAiring } from "../types/graphql";
-
-export const mapMediaAiringToEmbed = (data: MediaForAiring): Embed => {
-  const fields: EmbedField[] = [];
+export const mapMediaAiringToEmbed = (data: MediaForAiring): APIEmbed => {
+  const fields: APIEmbedField[] = [];
   fields.push({
     name: "Names",
     value: `• ${data.title.english}\n• ${data.title.romaji}\n• ${data.title.native}`,
-    inline: false
+    inline: false,
   });
 
   const { next } = getLastAndNextEpisode(data.airingSchedule);
@@ -17,11 +15,11 @@ export const mapMediaAiringToEmbed = (data: MediaForAiring): Embed => {
     fields.push({
       name: "Next episode",
       value: `#${next.episode} - <t:${next.airingAt}:R>`,
-      inline: false
+      inline: false,
     });
   }
 
-  const embed: Embed = {
+  const embed: APIEmbed = {
     title:
       (data.isAdult
         ? "[**NSFW**] "
@@ -32,8 +30,8 @@ export const mapMediaAiringToEmbed = (data: MediaForAiring): Embed => {
     author: {
       name: "Anilist",
       icon_url: "https://avatars.githubusercontent.com/u/18018524?s=200&v=4",
-      url: "https://anilist.co/home"
-    }
+      url: "https://anilist.co/home",
+    },
   };
 
   if (!data.isAdult) {

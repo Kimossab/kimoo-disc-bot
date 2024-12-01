@@ -1,15 +1,14 @@
+import { Locale } from "discord-api-types/v10";
 import BaseModule from "#base-module";
 
-import { AvailableLocales } from "@/types/discord";
-
-import createCommand from "./commands/create.command";
-import { getActiveGiveaways } from "./database";
 import { GiveawayManager } from "./helpers/GiveawayManager";
+import { getActiveGiveaways } from "./database";
+import createCommand from "./commands/create.command";
 
 export default class GiveawayModule extends BaseModule {
   private giveawayManagers: GiveawayManager[] = [];
 
-  constructor (isActive: boolean) {
+  constructor(isActive: boolean) {
     super("giveaway", isActive);
 
     if (!isActive) {
@@ -17,23 +16,23 @@ export default class GiveawayModule extends BaseModule {
       return;
     }
 
-    this.commandDescription[AvailableLocales.English_US] =
-      "Commands related to voting";
+    this.commandDescription[Locale.EnglishUS]
+      = "Commands related to voting";
 
     this.commandList = {
-      create: createCommand(this.logger, (giveaway) => this.giveawayManagers.push(new GiveawayManager(this.logger, giveaway, (id) => {
-        this.giveawayManagers = this.giveawayManagers.filter((g) => g.id !== id);
-      })))
+      create: createCommand(this.logger, giveaway => this.giveawayManagers.push(new GiveawayManager(this.logger, giveaway, (id) => {
+        this.giveawayManagers = this.giveawayManagers.filter(g => g.id !== id);
+      }))),
     };
   }
 
-  public close () {
+  public close() {
     super.close();
-    this.giveawayManagers.forEach((g) => g.close());
+    this.giveawayManagers.forEach(g => g.close());
     this.giveawayManagers = [];
   }
 
-  public async setUp (): Promise<void> {
+  public async setUp(): Promise<void> {
     super.setUp();
     if (!this.isActive) {
       return;
@@ -43,7 +42,7 @@ export default class GiveawayModule extends BaseModule {
 
     for (const giveaway of giveaways) {
       this.giveawayManagers.push(new GiveawayManager(this.logger, giveaway, (id) => {
-        this.giveawayManagers = this.giveawayManagers.filter((g) => g.id !== id);
+        this.giveawayManagers = this.giveawayManagers.filter(g => g.id !== id);
       }));
     }
   }

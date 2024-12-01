@@ -1,7 +1,21 @@
-import { CommandInfo } from "#base-module";
-import { addRole, addRoleCategory, getRoleCategory } from "#roles/database";
+import {
+  CommandHandler,
+  CommandInfo,
+  ComponentCommandHandler,
+} from "#base-module";
+import {
+  addRole,
+  addRoleCategory,
+  getRoleCategory,
+} from "#roles/database";
 
-import { getServer } from "@/database";
+import {
+  APIApplicationCommandOption,
+  APIEmoji,
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+  MessageFlags,
+} from "discord-api-types/v10";
 import {
   createInteractionResponse,
   editOriginalInteractionResponse,
@@ -10,22 +24,14 @@ import {
   getRoles,
   giveRole,
   removeRole,
-  sendMessage
+  sendMessage,
 } from "@/discord/rest";
+import { getApplication } from "@/state/store";
+import { getOptions } from "@/helper/modules";
+import { getServer } from "@/database";
 import { interpolator } from "@/helper/common";
 import Logger from "@/helper/logger";
 import messageList from "@/helper/messages";
-import { getOptions } from "@/helper/modules";
-import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
-  ApplicationCommandOptionType,
-  CommandHandler,
-  ComponentCommandHandler,
-  Emoji,
-  InteractionCallbackDataFlags,
-  InteractionCallbackType
-} from "@/types/discord";
 
 interface CommandOptions {
   category: string;
@@ -33,33 +39,33 @@ interface CommandOptions {
   icon: string | null;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "add",
   description: messageList.roles.add.description,
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "role",
       description: messageList.roles.add.role,
-      type: ApplicationCommandOptionType.ROLE,
-      required: true
+      type: ApplicationCommandOptionType.Role,
+      required: true,
     },
     {
       name: "category",
       description: messageList.roles.add.category,
-      type: ApplicationCommandOptionType.STRING
+      type: ApplicationCommandOptionType.String,
     },
     {
       name: "icon",
       description: messageList.roles.add.icon,
-      type: ApplicationCommandOptionType.STRING
-    }
-  ]
+      type: ApplicationCommandOptionType.String,
+    },
+  ],
 };
 
 const handler = (
   logger: Logger,
-  updateRoleMessages: (server: string) => Promise<void>
+  updateRoleMessages: (server: string) => Promise<void>,
 ): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
@@ -68,25 +74,25 @@ const handler = (
 
       if (!channel) {
         await createInteractionResponse(data.id, data.token, {
-          type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+          type: InteractionResponseType.ChannelMessageWithSource,
           data: {
             content: messageList.roles.errors.no_channel,
-            flags: InteractionCallbackDataFlags.EPHEMERAL
-          }
+            flags: MessageFlags.Ephemeral,
+          },
         });
         return;
       }
 
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL
-        }
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+        data: { flags: MessageFlags.Ephemeral },
       });
 
-      const { role, category, icon } = getOptions<CommandOptions>(
+      const {
+        role, category, icon,
+      } = getOptions<CommandOptions>(
         ["role", "category", "icon"],
-        option.options
+        option.options,
       );
 
       const roleCat = category ?? "Default";
@@ -94,18 +100,14 @@ const handler = (
       const catData = await getRoleCategory(data.guild_id, roleCat);
 
       if (catData && catData.roles.length >= 25) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: interpolator(messageList.roles.errors.too_many_roles, {
-            category: roleCat
-          })
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: interpolator(messageList.roles.errors.too_many_roles, { category: roleCat }) });
         return;
       }
 
       if (!catData) {
         const message = await sendMessage(
           channel,
-          interpolator(messageList.roles.info.category, { category: roleCat })
+          interpolator(messageList.roles.info.category, { category: roleCat }),
         );
         if (!message) {
           logger.error("Failed to create message.");
@@ -113,26 +115,23 @@ const handler = (
         }
 
         await addRoleCategory(data.guild_id, roleCat, message?.id);
-      } else if (catData.roles.find((r) => r.id === role)) {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.roles.errors.duplicate
-        });
+      }
+      else if (catData.roles.find(r => r.id === role)) {
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.roles.errors.duplicate });
         return;
       }
 
-      let emoji: Emoji | undefined;
+      let emoji: APIEmoji | undefined;
 
       if (icon) {
         const emojis = await getEmojis(data.guild_id);
-        emoji = emojis?.find((e) => e.name === icon);
+        emoji = emojis?.find(e => e.name === icon);
       }
 
       await addRole(data.guild_id, roleCat, role, emoji
         ? icon
         : null);
-      await editOriginalInteractionResponse(app.id, data.token, {
-        content: messageList.roles.add.success
-      });
+      await editOriginalInteractionResponse(app.id, data.token, { content: messageList.roles.add.success });
 
       await updateRoleMessages(data.guild_id);
     }
@@ -141,7 +140,7 @@ const handler = (
 
 const componentHandler = (
   logger: Logger,
-  updateRoleMessages: (server: string) => Promise<void>
+  updateRoleMessages: (server: string) => Promise<void>,
 ): ComponentCommandHandler => {
   return async (data, subCmd) => {
     if (!data.guild_id || !data.member?.user) {
@@ -150,11 +149,11 @@ const componentHandler = (
 
     const sendResponse = async (msg: string, updateRoles: boolean = false) => {
       await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          flags: InteractionCallbackDataFlags.EPHEMERAL,
-          content: msg
-        }
+          flags: MessageFlags.Ephemeral,
+          content: msg,
+        },
       });
 
       if (updateRoles) {
@@ -163,7 +162,7 @@ const componentHandler = (
     };
 
     const category = await getRoleCategory(data.guild_id, subCmd[0]);
-    const catRole = category?.roles.find((r) => r.id === subCmd[1]);
+    const catRole = category?.roles.find(r => r.id === subCmd[1]);
     if (!catRole) {
       await sendResponse(messageList.roles.errors.failure, true);
       logger.error("Category or role doesn't exist on the DB");
@@ -171,7 +170,7 @@ const componentHandler = (
     }
 
     const serverRoles = await getRoles(data.guild_id);
-    const role = serverRoles?.find((r) => r.id === catRole.id);
+    const role = serverRoles?.find(r => r.id === catRole.id);
     if (!role) {
       await sendResponse(messageList.roles.errors.failure, true);
       logger.error("Role doesn't exist on the server");
@@ -180,27 +179,24 @@ const componentHandler = (
 
     const member = await getGuildMember(data.guild_id, data.member.user.id);
 
-    if (member?.roles.find((r) => r === role.id)) {
+    if (member?.roles.find(r => r === role.id)) {
       await removeRole(data.guild_id, data.member.user.id, role.id);
 
-      await sendResponse(interpolator(messageList.roles.add.removed, {
-        role: role.name
-      }));
-    } else {
+      await sendResponse(interpolator(messageList.roles.add.removed, { role: role.name }));
+    }
+    else {
       await giveRole(data.guild_id, data.member.user.id, role.id);
 
-      await sendResponse(interpolator(messageList.roles.add.given, {
-        role: role.name
-      }));
+      await sendResponse(interpolator(messageList.roles.add.given, { role: role.name }));
     }
   };
 };
 export default (
   logger: Logger,
-  updateRoleMessages: (server: string) => Promise<void>
+  updateRoleMessages: (server: string) => Promise<void>,
 ): CommandInfo => ({
   definition,
   handler: handler(logger, updateRoleMessages),
   componentHandler: componentHandler(logger, updateRoleMessages),
-  isAdmin: true
+  isAdmin: true,
 });

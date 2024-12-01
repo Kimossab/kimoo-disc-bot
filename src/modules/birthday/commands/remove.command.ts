@@ -1,46 +1,40 @@
-import { CommandInfo } from "#base-module";
+import { CommandHandler, CommandInfo } from "#base-module";
 import { deleteUserBirthday, getUserBirthday } from "#birthday/database";
 
 import {
-  createInteractionResponse,
-  editOriginalInteractionResponse
-} from "@/discord/rest";
-import { checkAdmin } from "@/helper/common";
-import messageList from "@/helper/messages";
-import { getOptions } from "@/helper/modules";
-import { getApplication } from "@/state/store";
-import {
-  ApplicationCommandOption,
+  APIApplicationCommandOption,
   ApplicationCommandOptionType,
-  CommandHandler,
-  InteractionCallbackType
-} from "@/types/discord";
+  InteractionResponseType,
+} from "discord-api-types/v10";
+import { checkAdmin } from "@/helper/common";
+import { createInteractionResponse, editOriginalInteractionResponse } from "@/discord/rest";
+import { getApplication } from "@/state/store";
+import { getOptions } from "@/helper/modules";
+import messageList from "@/helper/messages";
 
 interface RemoveCommandOptions {
   user: string;
 }
 
-const definition: ApplicationCommandOption = {
+const definition: APIApplicationCommandOption = {
   name: "remove",
   description: "Removes someone's birthday from the database",
-  type: ApplicationCommandOptionType.SUB_COMMAND,
+  type: ApplicationCommandOptionType.Subcommand,
   options: [
     {
       name: "user",
       description: "The user whose birthday you're removing",
-      type: ApplicationCommandOptionType.USER,
-      required: true
-    }
-  ]
+      type: ApplicationCommandOptionType.User,
+      required: true,
+    },
+  ],
 };
 
 const handler = (): CommandHandler => {
   return async (data, option) => {
     const app = getApplication();
     if (app && app.id && data.guild_id && data.member) {
-      await createInteractionResponse(data.id, data.token, {
-        type: InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
-      });
+      await createInteractionResponse(data.id, data.token, { type: InteractionResponseType.DeferredChannelMessageWithSource });
 
       const isAdmin = await checkAdmin(data.guild_id, data.member);
 
@@ -49,7 +43,7 @@ const handler = (): CommandHandler => {
       if (isAdmin) {
         const options = getOptions<RemoveCommandOptions>(
           ["user"],
-          option.options
+          option.options,
         );
 
         user = options.user || user;
@@ -59,13 +53,10 @@ const handler = (): CommandHandler => {
 
       if (bd) {
         await deleteUserBirthday(bd.id);
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.birthday.remove_success
-        });
-      } else {
-        await editOriginalInteractionResponse(app.id, data.token, {
-          content: messageList.birthday.not_found
-        });
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.birthday.remove_success });
+      }
+      else {
+        await editOriginalInteractionResponse(app.id, data.token, { content: messageList.birthday.not_found });
       }
     }
   };
@@ -73,5 +64,5 @@ const handler = (): CommandHandler => {
 
 export default (): CommandInfo => ({
   definition,
-  handler: handler()
+  handler: handler(),
 });
