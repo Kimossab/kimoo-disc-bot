@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "commonjs",
+    "module": "ESNext",
     "rootDir": "src",
     "outDir": "build",
     "strict": true,
@@ -16,9 +16,6 @@
       "@/*": [
         "src/*"
       ]
-    },
-  },
-  "exclude": [
-    "./openapi-ts.config.ts"
-  ]
+    }
+  }
 }
