@@ -29,10 +29,16 @@ import Logger from "@/helper/logger";
 
 import WebSocket from "ws";
 
+const MIN_HEARTBEAT_INTERVAL = 1000;
+const MAX_HEARTBEAT_INTERVAL = 120000;
+
 export class Socket {
   private logger = new Logger("socket");
 
   private hbInterval: NodeJS.Timeout | null = null;
+
+  // Timeout used for the initial jittered heartbeat
+  private hbTimeout: NodeJS.Timeout | null = null;
 
   private hbAck = true;
 
@@ -66,7 +72,14 @@ export class Socket {
 
   public disconnect() {
     this.client?.close(1001);
-    this.hbInterval && clearTimeout(this.hbInterval);
+    if (this.hbInterval) {
+      clearInterval(this.hbInterval);
+      this.hbInterval = null;
+    }
+    if (this.hbTimeout) {
+      clearTimeout(this.hbTimeout);
+      this.hbTimeout = null;
+    }
   }
 
   // EVENTS
@@ -79,6 +92,11 @@ export class Socket {
 
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
+      this.hbInterval = null;
+    }
+    if (this.hbTimeout) {
+      clearTimeout(this.hbTimeout);
+      this.hbTimeout = null;
     }
 
     if (e === 4005) {
@@ -143,32 +161,48 @@ export class Socket {
   private onHello(data: GatewayHelloData): void {
     this.logger.info("Received Hello");
 
+    // Clear any existing heartbeat timers
     if (this.hbInterval) {
       clearInterval(this.hbInterval);
+      this.hbInterval = null;
+    }
+    if (this.hbTimeout) {
+      clearTimeout(this.hbTimeout);
+      this.hbTimeout = null;
     }
 
-    // Validate the heartbeat_interval to prevent resource exhaustion
-    const MIN_HEARTBEAT_INTERVAL = 1000;      // 1 second
-    const MAX_HEARTBEAT_INTERVAL = 120000;    // 2 minutes
     const interval = typeof data.heartbeat_interval === "number" ? data.heartbeat_interval : NaN;
     if (
-      !Number.isFinite(interval) ||
-      interval < MIN_HEARTBEAT_INTERVAL ||
-      interval > MAX_HEARTBEAT_INTERVAL
+      !Number.isFinite(interval)
+      || interval < MIN_HEARTBEAT_INTERVAL
+      || interval > MAX_HEARTBEAT_INTERVAL
     ) {
       this.logger.error(
         "Invalid heartbeat_interval received from server",
-        { received: data.heartbeat_interval }
+        { received: data.heartbeat_interval },
       );
       // Close the connection and retry
       this.client?.close();
       return;
     }
 
-    this.hbInterval = setInterval(() => {
+    // Per Discord docs: send the first heartbeat after heartbeat_interval * jitter
+    // where jitter is a random value between 0 and 1. Subsequent heartbeats
+    // should be sent every `interval` milliseconds.
+    const jitter = Math.random();
+    const initialDelay = Math.floor(interval * jitter);
+
+    this.hbTimeout = setTimeout(() => {
       this.sendHeartbeat();
-      this.logger.info("hb", { heartbeat_interval: interval });
-    }, interval);
+      this.logger.info("hb (initial)", { heartbeat_interval: interval, jitter, initialDelay });
+
+      // Start the regular interval after the initial jittered heartbeat
+      this.hbInterval = setInterval(() => {
+        this.sendHeartbeat();
+        this.logger.info("hb", { heartbeat_interval: interval });
+      }, interval);
+      this.hbTimeout = null;
+    }, initialDelay);
 
     const sessionId = getDiscordSession();
     const lastS = getDiscordLastS();
