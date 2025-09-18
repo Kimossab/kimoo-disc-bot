@@ -147,10 +147,28 @@ export class Socket {
       clearInterval(this.hbInterval);
     }
 
+    // Validate the heartbeat_interval to prevent resource exhaustion
+    const MIN_HEARTBEAT_INTERVAL = 1000;      // 1 second
+    const MAX_HEARTBEAT_INTERVAL = 120000;    // 2 minutes
+    const interval = typeof data.heartbeat_interval === "number" ? data.heartbeat_interval : NaN;
+    if (
+      !Number.isFinite(interval) ||
+      interval < MIN_HEARTBEAT_INTERVAL ||
+      interval > MAX_HEARTBEAT_INTERVAL
+    ) {
+      this.logger.error(
+        "Invalid heartbeat_interval received from server",
+        { received: data.heartbeat_interval }
+      );
+      // Close the connection and retry
+      this.client?.close();
+      return;
+    }
+
     this.hbInterval = setInterval(() => {
       this.sendHeartbeat();
-      this.logger.info("hb", { heartbeat_interval: data.heartbeat_interval });
-    }, data.heartbeat_interval);
+      this.logger.info("hb", { heartbeat_interval: interval });
+    }, interval);
 
     const sessionId = getDiscordSession();
     const lastS = getDiscordLastS();
