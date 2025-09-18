@@ -2,25 +2,21 @@
   "name": "kimoo-disc-bot",
   "version": "2.19.0",
   "description": "Kimossab's Discord Bot",
-  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths",
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only ./src/bot.ts",
+    "dev": "tsx watch --inspect ./src/bot.ts",
     "prod": "node ./build/bot.js",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "type:check": "tsc --noEmit --skipLibCheck",
     "type:check:watch": "tsc --noEmit --skipLibCheck -w",
     "migrate:prod": "prisma migrate deploy",
-    "migrate:dev": "prisma migrate dev",
-    "discord-types-gen": "openapi-ts"
+    "migrate:dev": "prisma migrate dev"
   },
   "author": "Kimossab",
   "license": "ISC",
   "devDependencies": {
-    "@jagi/jest-transform-graphql": "^1.0.2",
     "@stylistic/eslint-plugin": "^2.11.0",
-    "@types/request": "^2.48.8",
     "@types/ws": "^8.5.5",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "@typescript-eslint/parser": "^8.16.0",
@@ -31,9 +27,7 @@
     "eslint-plugin-unused-imports": "^4.1.4",
     "lint-staged": "^15.2.10",
     "prisma": "^5.7.1",
-    "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.10",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {
@@ -41,6 +35,7 @@
     "axios": "^1.7.7",
     "dotenv": "^16.3.1",
     "form-data": "^4.0.0",
+    "tsx": "^4.20.5",
     "winston": "^3.10.0",
     "winston-loki": "^6.0.6",
     "ws": "^8.17.1"
