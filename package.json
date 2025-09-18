@@ -2,7 +2,6 @@
   "name": "kimoo-disc-bot",
   "version": "2.19.0",
   "description": "Kimossab's Discord Bot",
-  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json --resolve-full-paths",
     "dev": "tsx watch --inspect ./src/bot.ts",
