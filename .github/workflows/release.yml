@@ -124,5 +124,6 @@ jobs:
           (cd node-v21.x-release && zip -r "$OLDPWD/node-v21.x-release.zip" .)
           (cd node-v22.x-release && zip -r "$OLDPWD/node-v22.x-release.zip" .)
           (cd node-v23.x-release && zip -r "$OLDPWD/node-v23.x-release.zip" .)
+          (cd node-v24.x-release && zip -r "$OLDPWD/node-v24.x-release.zip" .)
       - name: Create Release
         run: gh release create ${{env.new_version}} --generate-notes ./*.zip
